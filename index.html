@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flipp — file converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="logo" href="/">flipp</a>
+    <span class="pipe">|</span>
+    <span class="tagline">file converter</span>
+    <div class="nav-end">
+      <a class="nav-link" href="#pdf-to-img">PDF → PNG</a>
+      <a class="nav-link" href="#img-to-pdf">IMG → PDF</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-badge">✦ no uploads. no servers. 100% local.</div>
+        <h1 class="hero-headline">Stop dilly<br/>dallying.<br/>Convert<br/>your files.</h1>
+        <p class="hero-sub">PDF to PNG. PNG to PDF. Done in seconds — everything runs in your browser, nothing leaves your device.</p>
+        <div class="hero-actions">
+          <a href="#pdf-to-img" class="cta-btn cta-yellow">PDF → Images ↓</a>
+          <a href="#img-to-pdf" class="cta-btn cta-pink">Images → PDF ↓</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="browser-mock">
+          <div class="browser-chrome">
+            <div class="traffic-lights">
+              <span class="tl red"></span>
+              <span class="tl yellow"></span>
+              <span class="tl green"></span>
+            </div>
+            <div class="browser-url">flipp.app</div>
+          </div>
+          <div class="browser-body">
+            <div class="file-stack">
+              <div class="file-card fc-back fc-back-2">
+                <div class="file-icon">📄</div>
+                <div class="file-label">Report.pdf</div>
+              </div>
+              <div class="file-card fc-back">
+                <div class="file-icon">🖼️</div>
+                <div class="file-label">Photo.png</div>
+              </div>
+              <div class="file-card fc-front">
+                <div class="drop-zone-inner">
+                  <div class="dz-icon">⬆</div>
+                  <div class="dz-text">Drop a file here</div>
+                  <div class="dz-sub">PDF, PNG, or JPG</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-decoration">
+          <div class="deco-pill deco-1">✓ client-side only</div>
+          <div class="deco-pill deco-2">✓ free forever</div>
+          <div class="deco-pill deco-3">✓ no sign-up</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works">
+    <div class="section-inner">
+      <h2 class="section-headline">How it works. 🥧</h2>
+      <div class="steps-row">
+        <div class="step-card" style="background: var(--yellow)">
+          <div class="step-num">01</div>
+          <div class="step-title">Drop your file</div>
+          <div class="step-body">Drag and drop a PDF or image directly into the converter below.</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card" style="background: var(--sky-blue)">
+          <div class="step-num">02</div>
+          <div class="step-title">Pick your format</div>
+          <div class="step-body">Choose PDF→PNG or image→PDF. All processing happens in-browser using PDF.js and jsPDF.</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card" style="background: var(--mint)">
+          <div class="step-num">03</div>
+          <div class="step-title">Download instantly</div>
+          <div class="step-body">Your converted file is ready immediately. Nothing is stored or transmitted.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF TO IMAGES -->
+  <section class="converter-section" id="pdf-to-img" style="background: var(--light-blue)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--yellow)">PDF → PNG</div>
+        <h2 class="converter-title">PDF to Images</h2>
+        <p class="converter-desc">Convert every page of a PDF into a crisp PNG image. Perfect for previews, thumbnails, or sharing individual pages.</p>
+      </div>
+
+      <div class="drop-zone" id="pdf-drop-zone" data-mode="pdf-to-img">
+        <input type="file" id="pdf-file-input" accept=".pdf" hidden />
+        <div class="dz-content" id="pdf-dz-content">
+          <div class="dz-upload-icon">📄</div>
+          <div class="dz-headline">Drop your PDF here</div>
+          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('pdf-file-input').click()">browse files</button></div>
+          <div class="dz-formats">Accepts: .pdf only</div>
+        </div>
+      </div>
+
+      <!-- PDF Options -->
+      <div class="options-bar" id="pdf-options" style="display:none">
+        <div class="option-group">
+          <label class="option-label">Quality / Scale</label>
+          <div class="option-pills" id="pdf-scale-pills">
+            <button class="opt-pill active" data-value="1">1× (72dpi)</button>
+            <button class="opt-pill" data-value="2">2× (144dpi)</button>
+            <button class="opt-pill" data-value="3">3× (216dpi)</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label class="option-label">Pages</label>
+          <div class="option-pills" id="pdf-pages-pills">
+            <button class="opt-pill active" data-value="all">All pages</button>
+            <button class="opt-pill" data-value="range">Custom range</button>
+          </div>
+        </div>
+        <div class="option-group" id="pdf-range-group" style="display:none">
+          <label class="option-label">Page range (e.g. 1-3, 5)</label>
+          <input type="text" class="range-input" id="pdf-range-input" placeholder="1-3, 5, 7" />
+        </div>
+      </div>
+
+      <!-- PDF Preview -->
+      <div class="preview-area" id="pdf-preview-area" style="display:none">
+        <div class="preview-header">
+          <span class="preview-count" id="pdf-page-count"></span>
+          <button class="cta-btn cta-pink" id="pdf-convert-btn">Convert All Pages →</button>
+        </div>
+        <div class="preview-grid" id="pdf-preview-grid"></div>
+      </div>
+
+      <!-- PDF Progress -->
+      <div class="progress-area" id="pdf-progress" style="display:none">
+        <div class="progress-label" id="pdf-progress-label">Converting page 1…</div>
+        <div class="progress-track">
+          <div class="progress-bar" id="pdf-progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- PDF Results -->
+      <div class="results-area" id="pdf-results" style="display:none">
+        <div class="results-header">
+          <span class="results-title">✓ Conversion complete!</span>
+          <button class="cta-btn cta-mint" id="pdf-download-all-btn">Download All as ZIP 📦</button>
+        </div>
+        <div class="results-grid" id="pdf-results-grid"></div>
+        <button class="reset-btn" id="pdf-reset-btn">Convert another file ↺</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMAGES TO PDF -->
+  <section class="converter-section" id="img-to-pdf" style="background: var(--blush-pink)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--pink)">IMG → PDF</div>
+        <h2 class="converter-title">Images to PDF</h2>
+        <p class="converter-desc">Combine one or more PNG or JPG images into a single PDF. Reorder pages by dragging before you convert.</p>
+      </div>
+
+      <div class="drop-zone" id="img-drop-zone" data-mode="img-to-pdf">
+        <input type="file" id="img-file-input" accept=".png,.jpg,.jpeg" multiple hidden />
+        <div class="dz-content" id="img-dz-content">
+          <div class="dz-upload-icon">🖼️</div>
+          <div class="dz-headline">Drop images here</div>
+          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('img-file-input').click()">browse files</button></div>
+          <div class="dz-formats">Accepts: .png, .jpg, .jpeg — multiple files OK</div>
+        </div>
+      </div>
+
+      <!-- Image options -->
+      <div class="options-bar" id="img-options" style="display:none">
+        <div class="option-group">
+          <label class="option-label">Page size</label>
+          <div class="option-pills" id="img-size-pills">
+            <button class="opt-pill active" data-value="auto">Auto (fit image)</button>
+            <button class="opt-pill" data-value="a4">A4</button>
+            <button class="opt-pill" data-value="letter">US Letter</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label class="option-label">Orientation</label>
+          <div class="option-pills" id="img-orient-pills">
+            <button class="opt-pill active" data-value="portrait">Portrait</button>
+            <button class="opt-pill" data-value="landscape">Landscape</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label class="option-label">Output filename</label>
+          <input type="text" class="range-input" id="img-filename-input" placeholder="converted.pdf" value="converted.pdf" />
+        </div>
+      </div>
+
+      <!-- Image preview / reorder -->
+      <div class="preview-area" id="img-preview-area" style="display:none">
+        <div class="preview-header">
+          <span class="preview-count" id="img-file-count"></span>
+          <button class="cta-btn cta-yellow" id="img-add-more-btn">+ Add more images</button>
+          <button class="cta-btn cta-pink" id="img-convert-btn">Build PDF →</button>
+        </div>
+        <div class="img-reorder-hint">Drag cards to reorder pages</div>
+        <div class="img-preview-grid" id="img-preview-grid"></div>
+      </div>
+
+      <!-- Image Progress -->
+      <div class="progress-area" id="img-progress" style="display:none">
+        <div class="progress-label" id="img-progress-label">Building PDF…</div>
+        <div class="progress-track">
+          <div class="progress-bar" id="img-progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- Image Results -->
+      <div class="results-area" id="img-results" style="display:none">
+        <div class="results-header">
+          <span class="results-title">✓ PDF ready!</span>
+          <button class="cta-btn cta-pink" id="img-download-btn">Download PDF 📄</button>
+        </div>
+        <div class="img-result-info" id="img-result-info"></div>
+        <button class="reset-btn" id="img-reset-btn">Convert more images ↺</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST SECTION -->
+  <section class="trust-section">
+    <div class="section-inner trust-inner">
+      <h2 class="trust-headline">Your files never leave<br/>your browser. 🔒</h2>
+      <div class="trust-pills-row">
+        <div class="trust-pill">No uploads to any server</div>
+        <div class="trust-pill">No account needed</div>
+        <div class="trust-pill">Works offline</div>
+        <div class="trust-pill">Open source libraries</div>
+        <div class="trust-pill">PDF.js by Mozilla</div>
+        <div class="trust-pill">jsPDF conversion</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">flipp</div>
+      <div class="footer-copy">Built in-browser. Powered by PDF.js + jsPDF. No servers harmed. ✦</div>
+    </div>
+  </footer>
+
+  <!-- LIBRARIES: JSZip + jsPDF as UMD globals -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- PDF.js loaded as ES module, exposed on window for app modules -->
+  <script type="module">
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
+    window['pdfjs-dist/build/pdf'] = pdfjsLib;
+  </script>
+
+  <!-- App modules -->
+  <script src="js/pdf-to-img.js" type="module"></script>
+  <script src="js/img-to-pdf.js" type="module"></script>
+</body>
+</html>
