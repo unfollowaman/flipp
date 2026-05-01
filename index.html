@@ -19,6 +19,8 @@
     <div class="nav-end">
       <a class="nav-link" href="#pdf-to-img">PDF → PNG</a>
       <a class="nav-link" href="#img-to-pdf">IMG → PDF</a>
+      <a class="nav-link" href="#pdf-merge">Merge PDF</a>
+      <a class="nav-link" href="#pdf-split">Split PDF</a>
     </div>
   </nav>
 
@@ -32,6 +34,8 @@
         <div class="hero-actions">
           <a href="#pdf-to-img" class="cta-btn cta-yellow">PDF → Images ↓</a>
           <a href="#img-to-pdf" class="cta-btn cta-pink">Images → PDF ↓</a>
+          <a href="#pdf-merge" class="cta-btn cta-mint">Merge PDF ↓</a>
+          <a href="#pdf-split" class="cta-btn cta-sky">Split PDF ↓</a>
         </div>
       </div>
       <div class="hero-visual">
@@ -243,6 +247,59 @@
     </div>
   </section>
 
+
+
+  <!-- PDF MERGE -->
+  <section class="converter-section" id="pdf-merge" style="background: var(--cream)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--mint)">MERGE PDF</div>
+        <h2 class="converter-title">Merge PDFs</h2>
+      </div>
+      <div class="drop-zone" id="merge-drop-zone">
+        <input type="file" id="merge-file-input" accept=".pdf" multiple hidden />
+        <div class="dz-content"><div class="dz-headline">Drop PDF files here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('merge-file-input').click()">browse files</button></div></div>
+      </div>
+      <div class="preview-area" id="merge-preview-area" style="display:none">
+        <div class="preview-header"><span class="preview-count" id="merge-file-count"></span><button class="cta-btn cta-pink" id="merge-btn">Merge PDFs →</button></div>
+        <ul id="merge-file-list"></ul>
+      </div>
+      <div class="results-area" id="merge-results" style="display:none">
+        <button class="cta-btn cta-mint" id="merge-download-btn">Download merged.pdf</button>
+        <button class="reset-btn" id="merge-reset-btn">Reset ↺</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF SPLIT -->
+  <section class="converter-section" id="pdf-split" style="background: var(--light-blue)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--sky-blue)">SPLIT PDF</div>
+        <h2 class="converter-title">Split PDF Pages</h2>
+      </div>
+      <div class="drop-zone" id="split-drop-zone">
+        <input type="file" id="split-file-input" accept=".pdf" hidden />
+        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('split-file-input').click()">browse file</button></div></div>
+      </div>
+      <div class="preview-area" id="split-preview-area" style="display:none">
+        <div class="preview-header"><span class="preview-count" id="split-info"></span><button class="cta-btn cta-pink" id="split-btn">Split Pages →</button></div>
+        <div class="option-group" style="margin-top:12px">
+          <label class="option-label" for="split-range-start">Split range (first output)</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input type="number" min="1" class="range-input" id="split-range-start" placeholder="From page" style="max-width:160px" />
+            <span>to</span>
+            <input type="number" min="1" class="range-input" id="split-range-end" placeholder="To page" style="max-width:160px" />
+          </div>
+        </div>
+      </div>
+      <div class="results-area" id="split-results" style="display:none">
+        <div id="split-downloads" style="display:flex;flex-wrap:wrap;gap:10px"></div>
+        <button class="reset-btn" id="split-reset-btn">Reset ↺</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TRUST SECTION -->
   <section class="trust-section">
     <div class="section-inner trust-inner">
@@ -269,6 +326,7 @@
   <!-- LIBRARIES: JSZip + jsPDF as UMD globals -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
   <!-- PDF.js loaded as ES module, exposed on window for app modules -->
   <script type="module">
@@ -281,5 +339,7 @@
   <!-- App modules -->
   <script src="js/pdf-to-img.js" type="module"></script>
   <script src="js/img-to-pdf.js" type="module"></script>
+  <script src="js/pdf-merge.js" type="module"></script>
+  <script src="js/pdf-split.js" type="module"></script>
 </body>
 </html>
