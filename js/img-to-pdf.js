@@ -53,6 +53,7 @@ orientPills.addEventListener('click', (e) => {
   activatePill(orientPills, pill.dataset.value);
 });
 
+
 // ── Add files ───────────────────────────────────────────
 function addImageFiles(files) {
   const allowed = ['image/png', 'image/jpeg', 'image/jpg'];
