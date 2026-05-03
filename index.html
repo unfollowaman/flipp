@@ -20,6 +20,7 @@
       <a class="nav-link" href="#pdf-to-img">PDF → PNG</a>
       <a class="nav-link" href="#img-to-pdf">IMG → PDF</a>
       <a class="nav-link" href="#pdf-merge">Merge PDF</a>
+      <a class="nav-link" href="#pdf-protect">Protect PDF</a>
       <a class="nav-link" href="#pdf-split">Split PDF</a>
     </div>
   </nav>
@@ -35,6 +36,7 @@
           <a href="#pdf-to-img" class="cta-btn cta-yellow">PDF → Images ↓</a>
           <a href="#img-to-pdf" class="cta-btn cta-pink">Images → PDF ↓</a>
           <a href="#pdf-merge" class="cta-btn cta-mint">Merge PDF ↓</a>
+          <a href="#pdf-protect" class="cta-btn cta-yellow">Protect PDF ↓</a>
           <a href="#pdf-split" class="cta-btn cta-sky">Split PDF ↓</a>
         </div>
       </div>
@@ -149,7 +151,7 @@
       <div class="preview-area" id="pdf-preview-area" style="display:none">
         <div class="preview-header">
           <span class="preview-count" id="pdf-page-count"></span>
-          <button class="cta-btn cta-pink" id="pdf-convert-btn">Convert All Pages →</button>
+          <button class="cta-btn cta-pink" id="pdf-convert-btn"><img class="cta-icon" src="https://img.icons8.com/arcade/64/pdf.png" alt="pdf" width="20" height="20" />Convert All Pages →</button>
         </div>
         <div class="preview-grid" id="pdf-preview-grid"></div>
       </div>
@@ -271,6 +273,41 @@
     </div>
   </section>
 
+
+
+  <!-- PROTECT PDF -->
+  <section class="converter-section" id="pdf-protect" style="background: var(--blush-pink)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--yellow)">PROTECT PDF</div>
+        <h2 class="converter-title">Protect PDF</h2>
+        <p class="converter-desc">Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.</p>
+      </div>
+      <div class="drop-zone" id="protect-drop-zone">
+        <input type="file" id="protect-file-input" accept=".pdf" hidden />
+        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('protect-file-input').click()">browse file</button></div></div>
+      </div>
+      <div class="preview-area" id="protect-preview-area" style="display:none">
+        <div class="preview-header"><span class="preview-count" id="protect-info"></span><button class="cta-btn cta-pink" id="protect-btn">Protect PDF →</button></div>
+        <div class="option-group" style="margin-top:12px">
+          <label class="option-label" for="protect-password">Password</label>
+          <input type="password" class="range-input" id="protect-password" placeholder="Enter password" style="max-width:320px" />
+        </div>
+        <div class="option-group" style="margin-top:12px">
+          <label class="option-label" for="protect-password-confirm">Confirm password</label>
+          <input type="password" class="range-input" id="protect-password-confirm" placeholder="Re-enter password" style="max-width:320px" />
+        </div>
+      </div>
+      <div class="results-area" id="protect-results" style="display:none">
+        <div class="results-header">
+          <span class="results-title">✓ Protected PDF ready!</span>
+          <button class="cta-btn cta-mint" id="protect-download-btn">Download protected PDF 🔐</button>
+        </div>
+        <button class="reset-btn" id="protect-reset-btn">Protect another file ↺</button>
+      </div>
+    </div>
+  </section>
+
   <!-- PDF SPLIT -->
   <section class="converter-section" id="pdf-split" style="background: var(--light-blue)">
     <div class="section-inner">
@@ -340,6 +377,7 @@
   <script src="js/pdf-to-img.js" type="module"></script>
   <script src="js/img-to-pdf.js" type="module"></script>
   <script src="js/pdf-merge.js" type="module"></script>
+  <script src="js/pdf-protect.js" type="module"></script>
   <script src="js/pdf-split.js" type="module"></script>
 </body>
 </html>
