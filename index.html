@@ -22,6 +22,7 @@
       <a class="nav-link" href="#pdf-merge">Merge PDF</a>
       <a class="nav-link" href="#pdf-protect">Protect PDF</a>
       <a class="nav-link" href="#pdf-split">Split PDF</a>
+      <a class="nav-link" href="#pdf-page-numbers">Page Numbers</a>
     </div>
   </nav>
 
@@ -38,6 +39,7 @@
           <a href="#pdf-merge" class="cta-btn cta-mint">Merge PDF ↓</a>
           <a href="#pdf-protect" class="cta-btn cta-yellow">Protect PDF ↓</a>
           <a href="#pdf-split" class="cta-btn cta-sky">Split PDF ↓</a>
+          <a href="#pdf-page-numbers" class="cta-btn cta-mint">Page Numbers ↓</a>
         </div>
       </div>
       <div class="hero-visual">
@@ -249,6 +251,45 @@
     </div>
   </section>
 
+  <!-- PDF PAGE NUMBERS -->
+  <section class="converter-section" id="pdf-page-numbers" style="background: var(--cream)">
+    <div class="section-inner">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--yellow)">PAGE NUMBERS</div>
+        <h2 class="converter-title">Add Page Numbers</h2>
+        <p class="converter-desc">Add page numbers to an existing PDF. Choose the page to start from and exactly where the numbers should appear.</p>
+      </div>
+      <div class="drop-zone" id="number-drop-zone">
+        <input type="file" id="number-file-input" accept=".pdf" hidden />
+        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('number-file-input').click()">browse file</button></div></div>
+      </div>
+      <div class="preview-area" id="number-preview-area" style="display:none">
+        <div class="preview-header"><span class="preview-count" id="number-info"></span><button class="cta-btn cta-pink" id="number-btn">Add Page Numbers →</button></div>
+        <div class="options-bar" style="margin-top:12px">
+          <div class="option-group">
+            <label class="option-label" for="number-start-page">Page numbers start from</label>
+            <input type="number" min="1" class="range-input" id="number-start-page" value="1" placeholder="1" />
+          </div>
+          <div class="option-group option-group-page-numbering">
+            <label class="option-label">Page number position</label>
+            <div class="page-number-position-grid" id="number-page-position">
+              <button class="position-card active" type="button" data-value="bottom-right"><span class="position-preview position-bottom-right"></span><span class="position-label">Bottom right</span></button>
+              <button class="position-card" type="button" data-value="top-right"><span class="position-preview position-top-right"></span><span class="position-label">Top right</span></button>
+              <button class="position-card" type="button" data-value="bottom-center"><span class="position-preview position-bottom-center"></span><span class="position-label">Bottom center</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="results-area" id="number-results" style="display:none">
+        <div class="results-header">
+          <span class="results-title">✓ Numbered PDF ready!</span>
+          <button class="cta-btn cta-mint" id="number-download-btn">Download numbered PDF 🔢</button>
+        </div>
+        <button class="reset-btn" id="number-reset-btn">Reset ↺</button>
+      </div>
+    </div>
+  </section>
+
 
 
   <!-- PDF MERGE -->
@@ -379,5 +420,6 @@
   <script src="js/pdf-merge.js" type="module"></script>
   <script src="js/pdf-protect.js" type="module"></script>
   <script src="js/pdf-split.js" type="module"></script>
+  <script src="js/pdf-page-numbers.js" type="module"></script>
 </body>
 </html>
