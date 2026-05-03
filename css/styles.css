@@ -832,6 +832,12 @@ button { font-family: inherit; }
   color: var(--black);
   font-family: inherit;
 }
+.cta-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 .cta-btn:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-hard);
