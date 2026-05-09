@@ -1,4 +1,4 @@
-import { initDropZone, showToast } from './drag-drop.js';
+import { initDropZone, showToast } from '/js/drag-drop.js';
 
 let pdfFile = null;
 let protectedBlob = null;
