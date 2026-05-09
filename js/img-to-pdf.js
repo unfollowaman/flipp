@@ -1,6 +1,6 @@
 // img-to-pdf.js — PNG/JPG → PDF conversion using jsPDF
 
-import { initDropZone, showToast, setProgress } from './drag-drop.js';
+import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
 
 // ── State ──────────────────────────────────────────────
 let imageFiles   = []; // { file, objectUrl, name }
