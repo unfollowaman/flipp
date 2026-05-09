@@ -1,6 +1,6 @@
 // pdf-to-img.js — PDF → PNG conversion using PDF.js
 
-import { initDropZone, showToast, setProgress } from './drag-drop.js';
+import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
 
 // ── State ──────────────────────────────────────────────
 let pdfDoc        = null;
