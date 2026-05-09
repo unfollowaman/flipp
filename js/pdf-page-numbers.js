@@ -1,6 +1,4 @@
-import { initDropZone, showToast } from './drag-drop.js';
-
-const { PDFDocument, StandardFonts, rgb } = window.PDFLib || {};
+import { initDropZone, showToast } from '/js/drag-drop.js';
 
 const dropZoneEl = document.getElementById('number-drop-zone');
 const fileInputEl = document.getElementById('number-file-input');
@@ -39,9 +37,12 @@ positionEl.addEventListener('click', (e) => {
 addBtn.addEventListener('click', async () => {
   if (!sourceFile) return;
   try {
+    const pdfLib = window.PDFLib;
+    if (!pdfLib) throw new Error('PDF-lib is not ready');
+
     const bytes = await sourceFile.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(bytes);
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const pdfDoc = await pdfLib.PDFDocument.load(bytes);
+    const font = await pdfDoc.embedFont(pdfLib.StandardFonts.Helvetica);
     const pages = pdfDoc.getPages();
     const start = Math.max(1, parseInt(startPageInput.value, 10) || 1);
 
@@ -63,7 +64,7 @@ addBtn.addEventListener('click', async () => {
         y = margin;
       }
 
-      page.drawText(text, { x, y, size: fontSize, font, color: rgb(0.25, 0.25, 0.25) });
+      page.drawText(text, { x, y, size: fontSize, font, color: pdfLib.rgb(0.25, 0.25, 0.25) });
     }
 
     outputBytes = await pdfDoc.save();
