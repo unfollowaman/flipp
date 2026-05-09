@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="x-dns-prefetch-control" content="on" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protect PDF Online Free, Encrypt in Browser | flipp</title>
+  <meta name="description" content="Protect PDF files online for free with local encryption. Password protect PDF documents in your browser so files never leave your device." />
+  <meta name="robots" content="index, follow" />
+  <meta name="keywords" content="protect pdf, password protect pdf, encrypt pdf online, lock pdf with password, add password to pdf, secure pdf tool" />
+  <link rel="canonical" href="https://unfollowaman.tech/tools/protect-pdf/" />
+  <link rel="modulepreload" href="/js/pdf-protect.js" />
+  <link rel="modulepreload" href="/js/drag-drop.js" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://unfollowaman.tech/tools/protect-pdf/" />
+    <meta property="og:site_name" content="flipp" />
+    <meta property="og:title" content="Protect PDF with Password Online — Encrypt PDF Files Free in Browser" />
+    <meta property="og:description" content="Lock sensitive PDF documents with password protection and local encryption in just a few clicks. Free browser-based workflow with no uploads, so files never leave your device." />
+    <meta property="og:image" content="https://unfollowaman.tech/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="flipp PDF password protection tool for encrypting PDF files locally in browser" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Protect PDF with Password Online — Encrypt PDF Files Free in Browser" />
+    <meta name="twitter:description" content="Lock sensitive PDF documents with password protection and local encryption in just a few clicks. Free browser-based workflow with no uploads, so files never leave your device." />
+    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.svg" />
+    <meta name="twitter:image:alt" content="flipp PDF password protection tool for encrypting PDF files locally in browser" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#F5E642" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Protect PDF Tool",
+    "url": "https://unfollowaman.tech/tools/protect-pdf/",
+    "description": "Protect PDF files online for free with local encryption. Password protect PDF documents in your browser so files never leave your device.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Lock PDF files with a user-set password", "Encrypt PDF documents fully on your device", "Download password-protected PDFs instantly"],
+    "browserRequirements": "Requires JavaScript"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unfollowaman.tech/" },
+      { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://unfollowaman.tech/tools/" },
+      { "@type": "ListItem", "position": 3, "name": "Protect PDF", "item": "https://unfollowaman.tech/tools/protect-pdf/" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to password protect a PDF online",
+    "step": [
+      { "@type": "HowToStep", "name": "Upload your file", "text": "Drag and drop your file into the upload area or browse to select it." },
+      { "@type": "HowToStep", "name": "Choose your options", "text": "Select the settings shown for this tool before processing." },
+      { "@type": "HowToStep", "name": "Process and download", "text": "Run the tool and download your output file when processing is complete." }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Protect PDF free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Protect PDF is free to use with no account creation required." } },
+      { "@type": "Question", "name": "Does protecting a PDF with flipp send my file to any server?", "acceptedAnswer": { "@type": "Answer", "text": "No. The entire protection process — including rasterizing the PDF pages and applying the encryption — runs locally in your browser tab. Your file bytes never leave your device. There is no upload, no cloud processing, and no server involvement of any kind. This is especially important for sensitive documents." } },
+      { "@type": "Question", "name": "Will the password protection work in Adobe Acrobat, Apple Preview, and mobile PDF apps?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. flipp uses jsPDF's AES-based encryption which produces a standard encrypted PDF. The password prompt will appear in Adobe Acrobat Reader, Adobe Acrobat Pro, Apple Preview on macOS, Google Chrome's built-in PDF viewer, and most mobile PDF applications on iOS and Android." } },
+      { "@type": "Question", "name": "Is it safe to protect a PDF that contains sensitive personal information?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — and in fact flipp is safer than most online PDF protection tools precisely because your file never leaves your browser. Uploading sensitive documents to cloud-based PDF services means your data passes through third-party servers, which carries inherent privacy risk. With flipp, the file remains entirely on your device throughout the process." } },
+      { "@type": "Question", "name": "Is there a maximum file size for password protection?", "acceptedAnswer": { "@type": "Answer", "text": "There is no server-side upload cap because files are processed locally. The practical limit depends on available memory and browser performance on your device." } },
+      { "@type": "Question", "name": "Can I remove password protection with this tool?", "acceptedAnswer": { "@type": "Answer", "text": "No. This page is for adding password protection. Use a dedicated unlock workflow if you need to remove encryption from a PDF you own." } },
+      { "@type": "Question", "name": "Will the protected file remain a normal PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The output stays in standard PDF format and can be stored, shared, and opened in compatible readers that support encrypted PDFs." } },
+      { "@type": "Question", "name": "Do I need to install software to encrypt a PDF here?", "acceptedAnswer": { "@type": "Answer", "text": "No. The encryption workflow runs entirely in your browser without any desktop app, plugin, or extension." } }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <nav class="navbar" aria-label="Main navigation">
+    <a class="logo" href="/">flipp</a>
+    <span class="pipe">|</span>
+    <span class="tagline">file converter</span>
+    <div class="nav-end">
+      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
+      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+      <a class="nav-link" href="/tools/protect-pdf/" aria-current="page">Protect PDF</a>
+      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
+      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+    </div>
+  </nav>
+
+  <main class="tool-page-main">
+    <section class="section-inner" aria-labelledby="tool-title">
+      <div class="converter-header">
+        <div class="converter-badge" style="background: var(--yellow)">PROTECT PDF</div>
+        <h1 class="converter-title" id="tool-title">Protect PDF</h1>
+        <p class="converter-desc">Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.</p>
+      </div>
+      <div class="drop-zone" role="region" aria-label="PDF file upload area" id="protect-drop-zone">
+        <input type="file" id="protect-file-input" accept=".pdf" hidden />
+        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('protect-file-input').click()">browse file</button></div></div>
+      </div>
+      <div class="preview-area" id="protect-preview-area" style="display:none">
+        <div class="preview-header"><span class="preview-count" id="protect-info"></span><button class="cta-btn cta-pink" id="protect-btn">Protect PDF →</button></div>
+        <div class="option-group" style="margin-top:12px">
+          <label class="option-label" for="protect-password">Password</label>
+          <input type="password" class="range-input" id="protect-password" placeholder="Enter password" style="max-width:320px" />
+        </div>
+        <div class="option-group" style="margin-top:12px">
+          <label class="option-label" for="protect-password-confirm">Confirm password</label>
+          <input type="password" class="range-input" id="protect-password-confirm" placeholder="Re-enter password" style="max-width:320px" />
+        </div>
+      </div>
+      <div class="results-area" aria-live="polite" aria-label="Conversion results" id="protect-results" style="display:none">
+        <div class="results-header">
+          <span class="results-title">✓ Protected PDF ready!</span>
+          <button class="cta-btn cta-mint" id="protect-download-btn">Download protected PDF 🔐</button>
+        </div>
+        <button class="reset-btn" id="protect-reset-btn">Protect another file ↺</button>
+      </div>
+    </section>
+  
+
+
+    <section class="tool-content-section" aria-labelledby="protect-faq-heading">
+      <h2 class="tcs-headline" id="protect-faq-heading">FAQ</h2>
+      <p class="tcs-subheadline">Will the protected PDF look the same as the original?</p>
+      <p class="tcs-body">Yes, the content stays the same. If needed, <a href="/tools/add-page-numbers/">add page numbers before protecting the file</a> so your final version is fully formatted first.</p>
+          <div class="tcs-faq">
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Is Protect PDF free to use?</button>
+          <div class="tcs-faq-a">Yes. Protect PDF is free to use with no account creation required.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Does protecting a PDF with flipp send my file to any server?</button>
+          <div class="tcs-faq-a">No. The entire protection process — including rasterizing the PDF pages and applying the encryption — runs locally in your browser tab. Your file bytes never leave your device. There is no upload, no cloud processing, and no server involvement of any kind. This is especially important for sensitive documents.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Will the password protection work in Adobe Acrobat, Apple Preview, and mobile PDF apps?</button>
+          <div class="tcs-faq-a">Yes. flipp uses jsPDF's AES-based encryption which produces a standard encrypted PDF. The password prompt will appear in Adobe Acrobat Reader, Adobe Acrobat Pro, Apple Preview on macOS, Google Chrome's built-in PDF viewer, and most mobile PDF applications on iOS and Android.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Is it safe to protect a PDF that contains sensitive personal information?</button>
+          <div class="tcs-faq-a">Yes — and in fact flipp is safer than most online PDF protection tools precisely because your file never leaves your browser. Uploading sensitive documents to cloud-based PDF services means your data passes through third-party servers, which carries inherent privacy risk. With flipp, the file remains entirely on your device throughout the process.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Is there a maximum file size for password protection?</button>
+          <div class="tcs-faq-a">There is no server-side upload cap because files are processed locally. The practical limit depends on available memory and browser performance on your device.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Can I remove password protection with this tool?</button>
+          <div class="tcs-faq-a">No. This page is for adding password protection. Use a dedicated unlock workflow if you need to remove encryption from a PDF you own.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Will the protected file remain a normal PDF?</button>
+          <div class="tcs-faq-a">Yes. The output stays in standard PDF format and can be stored, shared, and opened in compatible readers that support encrypted PDFs.</div>
+        </div>
+        <div class="tcs-faq-item">
+          <button class="tcs-faq-q">Do I need to install software to encrypt a PDF here?</button>
+          <div class="tcs-faq-a">No. The encryption workflow runs entirely in your browser without any desktop app, plugin, or extension.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="related-tools-section" aria-labelledby="before-you-protect">
+      <div class="tool-content-section">
+        <h2 class="tcs-headline" id="before-you-protect">Before you protect</h2>
+        <div class="tools-grid">
+          <a class="tool-card" href="/tools/merge-pdf/">
+            <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
+            <div class="tool-card-title">Merge PDFs</div>
+            <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
+          </a>
+          <a class="tool-card" href="/tools/add-page-numbers/">
+            <div class="tool-card-badge" style="background: var(--mint)">NUMBERS</div>
+            <div class="tool-card-title">Add Page Numbers</div>
+            <div class="tool-card-desc">Stamp page numbers onto any PDF. Choose position and starting page.</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer" aria-label="Site footer">
+    <div class="footer-links">
+      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+      <a href="/tools/protect-pdf/" class="footer-link" aria-current="page">Protect PDF</a>
+      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
+      <a href="/blog/" class="footer-link">Blog</a>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-logo">flipp</div>
+      <div class="footer-copy">Built in-browser. Powered by PDF.js + jsPDF.</div>
+    </div>
+  </footer>
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script type="module">
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
+    window['pdfjs-dist/build/pdf'] = pdfjsLib;
+  </script>
+  <script src="/js/pdf-protect.js" type="module"></script>
+
+</body>
+</html>
