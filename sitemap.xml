@@ -1,41 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- Main page -->
-  <url>
-    <loc>https://unfollowaman.tech/</loc>
-    <priority>1.0</priority>
-  </url>
-
-  <!-- Tool sections (current SPA anchors) -->
-  <url>
-    <loc>https://unfollowaman.tech/#pdf-to-img</loc>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://unfollowaman.tech/#img-to-pdf</loc>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://unfollowaman.tech/#pdf-merge</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://unfollowaman.tech/#pdf-protect</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://unfollowaman.tech/#pdf-split</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://unfollowaman.tech/#pdf-page-numbers</loc>
-    <priority>0.8</priority>
-  </url>
-
+  <url><loc>https://unfollowaman.tech/</loc><lastmod>2026-05-08</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/pdf-to-png/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/images-to-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/merge-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/split-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/protect-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/tools/add-page-numbers/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/</loc><lastmod>2026-05-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/what-is-a-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/how-browser-pdf-tools-work/</loc><lastmod>2026-05-08</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/pdf-file-size-guide/</loc><lastmod>2026-05-08</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/how-to-protect-pdf-files/</loc><lastmod>2026-05-08</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://unfollowaman.tech/blog/merge-vs-combine-pdf/</loc><lastmod>2026-05-08</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
 </urlset>
