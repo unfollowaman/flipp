@@ -79,32 +79,67 @@ Everything runs locally using modern browser APIs and open-source libraries.
 ---
 
 ## 📂 Project Structure
-fileconverter/
-├── index.html # Main app entry
-├── css/
-│ └── styles.css # All styles
+```text
+flipp/
+├── index.html                    # Landing page (hero, feature overview, navigation)
+├── tools/
+│   ├── index.html                # Tools hub / listing page
+│   ├── pdf-to-png/index.html     # PDF → PNG tool page
+│   ├── images-to-pdf/index.html  # Images → PDF tool page
+│   ├── merge-pdf/index.html      # Merge PDF tool page
+│   ├── split-pdf/index.html      # Split PDF tool page
+│   ├── protect-pdf/index.html    # Protect PDF tool page
+│   └── add-page-numbers/index.html # Add page numbers tool page
+├── blog/
+│   ├── index.html                # Blog home
+│   └── */index.html              # SEO content pages
 ├── js/
-│ ├── drag-drop.js # Shared utilities
-│ ├── pdf-to-img.js # PDF → PNG
-│ ├── img-to-pdf.js # Images → PDF
-│ ├── pdf-merge.js # Merge PDFs
-│ ├── pdf-split.js # Split PDFs
-│ ├── pdf-protect.js # Protect PDFs
-│ └── pdf-page-numbers.js # Add page numbers
-├── .github/workflows/
-│ └── deploy.yml # GitHub Pages deployment
+│   ├── drag-drop.js              # Shared drag & drop logic
+│   ├── pdf-to-img.js             # PDF → PNG conversion flow
+│   ├── img-to-pdf.js             # Images → PDF conversion flow
+│   ├── pdf-merge.js              # PDF merge logic
+│   ├── pdf-split.js              # PDF split logic
+│   ├── pdf-protect.js            # PDF protection logic
+│   ├── pdf-page-numbers.js       # PDF page numbering logic
+│   └── text-to-pdf.js            # Text → PDF utility
+├── css/
+│   └── styles.css                # Global design system + component styles
+├── sitemap.xml                   # Search indexing map
+├── robots.txt                    # Crawler rules
+├── _headers                      # Edge/server header config
+├── _redirects                    # Route redirects for static hosting
+└── deploy.yml                    # Deployment workflow/config
+```
 
 ## 🗺️ Site Map
+```text
 /
 ├── Hero Section
-├── How It Works
-├── PDF → PNG
-├── Images → PDF
-├── Merge PDF
-├── Protect PDF
-├── Split PDF
-├── Add Page Numbers
+├── Feature Blocks
+├── "How It Works"
+├── Tool Shortcuts
+│   ├── PDF → PNG
+│   ├── Images → PDF
+│   ├── Merge PDF
+│   ├── Split PDF
+│   ├── Protect PDF
+│   └── Add Page Numbers
+├── Privacy & Trust Section
 └── Footer
+
+/tools
+├── /tools/                       # Tools index
+├── /tools/pdf-to-png/
+├── /tools/images-to-pdf/
+├── /tools/merge-pdf/
+├── /tools/split-pdf/
+├── /tools/protect-pdf/
+└── /tools/add-page-numbers/
+
+/blog
+├── /blog/
+└── /blog/*                       # Educational article pages
+```
 
 ---
 
