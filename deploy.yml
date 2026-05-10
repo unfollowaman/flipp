@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+      - "CNAME.md"
   workflow_dispatch:
 
 permissions:
@@ -26,6 +30,20 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Verify critical files exist
+        run: |
+          test -f index.html || (echo "ERROR: index.html missing" && exit 1)
+          test -f CNAME || (echo "ERROR: CNAME missing" && exit 1)
+          test -f robots.txt || (echo "ERROR: robots.txt missing" && exit 1)
+          test -f sitemap.xml || (echo "ERROR: sitemap.xml missing" && exit 1)
+          test -f tools/pdf-to-png/index.html || (echo "ERROR: tools/pdf-to-png/index.html missing" && exit 1)
+          test -f tools/merge-pdf/index.html || (echo "ERROR: tools/merge-pdf/index.html missing" && exit 1)
+          test -f tools/split-pdf/index.html || (echo "ERROR: tools/split-pdf/index.html missing" && exit 1)
+          test -f tools/protect-pdf/index.html || (echo "ERROR: tools/protect-pdf/index.html missing" && exit 1)
+          test -f tools/images-to-pdf/index.html || (echo "ERROR: tools/images-to-pdf/index.html missing" && exit 1)
+          test -f tools/add-page-numbers/index.html || (echo "ERROR: tools/add-page-numbers/index.html missing" && exit 1)
+          echo "All critical files verified."
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
