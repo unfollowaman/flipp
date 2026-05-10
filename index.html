@@ -2,38 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="x-dns-prefetch-control" content="on" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>flipp — file converter</title>
+  <title>flipp — Free In-Browser PDF & Image Converter</title>
+  <meta name="description" content="Free browser-based PDF tools. Convert, merge, split, protect and number PDFs — 100% local processing. No uploads, no sign-up, no cost." />
+  <meta name="keywords" content="PDF to PNG, image to PDF, merge PDF, split PDF, protect PDF, add page numbers, free PDF converter, browser PDF tool, no upload PDF" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://unfollowaman.tech/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://unfollowaman.tech/" />
+    <meta property="og:site_name" content="flipp" />
+    <meta property="og:title" content="flipp Browser PDF Tools — Convert, Merge, Split, and Protect Files Free" />
+    <meta property="og:description" content="Handle everyday PDF jobs in seconds with free in-browser tools for converting, merging, splitting, protecting, and numbering files—private local processing with no uploads or sign-up." />
+    <meta property="og:image" content="https://unfollowaman.tech/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="flipp PDF tools suite for converting, merging, splitting, and protecting files in browser" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="flipp Browser PDF Tools — Convert, Merge, Split, and Protect Files Free" />
+    <meta name="twitter:description" content="Handle everyday PDF jobs in seconds with free in-browser tools for converting, merging, splitting, protecting, and numbering files—private local processing with no uploads or sign-up." />
+    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.svg" />
+    <meta name="twitter:image:alt" content="flipp PDF tools suite for converting, merging, splitting, and protecting files in browser" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#F5E642" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "flipp",
+    "url": "https://unfollowaman.tech/",
+    "logo": "https://unfollowaman.tech/favicon.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "flipp",
+    "url": "https://unfollowaman.tech/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "flipp PDF Tools",
+    "url": "https://unfollowaman.tech/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": [
+      "PDF to PNG Converter",
+      "Images to PDF Converter",
+      "Merge PDF",
+      "Split PDF",
+      "Protect PDF",
+      "Add Page Numbers"
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" rel="stylesheet" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-
-  <!-- NAVBAR -->
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Main navigation">
     <a class="logo" href="/">flipp</a>
     <span class="pipe">|</span>
     <span class="tagline">file converter</span>
     <div class="nav-end">
-      <a class="nav-link" href="#pdf-to-img">PDF → PNG</a>
-      <a class="nav-link" href="#img-to-pdf">IMG → PDF</a>
-      <a class="nav-link" href="#pdf-merge">Merge PDF</a>
-      <a class="nav-link" href="#pdf-protect">Protect PDF</a>
-      <a class="nav-link" href="#pdf-split">Split PDF</a>
-      <a class="nav-link" href="#pdf-page-numbers">Page Numbers</a>
+      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
+      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
+      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
+      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
     </div>
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
+  <main>
+  <section class="hero" aria-labelledby="hero-heading">
     <div class="hero-inner">
       <div class="hero-text">
         <div class="hero-badge">✦ no uploads. no servers. 100% local.</div>
-        <h1 class="hero-headline">Built for,<br/>Speed,<br/>Designed for<br/>Trust.</h1>
-        <p class="hero-sub">Convert PDFs and images instantly — right in your browser.
-No uploads, no waiting, complete privacy.</p>
+        <h1 class="hero-headline" id="hero-heading">Clean,<br/>Quick,<br/>Reliable<br/>Conversions.</h1>
+        <p class="hero-sub">PDF to PNG. PNG to PDF. Done in seconds — everything runs in your browser, nothing leaves your device.</p>
         <div class="hero-actions">
           <a href="#pdf-to-img" class="cta-btn cta-yellow">PDF → Images ↓</a>
           <a href="#img-to-pdf" class="cta-btn cta-pink">Images → PDF ↓</a>
@@ -41,6 +102,7 @@ No uploads, no waiting, complete privacy.</p>
           <a href="#pdf-protect" class="cta-btn cta-yellow">Protect PDF ↓</a>
           <a href="#pdf-split" class="cta-btn cta-sky">Split PDF ↓</a>
           <a href="#pdf-page-numbers" class="cta-btn cta-mint">Page Numbers ↓</a>
+          <a href="#text-to-pdf" class="cta-btn cta-yellow">Text → PDF ↓</a>
         </div>
       </div>
       <div class="hero-visual">
@@ -82,307 +144,86 @@ No uploads, no waiting, complete privacy.</p>
     </div>
   </section>
 
+  
+
   <!-- HOW IT WORKS -->
-  <section class="how-it-works">
+  <section class="how-it-works" aria-labelledby="how-it-works-heading">
     <div class="section-inner">
-      <h2 class="section-headline">How it works. 🥧</h2>
+      <h2 class="section-headline" id="how-it-works-heading">How it works. 🥧</h2>
       <div class="steps-row">
         <div class="step-card" style="background: var(--yellow)">
           <div class="step-num">01</div>
-          <div class="step-title">Drop your file</div>
+          <h3 class="step-title">Drop your file</h3>
           <div class="step-body">Drag and drop a PDF or image directly into the converter below.</div>
         </div>
         <div class="step-arrow">→</div>
         <div class="step-card" style="background: var(--sky-blue)">
           <div class="step-num">02</div>
-          <div class="step-title">Pick your format</div>
+          <h3 class="step-title">Pick your format</h3>
           <div class="step-body">Choose PDF→PNG or image→PDF. All processing happens in-browser using PDF.js and jsPDF.</div>
         </div>
         <div class="step-arrow">→</div>
         <div class="step-card" style="background: var(--mint)">
           <div class="step-num">03</div>
-          <div class="step-title">Download instantly</div>
+          <h3 class="step-title">Download instantly</h3>
           <div class="step-body">Your converted file is ready immediately. Nothing is stored or transmitted.</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PDF TO IMAGES -->
-  <section class="converter-section" id="pdf-to-img" style="background: var(--light-blue)">
+  
+
+  <section class="tools-grid-section" aria-labelledby="tools-heading">
     <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">PDF → PNG</div>
-        <h2 class="converter-title">PDF to Images</h2>
-        <p class="converter-desc">Convert every page of a PDF into a crisp PNG image. Perfect for previews, thumbnails, or sharing individual pages.</p>
-      </div>
+      <h2 class="section-headline" id="tools-heading">All tools. Free. Private.</h2>
+      <div class="tools-grid">
 
-      <div class="drop-zone" id="pdf-drop-zone" data-mode="pdf-to-img">
-        <input type="file" id="pdf-file-input" accept=".pdf" hidden />
-        <div class="dz-content" id="pdf-dz-content">
-          <div class="dz-upload-icon">📄</div>
-          <div class="dz-headline">Drop your PDF here</div>
-          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('pdf-file-input').click()">browse files</button></div>
-          <div class="dz-formats">Accepts: .pdf only</div>
-        </div>
-      </div>
+        <a class="tool-card" href="/tools/pdf-to-png/">
+          <div class="tool-card-badge" style="background: var(--yellow)">PDF → PNG</div>
+          <div class="tool-card-title">PDF to Images</div>
+          <div class="tool-card-desc">Convert every page of a PDF into a crisp PNG. Export individually or as a ZIP.</div>
+        </a>
 
-      <!-- PDF Options -->
-      <div class="options-bar" id="pdf-options" style="display:none">
-        <div class="option-group">
-          <label class="option-label">Quality / Scale</label>
-          <div class="option-pills" id="pdf-scale-pills">
-            <button class="opt-pill active" data-value="1">1× (72dpi)</button>
-            <button class="opt-pill" data-value="2">2× (144dpi)</button>
-            <button class="opt-pill" data-value="3">3× (216dpi)</button>
-          </div>
-        </div>
-        <div class="option-group">
-          <label class="option-label">Pages</label>
-          <div class="option-pills" id="pdf-pages-pills">
-            <button class="opt-pill active" data-value="all">All pages</button>
-            <button class="opt-pill" data-value="range">Custom range</button>
-          </div>
-        </div>
-        <div class="option-group" id="pdf-range-group" style="display:none">
-          <label class="option-label">Page range (e.g. 1-3, 5)</label>
-          <input type="text" class="range-input" id="pdf-range-input" placeholder="1-3, 5, 7" />
-        </div>
-      </div>
+        <a class="tool-card" href="/tools/images-to-pdf/">
+          <div class="tool-card-badge" style="background: var(--pink)">IMG → PDF</div>
+          <div class="tool-card-title">Images to PDF</div>
+          <div class="tool-card-desc">Combine multiple PNG or JPG files into one PDF. Drag to reorder pages.</div>
+        </a>
 
-      <!-- PDF Preview -->
-      <div class="preview-area" id="pdf-preview-area" style="display:none">
-        <div class="preview-header">
-          <span class="preview-count" id="pdf-page-count"></span>
-          <button class="cta-btn cta-pink" id="pdf-convert-btn"><img class="cta-icon" src="https://img.icons8.com/arcade/64/pdf.png" alt="pdf" width="20" height="20" />Convert All Pages →</button>
-        </div>
-        <div class="preview-grid" id="pdf-preview-grid"></div>
-      </div>
+        <a class="tool-card" href="/tools/merge-pdf/">
+          <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
+          <div class="tool-card-title">Merge PDFs</div>
+          <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
+        </a>
 
-      <!-- PDF Progress -->
-      <div class="progress-area" id="pdf-progress" style="display:none">
-        <div class="progress-label" id="pdf-progress-label">Converting page 1…</div>
-        <div class="progress-track">
-          <div class="progress-bar" id="pdf-progress-bar"></div>
-        </div>
-      </div>
+        <a class="tool-card" href="/tools/split-pdf/">
+          <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
+          <div class="tool-card-title">Split PDF</div>
+          <div class="tool-card-desc">Extract a range of pages from a PDF into separate files.</div>
+        </a>
 
-      <!-- PDF Results -->
-      <div class="results-area" id="pdf-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ Conversion complete!</span>
-          <button class="cta-btn cta-mint" id="pdf-download-all-btn">Download All as ZIP 📦</button>
-        </div>
-        <div class="results-grid" id="pdf-results-grid"></div>
-        <button class="reset-btn" id="pdf-reset-btn">Convert another file ↺</button>
+        <a class="tool-card" href="/tools/protect-pdf/">
+          <div class="tool-card-badge" style="background: var(--yellow)">PROTECT</div>
+          <div class="tool-card-title">Protect PDF</div>
+          <div class="tool-card-desc">Password-encrypt a PDF to restrict access. Processed entirely on your device.</div>
+        </a>
+
+        <a class="tool-card" href="/tools/add-page-numbers/">
+          <div class="tool-card-badge" style="background: var(--mint)">NUMBERS</div>
+          <div class="tool-card-title">Add Page Numbers</div>
+          <div class="tool-card-desc">Stamp page numbers onto any PDF. Choose position and starting page.</div>
+        </a>
+
       </div>
     </div>
   </section>
 
-  <!-- IMAGES TO PDF -->
-  <section class="converter-section" id="img-to-pdf" style="background: var(--blush-pink)">
-    <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--pink)">IMG → PDF</div>
-        <h2 class="converter-title">Images to PDF</h2>
-        <p class="converter-desc">Combine one or more PNG or JPG images into a single PDF. Reorder pages by dragging before you convert.</p>
-      </div>
-
-      <div class="drop-zone" id="img-drop-zone" data-mode="img-to-pdf">
-        <input type="file" id="img-file-input" accept=".png,.jpg,.jpeg" multiple hidden />
-        <div class="dz-content" id="img-dz-content">
-          <div class="dz-upload-icon">🖼️</div>
-          <div class="dz-headline">Drop images here</div>
-          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('img-file-input').click()">browse files</button></div>
-          <div class="dz-formats">Accepts: .png, .jpg, .jpeg — multiple files OK</div>
-        </div>
-      </div>
-
-      <!-- Image options -->
-      <div class="options-bar" id="img-options" style="display:none">
-        <div class="option-group">
-          <label class="option-label">Page size</label>
-          <div class="option-pills" id="img-size-pills">
-            <button class="opt-pill active" data-value="auto">Auto (fit image)</button>
-            <button class="opt-pill" data-value="a4">A4</button>
-            <button class="opt-pill" data-value="letter">US Letter</button>
-          </div>
-        </div>
-        <div class="option-group">
-          <label class="option-label">Orientation</label>
-          <div class="option-pills" id="img-orient-pills">
-            <button class="opt-pill active" data-value="portrait">Portrait</button>
-            <button class="opt-pill" data-value="landscape">Landscape</button>
-          </div>
-        </div>
-        <div class="option-group">
-          <label class="option-label">Output filename</label>
-          <input type="text" class="range-input" id="img-filename-input" placeholder="converted.pdf" value="converted.pdf" />
-        </div>
-      </div>
-
-      <!-- Image preview / reorder -->
-      <div class="preview-area" id="img-preview-area" style="display:none">
-        <div class="preview-header">
-          <span class="preview-count" id="img-file-count"></span>
-          <button class="cta-btn cta-yellow" id="img-add-more-btn">+ Add more images</button>
-          <button class="cta-btn cta-pink" id="img-convert-btn">Build PDF →</button>
-        </div>
-        <div class="img-reorder-hint">Drag cards to reorder pages</div>
-        <div class="img-preview-grid" id="img-preview-grid"></div>
-      </div>
-
-      <!-- Image Progress -->
-      <div class="progress-area" id="img-progress" style="display:none">
-        <div class="progress-label" id="img-progress-label">Building PDF…</div>
-        <div class="progress-track">
-          <div class="progress-bar" id="img-progress-bar"></div>
-        </div>
-      </div>
-
-      <!-- Image Results -->
-      <div class="results-area" id="img-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ PDF ready!</span>
-          <button class="cta-btn cta-pink" id="img-download-btn">Download PDF 📄</button>
-        </div>
-        <div class="img-result-info" id="img-result-info"></div>
-        <button class="reset-btn" id="img-reset-btn">Convert more images ↺</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- PDF PAGE NUMBERS -->
-  <section class="converter-section" id="pdf-page-numbers" style="background: var(--cream)">
-    <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">PAGE NUMBERS</div>
-        <h2 class="converter-title">Add Page Numbers</h2>
-        <p class="converter-desc">Add page numbers to an existing PDF. Choose the page to start from and exactly where the numbers should appear.</p>
-      </div>
-      <div class="drop-zone" id="number-drop-zone">
-        <input type="file" id="number-file-input" accept=".pdf" hidden />
-        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('number-file-input').click()">browse file</button></div></div>
-      </div>
-      <div class="preview-area" id="number-preview-area" style="display:none">
-        <div class="preview-header"><span class="preview-count" id="number-info"></span><button class="cta-btn cta-pink" id="number-btn">Add Page Numbers →</button></div>
-        <div class="options-bar" style="margin-top:12px">
-          <div class="option-group">
-            <label class="option-label" for="number-start-page">Page numbers start from</label>
-            <input type="number" min="1" class="range-input" id="number-start-page" value="1" placeholder="1" />
-          </div>
-          <div class="option-group option-group-page-numbering">
-            <label class="option-label">Page number position</label>
-            <div class="page-number-position-grid" id="number-page-position">
-              <button class="position-card active" type="button" data-value="bottom-right"><span class="position-preview position-bottom-right"></span><span class="position-label">Bottom right</span></button>
-              <button class="position-card" type="button" data-value="top-right"><span class="position-preview position-top-right"></span><span class="position-label">Top right</span></button>
-              <button class="position-card" type="button" data-value="bottom-center"><span class="position-preview position-bottom-center"></span><span class="position-label">Bottom center</span></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="results-area" id="number-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ Numbered PDF ready!</span>
-          <button class="cta-btn cta-mint" id="number-download-btn">Download numbered PDF 🔢</button>
-        </div>
-        <button class="reset-btn" id="number-reset-btn">Reset ↺</button>
-      </div>
-    </div>
-  </section>
-
-
-
-  <!-- PDF MERGE -->
-  <section class="converter-section" id="pdf-merge" style="background: var(--cream)">
-    <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--mint)">MERGE PDF</div>
-        <h2 class="converter-title">Merge PDFs</h2>
-      </div>
-      <div class="drop-zone" id="merge-drop-zone">
-        <input type="file" id="merge-file-input" accept=".pdf" multiple hidden />
-        <div class="dz-content"><div class="dz-headline">Drop PDF files here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('merge-file-input').click()">browse files</button></div></div>
-      </div>
-      <div class="preview-area" id="merge-preview-area" style="display:none">
-        <div class="preview-header"><span class="preview-count" id="merge-file-count"></span><button class="cta-btn cta-pink" id="merge-btn">Merge PDFs →</button></div>
-        <ul id="merge-file-list"></ul>
-      </div>
-      <div class="results-area" id="merge-results" style="display:none">
-        <button class="cta-btn cta-mint" id="merge-download-btn">Download merged.pdf</button>
-        <button class="reset-btn" id="merge-reset-btn">Reset ↺</button>
-      </div>
-    </div>
-  </section>
-
-
-
-  <!-- PROTECT PDF -->
-  <section class="converter-section" id="pdf-protect" style="background: var(--blush-pink)">
-    <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">PROTECT PDF</div>
-        <h2 class="converter-title">Protect PDF</h2>
-        <p class="converter-desc">Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.</p>
-      </div>
-      <div class="drop-zone" id="protect-drop-zone">
-        <input type="file" id="protect-file-input" accept=".pdf" hidden />
-        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('protect-file-input').click()">browse file</button></div></div>
-      </div>
-      <div class="preview-area" id="protect-preview-area" style="display:none">
-        <div class="preview-header"><span class="preview-count" id="protect-info"></span><button class="cta-btn cta-pink" id="protect-btn">Protect PDF →</button></div>
-        <div class="option-group" style="margin-top:12px">
-          <label class="option-label" for="protect-password">Password</label>
-          <input type="password" class="range-input" id="protect-password" placeholder="Enter password" style="max-width:320px" />
-        </div>
-        <div class="option-group" style="margin-top:12px">
-          <label class="option-label" for="protect-password-confirm">Confirm password</label>
-          <input type="password" class="range-input" id="protect-password-confirm" placeholder="Re-enter password" style="max-width:320px" />
-        </div>
-      </div>
-      <div class="results-area" id="protect-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ Protected PDF ready!</span>
-          <button class="cta-btn cta-mint" id="protect-download-btn">Download protected PDF 🔐</button>
-        </div>
-        <button class="reset-btn" id="protect-reset-btn">Protect another file ↺</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- PDF SPLIT -->
-  <section class="converter-section" id="pdf-split" style="background: var(--light-blue)">
-    <div class="section-inner">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--sky-blue)">SPLIT PDF</div>
-        <h2 class="converter-title">Split PDF Pages</h2>
-      </div>
-      <div class="drop-zone" id="split-drop-zone">
-        <input type="file" id="split-file-input" accept=".pdf" hidden />
-        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('split-file-input').click()">browse file</button></div></div>
-      </div>
-      <div class="preview-area" id="split-preview-area" style="display:none">
-        <div class="preview-header"><span class="preview-count" id="split-info"></span><button class="cta-btn cta-pink" id="split-btn">Split Pages →</button></div>
-        <div class="option-group" style="margin-top:12px">
-          <label class="option-label" for="split-range-start">Split range (first output)</label>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <input type="number" min="1" class="range-input" id="split-range-start" placeholder="From page" style="max-width:160px" />
-            <span>to</span>
-            <input type="number" min="1" class="range-input" id="split-range-end" placeholder="To page" style="max-width:160px" />
-          </div>
-        </div>
-      </div>
-      <div class="results-area" id="split-results" style="display:none">
-        <div id="split-downloads" style="display:flex;flex-wrap:wrap;gap:10px"></div>
-        <button class="reset-btn" id="split-reset-btn">Reset ↺</button>
-      </div>
-    </div>
-  </section>
 
   <!-- TRUST SECTION -->
-  <section class="trust-section">
+  <section class="trust-section" aria-labelledby="trust-heading">
     <div class="section-inner trust-inner">
-      <h2 class="trust-headline">Your files never leave<br/>your browser. 🔒</h2>
+      <h2 class="trust-headline" id="trust-heading">Your files never leave<br/>your browser. 🔒</h2>
       <div class="trust-pills-row">
         <div class="trust-pill">No uploads to any server</div>
         <div class="trust-pill">No account needed</div>
@@ -394,33 +235,27 @@ No uploads, no waiting, complete privacy.</p>
     </div>
   </section>
 
+  
+
+  </main>
+
   <!-- FOOTER -->
-  <footer class="footer">
+  <footer class="footer" aria-label="Site footer">
+    <div class="footer-links">
+      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
+      <a href="/blog/" class="footer-link">Blog</a>
+    </div>
     <div class="footer-inner">
       <div class="footer-logo">flipp</div>
       <div class="footer-copy">Built in-browser. Powered by PDF.js + jsPDF.</div>
     </div>
   </footer>
 
-  <!-- LIBRARIES: JSZip + jsPDF as UMD globals -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-
-  <!-- PDF.js loaded as ES module, exposed on window for app modules -->
-  <script type="module">
-    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
-    window['pdfjs-dist/build/pdf'] = pdfjsLib;
-  </script>
-
-  <!-- App modules -->
-  <script src="js/pdf-to-img.js" type="module"></script>
-  <script src="js/img-to-pdf.js" type="module"></script>
-  <script src="js/pdf-merge.js" type="module"></script>
-  <script src="js/pdf-protect.js" type="module"></script>
-  <script src="js/pdf-split.js" type="module"></script>
-  <script src="js/pdf-page-numbers.js" type="module"></script>
+  
 </body>
 </html>
