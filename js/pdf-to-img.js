@@ -5,7 +5,7 @@ import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
 // ── State ──────────────────────────────────────────────
 let pdfDoc        = null;
 let totalPages    = 0;
-let scale         = 1;
+const scale       = 3; // fixed max quality (216dpi equivalent)
 let pageMode      = 'all'; // 'all' | 'range'
 let renderedPages = []; // { pageNum, dataUrl }
 
@@ -35,7 +35,6 @@ const fileInputEl     = document.getElementById('pdf-file-input');
 const dzContent       = document.getElementById('pdf-dz-content');
 
 const optionsEl       = document.getElementById('pdf-options');
-const scaleGroup      = document.getElementById('pdf-scale-pills');
 const pagesGroup      = document.getElementById('pdf-pages-pills');
 const rangeGroup      = document.getElementById('pdf-range-group');
 const rangeInput      = document.getElementById('pdf-range-input');
@@ -60,13 +59,6 @@ function activatePill(group, value) {
     p.classList.toggle('active', p.dataset.value === value);
   });
 }
-
-scaleGroup.addEventListener('click', (e) => {
-  const pill = e.target.closest('.opt-pill');
-  if (!pill) return;
-  scale = parseFloat(pill.dataset.value);
-  activatePill(scaleGroup, pill.dataset.value);
-});
 
 pagesGroup.addEventListener('click', (e) => {
   const pill = e.target.closest('.opt-pill');
