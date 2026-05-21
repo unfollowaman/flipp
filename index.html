@@ -26,9 +26,10 @@
     <meta name="twitter:description" content="Handle everyday PDF jobs in seconds with free in-browser tools for converting, merging, splitting, protecting, and numbering files—private local processing with no uploads or sign-up." />
     <meta name="twitter:image" content="https://unfollowaman.tech/og-image.svg" />
     <meta name="twitter:image:alt" content="flipp PDF tools suite for converting, merging, splitting, and protecting files in browser" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
   <meta name="theme-color" content="#F5E642" />
   <script type="application/ld+json">
   {
@@ -74,16 +75,19 @@
 </head>
 <body>
   <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/">flipp</a>
+    <a class="logo" href="/" aria-label="Flipp home">
+      <img src="/assets/logo/flipp-logo-mark.svg" alt="" class="logo-icon" width="28" height="28" />
+      <span class="logo-text">Flipp</span>
+    </a>
     <span class="pipe">|</span>
     <span class="tagline">file converter</span>
     <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+      <a class="nav-link" href="#tool-pdf-to-png">PDF → PNG</a>
+      <a class="nav-link" href="#tool-images-to-pdf">IMG → PDF</a>
+      <a class="nav-link" href="#tool-merge-pdf">Merge PDF</a>
+      <a class="nav-link" href="#tool-protect-pdf">Protect PDF</a>
+      <a class="nav-link" href="#tool-split-pdf">Split PDF</a>
+      <a class="nav-link" href="#tool-add-page-numbers">Page Numbers</a>
     </div>
   </nav>
 
@@ -93,8 +97,8 @@
     <div class="hero-inner">
       <div class="hero-text">
         <div class="hero-badge">✦ no uploads. no servers. 100% local.</div>
-        <h1 class="hero-headline" id="hero-heading">Built for<br/>Speed,<br/>Designed for<br/>Trust.</h1>
-        <p class="hero-sub">Convert PDFs and images instantly - right in your browser. No uploads, no waiting, complete privacy.</p>
+        <h1 class="hero-headline" id="hero-heading">Clean,<br/>Quick,<br/>Reliable<br/>Conversions.</h1>
+        <p class="hero-sub">PDF to PNG. PNG to PDF. Done in seconds — everything runs in your browser, nothing leaves your device.</p>
         <div class="hero-actions">
           <a href="#pdf-to-img" class="cta-btn cta-yellow">PDF → Images ↓</a>
           <a href="#img-to-pdf" class="cta-btn cta-pink">Images → PDF ↓</a>
@@ -179,37 +183,37 @@
       <h2 class="section-headline" id="tools-heading">All tools. Free. Private.</h2>
       <div class="tools-grid">
 
-        <a class="tool-card" href="/tools/pdf-to-png/">
+        <a class="tool-card" id="tool-pdf-to-png" href="/tools/pdf-to-png/">
           <div class="tool-card-badge" style="background: var(--yellow)">PDF → PNG</div>
           <div class="tool-card-title">PDF to Images</div>
           <div class="tool-card-desc">Convert every page of a PDF into a crisp PNG. Export individually or as a ZIP.</div>
         </a>
 
-        <a class="tool-card" href="/tools/images-to-pdf/">
+        <a class="tool-card" id="tool-images-to-pdf" href="/tools/images-to-pdf/">
           <div class="tool-card-badge" style="background: var(--pink)">IMG → PDF</div>
           <div class="tool-card-title">Images to PDF</div>
           <div class="tool-card-desc">Combine multiple PNG or JPG files into one PDF. Drag to reorder pages.</div>
         </a>
 
-        <a class="tool-card" href="/tools/merge-pdf/">
+        <a class="tool-card" id="tool-merge-pdf" href="/tools/merge-pdf/">
           <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
           <div class="tool-card-title">Merge PDFs</div>
           <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
         </a>
 
-        <a class="tool-card" href="/tools/split-pdf/">
+        <a class="tool-card" id="tool-split-pdf" href="/tools/split-pdf/">
           <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
           <div class="tool-card-title">Split PDF</div>
           <div class="tool-card-desc">Extract a range of pages from a PDF into separate files.</div>
         </a>
 
-        <a class="tool-card" href="/tools/protect-pdf/">
+        <a class="tool-card" id="tool-protect-pdf" href="/tools/protect-pdf/">
           <div class="tool-card-badge" style="background: var(--yellow)">PROTECT</div>
           <div class="tool-card-title">Protect PDF</div>
           <div class="tool-card-desc">Password-encrypt a PDF to restrict access. Processed entirely on your device.</div>
         </a>
 
-        <a class="tool-card" href="/tools/add-page-numbers/">
+        <a class="tool-card" id="tool-add-page-numbers" href="/tools/add-page-numbers/">
           <div class="tool-card-badge" style="background: var(--mint)">NUMBERS</div>
           <div class="tool-card-title">Add Page Numbers</div>
           <div class="tool-card-desc">Stamp page numbers onto any PDF. Choose position and starting page.</div>
