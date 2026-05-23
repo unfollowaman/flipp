@@ -15,8 +15,6 @@ const resetBtn = document.getElementById('split-reset-btn');
 const rangeStartEl = document.getElementById('split-range-start');
 const rangeEndEl = document.getElementById('split-range-end');
 
-function getPdfLib() { return window.PDFLib; }
-
 function addFiles(files) {
   const first = files.find((f) => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
   if (!first) return showToast('Please add a PDF file.', 'error');
@@ -30,7 +28,7 @@ function addFiles(files) {
   rangeStartEl.value = '';
   rangeEndEl.value = '';
 
-  const PDFLib = getPdfLib();
+  const PDFLib = window.PDFLib;
   if (!PDFLib) {
     showToast('PDF library not ready yet.', 'error');
     return;
@@ -56,7 +54,7 @@ function addFiles(files) {
 
 splitBtn.addEventListener('click', async () => {
   if (!pdfFile) return;
-  const PDFLib = getPdfLib();
+  const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast('PDF library not ready yet.', 'error');
 
   const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer());
