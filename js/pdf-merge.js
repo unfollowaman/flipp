@@ -13,8 +13,6 @@ const resultsArea = document.getElementById('merge-results');
 const downloadBtn = document.getElementById('merge-download-btn');
 const resetBtn = document.getElementById('merge-reset-btn');
 
-function getPdfLib() { return window.PDFLib; }
-
 function addFiles(files) {
   const valid = files.filter((f) => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
   if (!valid.length) return showToast('Please add PDF files only.', 'error');
@@ -36,7 +34,7 @@ function renderPreview() {
 
 mergeBtn.addEventListener('click', async () => {
   if (pdfFiles.length < 2) return showToast('Add at least 2 PDFs to merge.', 'error');
-  const PDFLib = getPdfLib();
+  const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast('PDF library not ready yet.', 'error');
 
   const outPdf = await PDFLib.PDFDocument.create();
