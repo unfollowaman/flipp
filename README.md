@@ -53,6 +53,15 @@ That’s it.
 - Password-protect files securely  
 - Encryption handled locally  
 
+### 📄 PDF → Text
+- Extract text from PDF files online for free
+- Automatic OCR support for scanned documents
+- Supports English and Hindi
+
+### 📝 Text → PDF
+- Convert plain text to clean PDF documents instantly
+- Works with text input or text files
+
 ---
 
 ## 🧠 How it works (Core Philosophy)
@@ -75,6 +84,7 @@ Everything runs locally using modern browser APIs and open-source libraries.
   - jsPDF → PDF generation  
   - PDF-lib → Advanced PDF manipulation  
   - JSZip → File bundling  
+  - Tesseract.js → OCR / text extraction
 
 ---
 
@@ -89,7 +99,9 @@ flipp/
 │   ├── merge-pdf/index.html      # Merge PDF tool page
 │   ├── split-pdf/index.html      # Split PDF tool page
 │   ├── protect-pdf/index.html    # Protect PDF tool page
-│   └── add-page-numbers/index.html # Add page numbers tool page
+│   ├── add-page-numbers/index.html # Add page numbers tool page
+│   ├── pdf-to-text/index.html    # PDF → Text tool page
+│   └── text-to-pdf/index.html    # Text → PDF tool page
 ├── blog/
 │   ├── index.html                # Blog home
 │   └── */index.html              # SEO content pages
@@ -101,6 +113,7 @@ flipp/
 │   ├── pdf-split.js              # PDF split logic
 │   ├── pdf-protect.js            # PDF protection logic
 │   ├── pdf-page-numbers.js       # PDF page numbering logic
+│   ├── pdf-to-text.js            # PDF → Text extraction logic
 │   └── text-to-pdf.js            # Text → PDF utility
 ├── css/
 │   └── styles.css                # Global design system + component styles
@@ -123,7 +136,9 @@ flipp/
 │   ├── Merge PDF
 │   ├── Split PDF
 │   ├── Protect PDF
-│   └── Add Page Numbers
+│   ├── Add Page Numbers
+│   ├── PDF → Text
+│   └── Text → PDF
 ├── Privacy & Trust Section
 └── Footer
 
@@ -134,7 +149,9 @@ flipp/
 ├── /tools/merge-pdf/
 ├── /tools/split-pdf/
 ├── /tools/protect-pdf/
-└── /tools/add-page-numbers/
+├── /tools/add-page-numbers/
+├── /tools/pdf-to-text/
+└── /tools/text-to-pdf/
 
 /blog
 ├── /blog/
