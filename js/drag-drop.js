@@ -57,3 +57,9 @@ export function setProgress(barEl, labelEl, value, label) {
   barEl.style.width = `${value}%`;
   if (labelEl) labelEl.textContent = label;
 }
+
+export function activatePill(group, value) {
+  group.querySelectorAll('.opt-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.value === value);
+  });
+}

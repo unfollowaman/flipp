@@ -1,6 +1,6 @@
 // img-to-pdf.js — PNG/JPG → PDF conversion using jsPDF
 
-import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
+import { initDropZone, showToast, setProgress, activatePill } from '/js/drag-drop.js';
 
 // ── State ──────────────────────────────────────────────
 let imageFiles   = []; // { file, objectUrl, name }
@@ -33,12 +33,6 @@ const resultInfo    = document.getElementById('img-result-info');
 const resetBtn      = document.getElementById('img-reset-btn');
 
 // ── Pill helpers ────────────────────────────────────────
-function activatePill(group, value) {
-  group.querySelectorAll('.opt-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.value === value);
-  });
-}
-
 sizePills.addEventListener('click', (e) => {
   const pill = e.target.closest('.opt-pill');
   if (!pill) return;
