@@ -92,6 +92,17 @@ async function loadPdfAndRenderThumbnails() {
         lbl.textContent = `Page ${i}`;
         card.appendChild(lbl);
 
+        const rmBtn = document.createElement('button');
+        rmBtn.className = 'img-thumb-remove';
+        rmBtn.textContent = '✕';
+        rmBtn.title = 'Remove page';
+        rmBtn.onclick = (e) => {
+            e.stopPropagation();
+            card.remove();
+            updatePagesOrder();
+        };
+        card.appendChild(rmBtn);
+
         setupDragReorder(card, i - 1);
         previewGrid.appendChild(card);
     }
@@ -168,6 +179,8 @@ function updatePagesOrder() {
     const allCards = Array.from(previewGrid.querySelectorAll('.img-thumb-card'));
     pagesOrder = allCards.map(card => parseInt(card.dataset.idx, 10));
 
+    countEl.textContent = `${allCards.length} page${allCards.length !== 1 ? 's' : ''}`;
+
     // Update displayed page numbers
     allCards.forEach((card, index) => {
         const num = card.querySelector('.img-thumb-num');
@@ -183,6 +196,9 @@ let initialTouchX = 0;
 let lastTouchTarget = null;
 
 function handleTouchStart(e) {
+  // If the user tapped the remove button, ignore the touch drag
+  if (e.target.closest('.img-thumb-remove')) return;
+
   const card = e.target.closest('.img-thumb-card');
   if (!card) return;
   dragSrcCard = card;
@@ -190,8 +206,9 @@ function handleTouchStart(e) {
   initialTouchX = touch.clientX;
   initialTouchY = touch.clientY;
 
-  // Optional: create a clone for visual feedback
   card.classList.add('dragging');
+  // Elevate the card so it floats above others
+  card.style.zIndex = '1000';
 }
 
 function handleTouchMove(e) {
@@ -199,8 +216,15 @@ function handleTouchMove(e) {
   e.preventDefault(); // prevent scrolling
   const touch = e.touches[0];
 
-  // Find element under touch
+  const deltaX = touch.clientX - initialTouchX;
+  const deltaY = touch.clientY - initialTouchY;
+  dragSrcCard.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+  // Hide the dragged card temporarily to find the element underneath
+  dragSrcCard.style.visibility = 'hidden';
   const target = document.elementFromPoint(touch.clientX, touch.clientY);
+  dragSrcCard.style.visibility = 'visible';
+
   const targetCard = target ? target.closest('.img-thumb-card') : null;
 
   if (targetCard && targetCard !== dragSrcCard) {
@@ -209,12 +233,17 @@ function handleTouchMove(e) {
       }
       targetCard.classList.add('drag-target');
       lastTouchTarget = targetCard;
+  } else if (!targetCard && lastTouchTarget) {
+      lastTouchTarget.classList.remove('drag-target');
+      lastTouchTarget = null;
   }
 }
 
 function handleTouchEnd(e) {
   if (!dragSrcCard) return;
   dragSrcCard.classList.remove('dragging');
+  dragSrcCard.style.transform = '';
+  dragSrcCard.style.zIndex = '';
 
   if (lastTouchTarget) {
       lastTouchTarget.classList.remove('drag-target');
