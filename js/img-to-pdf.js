@@ -307,8 +307,9 @@ function showResults(pageCount) {
   resultInfo.innerHTML = `
     <strong>Pages:</strong> ${pageCount}<br/>
     <strong>File size:</strong> ${sizeMB} MB<br/>
-    <strong>Filename:</strong> ${filenameInput.value || 'converted.pdf'}
+    <strong>Filename:</strong> <span id="img-result-filename"></span>
   `;
+  resultInfo.querySelector('#img-result-filename').textContent = filenameInput.value || 'converted.pdf';
 
   showToast(`✓ PDF built with ${pageCount} page${pageCount !== 1 ? 's' : ''}!`);
 }
