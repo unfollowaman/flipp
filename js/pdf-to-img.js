@@ -1,6 +1,6 @@
 // pdf-to-img.js — PDF → PNG conversion using PDF.js
 
-import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
+import { initDropZone, showToast, setProgress, activatePill } from '/js/drag-drop.js';
 
 // ── State ──────────────────────────────────────────────
 let pdfDoc        = null;
@@ -54,12 +54,6 @@ const downloadAllBtn  = document.getElementById('pdf-download-all-btn');
 const resetBtn        = document.getElementById('pdf-reset-btn');
 
 // ── Pill helpers ────────────────────────────────────────
-function activatePill(group, value) {
-  group.querySelectorAll('.opt-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.value === value);
-  });
-}
-
 pagesGroup.addEventListener('click', (e) => {
   const pill = e.target.closest('.opt-pill');
   if (!pill) return;
