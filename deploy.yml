@@ -31,6 +31,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Tests
+        run: node test.js
+
       - name: Verify critical files exist
         run: |
           test -f index.html || (echo "ERROR: index.html missing" && exit 1)
