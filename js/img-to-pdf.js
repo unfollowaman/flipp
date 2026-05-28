@@ -154,8 +154,12 @@ function setupDragReorder(card, idx) {
   card.addEventListener('dragover', (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    previewGrid.querySelectorAll('.img-thumb-card').forEach(c => c.classList.remove('drag-target'));
-    card.classList.add('drag-target');
+
+    if (!card.classList.contains('drag-target')) {
+      const active = previewGrid.querySelector('.drag-target');
+      if (active) active.classList.remove('drag-target');
+      card.classList.add('drag-target');
+    }
   });
 
   card.addEventListener('drop', (e) => {
