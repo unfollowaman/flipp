@@ -73,21 +73,85 @@ buildBtnEl.addEventListener('click', async () => {
     const marginTop = 64;
     const marginBottom = 72;
 
-    doc.setFont('times', 'normal');
-    doc.setFontSize(12);
-    const wrappedLines = doc.splitTextToSize(content, pageWidth - marginX * 2);
 
+    await document.fonts.load('12px Poppins');
+    await document.fonts.ready;
+
+    const canvas = document.createElement('canvas');
+    const scale = 2; // high-res
+    canvas.width = pageWidth * scale;
+    canvas.height = pageHeight * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+
+    const fontSize = 12;
+    const lineHeight = fontSize * 1.5;
+    const maxWidth = pageWidth - marginX * 2;
+
+    const paragraphs = content.split('\n');
+    let pages = [];
+
+    function drawNewPage() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, pageWidth, pageHeight);
+      ctx.fillStyle = '#000000';
+      ctx.font = `${fontSize}px Poppins`;
+      ctx.textBaseline = 'top';
+    }
+
+    drawNewPage();
     let y = marginTop;
-    const lineHeight = 18;
 
-    wrappedLines.forEach((line, idx) => {
+    for (const p of paragraphs) {
+      if (!p.trim()) {
+        y += lineHeight;
+        if (y > pageHeight - marginBottom) {
+          pages.push(canvas.toDataURL('image/jpeg', 0.95));
+          drawNewPage();
+          y = marginTop;
+        }
+        continue;
+      }
+
+      const words = p.split(' ');
+      let line = '';
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(line, marginX, y);
+          line = words[i] + ' ';
+          y += lineHeight;
+
+          if (y > pageHeight - marginBottom) {
+            pages.push(canvas.toDataURL('image/jpeg', 0.95));
+            drawNewPage();
+            y = marginTop;
+          }
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, marginX, y);
+      y += lineHeight;
+
       if (y > pageHeight - marginBottom) {
-        doc.addPage();
+        pages.push(canvas.toDataURL('image/jpeg', 0.95));
+        drawNewPage();
         y = marginTop;
       }
-      doc.text(line || ' ', marginX, y);
-      y += lineHeight;
-    });
+    }
+
+    // Push the last page
+    pages.push(canvas.toDataURL('image/jpeg', 0.95));
+
+    for (let i = 0; i < pages.length; i++) {
+      if (i > 0) doc.addPage();
+      doc.addImage(pages[i], 'JPEG', 0, 0, pageWidth, pageHeight);
+    }
+
 
     const pageCount = doc.getNumberOfPages();
     for (let p = 1; p <= pageCount; p += 1) {
