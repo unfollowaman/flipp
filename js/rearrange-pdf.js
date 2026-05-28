@@ -46,7 +46,8 @@ async function loadPdfAndRenderThumbnails() {
     const pdfjs = window['pdfjs-dist/build/pdf'];
     if (!pdfjs) throw new Error('PDF.js not loaded.');
 
-    pdfDocument = await pdfjs.getDocument({ data: originalPdfBytes }).promise;
+    // Pass a copy so pdf.js doesn't detach the original ArrayBuffer
+    pdfDocument = await pdfjs.getDocument({ data: originalPdfBytes.slice(0) }).promise;
     const numPages = pdfDocument.numPages;
     pagesOrder = Array.from({ length: numPages }, (_, i) => i);
 
