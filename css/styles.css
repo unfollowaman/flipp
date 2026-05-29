@@ -1200,6 +1200,16 @@ textarea { font-family: inherit; }
   min-height: 70vh;
 }
 
+.tool-page-main .section-inner {
+  padding-bottom: 72px;
+}
+
+@media (max-width: 767px) {
+  .tool-page-main .section-inner {
+    padding-bottom: 48px;
+  }
+}
+
 .nav-link[aria-current="page"] {
   background: var(--yellow);
   box-shadow: var(--shadow-hard);
