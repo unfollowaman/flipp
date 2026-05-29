@@ -27,3 +27,7 @@ https://unfollowaman.tech  https://unfollowaman.tech/ 301!
 /split-pdf/          /tools/split-pdf/          301!
 /protect-pdf/        /tools/protect-pdf/        301!
 /add-page-numbers/   /tools/add-page-numbers/   301!
+/pdf-to-text/        /tools/pdf-to-text/        301!
+/text-to-pdf/        /tools/text-to-pdf/        301!
+/add-watermark/      /tools/add-watermark/      301!
+/rearrange-pdf/      /tools/rearrange-pdf/      301!
