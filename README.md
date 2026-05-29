@@ -62,6 +62,17 @@ That’s it.
 - Convert plain text to clean PDF documents instantly
 - Works with text input or text files
 
+### 💧 Add Watermark
+- Add custom text or image watermarks
+- Full control over opacity, rotation, and placement
+- Stamp across all pages instantly
+
+### 🔄 Rearrange PDF
+- Visually drag and drop pages to reorder them
+- Delete unwanted pages
+- Save the new organized document locally
+
+
 ---
 
 ## 🧠 How it works (Core Philosophy)
@@ -101,7 +112,9 @@ flipp/
 │   ├── protect-pdf/index.html    # Protect PDF tool page
 │   ├── add-page-numbers/index.html # Add page numbers tool page
 │   ├── pdf-to-text/index.html    # PDF → Text tool page
-│   └── text-to-pdf/index.html    # Text → PDF tool page
+│   ├── text-to-pdf/index.html    # Text → PDF tool page
+│   ├── add-watermark/index.html  # Add Watermark tool page
+│   └── rearrange-pdf/index.html  # Rearrange PDF tool page
 ├── blog/
 │   ├── index.html                # Blog home
 │   └── */index.html              # SEO content pages
@@ -114,7 +127,9 @@ flipp/
 │   ├── pdf-protect.js            # PDF protection logic
 │   ├── pdf-page-numbers.js       # PDF page numbering logic
 │   ├── pdf-to-text.js            # PDF → Text extraction logic
-│   └── text-to-pdf.js            # Text → PDF utility
+│   ├── text-to-pdf.js            # Text → PDF utility
+│   ├── add-watermark.js          # Add watermark logic
+│   └── rearrange-pdf.js          # Rearrange PDF logic
 ├── css/
 │   └── styles.css                # Global design system + component styles
 ├── sitemap.xml                   # Search indexing map
@@ -138,7 +153,9 @@ flipp/
 │   ├── Protect PDF
 │   ├── Add Page Numbers
 │   ├── PDF → Text
-│   └── Text → PDF
+│   ├── Text → PDF
+│   ├── Add Watermark
+│   └── Rearrange PDF
 ├── Privacy & Trust Section
 └── Footer
 
@@ -151,7 +168,9 @@ flipp/
 ├── /tools/protect-pdf/
 ├── /tools/add-page-numbers/
 ├── /tools/pdf-to-text/
-└── /tools/text-to-pdf/
+├── /tools/text-to-pdf/
+├── /tools/add-watermark/
+└── /tools/rearrange-pdf/
 
 /blog
 ├── /blog/
