@@ -57,12 +57,13 @@ async function rasterizePdfToEncryptedPdf(file, password) {
 
   let doc = null;
 
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas is unavailable');
+
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
     const page = await pdf.getPage(pageNum);
     const viewport = page.getViewport({ scale: 2 });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas is unavailable');
 
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
