@@ -46,13 +46,24 @@ addBtn.addEventListener('click', async () => {
     const pages = pdfDoc.getPages();
     const start = Math.max(1, parseInt(startPageInput.value, 10) || 1);
 
+    let lastWidth = -1;
+    let lastHeight = -1;
+    let fontSize = 12;
+    let margin = 18;
+
     for (let i = start - 1; i < pages.length; i++) {
       const page = pages[i];
       const { width, height } = page.getSize();
       const text = String(i - (start - 1) + 1);
-      const fontSize = Math.max(10, Math.min(14, Math.round(width / 60)));
+
+      if (width !== lastWidth || height !== lastHeight) {
+        fontSize = Math.max(10, Math.min(14, Math.round(width / 60)));
+        margin = Math.max(18, width * 0.03);
+        lastWidth = width;
+        lastHeight = height;
+      }
+
       const textWidth = font.widthOfTextAtSize(text, fontSize);
-      const margin = Math.max(18, width * 0.03);
 
       let x = width - margin - textWidth;
       let y = margin;
