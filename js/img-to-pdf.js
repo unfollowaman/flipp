@@ -204,16 +204,10 @@ function fileToDataUrl(file) {
   });
 }
 
-// ── Convert images → PDF ────────────────────────────────
-convertBtn.addEventListener('click', async () => {
-  if (!imageFiles.length) return;
-
-  previewArea.style.display  = 'none';
-  optionsEl.style.display    = 'none';
-  progressArea.style.display = 'block';
-  resultsArea.style.display  = 'none';
-
-  setProgress(progressBar, progressLabel, 0, 'Loading jsPDF…');
+// ── Core PDF Generation Logic ───────────────────────────
+async function generatePdfFromImages(files, options, onProgress) {
+  const { pageSize, orientation } = options;
+  onProgress(0, 'Loading jsPDF…');
 
   const jsPDF = await waitForJsPDF();
 
@@ -227,12 +221,11 @@ convertBtn.addEventListener('click', async () => {
   let pdf = null;
   let totalPagesAdded = 0;
 
-  for (let i = 0; i < imageFiles.length; i++) {
-    const entry = imageFiles[i];
-    setProgress(
-      progressBar, progressLabel,
-      Math.round(((i) / imageFiles.length) * 100),
-      `Processing image ${i + 1} of ${imageFiles.length}: ${entry.name}`
+  for (let i = 0; i < files.length; i++) {
+    const entry = files[i];
+    onProgress(
+      Math.round(((i) / files.length) * 100),
+      `Processing image ${i + 1} of ${files.length}: ${entry.name}`
     );
 
     const dataUrl = await fileToDataUrl(entry.file);
@@ -284,13 +277,37 @@ convertBtn.addEventListener('click', async () => {
     await new Promise(r => setTimeout(r, 0));
   }
 
-  setProgress(progressBar, progressLabel, 100, 'Finalising PDF…');
+  onProgress(100, 'Finalising PDF…');
   await new Promise(r => setTimeout(r, 200));
 
-  pdfBlob = pdf.output('blob');
+  const blob = pdf.output('blob');
+  return { blob, totalPagesAdded };
+}
 
-  progressArea.style.display = 'none';
-  showResults(totalPagesAdded);
+// ── Convert images → PDF ────────────────────────────────
+convertBtn.addEventListener('click', async () => {
+  if (!imageFiles.length) return;
+
+  previewArea.style.display  = 'none';
+  optionsEl.style.display    = 'none';
+  progressArea.style.display = 'block';
+  resultsArea.style.display  = 'none';
+
+  try {
+    const result = await generatePdfFromImages(
+      imageFiles,
+      { pageSize, orientation },
+      (percent, text) => setProgress(progressBar, progressLabel, percent, text)
+    );
+
+    pdfBlob = result.blob;
+    progressArea.style.display = 'none';
+    showResults(result.totalPagesAdded);
+  } catch (err) {
+    console.error('Error generating PDF:', err);
+    showToast('An error occurred while generating the PDF.', 'error');
+    progressArea.style.display = 'none';
+  }
 });
 
 // ── Show results ────────────────────────────────────────
