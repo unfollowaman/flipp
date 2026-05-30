@@ -2,23 +2,27 @@ const fs = require('fs');
 const assert = require('assert');
 const path = require('path');
 
-// 1. Extract the function from the source file
-const sourceFile = path.join(__dirname, 'js/pdf-to-img.js');
-const fileContent = fs.readFileSync(sourceFile, 'utf8');
+// 1. Extract the functions from the source files
+const pdfToImgFile = path.join(__dirname, 'js/pdf-to-img.js');
+const pdfToImgContent = fs.readFileSync(pdfToImgFile, 'utf8');
 
-// Find the function definition
-const functionMatch = fileContent.match(/function parsePageRange\(rangeStr, total\) \{[\s\S]*?\n\}/);
-
-if (!functionMatch) {
+const parsePageRangeMatch = pdfToImgContent.match(/function parsePageRange\(rangeStr, total\) \{[\s\S]*?\n\}/);
+if (!parsePageRangeMatch) {
   console.error("Could not find parsePageRange function in pdf-to-img.js");
   process.exit(1);
 }
+eval(parsePageRangeMatch[0]);
 
-const functionCode = functionMatch[0];
+const dragDropFile = path.join(__dirname, 'js/drag-drop.js');
+const dragDropContent = fs.readFileSync(dragDropFile, 'utf8');
 
-// Evaluate the function code in the current context
-// This makes `parsePageRange` available in this script
-eval(functionCode);
+// drag-drop.js uses "export function", we can extract just the "function..." part
+const setProgressMatch = dragDropContent.match(/function setProgress\(barEl, labelEl, value, label\) \{[\s\S]*?\n\}/);
+if (!setProgressMatch) {
+  console.error("Could not find setProgress function in drag-drop.js");
+  process.exit(1);
+}
+eval(setProgressMatch[0]);
 
 // 2. Define our test cases
 const testCases = [
@@ -47,6 +51,70 @@ const testCases = [
   ['Letters and garbage', 'a, b-c, 1', 10, [1]]
 ];
 
+// 3. Define setProgress test cases
+// We'll write a simple test runner function for this
+function testSetProgress() {
+  console.log("\n🧪 Running setProgress Tests\n");
+  let p = 0;
+  let f = 0;
+
+  const cases = [
+    {
+      desc: 'Updates width and label correctly',
+      value: 50,
+      label: 'Loading...',
+      withLabelEl: true,
+      expectedWidth: '50%',
+      expectedText: 'Loading...'
+    },
+    {
+      desc: 'Handles 0 correctly',
+      value: 0,
+      label: 'Start',
+      withLabelEl: true,
+      expectedWidth: '0%',
+      expectedText: 'Start'
+    },
+    {
+      desc: 'Handles 100 correctly',
+      value: 100,
+      label: 'Complete',
+      withLabelEl: true,
+      expectedWidth: '100%',
+      expectedText: 'Complete'
+    },
+    {
+      desc: 'Works without labelEl',
+      value: 75,
+      label: 'Ignoring this',
+      withLabelEl: false,
+      expectedWidth: '75%',
+      expectedText: undefined // Not updated
+    }
+  ];
+
+  for (const c of cases) {
+    const barEl = { style: {} };
+    const labelEl = c.withLabelEl ? { textContent: '' } : null;
+
+    try {
+      setProgress(barEl, labelEl, c.value, c.label);
+      assert.strictEqual(barEl.style.width, c.expectedWidth);
+      if (c.withLabelEl) {
+        assert.strictEqual(labelEl.textContent, c.expectedText);
+      }
+      console.log(`✅ PASS: ${c.desc}`);
+      p++;
+    } catch (err) {
+      console.error(`❌ FAIL: ${c.desc}`);
+      console.error(`   Error: ${err.message}`);
+      f++;
+    }
+  }
+  return { passed: p, failed: f };
+}
+
+
 // Run tests
 let passed = 0;
 let failed = 0;
@@ -74,7 +142,11 @@ for (const [desc, input, total, expected] of testCases) {
   }
 }
 
-console.log(`\nResults: ${passed} passed, ${failed} failed.`);
+const setProgressResults = testSetProgress();
+passed += setProgressResults.passed;
+failed += setProgressResults.failed;
+
+console.log(`\nTotal Results: ${passed} passed, ${failed} failed.`);
 
 if (failed > 0) {
   process.exit(1);
