@@ -39,10 +39,19 @@ addBtn.addEventListener('click', async () => {
   try {
     const pdfLib = window.PDFLib;
     if (!pdfLib) throw new Error('PDF-lib is not ready');
+    if (!window.fontkit) throw new Error('fontkit is not ready');
 
     const bytes = await sourceFile.arrayBuffer();
     const pdfDoc = await pdfLib.PDFDocument.load(bytes);
-    const font = await pdfDoc.embedFont(pdfLib.StandardFonts.Helvetica);
+    pdfDoc.registerFontkit(window.fontkit);
+
+    // Fetch IBM Plex Serif font (.woff format since pdf-lib does not support woff2 out of the box)
+    const fontUrl = 'https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff';
+    const fontResponse = await fetch(fontUrl);
+    if (!fontResponse.ok) throw new Error('Could not load font');
+    const fontBytes = await fontResponse.arrayBuffer();
+    const font = await pdfDoc.embedFont(fontBytes);
+
     const pages = pdfDoc.getPages();
     const start = Math.max(1, parseInt(startPageInput.value, 10) || 1);
 
