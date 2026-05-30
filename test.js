@@ -3,6 +3,16 @@ const assert = require('assert');
 const path = require('path');
 
 // 1. Extract the functions from the source files
+const pdfProtectFile = path.join(__dirname, 'js/pdf-protect.js');
+const pdfProtectContent = fs.readFileSync(pdfProtectFile, 'utf8');
+
+const validatePasswordsMatch = pdfProtectContent.match(/function validatePasswords\(\) \{[\s\S]*?\n\}/);
+if (!validatePasswordsMatch) {
+  console.error("Could not find validatePasswords function in pdf-protect.js");
+  process.exit(1);
+}
+// We will evaluate this inside the test function where DOM variables are mocked
+
 const pdfToImgFile = path.join(__dirname, 'js/pdf-to-img.js');
 const pdfToImgContent = fs.readFileSync(pdfToImgFile, 'utf8');
 
@@ -51,7 +61,68 @@ const testCases = [
   ['Letters and garbage', 'a, b-c, 1', 10, [1]]
 ];
 
-// 3. Define setProgress test cases
+// 3. Define validatePasswords test cases
+function testValidatePasswords() {
+  console.log("\n🧪 Running validatePasswords Tests\n");
+  let p = 0;
+  let f = 0;
+
+  // Mock global showToast function
+  let lastToastMessage = null;
+  let lastToastType = null;
+  global.showToast = function(message, type) {
+    lastToastMessage = message;
+    lastToastType = type;
+  };
+
+  // Mock DOM elements
+  const passwordEl = { value: '' };
+  const confirmPasswordEl = { value: '' };
+
+  // Evaluate the function in the current scope so it has access to mocked globals
+  const validatePasswords = new Function('passwordEl', 'confirmPasswordEl', 'showToast', `
+    ${validatePasswordsMatch[0]}
+    return validatePasswords();
+  `);
+
+  // Helper to run a test case
+  function runTest(desc, p1, p2, expectedReturn, expectedToast) {
+    passwordEl.value = p1;
+    confirmPasswordEl.value = p2;
+    lastToastMessage = null;
+    lastToastType = null;
+
+    try {
+      const result = validatePasswords(passwordEl, confirmPasswordEl, global.showToast);
+      assert.strictEqual(result, expectedReturn);
+      if (expectedToast) {
+        assert.strictEqual(lastToastMessage, expectedToast);
+      } else {
+        assert.strictEqual(lastToastMessage, null);
+      }
+      console.log(`✅ PASS: ${desc}`);
+      p++;
+    } catch (err) {
+      console.error(`❌ FAIL: ${desc}`);
+      console.error(`   Error: ${err.message}`);
+      f++;
+    }
+  }
+
+  // Happy paths
+  runTest('Valid matching passwords', 'secret', 'secret', 'secret', null);
+  runTest('Whitespace is trimmed', '  secret  ', 'secret', 'secret', null);
+  runTest('Both trimmed correctly', ' secret ', '  secret  ', 'secret', null);
+
+  // Error cases
+  runTest('Password too short', '123', '123', null, 'Password must be at least 4 characters.');
+  runTest('Password too short (after trim)', '123  ', '123  ', null, 'Password must be at least 4 characters.');
+  runTest('Passwords do not match', 'secret', 'different', null, 'Passwords do not match.');
+
+  return { passed: p, failed: f };
+}
+
+// 4. Define setProgress test cases
 // We'll write a simple test runner function for this
 function testSetProgress() {
   console.log("\n🧪 Running setProgress Tests\n");
@@ -141,6 +212,10 @@ for (const [desc, input, total, expected] of testCases) {
     failed++;
   }
 }
+
+const validatePasswordsResults = testValidatePasswords();
+passed += validatePasswordsResults.passed;
+failed += validatePasswordsResults.failed;
 
 const setProgressResults = testSetProgress();
 passed += setProgressResults.passed;
