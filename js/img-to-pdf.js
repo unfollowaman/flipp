@@ -83,6 +83,8 @@ function renderPreviewGrid() {
   previewGrid.innerHTML = '';
   fileCountEl.textContent = `${imageFiles.length} image${imageFiles.length !== 1 ? 's' : ''} selected`;
 
+  const fragment = document.createDocumentFragment();
+
   imageFiles.forEach((entry, idx) => {
     const card = document.createElement('div');
     card.className    = 'img-thumb-card';
@@ -124,8 +126,10 @@ function renderPreviewGrid() {
     // Drag to reorder
     setupDragReorder(card, idx);
 
-    previewGrid.appendChild(card);
+    fragment.appendChild(card);
   });
+
+  previewGrid.appendChild(fragment);
 }
 
 // ── Drag-to-reorder ─────────────────────────────────────
