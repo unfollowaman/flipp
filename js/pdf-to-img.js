@@ -32,7 +32,6 @@ async function waitForPdfjs() {
 // ── DOM refs ───────────────────────────────────────────
 const dropZoneEl      = document.getElementById('pdf-drop-zone');
 const fileInputEl     = document.getElementById('pdf-file-input');
-const dzContent       = document.getElementById('pdf-dz-content');
 
 const optionsEl       = document.getElementById('pdf-options');
 const pagesGroup      = document.getElementById('pdf-pages-pills');
