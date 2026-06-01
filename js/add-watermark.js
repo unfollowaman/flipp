@@ -373,11 +373,11 @@ convertBtn.addEventListener('click', async () => {
       }
 
       // small delay to let UI update
-      if (i % 5 === 0) await new Promise(r => setTimeout(r, 10));
+      if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
     }
 
     setProgress(progressArea, 100, 'Saving PDF...');
-    await new Promise(r => setTimeout(r, 100)); // allow UI to paint
+    await new Promise(r => setTimeout(r, 0)); // allow UI to paint
 
     processedPdfBytes = await pdfDoc.save();
 
