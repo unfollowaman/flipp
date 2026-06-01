@@ -62,7 +62,7 @@ positionSelect.addEventListener('change', schedulePreviewUpdate);
 // Mode Switching
 modePills.forEach(pill => {
   pill.addEventListener('click', (e) => {
-    activatePill(modePills, e.target);
+    activatePill(e.target.parentElement, e.target.dataset.value);
     currentMode = e.target.dataset.value;
     if (currentMode === 'text') {
       textControls.style.display = 'flex';
