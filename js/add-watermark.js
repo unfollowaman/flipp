@@ -175,56 +175,58 @@ function drawWatermarkOnCanvas(ctx, width, height) {
   ctx.globalAlpha = opacity;
 
   if (currentMode === 'text') {
-    const text = textInput.value;
-    if (!text) { ctx.restore(); return; }
-
-    const fontSize = parseInt(fontSizeInput.value) * 1.5; // Scale up for canvas viewport
-    ctx.font = `bold ${fontSize}px sans-serif`;
-    ctx.fillStyle = colorInput.value;
-
-    const metrics = ctx.measureText(text);
-    const textWidth = metrics.width;
-    const textHeight = fontSize; // rough estimation
-
-    if (position === 'tile') {
-      const stepX = textWidth + 100;
-      const stepY = textHeight + 100;
-      // Start slightly outside to ensure coverage after rotation
-      for(let x = -width; x < width * 2; x += stepX) {
-        for(let y = -height; y < height * 2; y += stepY) {
-           drawTextAt(ctx, text, x, y, rotation, textWidth, textHeight);
-        }
-      }
-    } else {
-       const {x, y} = getPositionCoordinates(position, width, height, textWidth, textHeight);
-       drawTextAt(ctx, text, x, y, rotation, textWidth, textHeight);
-    }
-
+    drawTextWatermarkOnCanvas(ctx, width, height, position, rotation);
   } else {
-    // Image mode
-    if (!uploadedImageURL) { ctx.restore(); return; }
-    const img = document.getElementById('wm-image-preview');
-    if (!img.complete || img.naturalWidth === 0) { ctx.restore(); return; }
-
-    const scale = parseFloat(scaleInput.value);
-    const imgWidth = img.naturalWidth * scale;
-    const imgHeight = img.naturalHeight * scale;
-
-    if (position === 'tile') {
-      const stepX = imgWidth + 50;
-      const stepY = imgHeight + 50;
-      for(let x = -width; x < width * 2; x += stepX) {
-        for(let y = -height; y < height * 2; y += stepY) {
-           drawImageAt(ctx, img, x, y, rotation, imgWidth, imgHeight);
-        }
-      }
-    } else {
-       const {x, y} = getPositionCoordinates(position, width, height, imgWidth, imgHeight);
-       drawImageAt(ctx, img, x, y, rotation, imgWidth, imgHeight);
-    }
+    drawImageWatermarkOnCanvas(ctx, width, height, position, rotation);
   }
 
   ctx.restore();
+}
+
+function drawTextWatermarkOnCanvas(ctx, width, height, position, rotation) {
+  const text = textInput.value;
+  if (!text) return;
+
+  const fontSize = parseInt(fontSizeInput.value) * 1.5; // Scale up for canvas viewport
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.fillStyle = colorInput.value;
+
+  const metrics = ctx.measureText(text);
+  const textWidth = metrics.width;
+  const textHeight = fontSize; // rough estimation
+
+  applyWatermarkPattern(position, width, height, textWidth, textHeight, 100, 100, getPositionCoordinates, (x, y) => {
+     drawTextAt(ctx, text, x, y, rotation, textWidth, textHeight);
+  });
+}
+
+function drawImageWatermarkOnCanvas(ctx, width, height, position, rotation) {
+  if (!uploadedImageURL) return;
+  const img = document.getElementById('wm-image-preview');
+  if (!img.complete || img.naturalWidth === 0) return;
+
+  const scale = parseFloat(scaleInput.value);
+  const imgWidth = img.naturalWidth * scale;
+  const imgHeight = img.naturalHeight * scale;
+
+  applyWatermarkPattern(position, width, height, imgWidth, imgHeight, 50, 50, getPositionCoordinates, (x, y) => {
+     drawImageAt(ctx, img, x, y, rotation, imgWidth, imgHeight);
+  });
+}
+
+function applyWatermarkPattern(position, width, height, itemW, itemH, padX, padY, getCoordsFn, drawFn) {
+  if (position === 'tile') {
+    const stepX = itemW + padX;
+    const stepY = itemH + padY;
+    for(let x = -width; x < width * 2; x += stepX) {
+      for(let y = -height; y < height * 2; y += stepY) {
+         drawFn(x, y);
+      }
+    }
+  } else {
+     const {x, y} = getCoordsFn(position, width, height, itemW, itemH);
+     drawFn(x, y);
+  }
 }
 
 function getPositionCoordinates(position, canvasW, canvasH, itemW, itemH) {
@@ -340,28 +342,8 @@ convertBtn.addEventListener('click', async () => {
          const textWidth = font.widthOfTextAtSize(text, fontSize);
          const textHeight = font.heightAtSize(fontSize);
 
-         if (position === 'tile') {
-            const stepX = textWidth + 100;
-            const stepY = textHeight + 100;
-            // Cover a large area to account for rotation
-            for (let x = -width; x < width * 2; x += stepX) {
-              for (let y = -height; y < height * 2; y += stepY) {
-                 const { dx, dy } = getPdfPositionOffset(x, y, textWidth, textHeight, rotationDeg);
-                 page.drawText(text, {
-                    x: dx,
-                    y: dy,
-                    size: fontSize,
-                    font: font,
-                    color: pdfColor,
-                    opacity: opacity,
-                    rotate: rotation,
-                 });
-              }
-            }
-         } else {
-            const {x, y} = getPdfCoordinates(position, width, height, textWidth, textHeight);
+         applyWatermarkPattern(position, width, height, textWidth, textHeight, 100, 100, getPdfCoordinates, (x, y) => {
             const { dx, dy } = getPdfPositionOffset(x, y, textWidth, textHeight, rotationDeg);
-
             page.drawText(text, {
                x: dx,
                y: dy,
@@ -371,30 +353,13 @@ convertBtn.addEventListener('click', async () => {
                opacity: opacity,
                rotate: rotation,
             });
-         }
+         });
       } else {
          if (!wmImage) continue;
          const imgW = imageDims.width;
          const imgH = imageDims.height;
 
-         if (position === 'tile') {
-            const stepX = imgW + 50;
-            const stepY = imgH + 50;
-            for (let x = -width; x < width * 2; x += stepX) {
-              for (let y = -height; y < height * 2; y += stepY) {
-                 const { dx, dy } = getPdfPositionOffset(x, y, imgW, imgH, rotationDeg);
-                 page.drawImage(wmImage, {
-                    x: dx,
-                    y: dy,
-                    width: imgW,
-                    height: imgH,
-                    opacity: opacity,
-                    rotate: rotation,
-                 });
-              }
-            }
-         } else {
-            const {x, y} = getPdfCoordinates(position, width, height, imgW, imgH);
+         applyWatermarkPattern(position, width, height, imgW, imgH, 50, 50, getPdfCoordinates, (x, y) => {
             const { dx, dy } = getPdfPositionOffset(x, y, imgW, imgH, rotationDeg);
             page.drawImage(wmImage, {
                x: dx,
@@ -404,7 +369,7 @@ convertBtn.addEventListener('click', async () => {
                opacity: opacity,
                rotate: rotation,
             });
-         }
+         });
       }
 
       // small delay to let UI update
