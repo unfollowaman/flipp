@@ -124,6 +124,7 @@ async function showPreview(filename) {
 
   // Render first few pages as thumbnails (max 12 for perf)
   const thumbPages = Math.min(totalPages, 12);
+  const fragment = document.createDocumentFragment();
   for (let i = 1; i <= thumbPages; i++) {
     const page = await pdfDoc.getPage(i);
     const { canvas } = await renderPageToCanvas(page, 0.3);
@@ -135,15 +136,16 @@ async function showPreview(filename) {
     lbl.className   = 'preview-page-label';
     lbl.textContent = `Page ${i}`;
     card.appendChild(lbl);
-    previewGrid.appendChild(card);
+    fragment.appendChild(card);
   }
   if (totalPages > 12) {
     const more = document.createElement('div');
     more.className   = 'preview-page-card';
     more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:120px;font-size:13px;font-weight:700;color:#888;';
     more.textContent = `+${totalPages - 12} more pages`;
-    previewGrid.appendChild(more);
+    fragment.appendChild(more);
   }
+  previewGrid.appendChild(fragment);
 }
 
 // ── Convert pages ───────────────────────────────────────
@@ -198,6 +200,7 @@ function showResults() {
   resultsArea.style.display  = 'block';
   resultsGrid.innerHTML      = '';
 
+  const fragment = document.createDocumentFragment();
   for (const { pageNum, dataUrl } of renderedPages) {
     const filename = `page-${String(pageNum).padStart(3, '0')}.png`;
 
@@ -225,8 +228,9 @@ function showResults() {
     actions.appendChild(dlBtn);
 
     card.appendChild(actions);
-    resultsGrid.appendChild(card);
+    fragment.appendChild(card);
   }
+  resultsGrid.appendChild(fragment);
 
   showToast(`✓ ${renderedPages.length} PNG${renderedPages.length !== 1 ? 's' : ''} ready!`);
 }
