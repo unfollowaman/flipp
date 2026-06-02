@@ -10,6 +10,8 @@ const fileInput = document.getElementById('wm-file-input');
 const optionsBar = document.getElementById('wm-options');
 const previewArea = document.getElementById('wm-preview-area');
 const progressArea = document.getElementById('wm-progress');
+const progressBar = document.getElementById('wm-progress-bar');
+const progressLabel = document.getElementById('wm-progress-label');
 const resultsArea = document.getElementById('wm-results');
 const fileInfo = document.getElementById('wm-file-info');
 const previewCanvas = document.getElementById('wm-preview-canvas');
@@ -330,7 +332,7 @@ convertBtn.addEventListener('click', async () => {
     }
 
     for (let i = 0; i < numPages; i++) {
-      setProgress(progressArea, ((i) / numPages) * 100, `Applying watermark to page ${i + 1} of ${numPages}...`);
+      setProgress(progressBar, progressLabel, ((i) / numPages) * 100, `Applying watermark to page ${i + 1} of ${numPages}...`);
 
       const page = pages[i];
       const { width, height } = page.getSize();
@@ -376,7 +378,7 @@ convertBtn.addEventListener('click', async () => {
       if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
     }
 
-    setProgress(progressArea, 100, 'Saving PDF...');
+    setProgress(progressBar, progressLabel, 100, 'Saving PDF...');
     await new Promise(r => setTimeout(r, 0)); // allow UI to paint
 
     processedPdfBytes = await pdfDoc.save();
