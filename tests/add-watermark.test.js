@@ -9,8 +9,8 @@ let src = fs.readFileSync(srcPath, 'utf8');
 // Robustly strip all import statements
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
-// Expose getPdfPositionOffset for testing
-src += '\nreturn { getPdfPositionOffset };\n';
+// Expose functions for testing
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates };\n';
 
 test('getPdfPositionOffset functionality', async (t) => {
   const createMockElement = (id = '') => {
@@ -129,5 +129,72 @@ test('getPdfPositionOffset functionality', async (t) => {
     const result = getPdfPositionOffset(cx, cy, w, h, rot);
     assert.strictEqual(Math.round(result.dx), 125);
     assert.strictEqual(Math.round(result.dy), 75);
+  });
+});
+
+test('getPdfCoordinates functionality', async (t) => {
+  const createMockElement = (id = '') => {
+    const el = {
+      id,
+      value: '',
+      style: { display: '' },
+      classList: { add: () => {}, remove: () => {}, contains: () => false },
+      appendChild: () => {},
+      innerHTML: '',
+      textContent: '',
+      addEventListener: () => {},
+      querySelector: () => createMockElement(),
+      querySelectorAll: () => [],
+      getAttribute: () => null,
+      setAttribute: () => {},
+      removeAttribute: () => {},
+      getContext: () => ({})
+    };
+    return el;
+  };
+
+  const mockDocument = {
+    getElementById: createMockElement,
+    createElement: () => createMockElement(),
+    querySelectorAll: () => []
+  };
+
+  const mockWindow = {};
+  const mockInitDropZone = () => {};
+  const mockShowToast = () => {};
+  const mockSetProgress = () => {};
+  const mockActivatePill = () => {};
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
+  const { getPdfCoordinates } = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+
+  await t.test('calculates correct coordinates for center position', () => {
+    const result = getPdfCoordinates('center', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 500, y: 500 });
+  });
+
+  await t.test('calculates correct coordinates for top-left position', () => {
+    const result = getPdfCoordinates('top-left', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 20 + 50, y: 1000 - 20 - 25 });
+  });
+
+  await t.test('calculates correct coordinates for top-right position', () => {
+    const result = getPdfCoordinates('top-right', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 1000 - 20 - 50, y: 1000 - 20 - 25 });
+  });
+
+  await t.test('calculates correct coordinates for bottom-left position', () => {
+    const result = getPdfCoordinates('bottom-left', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 20 + 50, y: 20 + 25 });
+  });
+
+  await t.test('calculates correct coordinates for bottom-right position', () => {
+    const result = getPdfCoordinates('bottom-right', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 1000 - 20 - 50, y: 20 + 25 });
+  });
+
+  await t.test('returns (0, 0) for unrecognized position', () => {
+    const result = getPdfCoordinates('unknown', 1000, 1000, 100, 50);
+    assert.deepStrictEqual(result, { x: 0, y: 0 });
   });
 });
