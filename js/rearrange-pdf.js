@@ -54,6 +54,8 @@ async function loadPdfAndRenderThumbnails() {
     previewGrid.innerHTML = '';
     countEl.textContent = `${numPages} page${numPages !== 1 ? 's' : ''}`;
 
+    const fragment = document.createDocumentFragment();
+
     for (let i = 1; i <= numPages; i++) {
         if (numPages > 20) {
             setProgress(progressBar, progressLabel, Math.round((i / numPages) * 100), `Rendering page ${i} of ${numPages}...`);
@@ -105,8 +107,10 @@ async function loadPdfAndRenderThumbnails() {
         card.appendChild(rmBtn);
 
         setupDragReorder(card, i - 1);
-        previewGrid.appendChild(card);
+        fragment.appendChild(card);
     }
+
+    previewGrid.appendChild(fragment);
 
     progressArea.style.display = 'none';
     previewArea.style.display = 'block';
