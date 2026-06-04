@@ -78,10 +78,9 @@ textarea { font-family: inherit; }
 .navbar {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 12px;
   padding: 0 32px;
-  min-height: 64px;
+  height: 64px;
   background: var(--white);
   border-bottom: var(--border-std);
   position: sticky;
@@ -1571,18 +1570,18 @@ textarea { font-family: inherit; }
   .blog-post-main { padding: 48px 16px; }
 }
 
-
 /* ==============================
    Product Hunt Badge
    ============================== */
 .product-hunt-badge {
   display: flex;
   align-items: center;
-  margin-left: 8px;
+  justify-content: center;
+  margin: 16px 0;
 }
 
 .product-hunt-badge img {
-  width: clamp(140px, 20vw, 250px);
+  width: clamp(140px, 18vw, 220px);
   height: auto;
   display: block;
 }
