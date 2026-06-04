@@ -50,4 +50,24 @@ test('normalizeText', async (t) => {
     const expected = 'First line\n    Second line\nThird line';
     assert.strictEqual(normalizeText(input), expected);
   });
+
+  await t.test('preserves leading whitespace (indentation) on non-first lines', () => {
+    assert.strictEqual(normalizeText('first line\n  indented line\n    more indented'), 'first line\n  indented line\n    more indented');
+  });
+
+  await t.test('preserves multiple consecutive spaces between words', () => {
+    assert.strictEqual(normalizeText('word1   word2'), 'word1   word2');
+  });
+
+  await t.test('preserves multiple consecutive empty lines', () => {
+    assert.strictEqual(normalizeText('line1\n\n\nline2'), 'line1\n\n\nline2');
+  });
+
+  await t.test('lines containing only spaces/tabs become empty lines', () => {
+    assert.strictEqual(normalizeText('line1\n  \t  \nline2'), 'line1\n\nline2');
+  });
+
+  await t.test('handles multiple consecutive tabs', () => {
+    assert.strictEqual(normalizeText('col1\t\tcol2'), 'col1        col2');
+  });
 });
