@@ -1,6 +1,6 @@
 // img-to-pdf.js — PNG/JPG → PDF conversion using jsPDF
 
-import { initDropZone, showToast, setProgress, activatePill } from '/js/drag-drop.js';
+import { initDropZone, showToast, setProgress, activatePill, setupDragReorder } from '/js/drag-drop.js';
 
 // ── State ──────────────────────────────────────────────
 let imageFiles   = []; // { file, objectUrl, name }
@@ -124,7 +124,7 @@ function renderPreviewGrid() {
     card.appendChild(rmBtn);
 
     // Drag to reorder
-    setupDragReorder(card, idx);
+    setupDragReorder(card, updateImageOrder);
 
     fragment.appendChild(card);
   });
@@ -133,41 +133,21 @@ function renderPreviewGrid() {
 }
 
 // ── Drag-to-reorder ─────────────────────────────────────
-let dragSrcIdx = null;
+function updateImageOrder() {
+  const allCards = Array.from(previewGrid.querySelectorAll('.img-thumb-card'));
 
-function setupDragReorder(card, idx) {
-  card.addEventListener('dragstart', (e) => {
-    dragSrcIdx = idx;
-    card.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
+  // Rebuild imageFiles array based on the new DOM order
+  const newImageFiles = [];
+  allCards.forEach((card, index) => {
+    const oldIdx = parseInt(card.dataset.idx, 10);
+    newImageFiles.push(imageFiles[oldIdx]);
+
+    // Update the DOM to reflect new index
+    card.dataset.idx = index;
+    card.querySelector('.img-thumb-num').textContent = index + 1;
   });
 
-  card.addEventListener('dragend', () => {
-    card.classList.remove('dragging');
-    previewGrid.querySelectorAll('.img-thumb-card').forEach(c => {
-      c.classList.remove('drag-target');
-    });
-  });
-
-  card.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-
-    if (!card.classList.contains('drag-target')) {
-      const active = previewGrid.querySelector('.drag-target');
-      if (active) active.classList.remove('drag-target');
-      card.classList.add('drag-target');
-    }
-  });
-
-  card.addEventListener('drop', (e) => {
-    e.preventDefault();
-    if (dragSrcIdx === null || dragSrcIdx === idx) return;
-    const moved = imageFiles.splice(dragSrcIdx, 1)[0];
-    imageFiles.splice(idx, 0, moved);
-    dragSrcIdx = null;
-    renderPreviewGrid();
-  });
+  imageFiles = newImageFiles;
 }
 
 // ── Add more images button ──────────────────────────────

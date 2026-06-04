@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress } from '/js/drag-drop.js';
+import { initDropZone, showToast, setProgress, setupDragReorder } from '/js/drag-drop.js';
 
 let originalPdfFile = null;
 let originalPdfBytes = null;
@@ -106,7 +106,7 @@ async function loadPdfAndRenderThumbnails() {
         };
         card.appendChild(rmBtn);
 
-        setupDragReorder(card, i - 1);
+        setupDragReorder(card, updatePagesOrder);
         fragment.appendChild(card);
     }
 
@@ -123,63 +123,6 @@ async function loadPdfAndRenderThumbnails() {
 }
 
 // ── Drag-to-reorder ─────────────────────────────────────
-let dragSrcCard = null;
-
-function setupDragReorder(card, idx) {
-  // Mobile touch support
-  card.addEventListener('touchstart', handleTouchStart, {passive: false});
-  card.addEventListener('touchmove', handleTouchMove, {passive: false});
-  card.addEventListener('touchend', handleTouchEnd, {passive: false});
-
-  // Desktop drag support
-  card.addEventListener('dragstart', (e) => {
-    dragSrcCard = card;
-    card.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    // We pass the index of this card as it's currently rendered
-  });
-
-  card.addEventListener('dragend', () => {
-    card.classList.remove('dragging');
-    previewGrid.querySelectorAll('.img-thumb-card').forEach(c => {
-      c.classList.remove('drag-target');
-    });
-  });
-
-  card.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-
-    if (!card.classList.contains('drag-target')) {
-      const active = previewGrid.querySelector('.drag-target');
-      if (active) active.classList.remove('drag-target');
-      card.classList.add('drag-target');
-    }
-  });
-
-  card.addEventListener('drop', (e) => {
-    e.preventDefault();
-    handleDrop(card);
-  });
-}
-
-function handleDrop(targetCard) {
-    if (!dragSrcCard || dragSrcCard === targetCard) return;
-
-    // We need to move dragSrcCard before or after targetCard in the DOM
-    const allCards = Array.from(previewGrid.querySelectorAll('.img-thumb-card'));
-    const srcIndex = allCards.indexOf(dragSrcCard);
-    const targetIndex = allCards.indexOf(targetCard);
-
-    if (srcIndex < targetIndex) {
-        targetCard.after(dragSrcCard);
-    } else {
-        targetCard.before(dragSrcCard);
-    }
-
-    updatePagesOrder();
-}
-
 function updatePagesOrder() {
     const allCards = Array.from(previewGrid.querySelectorAll('.img-thumb-card'));
     pagesOrder = allCards.map(card => parseInt(card.dataset.idx, 10));
@@ -193,70 +136,6 @@ function updatePagesOrder() {
         num.textContent = index + 1;
         lbl.textContent = `Page ${index + 1}`;
     });
-}
-
-// ── Touch Drag Support ─────────────────────────────────
-let initialTouchY = 0;
-let initialTouchX = 0;
-let lastTouchTarget = null;
-
-function handleTouchStart(e) {
-  // If the user tapped the remove button, ignore the touch drag
-  if (e.target.closest('.img-thumb-remove')) return;
-
-  const card = e.target.closest('.img-thumb-card');
-  if (!card) return;
-  dragSrcCard = card;
-  const touch = e.touches[0];
-  initialTouchX = touch.clientX;
-  initialTouchY = touch.clientY;
-
-  card.classList.add('dragging');
-  // Elevate the card so it floats above others
-  card.style.zIndex = '1000';
-}
-
-function handleTouchMove(e) {
-  if (!dragSrcCard) return;
-  e.preventDefault(); // prevent scrolling
-  const touch = e.touches[0];
-
-  const deltaX = touch.clientX - initialTouchX;
-  const deltaY = touch.clientY - initialTouchY;
-  dragSrcCard.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-  // Hide the dragged card temporarily to find the element underneath
-  dragSrcCard.style.visibility = 'hidden';
-  const target = document.elementFromPoint(touch.clientX, touch.clientY);
-  dragSrcCard.style.visibility = 'visible';
-
-  const targetCard = target ? target.closest('.img-thumb-card') : null;
-
-  if (targetCard && targetCard !== dragSrcCard) {
-      if (lastTouchTarget && lastTouchTarget !== targetCard) {
-          lastTouchTarget.classList.remove('drag-target');
-      }
-      targetCard.classList.add('drag-target');
-      lastTouchTarget = targetCard;
-  } else if (!targetCard && lastTouchTarget) {
-      lastTouchTarget.classList.remove('drag-target');
-      lastTouchTarget = null;
-  }
-}
-
-function handleTouchEnd(e) {
-  if (!dragSrcCard) return;
-  dragSrcCard.classList.remove('dragging');
-  dragSrcCard.style.transform = '';
-  dragSrcCard.style.zIndex = '';
-
-  if (lastTouchTarget) {
-      lastTouchTarget.classList.remove('drag-target');
-      handleDrop(lastTouchTarget);
-  }
-
-  dragSrcCard = null;
-  lastTouchTarget = null;
 }
 
 // ── Build Output PDF ───────────────────────────────────

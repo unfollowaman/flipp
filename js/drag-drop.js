@@ -63,3 +63,121 @@ export function activatePill(group, value) {
     p.classList.toggle('active', p.dataset.value === value);
   });
 }
+
+
+// ── Shared Drag Reorder Logic ──────────────────────────────
+let dragSrcCard = null;
+let initialTouchY = 0;
+let initialTouchX = 0;
+let lastTouchTarget = null;
+
+export function setupDragReorder(card, onReorder) {
+  // Mobile touch support
+  card.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.img-thumb-remove')) return;
+    const currentCard = e.target.closest('.img-thumb-card');
+    if (!currentCard) return;
+    dragSrcCard = currentCard;
+    const touch = e.touches[0];
+    initialTouchX = touch.clientX;
+    initialTouchY = touch.clientY;
+
+    currentCard.classList.add('dragging');
+    currentCard.style.zIndex = '1000';
+  }, {passive: false});
+
+  card.addEventListener('touchmove', (e) => {
+    if (!dragSrcCard) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+
+    const deltaX = touch.clientX - initialTouchX;
+    const deltaY = touch.clientY - initialTouchY;
+    dragSrcCard.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+    dragSrcCard.style.visibility = 'hidden';
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    dragSrcCard.style.visibility = 'visible';
+
+    const targetCard = target ? target.closest('.img-thumb-card') : null;
+
+    if (targetCard && targetCard !== dragSrcCard) {
+      if (lastTouchTarget && lastTouchTarget !== targetCard) {
+        lastTouchTarget.classList.remove('drag-target');
+      }
+      targetCard.classList.add('drag-target');
+      lastTouchTarget = targetCard;
+    } else if (!targetCard && lastTouchTarget) {
+      lastTouchTarget.classList.remove('drag-target');
+      lastTouchTarget = null;
+    }
+  }, {passive: false});
+
+  card.addEventListener('touchend', (e) => {
+    if (!dragSrcCard) return;
+    dragSrcCard.classList.remove('dragging');
+    dragSrcCard.style.transform = '';
+    dragSrcCard.style.zIndex = '';
+
+    if (lastTouchTarget) {
+      lastTouchTarget.classList.remove('drag-target');
+      handleDrop(lastTouchTarget, onReorder);
+    }
+
+    dragSrcCard = null;
+    lastTouchTarget = null;
+  }, {passive: false});
+
+  // Desktop drag support
+  card.addEventListener('dragstart', (e) => {
+    dragSrcCard = card;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    if (card.parentElement) {
+      card.parentElement.querySelectorAll('.img-thumb-card').forEach(c => {
+        c.classList.remove('drag-target');
+      });
+    }
+  });
+
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    if (!card.classList.contains('drag-target')) {
+      const active = card.parentElement ? card.parentElement.querySelector('.drag-target') : null;
+      if (active) active.classList.remove('drag-target');
+      card.classList.add('drag-target');
+    }
+  });
+
+  card.addEventListener('drop', (e) => {
+    e.preventDefault();
+    handleDrop(card, onReorder);
+  });
+}
+
+function handleDrop(targetCard, onReorder) {
+  if (!dragSrcCard || dragSrcCard === targetCard) return;
+
+  const parent = targetCard.parentElement;
+  if (!parent) return;
+
+  const allCards = Array.from(parent.querySelectorAll('.img-thumb-card'));
+  const srcIndex = allCards.indexOf(dragSrcCard);
+  const targetIndex = allCards.indexOf(targetCard);
+
+  if (srcIndex < targetIndex) {
+    targetCard.after(dragSrcCard);
+  } else {
+    targetCard.before(dragSrcCard);
+  }
+
+  if (onReorder) {
+    onReorder();
+  }
+}
