@@ -1021,10 +1021,10 @@ textarea { font-family: inherit; }
   margin: 0 auto;
   padding: 0 32px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 .footer-logo {
@@ -1585,4 +1585,21 @@ textarea { font-family: inherit; }
   width: clamp(140px, 20vw, 250px);
   height: auto;
   display: block;
+}
+
+/* ==============================
+   Footer Product Hunt Badge
+   ============================== */
+.footer-ph-badge {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  width: 100%;
+}
+.footer-ph-badge img {
+  width: clamp(140px, 18vw, 220px);
+  height: auto;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
