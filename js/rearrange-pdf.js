@@ -31,6 +31,89 @@ function handleFiles(files) {
   loadPdfAndRenderThumbnails();
 }
 
+async function loadPdfDocument() {
+  originalPdfBytes = await originalPdfFile.arrayBuffer();
+
+  // Check if pdfjsLib is loaded globally
+  const pdfjs = window['pdfjs-dist/build/pdf'];
+  if (!pdfjs) throw new Error('PDF.js not loaded.');
+
+  // Pass a copy so pdf.js doesn't detach the original ArrayBuffer
+  pdfDocument = await pdfjs.getDocument({ data: originalPdfBytes.slice(0) }).promise;
+  const numPages = pdfDocument.numPages;
+  pagesOrder = Array.from({ length: numPages }, (_, i) => i);
+
+  return numPages;
+}
+
+function createThumbnailCard(dataUrl, i) {
+  const card = document.createElement('div');
+  card.className = 'img-thumb-card';
+  card.draggable = true;
+  card.dataset.idx = i - 1; // 0-based index
+
+  const num = document.createElement('div');
+  num.className = 'img-thumb-num';
+  num.textContent = i;
+  card.appendChild(num);
+
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.loading = 'lazy';
+  img.alt = `Page ${i}`;
+  card.appendChild(img);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'img-thumb-label';
+  lbl.textContent = `Page ${i}`;
+  card.appendChild(lbl);
+
+  const rmBtn = document.createElement('button');
+  rmBtn.className = 'img-thumb-remove';
+  rmBtn.textContent = '✕';
+  rmBtn.title = 'Remove page';
+  rmBtn.onclick = (e) => {
+      e.stopPropagation();
+      card.remove();
+      updatePagesOrder();
+  };
+  card.appendChild(rmBtn);
+
+  setupDragReorder(card, updatePagesOrder);
+  return card;
+}
+
+async function renderThumbnails(numPages) {
+  previewGrid.innerHTML = '';
+  countEl.textContent = `${numPages} page${numPages !== 1 ? 's' : ''}`;
+
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 1; i <= numPages; i++) {
+      if (numPages > 20) {
+          setProgress(progressBar, progressLabel, Math.round((i / numPages) * 100), `Rendering page ${i} of ${numPages}...`);
+          await new Promise(r => setTimeout(r, 0)); // Allow UI update
+      }
+
+      const page = await pdfDocument.getPage(i);
+      const scale = 0.3;
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataUrl = canvas.toDataURL();
+
+      const card = createThumbnailCard(dataUrl, i);
+      fragment.appendChild(card);
+  }
+
+  previewGrid.appendChild(fragment);
+}
+
 async function loadPdfAndRenderThumbnails() {
   dropZoneEl.style.display = 'none';
   progressArea.style.display = 'block';
@@ -40,77 +123,8 @@ async function loadPdfAndRenderThumbnails() {
   setProgress(progressBar, progressLabel, 0, 'Loading PDF...');
 
   try {
-    originalPdfBytes = await originalPdfFile.arrayBuffer();
-
-    // Check if pdfjsLib is loaded globally
-    const pdfjs = window['pdfjs-dist/build/pdf'];
-    if (!pdfjs) throw new Error('PDF.js not loaded.');
-
-    // Pass a copy so pdf.js doesn't detach the original ArrayBuffer
-    pdfDocument = await pdfjs.getDocument({ data: originalPdfBytes.slice(0) }).promise;
-    const numPages = pdfDocument.numPages;
-    pagesOrder = Array.from({ length: numPages }, (_, i) => i);
-
-    previewGrid.innerHTML = '';
-    countEl.textContent = `${numPages} page${numPages !== 1 ? 's' : ''}`;
-
-    const fragment = document.createDocumentFragment();
-
-    for (let i = 1; i <= numPages; i++) {
-        if (numPages > 20) {
-            setProgress(progressBar, progressLabel, Math.round((i / numPages) * 100), `Rendering page ${i} of ${numPages}...`);
-            await new Promise(r => setTimeout(r, 0)); // Allow UI update
-        }
-
-        const page = await pdfDocument.getPage(i);
-        const scale = 0.3;
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        const dataUrl = canvas.toDataURL();
-
-        const card = document.createElement('div');
-        card.className = 'img-thumb-card';
-        card.draggable = true;
-        card.dataset.idx = i - 1; // 0-based index
-
-        const num = document.createElement('div');
-        num.className = 'img-thumb-num';
-        num.textContent = i;
-        card.appendChild(num);
-
-        const img = document.createElement('img');
-        img.src = dataUrl;
-        img.loading = 'lazy';
-        img.alt = `Page ${i}`;
-        card.appendChild(img);
-
-        const lbl = document.createElement('div');
-        lbl.className = 'img-thumb-label';
-        lbl.textContent = `Page ${i}`;
-        card.appendChild(lbl);
-
-        const rmBtn = document.createElement('button');
-        rmBtn.className = 'img-thumb-remove';
-        rmBtn.textContent = '✕';
-        rmBtn.title = 'Remove page';
-        rmBtn.onclick = (e) => {
-            e.stopPropagation();
-            card.remove();
-            updatePagesOrder();
-        };
-        card.appendChild(rmBtn);
-
-        setupDragReorder(card, updatePagesOrder);
-        fragment.appendChild(card);
-    }
-
-    previewGrid.appendChild(fragment);
+    const numPages = await loadPdfDocument();
+    await renderThumbnails(numPages);
 
     progressArea.style.display = 'none';
     previewArea.style.display = 'block';
