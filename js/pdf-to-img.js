@@ -172,21 +172,41 @@ convertBtn.addEventListener('click', async () => {
 
   renderedPages = [];
 
-  for (let idx = 0; idx < pages.length; idx++) {
-    const pageNum = pages[idx];
-    setProgress(
-      progressBar, progressLabel,
-      Math.round(((idx) / pages.length) * 100),
-      `Converting page ${pageNum} of ${totalPages}…`
-    );
+  const MAX_CONCURRENT = 3;
+  let currentIndex = 0;
+  let completedCount = 0;
 
-    const page = await pdfDoc.getPage(pageNum);
-    const { dataUrl } = await renderPageToCanvas(page, scale);
-    renderedPages.push({ pageNum, dataUrl });
+  // Pre-allocate to maintain order
+  renderedPages = new Array(pages.length);
 
-    // Yield to UI
-    await new Promise(r => setTimeout(r, 0));
+  async function worker() {
+    while (currentIndex < pages.length) {
+      const idx = currentIndex++;
+      const pageNum = pages[idx];
+
+      const page = await pdfDoc.getPage(pageNum);
+      const { dataUrl } = await renderPageToCanvas(page, scale);
+
+      renderedPages[idx] = { pageNum, dataUrl };
+      completedCount++;
+
+      setProgress(
+        progressBar, progressLabel,
+        Math.round((completedCount / pages.length) * 100),
+        `Converting page ${pageNum} of ${totalPages}…`
+      );
+
+      // Yield to UI
+      await new Promise(r => setTimeout(r, 0));
+    }
   }
+
+  const workers = [];
+  for (let i = 0; i < MAX_CONCURRENT; i++) {
+    workers.push(worker());
+  }
+
+  await Promise.all(workers);
 
   setProgress(progressBar, progressLabel, 100, 'Done!');
   await new Promise(r => setTimeout(r, 400));
