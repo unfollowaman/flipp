@@ -34,8 +34,8 @@ function validatePasswords() {
   const password = passwordEl.value.trim();
   const confirm = confirmPasswordEl.value.trim();
 
-  if (password.length < 4) {
-    showToast('Password must be at least 4 characters.', 'error');
+  if (password.length < 8) {
+    showToast('Password must be at least 8 characters.', 'error');
     return null;
   }
   if (password !== confirm) {

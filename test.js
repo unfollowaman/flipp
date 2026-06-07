@@ -110,14 +110,14 @@ function testValidatePasswords() {
   }
 
   // Happy paths
-  runTest('Valid matching passwords', 'secret', 'secret', 'secret', null);
-  runTest('Whitespace is trimmed', '  secret  ', 'secret', 'secret', null);
-  runTest('Both trimmed correctly', ' secret ', '  secret  ', 'secret', null);
+  runTest('Valid matching passwords', 'password123', 'password123', 'password123', null);
+  runTest('Whitespace is trimmed', '  password123  ', 'password123', 'password123', null);
+  runTest('Both trimmed correctly', ' password123 ', '  password123  ', 'password123', null);
 
   // Error cases
-  runTest('Password too short', '123', '123', null, 'Password must be at least 4 characters.');
-  runTest('Password too short (after trim)', '123  ', '123  ', null, 'Password must be at least 4 characters.');
-  runTest('Passwords do not match', 'secret', 'different', null, 'Passwords do not match.');
+  runTest('Password too short', 'secret', 'secret', null, 'Password must be at least 8 characters.');
+  runTest('Password too short (after trim)', 'secret  ', 'secret  ', null, 'Password must be at least 8 characters.');
+  runTest('Passwords do not match', 'password123', 'different123', null, 'Passwords do not match.');
 
   return { passed: p, failed: f };
 }
