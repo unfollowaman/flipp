@@ -1,0 +1,24 @@
+Flipp - Secure Client-Side PDF Tools
+
+Flipp is a collection of completely free, client-side PDF tools designed with absolute privacy in mind. Unlike most online PDF converters, Flipp never uploads your documents to a remote server.
+
+Instead, Flipp uses modern web technologies (like WebAssembly) to process your PDFs entirely within your own web browser, using your computer's local resources. Because there are no uploads, your sensitive documents—like bank statements, legal contracts, or medical records—never leave your device. This guarantees total privacy and security.
+
+Tools Available:
+- PDF to PNG: https://unfollowaman.tech/tools/pdf-to-png/
+- Images to PDF: https://unfollowaman.tech/tools/images-to-pdf/
+- Merge PDF: https://unfollowaman.tech/tools/merge-pdf/
+- Protect PDF (Add/Remove Password): https://unfollowaman.tech/tools/protect-pdf/
+- Split PDF: https://unfollowaman.tech/tools/split-pdf/
+- Add Page Numbers: https://unfollowaman.tech/tools/add-page-numbers/
+- Text to PDF: https://unfollowaman.tech/tools/text-to-pdf/
+- PDF to Text: https://unfollowaman.tech/tools/pdf-to-text/
+- Rearrange PDF: https://unfollowaman.tech/tools/rearrange-pdf/
+- Add Watermark: https://unfollowaman.tech/tools/add-watermark/
+
+Blog & Guides:
+- Why Uploading Your PDFs to Free Converters is a Massive Privacy Risk: https://unfollowaman.tech/blog/free-pdf-converters-privacy-risk/
+- How to Merge Confidential PDF Documents Without Leaving Your Browser: https://unfollowaman.tech/blog/merge-confidential-pdf-documents-browser/
+- Server-side vs. Client-side PDF Processing: What It Means for Your Data: https://unfollowaman.tech/blog/server-side-vs-client-side-pdf-processing/
+- How to Remove Password Protection from a PDF Without Uploading It Anywhere: https://unfollowaman.tech/blog/remove-password-protection-pdf-locally/
+- Free PDF Tools That Don't Store Your Files — And How to Verify It: https://unfollowaman.tech/blog/free-pdf-tools-no-storage-verify/
