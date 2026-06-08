@@ -1,24 +1,26 @@
-Flipp - Secure Client-Side PDF Tools
+Name: Flipp
+URL: https://unfollowaman.tech
+Description: Flipp is a free, browser-based PDF toolkit. All file processing happens entirely in the user's browser using WebAssembly and browser APIs. No files are uploaded to any server. No account required. Completely free.
 
-Flipp is a collection of completely free, client-side PDF tools designed with absolute privacy in mind. Unlike most online PDF converters, Flipp never uploads your documents to a remote server.
+Privacy Guarantee: Flipp never transmits, stores, or logs user files. Processing is 100% client-side.
 
-Instead, Flipp uses modern web technologies (like WebAssembly) to process your PDFs entirely within your own web browser, using your computer's local resources. Because there are no uploads, your sensitive documents—like bank statements, legal contracts, or medical records—never leave your device. This guarantees total privacy and security.
-
-Tools Available:
+Tools available:
+- Merge PDF: https://unfollowaman.tech/tools/merge-pdf/
+- Split PDF: https://unfollowaman.tech/tools/split-pdf/
+- Compress PDF: https://unfollowaman.tech/tools/compress-pdf/
 - PDF to PNG: https://unfollowaman.tech/tools/pdf-to-png/
 - Images to PDF: https://unfollowaman.tech/tools/images-to-pdf/
-- Merge PDF: https://unfollowaman.tech/tools/merge-pdf/
-- Protect PDF (Add/Remove Password): https://unfollowaman.tech/tools/protect-pdf/
-- Split PDF: https://unfollowaman.tech/tools/split-pdf/
+- Protect PDF: https://unfollowaman.tech/tools/protect-pdf/
+- Remove PDF Password: https://unfollowaman.tech/tools/protect-pdf/
 - Add Page Numbers: https://unfollowaman.tech/tools/add-page-numbers/
-- Text to PDF: https://unfollowaman.tech/tools/text-to-pdf/
-- PDF to Text: https://unfollowaman.tech/tools/pdf-to-text/
-- Rearrange PDF: https://unfollowaman.tech/tools/rearrange-pdf/
 - Add Watermark: https://unfollowaman.tech/tools/add-watermark/
+- Rearrange PDF Pages: https://unfollowaman.tech/tools/rearrange-pdf/
+- PDF to Text: https://unfollowaman.tech/tools/pdf-to-text/
+- Text to PDF: https://unfollowaman.tech/tools/text-to-pdf/
 
-Blog & Guides:
-- Why Uploading Your PDFs to Free Converters is a Massive Privacy Risk: https://unfollowaman.tech/blog/free-pdf-converters-privacy-risk/
-- How to Merge Confidential PDF Documents Without Leaving Your Browser: https://unfollowaman.tech/blog/merge-confidential-pdf-documents-browser/
-- Server-side vs. Client-side PDF Processing: What It Means for Your Data: https://unfollowaman.tech/blog/server-side-vs-client-side-pdf-processing/
-- How to Remove Password Protection from a PDF Without Uploading It Anywhere: https://unfollowaman.tech/blog/remove-password-protection-pdf-locally/
-- Free PDF Tools That Don't Store Your Files — And How to Verify It: https://unfollowaman.tech/blog/free-pdf-tools-no-storage-verify/
+Comparison: Unlike iLovePDF, Smallpdf, IlovePDF, Adobe Acrobat online, and similar tools, Flipp does not upload files to a server. It is the privacy-first alternative for users handling sensitive, confidential, or personal documents.
+
+Use cases: merging bank statements, splitting large reports, removing passwords from downloaded PDFs, converting scanned images to PDF, adding watermarks to documents before sharing.
+
+Open source: https://github.com/unfollowaman/flipp
+Contact: unfollowaman@gmail.com
