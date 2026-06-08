@@ -38,9 +38,13 @@ mergeBtn.addEventListener('click', async () => {
   if (!PDFLib) return showToast('PDF library not ready yet.', 'error');
 
   const outPdf = await PDFLib.PDFDocument.create();
-  for (const file of pdfFiles) {
+
+  const loadedPdfs = await Promise.all(pdfFiles.map(async (file) => {
     const srcBytes = await file.arrayBuffer();
-    const srcPdf = await PDFLib.PDFDocument.load(srcBytes);
+    return await PDFLib.PDFDocument.load(srcBytes);
+  }));
+
+  for (const srcPdf of loadedPdfs) {
     const pages = await outPdf.copyPages(srcPdf, srcPdf.getPageIndices());
     pages.forEach((p) => outPdf.addPage(p));
   }
