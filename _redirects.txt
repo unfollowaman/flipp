@@ -31,3 +31,10 @@ https://unfollowaman.tech  https://unfollowaman.tech/ 301!
 /text-to-pdf/        /tools/text-to-pdf/        301!
 /add-watermark/      /tools/add-watermark/      301!
 /rearrange-pdf/      /tools/rearrange-pdf/      301!
+
+# Blog redirects
+/blog/what-is-a-pdf/ /blog/free-pdf-converters-privacy-risk/ 301!
+/blog/how-browser-pdf-tools-work/ /blog/merge-confidential-pdf-documents-browser/ 301!
+/blog/pdf-file-size-guide/ /blog/server-side-vs-client-side-pdf-processing/ 301!
+/blog/how-to-protect-pdf-files/ /blog/remove-password-protection-pdf-locally/ 301!
+/blog/merge-vs-combine-pdf/ /blog/free-pdf-tools-no-storage-verify/ 301!
