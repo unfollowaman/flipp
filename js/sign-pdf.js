@@ -98,8 +98,11 @@ clearBtn.addEventListener('click', () => {
 // Upload Mode
 initDropZone(imgDrop, imgUpload, handleImageSelect);
 
-function handleImageSelect(file) {
-  if (!file || !file.type.startsWith('image/')) {
+function handleImageSelect(files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+
+  if (!file.type.startsWith('image/')) {
     showToast('Please upload a valid image file (PNG/JPG).', 'error');
     return;
   }
@@ -115,10 +118,6 @@ function handleImageSelect(file) {
 
 imgPreview.addEventListener('click', () => {
   imgUpload.click();
-});
-
-imgUpload.addEventListener('change', (e) => {
-  if (e.target.files.length) handleImageSelect(e.target.files[0]);
 });
 
 // Type Mode
@@ -159,12 +158,12 @@ function getTypedSignatureAsBase64() {
 
 // PDF Upload & Rendering
 initDropZone(dropZone, fileInput, handlePdfSelect);
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files.length) handlePdfSelect(e.target.files[0]);
-});
 
-async function handlePdfSelect(file) {
-  if (!file || file.type !== 'application/pdf') {
+async function handlePdfSelect(files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+
+  if (file.type !== 'application/pdf') {
     showToast('Please select a valid PDF file.', 'error');
     return;
   }
