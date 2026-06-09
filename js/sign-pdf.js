@@ -482,6 +482,21 @@ downloadBtn.addEventListener('click', async () => {
     return;
   }
 
+  // Pre-calculate dimensions before hiding the preview area
+  const canvasW = previewCanvas.offsetWidth;
+  const canvasH = previewCanvas.offsetHeight;
+
+  const overlayData = Array.from(overlays).map(overlay => {
+    return {
+      pageNum: parseInt(overlay.dataset.page, 10),
+      src: overlay.querySelector('img').src,
+      oLeft: parseFloat(overlay.style.left) || 0,
+      oTop: parseFloat(overlay.style.top) || 0,
+      oWidth: overlay.offsetWidth,
+      oHeight: overlay.offsetHeight
+    };
+  });
+
   optionsBar.style.display = 'none';
   previewArea.style.display = 'none';
   progressArea.style.display = 'flex';
@@ -498,14 +513,12 @@ downloadBtn.addEventListener('click', async () => {
     // We need to embed each image. We cache by src to avoid embedding the same image multiple times
     const embeddedImages = new Map();
 
-    for (let i = 0; i < overlays.length; i++) {
-      const overlay = overlays[i];
-      const pageNum = parseInt(overlay.dataset.page, 10);
-      if (pageNum < 1 || pageNum > pages.length) continue;
+    for (let i = 0; i < overlayData.length; i++) {
+      const data = overlayData[i];
+      if (data.pageNum < 1 || data.pageNum > pages.length) continue;
 
-      const targetPage = pages[pageNum - 1];
-      const imgEl = overlay.querySelector('img');
-      const src = imgEl.src;
+      const targetPage = pages[data.pageNum - 1];
+      const src = data.src;
 
       let pdfImage;
       if (embeddedImages.has(src)) {
@@ -525,27 +538,18 @@ downloadBtn.addEventListener('click', async () => {
       // We must render the page at scale 1 to get its actual PDF points size to find the ratio correctly,
       // but actually pdf.js page.getViewport({ scale: 1 }) width is closely matching targetPage.getWidth().
 
-      // Let's rely on targetPage.getWidth() and previewCanvas.offsetWidth
-      const canvasW = previewCanvas.offsetWidth;
-      const canvasH = previewCanvas.offsetHeight;
-
       const pdfW = targetPage.getWidth();
       const pdfH = targetPage.getHeight();
 
       const scaleX = pdfW / canvasW;
       const scaleY = pdfH / canvasH;
 
-      const oLeft = parseFloat(overlay.style.left) || 0;
-      const oTop = parseFloat(overlay.style.top) || 0;
-      const oWidth = overlay.offsetWidth;
-      const oHeight = overlay.offsetHeight;
-
-      const drawW = oWidth * scaleX;
-      const drawH = oHeight * scaleY;
-      const drawX = oLeft * scaleX;
+      const drawW = data.oWidth * scaleX;
+      const drawH = data.oHeight * scaleY;
+      const drawX = data.oLeft * scaleX;
 
       // PDF y-axis is inverted (0 is bottom)
-      const drawY = pdfH - (oTop * scaleY) - drawH;
+      const drawY = pdfH - (data.oTop * scaleY) - drawH;
 
       targetPage.drawImage(pdfImage, {
         x: drawX,
@@ -554,7 +558,7 @@ downloadBtn.addEventListener('click', async () => {
         height: drawH,
       });
 
-      setProgress(progressBar, progressLabel, 40 + Math.floor((i/overlays.length)*40), `Applying signature ${i+1}/${overlays.length}...`);
+      setProgress(progressBar, progressLabel, 40 + Math.floor((i/overlayData.length)*40), `Applying signature ${i+1}/${overlayData.length}...`);
     }
 
     setProgress(progressBar, progressLabel, 85, 'Saving PDF...');
