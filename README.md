@@ -67,6 +67,11 @@ That’s it.
 - Full control over opacity, rotation, and placement
 - Stamp across all pages instantly
 
+### ✍️ Sign PDF
+- Add visual signatures to any PDF
+- Draw, upload, or type your signature
+- Drag and resize on any page freely
+
 ### 🔄 Rearrange PDF
 - Visually drag and drop pages to reorder them
 - Delete unwanted pages
@@ -114,6 +119,7 @@ flipp/
 │   ├── pdf-to-text/index.html    # PDF → Text tool page
 │   ├── text-to-pdf/index.html    # Text → PDF tool page
 │   ├── add-watermark/index.html  # Add Watermark tool page
+│   ├── sign-pdf/index.html       # Sign PDF tool page
 │   └── rearrange-pdf/index.html  # Rearrange PDF tool page
 ├── blog/
 │   ├── index.html                # Blog home
@@ -155,6 +161,7 @@ flipp/
 │   ├── PDF → Text
 │   ├── Text → PDF
 │   ├── Add Watermark
+│   ├── Sign PDF
 │   └── Rearrange PDF
 ├── Privacy & Trust Section
 └── Footer
@@ -170,6 +177,7 @@ flipp/
 ├── /tools/pdf-to-text/
 ├── /tools/text-to-pdf/
 ├── /tools/add-watermark/
+├── /tools/sign-pdf/
 └── /tools/rearrange-pdf/
 
 /blog

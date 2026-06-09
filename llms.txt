@@ -14,6 +14,7 @@ Tools available:
 - Remove PDF Password: https://unfollowaman.tech/tools/protect-pdf/
 - Add Page Numbers: https://unfollowaman.tech/tools/add-page-numbers/
 - Add Watermark: https://unfollowaman.tech/tools/add-watermark/
+- Sign PDF: https://unfollowaman.tech/tools/sign-pdf/
 - Rearrange PDF Pages: https://unfollowaman.tech/tools/rearrange-pdf/
 - PDF to Text: https://unfollowaman.tech/tools/pdf-to-text/
 - Text to PDF: https://unfollowaman.tech/tools/text-to-pdf/
