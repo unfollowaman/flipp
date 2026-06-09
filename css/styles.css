@@ -188,9 +188,9 @@ textarea { font-family: inherit; }
 }
 
 .hero-sub {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
-  color: #444;
+  color: #666;
   line-height: 1.6;
   max-width: 420px;
   margin-bottom: 40px;
@@ -359,7 +359,7 @@ textarea { font-family: inherit; }
 
 .section-headline {
   font-size: clamp(32px, 4vw, 52px);
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--black);
@@ -403,7 +403,7 @@ textarea { font-family: inherit; }
 .step-body {
   font-size: 14px;
   line-height: 1.6;
-  color: rgba(0,0,0,0.7);
+  color: #666;
 }
 
 .step-arrow {
@@ -980,7 +980,7 @@ textarea { font-family: inherit; }
 
 .trust-headline {
   font-size: clamp(28px, 4vw, 48px);
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
   margin-bottom: 40px;
@@ -1150,22 +1150,48 @@ textarea { font-family: inherit; }
 
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
   margin-top: 0;
 }
 
+@media (min-width: 768px) {
+  .tools-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
 .tool-card {
   will-change: transform;
-  display: block;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: var(--cream);
   border: var(--border-std);
   border-radius: var(--radius-lg);
-  padding: 28px;
+  padding: 36px;
   text-decoration: none;
   color: var(--black);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
+.tool-card-content {
+  flex: 1;
+}
+
+.tool-card-arrow {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--black);
+  padding-left: 20px;
+  transition: transform 0.15s ease;
+}
+
+.tool-card:hover .tool-card-arrow {
+  transform: translateX(4px);
+}
+
 .tool-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-hard);
@@ -1192,7 +1218,7 @@ textarea { font-family: inherit; }
 
 .tool-card-desc {
   font-size: 14px;
-  color: #555;
+  color: #666;
   line-height: 1.6;
 }
 
