@@ -126,6 +126,7 @@ flipp/
 │   └── */index.html              # SEO content pages
 ├── js/
 │   ├── drag-drop.js              # Shared drag & drop logic
+│   ├── faq.js                    # FAQ accordion behavior logic
 │   ├── pdf-to-img.js             # PDF → PNG conversion flow
 │   ├── img-to-pdf.js             # Images → PDF conversion flow
 │   ├── pdf-merge.js              # PDF merge logic
@@ -135,13 +136,20 @@ flipp/
 │   ├── pdf-to-text.js            # PDF → Text extraction logic
 │   ├── text-to-pdf.js            # Text → PDF utility
 │   ├── add-watermark.js          # Add watermark logic
+│   ├── sign-pdf.js               # Sign PDF logic
 │   └── rearrange-pdf.js          # Rearrange PDF logic
 ├── css/
 │   └── styles.css                # Global design system + component styles
+├── tests/
+│   └── ...                       # Standalone Node.js unit tests
+├── test.js                       # Test runner entrypoint
 ├── sitemap.xml                   # Search indexing map
+├── sitemap-blog.xml              # Blog post search indexing map
 ├── robots.txt                    # Crawler rules
-├── _headers                      # Edge/server header config
-├── _redirects                    # Route redirects for static hosting
+├── _headers.txt                  # Edge/server header config
+├── _redirects.txt                # Route redirects for static hosting
+├── ai-plugin.json                # AI plugin manifest
+├── llms.txt                      # Project manifest for LLM crawlers
 └── deploy.yml                    # Deployment workflow/config
 ```
 
