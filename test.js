@@ -1,33 +1,39 @@
-const fs = require('fs');
-const assert = require('assert');
-const path = require('path');
+const fs = require("fs");
+const assert = require("assert");
+const path = require("path");
 
 // 1. Extract the functions from the source files
-const pdfProtectFile = path.join(__dirname, 'js/pdf-protect.js');
-const pdfProtectContent = fs.readFileSync(pdfProtectFile, 'utf8');
+const pdfProtectFile = path.join(__dirname, "js/pdf-protect.js");
+const pdfProtectContent = fs.readFileSync(pdfProtectFile, "utf8");
 
-const validatePasswordsMatch = pdfProtectContent.match(/function validatePasswords\(\) \{[\s\S]*?\n\}/);
+const validatePasswordsMatch = pdfProtectContent.match(
+  /function validatePasswords\(\) \{[\s\S]*?\n\}/,
+);
 if (!validatePasswordsMatch) {
   console.error("Could not find validatePasswords function in pdf-protect.js");
   process.exit(1);
 }
 // We will evaluate this inside the test function where DOM variables are mocked
 
-const pdfToImgFile = path.join(__dirname, 'js/pdf-to-img.js');
-const pdfToImgContent = fs.readFileSync(pdfToImgFile, 'utf8');
+const pdfToImgFile = path.join(__dirname, "js/pdf-to-img.js");
+const pdfToImgContent = fs.readFileSync(pdfToImgFile, "utf8");
 
-const parsePageRangeMatch = pdfToImgContent.match(/function parsePageRange\(rangeStr, total\) \{[\s\S]*?\n\}/);
+const parsePageRangeMatch = pdfToImgContent.match(
+  /function parsePageRange\(rangeStr, total\) \{[\s\S]*?\n\}/,
+);
 if (!parsePageRangeMatch) {
   console.error("Could not find parsePageRange function in pdf-to-img.js");
   process.exit(1);
 }
 eval(parsePageRangeMatch[0]);
 
-const dragDropFile = path.join(__dirname, 'js/drag-drop.js');
-const dragDropContent = fs.readFileSync(dragDropFile, 'utf8');
+const dragDropFile = path.join(__dirname, "js/drag-drop.js");
+const dragDropContent = fs.readFileSync(dragDropFile, "utf8");
 
 // drag-drop.js uses "export function", we can extract just the "function..." part
-const setProgressMatch = dragDropContent.match(/function setProgress\(barEl, labelEl, value, label\) \{[\s\S]*?\n\}/);
+const setProgressMatch = dragDropContent.match(
+  /function setProgress\(barEl, labelEl, value, label\) \{[\s\S]*?\n\}/,
+);
 if (!setProgressMatch) {
   console.error("Could not find setProgress function in drag-drop.js");
   process.exit(1);
@@ -39,26 +45,26 @@ const testCases = [
   // Format: [description, inputRangeStr, totalPages, expectedOutputArray]
 
   // Happy paths
-  ['Single page', '1', 10, [1]],
-  ['Multiple single pages', '1, 3, 5', 10, [1, 3, 5]],
-  ['Simple range', '1-3', 10, [1, 2, 3]],
-  ['Mixed range and singles', '1, 3-5, 8', 10, [1, 3, 4, 5, 8]],
+  ["Single page", "1", 10, [1]],
+  ["Multiple single pages", "1, 3, 5", 10, [1, 3, 5]],
+  ["Simple range", "1-3", 10, [1, 2, 3]],
+  ["Mixed range and singles", "1, 3-5, 8", 10, [1, 3, 4, 5, 8]],
 
   // Spacing edge cases
-  ['No spaces', '1,2-4,6', 10, [1, 2, 3, 4, 6]],
-  ['Lots of spaces', '  1  ,  3 -  5 , 8  ', 10, [1, 3, 4, 5, 8]],
+  ["No spaces", "1,2-4,6", 10, [1, 2, 3, 4, 6]],
+  ["Lots of spaces", "  1  ,  3 -  5 , 8  ", 10, [1, 3, 4, 5, 8]],
 
   // Overlapping and ordering
-  ['Overlapping ranges', '1-5, 3-7', 10, [1, 2, 3, 4, 5, 6, 7]],
-  ['Out of order input', '8, 1-3, 5', 10, [1, 2, 3, 5, 8]],
+  ["Overlapping ranges", "1-5, 3-7", 10, [1, 2, 3, 4, 5, 6, 7]],
+  ["Out of order input", "8, 1-3, 5", 10, [1, 2, 3, 5, 8]],
 
   // Bounds checking
-  ['Range exceeding total', '8-15', 10, [8, 9, 10]],
-  ['Single page exceeding total', '15', 10, []],
+  ["Range exceeding total", "8-15", 10, [8, 9, 10]],
+  ["Single page exceeding total", "15", 10, []],
 
   // Error / Invalid input
-  ['Empty string', '', 10, []],
-  ['Letters and garbage', 'a, b-c, 1', 10, [1]]
+  ["Empty string", "", 10, []],
+  ["Letters and garbage", "a, b-c, 1", 10, [1]],
 ];
 
 // 3. Define validatePasswords test cases
@@ -70,20 +76,25 @@ function testValidatePasswords() {
   // Mock global showToast function
   let lastToastMessage = null;
   let lastToastType = null;
-  global.showToast = function(message, type) {
+  global.showToast = function (message, type) {
     lastToastMessage = message;
     lastToastType = type;
   };
 
   // Mock DOM elements
-  const passwordEl = { value: '' };
-  const confirmPasswordEl = { value: '' };
+  const passwordEl = { value: "" };
+  const confirmPasswordEl = { value: "" };
 
   // Evaluate the function in the current scope so it has access to mocked globals
-  const validatePasswords = new Function('passwordEl', 'confirmPasswordEl', 'showToast', `
+  const validatePasswords = new Function(
+    "passwordEl",
+    "confirmPasswordEl",
+    "showToast",
+    `
     ${validatePasswordsMatch[0]}
     return validatePasswords();
-  `);
+  `,
+  );
 
   // Helper to run a test case
   function runTest(desc, p1, p2, expectedReturn, expectedToast) {
@@ -93,7 +104,11 @@ function testValidatePasswords() {
     lastToastType = null;
 
     try {
-      const result = validatePasswords(passwordEl, confirmPasswordEl, global.showToast);
+      const result = validatePasswords(
+        passwordEl,
+        confirmPasswordEl,
+        global.showToast,
+      );
       assert.strictEqual(result, expectedReturn);
       if (expectedToast) {
         assert.strictEqual(lastToastMessage, expectedToast);
@@ -110,14 +125,50 @@ function testValidatePasswords() {
   }
 
   // Happy paths
-  runTest('Valid matching passwords', 'password123', 'password123', 'password123', null);
-  runTest('Whitespace is trimmed', '  password123  ', 'password123', 'password123', null);
-  runTest('Both trimmed correctly', ' password123 ', '  password123  ', 'password123', null);
+  runTest(
+    "Valid matching passwords",
+    "password123",
+    "password123",
+    "password123",
+    null,
+  );
+  runTest(
+    "Whitespace is trimmed",
+    "  password123  ",
+    "password123",
+    "password123",
+    null,
+  );
+  runTest(
+    "Both trimmed correctly",
+    " password123 ",
+    "  password123  ",
+    "password123",
+    null,
+  );
 
   // Error cases
-  runTest('Password too short', 'secret', 'secret', null, 'Password must be at least 8 characters.');
-  runTest('Password too short (after trim)', 'secret  ', 'secret  ', null, 'Password must be at least 8 characters.');
-  runTest('Passwords do not match', 'password123', 'different123', null, 'Passwords do not match.');
+  runTest(
+    "Password too short",
+    "secret",
+    "secret",
+    null,
+    "Password must be at least 8 characters.",
+  );
+  runTest(
+    "Password too short (after trim)",
+    "secret  ",
+    "secret  ",
+    null,
+    "Password must be at least 8 characters.",
+  );
+  runTest(
+    "Passwords do not match",
+    "password123",
+    "different123",
+    null,
+    "Passwords do not match.",
+  );
 
   return { passed: p, failed: f };
 }
@@ -131,60 +182,92 @@ function testSetProgress() {
 
   const cases = [
     {
-      desc: 'Updates width and label correctly',
+      desc: "Updates width and label correctly",
       value: 50,
-      label: 'Loading...',
+      label: "Loading...",
       withLabelEl: true,
-      expectedWidth: '50%',
-      expectedText: 'Loading...'
+      expectedWidth: "50%",
+      expectedText: "Loading...",
     },
     {
-      desc: 'Handles 0 correctly',
+      desc: "Handles 0 correctly",
       value: 0,
-      label: 'Start',
+      label: "Start",
       withLabelEl: true,
-      expectedWidth: '0%',
-      expectedText: 'Start'
+      expectedWidth: "0%",
+      expectedText: "Start",
     },
     {
-      desc: 'Handles 100 correctly',
+      desc: "Handles 100 correctly",
       value: 100,
-      label: 'Complete',
+      label: "Complete",
       withLabelEl: true,
-      expectedWidth: '100%',
-      expectedText: 'Complete'
+      expectedWidth: "100%",
+      expectedText: "Complete",
     },
     {
-      desc: 'Works without labelEl',
+      desc: "Works without labelEl",
       value: 75,
-      label: 'Ignoring this',
+      label: "Ignoring this",
       withLabelEl: false,
-      expectedWidth: '75%',
-      expectedText: undefined // Not updated
-    }
+      expectedWidth: "75%",
+      expectedText: undefined, // Not updated
+    },
+    // Error / Negative cases
+    {
+      desc: "Throws TypeError if barEl is null",
+      value: 50,
+      label: "Loading...",
+      barEl: null,
+      withLabelEl: true,
+      expectError: TypeError,
+    },
+    {
+      desc: "Throws TypeError if barEl lacks style property",
+      value: 50,
+      label: "Loading...",
+      barEl: {}, // no style
+      withLabelEl: true,
+      expectError: TypeError,
+    },
   ];
 
   for (const c of cases) {
-    const barEl = { style: {} };
-    const labelEl = c.withLabelEl ? { textContent: '' } : null;
+    const barEl = c.hasOwnProperty("barEl") ? c.barEl : { style: {} };
+    const labelEl = c.withLabelEl ? { textContent: "" } : null;
 
-    try {
-      setProgress(barEl, labelEl, c.value, c.label);
-      assert.strictEqual(barEl.style.width, c.expectedWidth);
-      if (c.withLabelEl) {
-        assert.strictEqual(labelEl.textContent, c.expectedText);
+    if (c.expectError) {
+      try {
+        assert.throws(() => {
+          setProgress(barEl, labelEl, c.value, c.label);
+        }, c.expectError);
+        console.log(`✅ PASS: ${c.desc}`);
+        p++;
+      } catch (err) {
+        console.error(`❌ FAIL: ${c.desc}`);
+        console.error(
+          `   Expected error ${c.expectError.name}, but got: ${err.message}`,
+        );
+        f++;
       }
-      console.log(`✅ PASS: ${c.desc}`);
-      p++;
-    } catch (err) {
-      console.error(`❌ FAIL: ${c.desc}`);
-      console.error(`   Error: ${err.message}`);
-      f++;
+    } else {
+      try {
+        setProgress(barEl, labelEl, c.value, c.label);
+        assert.strictEqual(barEl.style.width, c.expectedWidth);
+        if (c.withLabelEl) {
+          assert.strictEqual(labelEl.textContent, c.expectedText);
+        }
+        console.log(`✅ PASS: ${c.desc}`);
+        p++;
+      } catch (err) {
+        console.error(`❌ FAIL: ${c.desc}`);
+        console.error(`   Error: ${err.message}`);
+        f++;
+      }
     }
   }
   return { passed: p, failed: f };
 }
-
 
 // Run tests
 let passed = 0;
@@ -196,7 +279,9 @@ for (const [desc, input, total, expected] of testCases) {
   try {
     const result = parsePageRange(input, total);
     assert.deepStrictEqual(result, expected);
-    console.log(`✅ PASS: ${desc} ("${input}", total: ${total}) -> [${result}]`);
+    console.log(
+      `✅ PASS: ${desc} ("${input}", total: ${total}) -> [${result}]`,
+    );
     passed++;
   } catch (err) {
     console.error(`❌ FAIL: ${desc} ("${input}", total: ${total})`);
@@ -204,9 +289,9 @@ for (const [desc, input, total, expected] of testCases) {
 
     let actual;
     try {
-       actual = parsePageRange(input, total);
+      actual = parsePageRange(input, total);
     } catch (e) {
-       actual = `Error thrown: ${e.message}`;
+      actual = `Error thrown: ${e.message}`;
     }
     console.error(`   Actual:   [${actual}]`);
     failed++;
