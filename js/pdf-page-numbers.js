@@ -103,7 +103,8 @@ downloadBtn.addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = sourceFile?.name?.replace(/\.pdf$/i, '') + '-numbered.pdf';
+  const baseName = sourceFile?.name ? sourceFile.name.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_') : 'document';
+  a.download = baseName + '-numbered.pdf';
   a.click();
   URL.revokeObjectURL(url);
 });

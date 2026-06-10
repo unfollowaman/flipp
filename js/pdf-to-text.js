@@ -49,7 +49,7 @@ downloadBtn.addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = currentFile.name.replace(/\.pdf$/i, '.txt');
+    a.download = currentFile.name.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_') + '.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

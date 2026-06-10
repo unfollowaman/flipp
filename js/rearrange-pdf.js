@@ -190,7 +190,7 @@ downloadBtn.addEventListener('click', () => {
   if (!rearrangedBlob) return;
 
   const originalName = originalPdfFile.name;
-  const newName = originalName.replace(/\.pdf$/i, '') + '-rearranged.pdf';
+  const newName = originalName.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_') + '-rearranged.pdf';
 
   const a = document.createElement('a');
   a.href = URL.createObjectURL(rearrangedBlob);

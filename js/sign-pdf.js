@@ -575,7 +575,8 @@ downloadBtn.addEventListener('click', async () => {
       downloadFinalBtn.onclick = () => {
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileInfo.textContent.replace('.pdf', '_signed.pdf');
+        const safeName = fileInfo.textContent.replace('.pdf', '').replace(/[\/\\]/g, '_');
+        a.download = `${safeName}_signed.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

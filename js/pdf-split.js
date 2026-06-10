@@ -74,7 +74,7 @@ splitBtn.addEventListener('click', async () => {
   }
 
   splitBlobs = [];
-  const baseName = pdfFile.name.replace(/\.pdf$/i, '');
+  const baseName = pdfFile.name.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_');
 
   const firstOut = await PDFLib.PDFDocument.create();
   const firstPageIndexes = Array.from({ length: end - start + 1 }, (_, i) => start - 1 + i);

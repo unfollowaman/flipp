@@ -312,7 +312,7 @@ function showResults(pageCount) {
 // ── Download PDF ────────────────────────────────────────
 downloadBtn.addEventListener('click', () => {
   if (!pdfBlob) return;
-  const filename = filenameInput.value.trim() || 'converted.pdf';
+  const filename = (filenameInput.value.trim() || 'converted.pdf').replace(/[\/\\]/g, '_');
   const url = URL.createObjectURL(pdfBlob);
   const a   = document.createElement('a');
   a.href     = url;
