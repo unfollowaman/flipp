@@ -1,314 +1,639 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta http-equiv="x-dns-prefetch-control" content="on" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDF to PNG — Free & Private | Flipp</title>
-  <meta name="description" content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed.">
-  <meta name="robots" content="index, follow" />
-  <meta name="keywords" content="pdf to png, convert pdf to image, pdf to png online, pdf page to image, export pdf as png, free pdf converter" />
-  <link rel="canonical" href="https://unfollowaman.tech/tools/pdf-to-png/">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF to PNG — Free & Private | Flipp</title>
+    <meta
+      name="description"
+      content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="pdf to png, convert pdf to image, pdf to png online, pdf page to image, export pdf as png, free pdf converter"
+    />
+    <link rel="canonical" href="https://unfollowaman.tech/tools/pdf-to-png/" />
     <meta property="og:title" content="PDF to PNG — Free & Private | Flipp" />
-    <meta property="og:description" content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta property="og:url" content="https://unfollowaman.tech/tools/pdf-to-png/" />
+    <meta
+      property="og:description"
+      content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      property="og:url"
+      content="https://unfollowaman.tech/tools/pdf-to-png/"
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="PDF to PNG — Free & Private | Flipp" />
-    <meta name="twitter:description" content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      name="twitter:description"
+      content="Use Flipp's PDF to PNG tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      name="twitter:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:site" content="@unfollowaman" />
-  <link rel="modulepreload" href="/js/pdf-to-img.js" />
-  <link rel="modulepreload" href="/js/drag-drop.js" />
+    <link rel="modulepreload" href="/js/pdf-to-img.js" />
+    <link rel="modulepreload" href="/js/drag-drop.js" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="theme-color" content="#F5E642" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "PDF to PNG Converter",
-    "url": "https://unfollowaman.tech/tools/pdf-to-png/",
-    "description": "PDF to PNG conversion online for free in your browser. Convert PDF to image files instantly with no upload, no signup, and private on-device processing.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": ["Convert each PDF page to a PNG image", "Export converted pages as a ZIP download", "Choose all pages or a custom page range"],
-    "browserRequirements": "Requires JavaScript"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unfollowaman.tech/" },
-      { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://unfollowaman.tech/tools/" },
-      { "@type": "ListItem", "position": 3, "name": "PDF to PNG", "item": "https://unfollowaman.tech/tools/pdf-to-png/" }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to convert a PDF to PNG images online",
-    "step": [
-      { "@type": "HowToStep", "name": "Upload your file", "text": "Drag and drop your file into the upload area or browse to select it." },
-      { "@type": "HowToStep", "name": "Choose your options", "text": "Select the settings shown for this tool before processing." },
-      { "@type": "HowToStep", "name": "Process and download", "text": "Run the tool and download your output file when processing is complete." }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Is this PDF to PNG converter free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. flipp's PDF to PNG tool is free to use in your browser with no sign-up required." } },
-      { "@type": "Question", "name": "Are my PDF files uploaded when I convert them to PNG?", "acceptedAnswer": { "@type": "Answer", "text": "No. The conversion runs locally in your browser using PDF.js, so your file is not uploaded to a remote server." } },
-      { "@type": "Question", "name": "Is there a file size limit for PDF to PNG conversion?", "acceptedAnswer": { "@type": "Answer", "text": "There is no fixed server-side upload limit because files are not uploaded. The practical limit depends on your device memory and browser performance." } },
-      { "@type": "Question", "name": "Which PDFs can I convert with this tool?", "acceptedAnswer": { "@type": "Answer", "text": "You can convert standard PDF documents, including text-heavy files, scanned pages, and mixed-layout PDFs. Password-protected PDFs must be unlocked before conversion." } },
-      { "@type": "Question", "name": "Will converting PDF pages to PNG reduce quality?", "acceptedAnswer": { "@type": "Answer", "text": "You control output detail with the scale options. Higher scale values render larger PNGs with more detail, while the original PDF remains unchanged." } },
-      { "@type": "Question", "name": "Does this PDF to PNG converter work on mobile devices?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. flipp runs in any modern mobile browser including Safari on iPhone and iPad and Chrome on Android. The conversion process uses the same PDF.js rendering engine regardless of device. Very large PDFs may be slower to process on older phones due to memory constraints, but the tool is fully functional on mobile." } },
-      { "@type": "Question", "name": "Do the exported PNG files work in all image editors and apps?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The output is standard PNG format compatible with every major image editor (Photoshop, Figma, Canva, GIMP), image viewer, and operating system. PNG is one of the most universally supported image formats and requires no special software to open." } },
-      { "@type": "Question", "name": "Can I convert only specific pages instead of the whole PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Choose the custom range option and enter the pages you want, such as 1-3 or 5,8,10." } }
-    ]
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
-  <link rel="stylesheet" href="/css/styles.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "PDF to PNG",
-    "url": "https://unfollowaman.tech/tools/pdf-to-png/",
-    "applicationCategory": "UtilitiesApplication",
-    "description": "Convert PDF pages to PNG images securely in your browser with no file uploads.",
-    "isPartOf": {
-      "@type": "WebApplication",
-      "name": "Flipp",
-      "url": "https://unfollowaman.tech"
-    }
-  }
-  </script>
-</head>
-<body>
-
-  <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/">flipp</a>
-    <span class="pipe">|</span>
-    <span class="tagline">file converter</span>
-    <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/" aria-current="page">PDF → PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
-      <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
-      <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
-      <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
-      <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
-      <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
-    </div>
-  </nav>
-
-  <main class="tool-page-main">
-    <section class="section-inner" aria-labelledby="tool-title">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">PDF → PNG</div>
-        <h1 class="converter-title" id="tool-title">PDF to PNG</h1>
-        <p class="converter-desc">Convert every page of a PDF into a crisp PNG image at maximum quality. Perfect for previews, thumbnails, or sharing individual pages.</p>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F5E642" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PDF to PNG Converter",
+        "url": "https://unfollowaman.tech/tools/pdf-to-png/",
+        "description": "PDF to PNG conversion online for free in your browser. Convert PDF to image files instantly with no upload, no signup, and private on-device processing.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Convert each PDF page to a PNG image",
+          "Export converted pages as a ZIP download",
+          "Choose all pages or a custom page range"
+        ],
+        "browserRequirements": "Requires JavaScript"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://unfollowaman.tech/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://unfollowaman.tech/tools/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "PDF to PNG",
+            "item": "https://unfollowaman.tech/tools/pdf-to-png/"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to convert a PDF to PNG images online",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload your file",
+            "text": "Drag and drop your file into the upload area or browse to select it."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose your options",
+            "text": "Select the settings shown for this tool before processing."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Process and download",
+            "text": "Run the tool and download your output file when processing is complete."
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this PDF to PNG converter free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. flipp's PDF to PNG tool is free to use in your browser with no sign-up required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my PDF files uploaded when I convert them to PNG?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The conversion runs locally in your browser using PDF.js, so your file is not uploaded to a remote server."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is there a file size limit for PDF to PNG conversion?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "There is no fixed server-side upload limit because files are not uploaded. The practical limit depends on your device memory and browser performance."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which PDFs can I convert with this tool?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can convert standard PDF documents, including text-heavy files, scanned pages, and mixed-layout PDFs. Password-protected PDFs must be unlocked before conversion."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will converting PDF pages to PNG reduce quality?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You control output detail with the scale options. Higher scale values render larger PNGs with more detail, while the original PDF remains unchanged."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this PDF to PNG converter work on mobile devices?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. flipp runs in any modern mobile browser including Safari on iPhone and iPad and Chrome on Android. The conversion process uses the same PDF.js rendering engine regardless of device. Very large PDFs may be slower to process on older phones due to memory constraints, but the tool is fully functional on mobile."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do the exported PNG files work in all image editors and apps?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The output is standard PNG format compatible with every major image editor (Photoshop, Figma, Canva, GIMP), image viewer, and operating system. PNG is one of the most universally supported image formats and requires no special software to open."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I convert only specific pages instead of the whole PDF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Choose the custom range option and enter the pages you want, such as 1-3 or 5,8,10."
+            }
+          }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+    /></noscript>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "PDF to PNG",
+        "url": "https://unfollowaman.tech/tools/pdf-to-png/",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Convert PDF pages to PNG images securely in your browser with no file uploads.",
+        "isPartOf": {
+          "@type": "WebApplication",
+          "name": "Flipp",
+          "url": "https://unfollowaman.tech"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="/">flipp</a>
+      <span class="pipe">|</span>
+      <span class="tagline">file converter</span>
+      <div class="nav-end">
+        <a class="nav-link" href="/tools/pdf-to-png/" aria-current="page"
+          >PDF → PNG</a
+        >
+        <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+        <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+        <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
+        <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
+        <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+        <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
+        <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
+        <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
+        <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
+        <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
       </div>
+    </nav>
 
-      <div class="drop-zone" role="region" aria-label="PDF file upload area" id="pdf-drop-zone" data-mode="pdf-to-img">
-        <input type="file" id="pdf-file-input" accept=".pdf" hidden />
-        <div class="dz-content" id="pdf-dz-content">
-          <div class="dz-upload-icon">📄</div>
-          <div class="dz-headline">Drop your PDF here</div>
-          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('pdf-file-input').click()">browse files</button></div>
-          <div class="dz-formats">Accepts: .pdf only</div>
+    <main class="tool-page-main">
+      <section class="section-inner" aria-labelledby="tool-title">
+        <div class="converter-header">
+          <div class="converter-badge" style="background: var(--yellow)">
+            PDF → PNG
+          </div>
+          <h1 class="converter-title" id="tool-title">PDF to PNG</h1>
+          <p class="converter-desc">
+            Convert every page of a PDF into a crisp PNG image at maximum
+            quality. Perfect for previews, thumbnails, or sharing individual
+            pages.
+          </p>
         </div>
-      </div>
 
-      <!-- PDF Options -->
-      <div class="options-bar" id="pdf-options" style="display:none">
-        <div class="option-group">
-          <label class="option-label">Pages</label>
-          <div class="option-pills" id="pdf-pages-pills">
-            <button class="opt-pill active" data-value="all">All pages</button>
-            <button class="opt-pill" data-value="range">Custom range</button>
+        <div
+          class="drop-zone"
+          role="region"
+          aria-label="PDF file upload area"
+          id="pdf-drop-zone"
+          data-mode="pdf-to-img"
+        >
+          <input type="file" id="pdf-file-input" accept=".pdf" hidden />
+          <div class="dz-content" id="pdf-dz-content">
+            <div class="dz-upload-icon">📄</div>
+            <div class="dz-headline">Drop your PDF here</div>
+            <div class="dz-subtext">
+              or
+              <button
+                class="dz-browse-btn"
+                onclick="document.getElementById('pdf-file-input').click()"
+              >
+                browse files
+              </button>
+            </div>
+            <div class="dz-formats">Accepts: .pdf only</div>
           </div>
         </div>
-        <div class="option-group" id="pdf-range-group" style="display:none">
-          <label class="option-label">Page range (e.g. 1-3, 5)</label>
-          <input type="text" class="range-input" id="pdf-range-input" placeholder="1-3, 5, 7" />
-        </div>
-      </div>
 
-      <!-- PDF Preview -->
-      <div class="preview-area" id="pdf-preview-area" style="display:none">
-        <div class="preview-header">
-          <span class="preview-count" id="pdf-page-count"></span>
-          <button class="cta-btn cta-pink" id="pdf-convert-btn"><img class="cta-icon" src="https://img.icons8.com/arcade/64/pdf.png" alt="pdf" width="20" height="20" loading="lazy" />Convert All Pages →</button>
+        <!-- PDF Options -->
+        <div class="options-bar" id="pdf-options" style="display: none">
+          <div class="option-group">
+            <label class="option-label">Pages</label>
+            <div class="option-pills" id="pdf-pages-pills">
+              <button class="opt-pill active" data-value="all">
+                All pages
+              </button>
+              <button class="opt-pill" data-value="range">Custom range</button>
+            </div>
+          </div>
+          <div class="option-group" id="pdf-range-group" style="display: none">
+            <label class="option-label">Page range (e.g. 1-3, 5)</label>
+            <input
+              type="text"
+              class="range-input"
+              id="pdf-range-input"
+              placeholder="1-3, 5, 7"
+            />
+          </div>
         </div>
-        <div class="preview-grid" id="pdf-preview-grid"></div>
-      </div>
 
-      <!-- PDF Progress -->
-      <div class="progress-area" aria-live="polite" aria-label="Conversion progress" id="pdf-progress" style="display:none">
-        <div class="progress-label" id="pdf-progress-label">Converting page 1…</div>
-        <div class="progress-track">
-          <div class="progress-bar" id="pdf-progress-bar"></div>
+        <!-- PDF Preview -->
+        <div class="preview-area" id="pdf-preview-area" style="display: none">
+          <div class="preview-header">
+            <span class="preview-count" id="pdf-page-count"></span>
+            <button class="cta-btn cta-pink" id="pdf-convert-btn">
+              <img
+                class="cta-icon"
+                src="https://img.icons8.com/arcade/64/pdf.png"
+                alt="pdf"
+                width="20"
+                height="20"
+                loading="lazy"
+              />Convert All Pages →
+            </button>
+          </div>
+          <div class="preview-grid" id="pdf-preview-grid"></div>
         </div>
-      </div>
 
-      <!-- PDF Results -->
-      <div class="results-area" aria-live="polite" aria-label="Conversion results" id="pdf-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ Conversion complete!</span>
-          <button class="cta-btn cta-mint" id="pdf-download-all-btn">Download All as ZIP 📦</button>
+        <!-- PDF Progress -->
+        <div
+          class="progress-area"
+          aria-live="polite"
+          aria-label="Conversion progress"
+          id="pdf-progress"
+          style="display: none"
+        >
+          <div class="progress-label" id="pdf-progress-label">
+            Converting page 1…
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="pdf-progress-bar"></div>
+          </div>
         </div>
-        <div class="results-grid" id="pdf-results-grid"></div>
-        <button class="reset-btn" id="pdf-reset-btn">Convert another file ↺</button>
-      </div>
-    </section>
-  
 
+        <!-- PDF Results -->
+        <div
+          class="results-area"
+          aria-live="polite"
+          aria-label="Conversion results"
+          id="pdf-results"
+          style="display: none"
+        >
+          <div class="results-header">
+            <span class="results-title">✓ Conversion complete!</span>
+            <button class="cta-btn cta-mint" id="pdf-download-all-btn">
+              Download All as ZIP 📦
+            </button>
+          </div>
+          <div class="results-grid" id="pdf-results-grid"></div>
+          <button class="reset-btn" id="pdf-reset-btn">
+            Convert another file ↺
+          </button>
+        </div>
+      </section>
 
-    <section class="tool-content-section" aria-labelledby="pdf-to-png-use-cases-heading">
-      <h2 class="tcs-headline" id="pdf-to-png-use-cases-heading">Use cases</h2>
-      <div class="tools-grid">
-        <article class="tool-card">
-          <div class="tool-card-title">Archiving specific pages</div>
-          <div class="tool-card-desc">Save an individual certificate, invoice page, or form after you <a href="/tools/split-pdf/">split the PDF first</a> so only the pages you need are converted.</div>
-        </article>
-      </div>
-    </section>
-
-    <section class="tool-content-section" aria-labelledby="pdf-to-png-faq-heading">
-      <h2 class="tcs-headline" id="pdf-to-png-faq-heading">FAQ</h2>
-      <div class="tcs-faq">
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is this PDF to PNG converter free to use?</button>
-          <div class="tcs-faq-a">Yes. flipp's PDF to PNG tool is free to use in your browser with no sign-up required.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Are my PDF files uploaded when I convert them to PNG?</button>
-          <div class="tcs-faq-a">No. The conversion runs locally in your browser using PDF.js, so your file is not uploaded to a remote server.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is there a file size limit for PDF to PNG conversion?</button>
-          <div class="tcs-faq-a">There is no fixed server-side upload limit because files are not uploaded. The practical limit depends on your device memory and browser performance.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Which PDFs can I convert with this tool?</button>
-          <div class="tcs-faq-a">You can convert standard PDF documents, including text-heavy files, scanned pages, and mixed-layout PDFs. Password-protected PDFs must be unlocked before conversion.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Will converting PDF pages to PNG reduce quality?</button>
-          <div class="tcs-faq-a">You control output detail with the scale options. Higher scale values render larger PNGs with more detail, while the original PDF remains unchanged.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Does this PDF to PNG converter work on mobile devices?</button>
-          <div class="tcs-faq-a">Yes. flipp runs in any modern mobile browser including Safari on iPhone and iPad and Chrome on Android. The conversion process uses the same PDF.js rendering engine regardless of device. Very large PDFs may be slower to process on older phones due to memory constraints, but the tool is fully functional on mobile.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Do the exported PNG files work in all image editors and apps?</button>
-          <div class="tcs-faq-a">Yes. The output is standard PNG format compatible with every major image editor (Photoshop, Figma, Canva, GIMP), image viewer, and operating system. PNG is one of the most universally supported image formats and requires no special software to open.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can I convert only specific pages instead of the whole PDF?</button>
-          <div class="tcs-faq-a">Yes. Choose the custom range option and enter the pages you want, such as 1-3 or 5,8,10.</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="related-tools-section" aria-labelledby="before-you-convert">
-      <div class="tool-content-section">
-        <h2 class="tcs-headline" id="before-you-convert">Before you convert</h2>
+      <section
+        class="tool-content-section"
+        aria-labelledby="pdf-to-png-use-cases-heading"
+      >
+        <h2 class="tcs-headline" id="pdf-to-png-use-cases-heading">
+          Use cases
+        </h2>
         <div class="tools-grid">
-          <a class="tool-card" href="/tools/split-pdf/">
-            <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
-            <div class="tool-card-title">Split PDF</div>
-            <div class="tool-card-desc">Extract a range of pages from a PDF into separate files.</div>
+          <article class="tool-card">
+            <div class="tool-card-title">Archiving specific pages</div>
+            <div class="tool-card-desc">
+              Save an individual certificate, invoice page, or form after you
+              <a href="/tools/split-pdf/">split the PDF first</a> so only the
+              pages you need are converted.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="tool-content-section"
+        aria-labelledby="pdf-to-png-faq-heading"
+      >
+        <h2 class="tcs-headline" id="pdf-to-png-faq-heading">FAQ</h2>
+        <div class="tcs-faq">
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Is this PDF to PNG converter free to use?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. flipp's PDF to PNG tool is free to use in your browser with
+              no sign-up required.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Are my PDF files uploaded when I convert them to PNG?
+            </button>
+            <div class="tcs-faq-a">
+              No. The conversion runs locally in your browser using PDF.js, so
+              your file is not uploaded to a remote server.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Is there a file size limit for PDF to PNG conversion?
+            </button>
+            <div class="tcs-faq-a">
+              There is no fixed server-side upload limit because files are not
+              uploaded. The practical limit depends on your device memory and
+              browser performance.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Which PDFs can I convert with this tool?
+            </button>
+            <div class="tcs-faq-a">
+              You can convert standard PDF documents, including text-heavy
+              files, scanned pages, and mixed-layout PDFs. Password-protected
+              PDFs must be unlocked before conversion.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Will converting PDF pages to PNG reduce quality?
+            </button>
+            <div class="tcs-faq-a">
+              You control output detail with the scale options. Higher scale
+              values render larger PNGs with more detail, while the original PDF
+              remains unchanged.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Does this PDF to PNG converter work on mobile devices?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. flipp runs in any modern mobile browser including Safari on
+              iPhone and iPad and Chrome on Android. The conversion process uses
+              the same PDF.js rendering engine regardless of device. Very large
+              PDFs may be slower to process on older phones due to memory
+              constraints, but the tool is fully functional on mobile.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Do the exported PNG files work in all image editors and apps?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. The output is standard PNG format compatible with every major
+              image editor (Photoshop, Figma, Canva, GIMP), image viewer, and
+              operating system. PNG is one of the most universally supported
+              image formats and requires no special software to open.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can I convert only specific pages instead of the whole PDF?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. Choose the custom range option and enter the pages you want,
+              such as 1-3 or 5,8,10.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="related-tools-section"
+        aria-labelledby="before-you-convert"
+      >
+        <div class="tool-content-section">
+          <h2 class="tcs-headline" id="before-you-convert">
+            Before you convert
+          </h2>
+          <div class="tools-grid">
+            <a class="tool-card" href="/tools/split-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/split-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div
+                  class="tool-card-badge"
+                  style="background: var(--sky-blue)"
+                >
+                  SPLIT
+                </div>
+                <div class="tool-card-title">Split PDF</div>
+                <div class="tool-card-desc">
+                  Extract a range of pages from a PDF into separate files.
+                </div>
+              </div>
+            </a>
+            <a class="tool-card" href="/tools/merge-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/merge-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  MERGE
+                </div>
+                <div class="tool-card-title">Merge PDFs</div>
+                <div class="tool-card-desc">
+                  Combine multiple PDF files into a single document in seconds.
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" aria-label="Site footer">
+      <div class="footer-links">
+        <a href="/tools/pdf-to-png/" class="footer-link" aria-current="page"
+          >PDF to PNG</a
+        >
+        <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+        <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+        <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+        <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+        <a href="/tools/add-page-numbers/" class="footer-link"
+          >Add Page Numbers</a
+        >
+        <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
+        <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
+        <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
+        <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
+        <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+      </div>
+      <div class="footer-inner">
+        <div class="footer-logo">flipp</div>
+        <div class="footer-social" aria-label="Social links">
+          <a
+            class="footer-social-link"
+            href="https://x.com/unfollowaman"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"
+              />
+            </svg>
           </a>
-          <a class="tool-card" href="/tools/merge-pdf/">
-            <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
-            <div class="tool-card-title">Merge PDFs</div>
-            <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
+          <a
+            class="footer-social-link"
+            href="https://www.instagram.com/unfollowaman_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="footer-social-link"
+            href="mailto:idontknowaman@gmail.com"
+            aria-label="Gmail"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"
+              />
+            </svg>
           </a>
         </div>
+        <a
+          href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="product-hunt-badge footer-ph-badge"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light"
+            alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt"
+          />
+        </a>
+        <div class="footer-copy">@unfollowaman</div>
       </div>
-    </section>
+    </footer>
 
-  </main>
-
-  <footer class="footer" aria-label="Site footer">
-    <div class="footer-links">
-      <a href="/tools/pdf-to-png/" class="footer-link" aria-current="page">PDF to PNG</a>
-      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
-      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
-      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
-      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
-      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
-      <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
-      <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
-      <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
-      <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
-      <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
-      <a href="/blog/" class="footer-link">Blog</a>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-logo">flipp</div>
-      <div class="footer-social" aria-label="Social links">
-        <a class="footer-social-link" href="https://x.com/unfollowaman" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="https://www.instagram.com/unfollowaman_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="mailto:idontknowaman@gmail.com" aria-label="Gmail">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"/></svg>
-        </a>
-      </div>
-      <a href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3" target="_blank" rel="noopener noreferrer" class="product-hunt-badge footer-ph-badge">
-        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light" alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt" />
-      </a>
-      <div class="footer-copy">@unfollowaman</div>
-    </div>
-  </footer>
-
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
-  <script type="module">
-    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
-    window['pdfjs-dist/build/pdf'] = pdfjsLib;
-  </script>
-  <script src="/js/faq.js"></script>
-  <script src="/js/pdf-to-img.js" type="module"></script>
-
-</body>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+      integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+      integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+      integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module">
+      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
+      window["pdfjs-dist/build/pdf"] = pdfjsLib;
+    </script>
+    <script src="/js/faq.js"></script>
+    <script src="/js/pdf-to-img.js" type="module"></script>
+  </body>
 </html>

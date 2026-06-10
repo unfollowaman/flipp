@@ -1176,6 +1176,27 @@ textarea { font-family: inherit; }
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+
+.tool-card-icon-wrapper {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  background-color: var(--black);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tool-card-icon-wrapper img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .tool-card-content {
   flex: 1;
 }

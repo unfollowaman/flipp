@@ -1,280 +1,600 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta http-equiv="x-dns-prefetch-control" content="on" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Split PDF — Free & Private | Flipp</title>
-  <meta name="description" content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed.">
-  <meta name="robots" content="index, follow" />
-  <meta name="keywords" content="split pdf, split pdf online, extract pages from pdf, separate pdf pages, split pdf free, pdf splitter" />
-  <link rel="canonical" href="https://unfollowaman.tech/tools/split-pdf/">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Split PDF — Free & Private | Flipp</title>
+    <meta
+      name="description"
+      content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="split pdf, split pdf online, extract pages from pdf, separate pdf pages, split pdf free, pdf splitter"
+    />
+    <link rel="canonical" href="https://unfollowaman.tech/tools/split-pdf/" />
     <meta property="og:title" content="Split PDF — Free & Private | Flipp" />
-    <meta property="og:description" content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta property="og:url" content="https://unfollowaman.tech/tools/split-pdf/" />
+    <meta
+      property="og:description"
+      content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      property="og:url"
+      content="https://unfollowaman.tech/tools/split-pdf/"
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Split PDF — Free & Private | Flipp" />
-    <meta name="twitter:description" content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      name="twitter:description"
+      content="Use Flipp's Split PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      name="twitter:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:site" content="@unfollowaman" />
-  <link rel="modulepreload" href="/js/pdf-split.js" />
-  <link rel="modulepreload" href="/js/drag-drop.js" />
+    <link rel="modulepreload" href="/js/pdf-split.js" />
+    <link rel="modulepreload" href="/js/drag-drop.js" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="theme-color" content="#F5E642" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Split PDF Tool",
-    "url": "https://unfollowaman.tech/tools/split-pdf/",
-    "description": "Split PDF files online for free with no uploads. Extract pages from PDF documents instantly and separate PDF pages privately in your browser.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": ["Split PDF files by custom page ranges", "Extract selected pages into separate files", "Process files locally in your browser"],
-    "browserRequirements": "Requires JavaScript"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unfollowaman.tech/" },
-      { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://unfollowaman.tech/tools/" },
-      { "@type": "ListItem", "position": 3, "name": "Split PDF", "item": "https://unfollowaman.tech/tools/split-pdf/" }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to split PDF pages online for free",
-    "step": [
-      { "@type": "HowToStep", "name": "Upload your file", "text": "Drag and drop your file into the upload area or browse to select it." },
-      { "@type": "HowToStep", "name": "Choose your options", "text": "Select the settings shown for this tool before processing." },
-      { "@type": "HowToStep", "name": "Process and download", "text": "Run the tool and download your output file when processing is complete." }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Is Split PDF free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Split PDF tool is free and available with no registration requirement." } },
-      { "@type": "Question", "name": "Does splitting upload my PDF to the cloud?", "acceptedAnswer": { "@type": "Answer", "text": "No. Splitting happens locally in your browser, and your PDF is not transmitted to a processing server." } },
-      { "@type": "Question", "name": "Is there a file size limit for splitting PDFs?", "acceptedAnswer": { "@type": "Answer", "text": "There is no server upload limit. Performance depends on your browser and available device memory for large PDFs." } },
-      { "@type": "Question", "name": "Will splitting a PDF affect the quality of the pages?", "acceptedAnswer": { "@type": "Answer", "text": "No. PDF-lib copies pages directly from the source PDF without re-encoding them. Text, images, vector graphics, and embedded fonts are preserved exactly as they appear in the original file. The only change is the page selection — the content of each page is untouched." } },
-      { "@type": "Question", "name": "Can I use this tool to extract just one page from a PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Set the \"From page\" and \"To page\" values to the same number. For example, entering 3 in both fields will extract only page 3 as the first output file. The second output file will contain all remaining pages. Download only the file you need." } },
-      { "@type": "Question", "name": "Can I split one PDF into two separate files?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Choose a page range for the first output file, and the remaining pages are exported as a second file automatically." } },
-      { "@type": "Question", "name": "Will the split files work in common PDF readers?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Both output files are standard PDFs that open in Adobe Acrobat, Preview, browser viewers, and mobile reader apps." } },
-      { "@type": "Question", "name": "How does the split process preserve original content quality?", "acceptedAnswer": { "@type": "Answer", "text": "flipp uses PDF-lib page copying rather than image-based conversion, so page content is kept in its original PDF form without recompression." } }
-    ]
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
-  <link rel="stylesheet" href="/css/styles.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Split PDF",
-    "url": "https://unfollowaman.tech/tools/split-pdf/",
-    "applicationCategory": "UtilitiesApplication",
-    "description": "Extract specific pages from your PDF locally with no files ever sent to a server.",
-    "isPartOf": {
-      "@type": "WebApplication",
-      "name": "Flipp",
-      "url": "https://unfollowaman.tech"
-    }
-  }
-  </script>
-</head>
-<body>
-
-  <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/">flipp</a>
-    <span class="pipe">|</span>
-    <span class="tagline">file converter</span>
-    <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/" aria-current="page">Split PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
-      <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
-      <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
-      <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
-      <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
-      <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
-    </div>
-  </nav>
-
-  <main class="tool-page-main">
-    <section class="section-inner" aria-labelledby="tool-title">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--sky-blue)">SPLIT PDF</div>
-        <h1 class="converter-title" id="tool-title">Split PDF Pages</h1>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F5E642" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Split PDF Tool",
+        "url": "https://unfollowaman.tech/tools/split-pdf/",
+        "description": "Split PDF files online for free with no uploads. Extract pages from PDF documents instantly and separate PDF pages privately in your browser.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Split PDF files by custom page ranges",
+          "Extract selected pages into separate files",
+          "Process files locally in your browser"
+        ],
+        "browserRequirements": "Requires JavaScript"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://unfollowaman.tech/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://unfollowaman.tech/tools/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Split PDF",
+            "item": "https://unfollowaman.tech/tools/split-pdf/"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to split PDF pages online for free",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload your file",
+            "text": "Drag and drop your file into the upload area or browse to select it."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose your options",
+            "text": "Select the settings shown for this tool before processing."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Process and download",
+            "text": "Run the tool and download your output file when processing is complete."
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Split PDF free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The Split PDF tool is free and available with no registration requirement."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does splitting upload my PDF to the cloud?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Splitting happens locally in your browser, and your PDF is not transmitted to a processing server."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is there a file size limit for splitting PDFs?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "There is no server upload limit. Performance depends on your browser and available device memory for large PDFs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will splitting a PDF affect the quality of the pages?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. PDF-lib copies pages directly from the source PDF without re-encoding them. Text, images, vector graphics, and embedded fonts are preserved exactly as they appear in the original file. The only change is the page selection — the content of each page is untouched."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use this tool to extract just one page from a PDF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Set the \"From page\" and \"To page\" values to the same number. For example, entering 3 in both fields will extract only page 3 as the first output file. The second output file will contain all remaining pages. Download only the file you need."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I split one PDF into two separate files?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Choose a page range for the first output file, and the remaining pages are exported as a second file automatically."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will the split files work in common PDF readers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Both output files are standard PDFs that open in Adobe Acrobat, Preview, browser viewers, and mobile reader apps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the split process preserve original content quality?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "flipp uses PDF-lib page copying rather than image-based conversion, so page content is kept in its original PDF form without recompression."
+            }
+          }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+    /></noscript>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Split PDF",
+        "url": "https://unfollowaman.tech/tools/split-pdf/",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Extract specific pages from your PDF locally with no files ever sent to a server.",
+        "isPartOf": {
+          "@type": "WebApplication",
+          "name": "Flipp",
+          "url": "https://unfollowaman.tech"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="/">flipp</a>
+      <span class="pipe">|</span>
+      <span class="tagline">file converter</span>
+      <div class="nav-end">
+        <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
+        <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+        <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+        <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
+        <a class="nav-link" href="/tools/split-pdf/" aria-current="page"
+          >Split PDF</a
+        >
+        <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+        <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
+        <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
+        <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
+        <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
+        <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
       </div>
-      <div class="drop-zone" role="region" aria-label="PDF file upload area" id="split-drop-zone">
-        <input type="file" id="split-file-input" accept=".pdf" hidden />
-        <div class="dz-content"><div class="dz-headline">Drop one PDF file here</div><div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('split-file-input').click()">browse file</button></div></div>
-      </div>
-      <div class="preview-area" id="split-preview-area" style="display:none">
-        <div class="preview-header"><span class="preview-count" id="split-info"></span><button class="cta-btn cta-pink" id="split-btn">Split Pages →</button></div>
-        <div class="option-group" style="margin-top:12px">
-          <label class="option-label" for="split-range-start">Split range (first output)</label>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <input type="number" min="1" class="range-input" id="split-range-start" placeholder="From page" style="max-width:160px" />
-            <span>to</span>
-            <input type="number" min="1" class="range-input" id="split-range-end" placeholder="To page" style="max-width:160px" />
+    </nav>
+
+    <main class="tool-page-main">
+      <section class="section-inner" aria-labelledby="tool-title">
+        <div class="converter-header">
+          <div class="converter-badge" style="background: var(--sky-blue)">
+            SPLIT PDF
+          </div>
+          <h1 class="converter-title" id="tool-title">Split PDF Pages</h1>
+        </div>
+        <div
+          class="drop-zone"
+          role="region"
+          aria-label="PDF file upload area"
+          id="split-drop-zone"
+        >
+          <input type="file" id="split-file-input" accept=".pdf" hidden />
+          <div class="dz-content">
+            <div class="dz-headline">Drop one PDF file here</div>
+            <div class="dz-subtext">
+              or
+              <button
+                class="dz-browse-btn"
+                onclick="document.getElementById('split-file-input').click()"
+              >
+                browse file
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="results-area" aria-live="polite" aria-label="Conversion results" id="split-results" style="display:none">
-        <div id="split-downloads" style="display:flex;flex-wrap:wrap;gap:10px"></div>
-        <button class="reset-btn" id="split-reset-btn">Reset ↺</button>
-      </div>
-    </section>
-  
+        <div class="preview-area" id="split-preview-area" style="display: none">
+          <div class="preview-header">
+            <span class="preview-count" id="split-info"></span
+            ><button class="cta-btn cta-pink" id="split-btn">
+              Split Pages →
+            </button>
+          </div>
+          <div class="option-group" style="margin-top: 12px">
+            <label class="option-label" for="split-range-start"
+              >Split range (first output)</label
+            >
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+              "
+            >
+              <input
+                type="number"
+                min="1"
+                class="range-input"
+                id="split-range-start"
+                placeholder="From page"
+                style="max-width: 160px"
+              />
+              <span>to</span>
+              <input
+                type="number"
+                min="1"
+                class="range-input"
+                id="split-range-end"
+                placeholder="To page"
+                style="max-width: 160px"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="results-area"
+          aria-live="polite"
+          aria-label="Conversion results"
+          id="split-results"
+          style="display: none"
+        >
+          <div
+            id="split-downloads"
+            style="display: flex; flex-wrap: wrap; gap: 10px"
+          ></div>
+          <button class="reset-btn" id="split-reset-btn">Reset ↺</button>
+        </div>
+      </section>
 
-
-    <section class="tool-content-section" aria-labelledby="split-use-cases-heading">
-      <h2 class="tcs-headline" id="split-use-cases-heading">Use cases</h2>
-      <div class="tools-grid">
-        <article class="tool-card">
-          <div class="tool-card-title">Extract a chapter</div>
-          <div class="tool-card-desc">Pull out selected pages from a long report and <a href="/tools/pdf-to-png/">convert extracted pages to PNG images</a> for quick sharing.</div>
-        </article>
-      </div>
-    </section>
-
-    <section class="tool-content-section" aria-labelledby="split-pdf-faq-heading">
-      <h2 class="tcs-headline" id="split-pdf-faq-heading">FAQ</h2>
-      <div class="tcs-faq">
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is Split PDF free to use?</button>
-          <div class="tcs-faq-a">Yes. The Split PDF tool is free and available with no registration requirement.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Does splitting upload my PDF to the cloud?</button>
-          <div class="tcs-faq-a">No. Splitting happens locally in your browser, and your PDF is not transmitted to a processing server.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is there a file size limit for splitting PDFs?</button>
-          <div class="tcs-faq-a">There is no server upload limit. Performance depends on your browser and available device memory for large PDFs.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Will splitting a PDF affect the quality of the pages?</button>
-          <div class="tcs-faq-a">No. PDF-lib copies pages directly from the source PDF without re-encoding them. Text, images, vector graphics, and embedded fonts are preserved exactly as they appear in the original file. The only change is the page selection — the content of each page is untouched.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can I use this tool to extract just one page from a PDF?</button>
-          <div class="tcs-faq-a">Yes. Set the \"From page\" and \"To page\" values to the same number. For example, entering 3 in both fields will extract only page 3 as the first output file. The second output file will contain all remaining pages. Download only the file you need.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can I split one PDF into two separate files?</button>
-          <div class="tcs-faq-a">Yes. Choose a page range for the first output file, and the remaining pages are exported as a second file automatically.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Will the split files work in common PDF readers?</button>
-          <div class="tcs-faq-a">Yes. Both output files are standard PDFs that open in Adobe Acrobat, Preview, browser viewers, and mobile reader apps.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">How does the split process preserve original content quality?</button>
-          <div class="tcs-faq-a">flipp uses PDF-lib page copying rather than image-based conversion, so page content is kept in its original PDF form without recompression.</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="related-tools-section" aria-labelledby="you-might-also-need">
-      <div class="tool-content-section">
-        <h2 class="tcs-headline" id="you-might-also-need">You might also need</h2>
+      <section
+        class="tool-content-section"
+        aria-labelledby="split-use-cases-heading"
+      >
+        <h2 class="tcs-headline" id="split-use-cases-heading">Use cases</h2>
         <div class="tools-grid">
-          <a class="tool-card" href="/tools/merge-pdf/">
-            <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
-            <div class="tool-card-title">Merge PDFs</div>
-            <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
+          <article class="tool-card">
+            <div class="tool-card-title">Extract a chapter</div>
+            <div class="tool-card-desc">
+              Pull out selected pages from a long report and
+              <a href="/tools/pdf-to-png/"
+                >convert extracted pages to PNG images</a
+              >
+              for quick sharing.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="tool-content-section"
+        aria-labelledby="split-pdf-faq-heading"
+      >
+        <h2 class="tcs-headline" id="split-pdf-faq-heading">FAQ</h2>
+        <div class="tcs-faq">
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">Is Split PDF free to use?</button>
+            <div class="tcs-faq-a">
+              Yes. The Split PDF tool is free and available with no registration
+              requirement.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Does splitting upload my PDF to the cloud?
+            </button>
+            <div class="tcs-faq-a">
+              No. Splitting happens locally in your browser, and your PDF is not
+              transmitted to a processing server.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Is there a file size limit for splitting PDFs?
+            </button>
+            <div class="tcs-faq-a">
+              There is no server upload limit. Performance depends on your
+              browser and available device memory for large PDFs.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Will splitting a PDF affect the quality of the pages?
+            </button>
+            <div class="tcs-faq-a">
+              No. PDF-lib copies pages directly from the source PDF without
+              re-encoding them. Text, images, vector graphics, and embedded
+              fonts are preserved exactly as they appear in the original file.
+              The only change is the page selection — the content of each page
+              is untouched.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can I use this tool to extract just one page from a PDF?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. Set the \"From page\" and \"To page\" values to the same
+              number. For example, entering 3 in both fields will extract only
+              page 3 as the first output file. The second output file will
+              contain all remaining pages. Download only the file you need.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can I split one PDF into two separate files?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. Choose a page range for the first output file, and the
+              remaining pages are exported as a second file automatically.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Will the split files work in common PDF readers?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. Both output files are standard PDFs that open in Adobe
+              Acrobat, Preview, browser viewers, and mobile reader apps.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              How does the split process preserve original content quality?
+            </button>
+            <div class="tcs-faq-a">
+              flipp uses PDF-lib page copying rather than image-based
+              conversion, so page content is kept in its original PDF form
+              without recompression.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="related-tools-section"
+        aria-labelledby="you-might-also-need"
+      >
+        <div class="tool-content-section">
+          <h2 class="tcs-headline" id="you-might-also-need">
+            You might also need
+          </h2>
+          <div class="tools-grid">
+            <a class="tool-card" href="/tools/merge-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/merge-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  MERGE
+                </div>
+                <div class="tool-card-title">Merge PDFs</div>
+                <div class="tool-card-desc">
+                  Combine multiple PDF files into a single document in seconds.
+                </div>
+              </div>
+            </a>
+            <a class="tool-card" href="/tools/pdf-to-png/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/image.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  PDF → PNG
+                </div>
+                <div class="tool-card-title">PDF to Images</div>
+                <div class="tool-card-desc">
+                  Convert every page of a PDF into a crisp PNG. Export
+                  individually or as a ZIP.
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" aria-label="Site footer">
+      <div class="footer-links">
+        <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+        <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+        <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+        <a href="/tools/split-pdf/" class="footer-link" aria-current="page"
+          >Split PDF</a
+        >
+        <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+        <a href="/tools/add-page-numbers/" class="footer-link"
+          >Add Page Numbers</a
+        >
+        <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
+        <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
+        <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
+        <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
+        <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+      </div>
+      <div class="footer-inner">
+        <div class="footer-logo">flipp</div>
+        <div class="footer-social" aria-label="Social links">
+          <a
+            class="footer-social-link"
+            href="https://x.com/unfollowaman"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"
+              />
+            </svg>
           </a>
-          <a class="tool-card" href="/tools/pdf-to-png/">
-            <div class="tool-card-badge" style="background: var(--yellow)">PDF → PNG</div>
-            <div class="tool-card-title">PDF to Images</div>
-            <div class="tool-card-desc">Convert every page of a PDF into a crisp PNG. Export individually or as a ZIP.</div>
+          <a
+            class="footer-social-link"
+            href="https://www.instagram.com/unfollowaman_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="footer-social-link"
+            href="mailto:idontknowaman@gmail.com"
+            aria-label="Gmail"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"
+              />
+            </svg>
           </a>
         </div>
+        <a
+          href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="product-hunt-badge footer-ph-badge"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light"
+            alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt"
+          />
+        </a>
+        <div class="footer-copy">@unfollowaman</div>
       </div>
-    </section>
+    </footer>
 
-  </main>
-
-  <footer class="footer" aria-label="Site footer">
-    <div class="footer-links">
-      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
-      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
-      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
-      <a href="/tools/split-pdf/" class="footer-link" aria-current="page">Split PDF</a>
-      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
-      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
-      <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
-      <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
-      <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
-      <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
-      <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
-      <a href="/blog/" class="footer-link">Blog</a>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-logo">flipp</div>
-      <div class="footer-social" aria-label="Social links">
-        <a class="footer-social-link" href="https://x.com/unfollowaman" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="https://www.instagram.com/unfollowaman_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="mailto:idontknowaman@gmail.com" aria-label="Gmail">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"/></svg>
-        </a>
-      </div>
-      <a href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3" target="_blank" rel="noopener noreferrer" class="product-hunt-badge footer-ph-badge">
-        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light" alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt" />
-      </a>
-      <div class="footer-copy">@unfollowaman</div>
-    </div>
-  </footer>
-
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
-  <script type="module">
-    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
-    window['pdfjs-dist/build/pdf'] = pdfjsLib;
-  </script>
-  <script src="/js/faq.js"></script>
-  <script src="/js/pdf-split.js" type="module"></script>
-
-</body>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+      integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+      integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+      integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module">
+      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
+      window["pdfjs-dist/build/pdf"] = pdfjsLib;
+    </script>
+    <script src="/js/faq.js"></script>
+    <script src="/js/pdf-split.js" type="module"></script>
+  </body>
 </html>
