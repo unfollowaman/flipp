@@ -1,60 +1,67 @@
 // img-to-pdf.js — PNG/JPG → PDF conversion using jsPDF
 
-import { initDropZone, showToast, setProgress, activatePill, setupDragReorder } from '/js/drag-drop.js';
+import {
+  initDropZone,
+  showToast,
+  setProgress,
+  activatePill,
+  setupDragReorder,
+} from "/js/drag-drop.js";
 
 // ── State ──────────────────────────────────────────────
-let imageFiles   = []; // { file, objectUrl, name }
-let pdfBlob      = null;
-let pageSize     = 'auto';
-let orientation  = 'portrait';
+let imageFiles = []; // { file, objectUrl, name }
+let pdfBlob = null;
+let pageSize = "auto";
+let orientation = "portrait";
 
 // ── DOM refs ───────────────────────────────────────────
-const dropZoneEl    = document.getElementById('img-drop-zone');
-const fileInputEl   = document.getElementById('img-file-input');
+const dropZoneEl = document.getElementById("img-drop-zone");
+const fileInputEl = document.getElementById("img-file-input");
 
-const optionsEl     = document.getElementById('img-options');
-const sizePills     = document.getElementById('img-size-pills');
-const orientPills   = document.getElementById('img-orient-pills');
-const filenameInput = document.getElementById('img-filename-input');
+const optionsEl = document.getElementById("img-options");
+const sizePills = document.getElementById("img-size-pills");
+const orientPills = document.getElementById("img-orient-pills");
+const filenameInput = document.getElementById("img-filename-input");
 
-const previewArea   = document.getElementById('img-preview-area');
-const fileCountEl   = document.getElementById('img-file-count');
-const addMoreBtn    = document.getElementById('img-add-more-btn');
-const convertBtn    = document.getElementById('img-convert-btn');
-const previewGrid   = document.getElementById('img-preview-grid');
+const previewArea = document.getElementById("img-preview-area");
+const fileCountEl = document.getElementById("img-file-count");
+const addMoreBtn = document.getElementById("img-add-more-btn");
+const convertBtn = document.getElementById("img-convert-btn");
+const previewGrid = document.getElementById("img-preview-grid");
 
-const progressArea  = document.getElementById('img-progress');
-const progressBar   = document.getElementById('img-progress-bar');
-const progressLabel = document.getElementById('img-progress-label');
+const progressArea = document.getElementById("img-progress");
+const progressBar = document.getElementById("img-progress-bar");
+const progressLabel = document.getElementById("img-progress-label");
 
-const resultsArea   = document.getElementById('img-results');
-const downloadBtn   = document.getElementById('img-download-btn');
-const resultInfo    = document.getElementById('img-result-info');
-const resetBtn      = document.getElementById('img-reset-btn');
+const resultsArea = document.getElementById("img-results");
+const downloadBtn = document.getElementById("img-download-btn");
+const resultInfo = document.getElementById("img-result-info");
+const resetBtn = document.getElementById("img-reset-btn");
 
 // ── Pill helpers ────────────────────────────────────────
-sizePills.addEventListener('click', (e) => {
-  const pill = e.target.closest('.opt-pill');
+sizePills.addEventListener("click", (e) => {
+  const pill = e.target.closest(".opt-pill");
   if (!pill) return;
   pageSize = pill.dataset.value;
   activatePill(sizePills, pill.dataset.value);
 });
 
-orientPills.addEventListener('click', (e) => {
-  const pill = e.target.closest('.opt-pill');
+orientPills.addEventListener("click", (e) => {
+  const pill = e.target.closest(".opt-pill");
   if (!pill) return;
   orientation = pill.dataset.value;
   activatePill(orientPills, pill.dataset.value);
 });
 
-
 // ── Add files ───────────────────────────────────────────
 function addImageFiles(files) {
-  const allowed = ['image/png', 'image/jpeg', 'image/jpg'];
-  const valid   = files.filter(f => allowed.includes(f.type) || /\.(png|jpe?g)$/i.test(f.name));
+  const allowed = ["image/png", "image/jpeg", "image/jpg"];
+  const valid = files.filter(
+    (f) => allowed.includes(f.type) || /\.(png|jpe?g)$/i.test(f.name),
+  );
 
   if (!valid.length) {
-    showToast('Please add PNG or JPG images.', 'error');
+    showToast("Please add PNG or JPG images.", "error");
     return;
   }
 
@@ -63,7 +70,7 @@ function addImageFiles(files) {
       file,
       objectUrl: URL.createObjectURL(file),
       name: file.name,
-      id: Date.now() + Math.random()
+      id: Date.now() + Math.random(),
     });
   }
 
@@ -72,46 +79,46 @@ function addImageFiles(files) {
 
 // ── Render preview grid ─────────────────────────────────
 function showPreview() {
-  optionsEl.style.display    = 'flex';
-  previewArea.style.display  = 'block';
-  progressArea.style.display = 'none';
-  resultsArea.style.display  = 'none';
+  optionsEl.style.display = "flex";
+  previewArea.style.display = "block";
+  progressArea.style.display = "none";
+  resultsArea.style.display = "none";
   renderPreviewGrid();
 }
 
 function renderPreviewGrid() {
-  previewGrid.innerHTML = '';
-  fileCountEl.textContent = `${imageFiles.length} image${imageFiles.length !== 1 ? 's' : ''} selected`;
+  previewGrid.innerHTML = "";
+  fileCountEl.textContent = `${imageFiles.length} image${imageFiles.length !== 1 ? "s" : ""} selected`;
 
   const fragment = document.createDocumentFragment();
 
   imageFiles.forEach((entry, idx) => {
-    const card = document.createElement('div');
-    card.className    = 'img-thumb-card';
-    card.draggable    = true;
-    card.dataset.idx  = idx;
+    const card = document.createElement("div");
+    card.className = "img-thumb-card";
+    card.draggable = true;
+    card.dataset.idx = idx;
 
-    const num = document.createElement('div');
-    num.className   = 'img-thumb-num';
+    const num = document.createElement("div");
+    num.className = "img-thumb-num";
     num.textContent = idx + 1;
     card.appendChild(num);
 
-    const img = document.createElement('img');
-    img.src     = entry.objectUrl;
-    img.loading = 'lazy';
-    img.alt     = entry.name;
+    const img = document.createElement("img");
+    img.src = entry.objectUrl;
+    img.loading = "lazy";
+    img.alt = entry.name;
     card.appendChild(img);
 
-    const lbl = document.createElement('div');
-    lbl.className   = 'img-thumb-label';
+    const lbl = document.createElement("div");
+    lbl.className = "img-thumb-label";
     lbl.textContent = entry.name;
     card.appendChild(lbl);
 
-    const rmBtn = document.createElement('button');
-    rmBtn.className   = 'img-thumb-remove';
-    rmBtn.textContent = '×';
+    const rmBtn = document.createElement("button");
+    rmBtn.className = "img-thumb-remove";
+    rmBtn.textContent = "×";
     rmBtn.title = `Remove ${entry.name}`;
-    rmBtn.addEventListener('click', (e) => {
+    rmBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       URL.revokeObjectURL(entry.objectUrl);
       imageFiles.splice(idx, 1);
@@ -134,7 +141,7 @@ function renderPreviewGrid() {
 
 // ── Drag-to-reorder ─────────────────────────────────────
 function updateImageOrder() {
-  const allCards = Array.from(previewGrid.querySelectorAll('.img-thumb-card'));
+  const allCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
 
   // Rebuild imageFiles array based on the new DOM order
   const newImageFiles = [];
@@ -144,14 +151,14 @@ function updateImageOrder() {
 
     // Update the DOM to reflect new index
     card.dataset.idx = index;
-    card.querySelector('.img-thumb-num').textContent = index + 1;
+    card.querySelector(".img-thumb-num").textContent = index + 1;
   });
 
   imageFiles = newImageFiles;
 }
 
 // ── Add more images button ──────────────────────────────
-addMoreBtn.addEventListener('click', () => fileInputEl.click());
+addMoreBtn.addEventListener("click", () => fileInputEl.click());
 
 // ── Wait for jsPDF ─────────────────────────────────────
 function getJsPDF() {
@@ -182,7 +189,7 @@ function getImageDimensions(dataUrl) {
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload  = (e) => resolve(e.target.result);
+    reader.onload = (e) => resolve(e.target.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -191,112 +198,130 @@ function fileToDataUrl(file) {
 // ── Core PDF Generation Logic ───────────────────────────
 async function generatePdfFromImages(files, options, onProgress) {
   const { pageSize, orientation } = options;
-  onProgress(0, 'Loading jsPDF…');
+  onProgress(0, "Loading jsPDF…");
 
   const jsPDF = await waitForJsPDF();
 
   // Page dimensions in mm (jsPDF uses mm)
   // a4: 210×297, letter: 215.9×279.4
   const pageSizes = {
-    a4:     [210, 297],
+    a4: [210, 297],
     letter: [215.9, 279.4],
   };
 
   let pdf = null;
   let totalPagesAdded = 0;
 
-  for (let i = 0; i < files.length; i++) {
-    const entry = files[i];
+  onProgress(0, "Preparing images…");
+  const loadedImages = await Promise.all(
+    files.map(async (entry) => {
+      const dataUrl = await fileToDataUrl(entry.file);
+      const { w: imgW, h: imgH } = await getImageDimensions(dataUrl);
+      return { entry, dataUrl, imgW, imgH };
+    }),
+  );
+
+  for (let i = 0; i < loadedImages.length; i++) {
+    const { entry, dataUrl, imgW, imgH } = loadedImages[i];
     onProgress(
-      Math.round(((i) / files.length) * 100),
-      `Processing image ${i + 1} of ${files.length}: ${entry.name}`
+      Math.round((i / files.length) * 100),
+      `Processing image ${i + 1} of ${files.length}: ${entry.name}`,
     );
 
-    const dataUrl = await fileToDataUrl(entry.file);
-    const { w: imgW, h: imgH } = await getImageDimensions(dataUrl);
-
     // Determine format string for jsPDF
-    const imgFormat = entry.file.type === 'image/png' ? 'PNG' : 'JPEG';
+    const imgFormat = entry.file.type === "image/png" ? "PNG" : "JPEG";
 
     let docW, docH;
-    if (pageSize === 'auto') {
+    if (pageSize === "auto") {
       // Convert pixels to mm (assume 96dpi: 1px = 0.264583mm)
       docW = imgW * 0.264583;
       docH = imgH * 0.264583;
     } else {
       [docW, docH] = pageSizes[pageSize];
-      if (orientation === 'landscape') [docW, docH] = [docH, docW];
+      if (orientation === "landscape") [docW, docH] = [docH, docW];
     }
 
     if (!pdf) {
       pdf = new jsPDF({
-        orientation: docW > docH ? 'landscape' : 'portrait',
-        unit: 'mm',
-        format: pageSize === 'auto' ? [docW, docH] : pageSize,
+        orientation: docW > docH ? "landscape" : "portrait",
+        unit: "mm",
+        format: pageSize === "auto" ? [docW, docH] : pageSize,
       });
     } else {
       pdf.addPage(
-        pageSize === 'auto' ? [docW, docH] : pageSize,
-        docW > docH ? 'landscape' : 'portrait'
+        pageSize === "auto" ? [docW, docH] : pageSize,
+        docW > docH ? "landscape" : "portrait",
       );
     }
 
     // Fit image to page with margins if using standard page size
-    let imgX = 0, imgY = 0, drawW = docW, drawH = docH;
+    let imgX = 0,
+      imgY = 0,
+      drawW = docW,
+      drawH = docH;
 
-    if (pageSize !== 'auto') {
+    if (pageSize !== "auto") {
       const margin = 10; // mm
       const usableW = docW - margin * 2;
       const usableH = docH - margin * 2;
-      const ratio   = Math.min(usableW / imgW, usableH / imgH);
+      const ratio = Math.min(usableW / imgW, usableH / imgH);
       drawW = imgW * ratio;
       drawH = imgH * ratio;
-      imgX  = margin + (usableW - drawW) / 2;
-      imgY  = margin + (usableH - drawH) / 2;
+      imgX = margin + (usableW - drawW) / 2;
+      imgY = margin + (usableH - drawH) / 2;
     }
 
-    pdf.addImage(dataUrl, imgFormat, imgX, imgY, drawW, drawH, undefined, 'FAST');
+    pdf.addImage(
+      dataUrl,
+      imgFormat,
+      imgX,
+      imgY,
+      drawW,
+      drawH,
+      undefined,
+      "FAST",
+    );
     totalPagesAdded++;
 
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
   }
 
-  onProgress(100, 'Finalising PDF…');
-  await new Promise(r => setTimeout(r, 200));
+  onProgress(100, "Finalising PDF…");
+  await new Promise((r) => setTimeout(r, 200));
 
-  const blob = pdf.output('blob');
+  const blob = pdf.output("blob");
   return { blob, totalPagesAdded };
 }
 
 // ── Convert images → PDF ────────────────────────────────
-convertBtn.addEventListener('click', async () => {
+convertBtn.addEventListener("click", async () => {
   if (!imageFiles.length) return;
 
-  previewArea.style.display  = 'none';
-  optionsEl.style.display    = 'none';
-  progressArea.style.display = 'block';
-  resultsArea.style.display  = 'none';
+  previewArea.style.display = "none";
+  optionsEl.style.display = "none";
+  progressArea.style.display = "block";
+  resultsArea.style.display = "none";
 
   try {
     const result = await generatePdfFromImages(
       imageFiles,
       { pageSize, orientation },
-      (percent, text) => setProgress(progressBar, progressLabel, percent, text)
+      (percent, text) => setProgress(progressBar, progressLabel, percent, text),
     );
 
     pdfBlob = result.blob;
-    progressArea.style.display = 'none';
+    progressArea.style.display = "none";
     showResults(result.totalPagesAdded);
   } catch (err) {
-    console.error('Error generating PDF:', err);
-    showToast('An error occurred while generating the PDF.', 'error');
-    progressArea.style.display = 'none';
+    console.error("Error generating PDF:", err);
+    showToast("An error occurred while generating the PDF.", "error");
+    progressArea.style.display = "none";
   }
 });
 
 // ── Show results ────────────────────────────────────────
 function showResults(pageCount) {
-  resultsArea.style.display = 'block';
+  resultsArea.style.display = "block";
 
   const sizeMB = (pdfBlob.size / 1024 / 1024).toFixed(2);
   resultInfo.innerHTML = `
@@ -304,43 +329,47 @@ function showResults(pageCount) {
     <strong>File size:</strong> ${sizeMB} MB<br/>
     <strong>Filename:</strong> <span id="img-result-filename"></span>
   `;
-  resultInfo.querySelector('#img-result-filename').textContent = filenameInput.value || 'converted.pdf';
+  resultInfo.querySelector("#img-result-filename").textContent =
+    filenameInput.value || "converted.pdf";
 
-  showToast(`✓ PDF built with ${pageCount} page${pageCount !== 1 ? 's' : ''}!`);
+  showToast(`✓ PDF built with ${pageCount} page${pageCount !== 1 ? "s" : ""}!`);
 }
 
 // ── Download PDF ────────────────────────────────────────
-downloadBtn.addEventListener('click', () => {
+downloadBtn.addEventListener("click", () => {
   if (!pdfBlob) return;
-  const filename = (filenameInput.value.trim() || 'converted.pdf').replace(/[\/\\]/g, '_');
+  const filename = (filenameInput.value.trim() || "converted.pdf").replace(
+    /[\/\\]/g,
+    "_",
+  );
   const url = URL.createObjectURL(pdfBlob);
-  const a   = document.createElement('a');
-  a.href     = url;
-  a.download = filename.endsWith('.pdf') ? filename : filename + '.pdf';
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename.endsWith(".pdf") ? filename : filename + ".pdf";
   a.click();
   URL.revokeObjectURL(url);
-  showToast('PDF downloaded!');
+  showToast("PDF downloaded!");
 });
 
 // ── Reset ───────────────────────────────────────────────
-resetBtn.addEventListener('click', resetImgConverter);
+resetBtn.addEventListener("click", resetImgConverter);
 
 function resetImgConverter() {
-  imageFiles.forEach(e => URL.revokeObjectURL(e.objectUrl));
-  imageFiles   = [];
-  pdfBlob      = null;
-  pageSize     = 'auto';
-  orientation  = 'portrait';
+  imageFiles.forEach((e) => URL.revokeObjectURL(e.objectUrl));
+  imageFiles = [];
+  pdfBlob = null;
+  pageSize = "auto";
+  orientation = "portrait";
 
-  optionsEl.style.display    = 'none';
-  previewArea.style.display  = 'none';
-  progressArea.style.display = 'none';
-  resultsArea.style.display  = 'none';
-  previewGrid.innerHTML      = '';
-  resultInfo.innerHTML       = '';
-  setProgress(progressBar, progressLabel, 0, '');
-  activatePill(sizePills, 'auto');
-  activatePill(orientPills, 'portrait');
+  optionsEl.style.display = "none";
+  previewArea.style.display = "none";
+  progressArea.style.display = "none";
+  resultsArea.style.display = "none";
+  previewGrid.innerHTML = "";
+  resultInfo.innerHTML = "";
+  setProgress(progressBar, progressLabel, 0, "");
+  activatePill(sizePills, "auto");
+  activatePill(orientPills, "portrait");
 }
 
 // ── Init ────────────────────────────────────────────────
