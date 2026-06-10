@@ -458,7 +458,8 @@ downloadBtn.addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = fileName.replace('.pdf', '-watermarked.pdf');
+  const safeFileName = fileName.replace('.pdf', '').replace(/[\/\\]/g, '_');
+  a.download = `${safeFileName}-watermarked.pdf`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

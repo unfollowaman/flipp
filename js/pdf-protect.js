@@ -120,7 +120,7 @@ protectBtn.addEventListener('click', async () => {
 
 downloadBtn.addEventListener('click', () => {
   if (!protectedBlob || !pdfFile) return;
-  const baseName = pdfFile.name.replace(/\.pdf$/i, '');
+  const baseName = pdfFile.name.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(protectedBlob);
   a.download = `${baseName}-protected.pdf`;
