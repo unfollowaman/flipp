@@ -1181,11 +1181,17 @@ textarea { font-family: inherit; }
 }
 
 .tool-card-arrow {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--black);
   padding-left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.15s ease;
+}
+
+.tool-card-arrow img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .tool-card:hover .tool-card-arrow {
