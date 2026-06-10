@@ -1,43 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta name="robots" content="noindex" />
-  <title>Redirecting… | flipp</title>
-  <script>
-    (function() {
-      // GitHub Pages fallback redirects use client-side JavaScript only.
-      // Limitation: this is not a true HTTP 301 and search engines may treat it differently.
-      var redirects = {
-        '/pdf-to-png/': '/tools/pdf-to-png/',
-        '/pdf-to-png': '/tools/pdf-to-png/',
-        '/images-to-pdf/': '/tools/images-to-pdf/',
-        '/images-to-pdf': '/tools/images-to-pdf/',
-        '/merge-pdf/': '/tools/merge-pdf/',
-        '/merge-pdf': '/tools/merge-pdf/',
-        '/split-pdf/': '/tools/split-pdf/',
-        '/split-pdf': '/tools/split-pdf/',
-        '/protect-pdf/': '/tools/protect-pdf/',
-        '/protect-pdf': '/tools/protect-pdf/',
-        '/add-page-numbers/': '/tools/add-page-numbers/',
-        '/add-page-numbers': '/tools/add-page-numbers/'
-      };
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Redirecting… | flipp</title>
+    <script>
+      (function () {
+        // GitHub Pages fallback redirects use client-side JavaScript only.
+        // Limitation: this is not a true HTTP 301 and search engines may treat it differently.
+        var redirects = {
+          "/pdf-to-png/": "/tools/pdf-to-png/",
+          "/pdf-to-png": "/tools/pdf-to-png/",
+          "/images-to-pdf/": "/tools/images-to-pdf/",
+          "/images-to-pdf": "/tools/images-to-pdf/",
+          "/merge-pdf/": "/tools/merge-pdf/",
+          "/merge-pdf": "/tools/merge-pdf/",
+          "/split-pdf/": "/tools/split-pdf/",
+          "/split-pdf": "/tools/split-pdf/",
+          "/protect-pdf/": "/tools/protect-pdf/",
+          "/protect-pdf": "/tools/protect-pdf/",
+          "/add-page-numbers/": "/tools/add-page-numbers/",
+          "/add-page-numbers": "/tools/add-page-numbers/",
+        };
 
-      var path = window.location.pathname;
-      var destination = redirects[path] || '/';
-      window.location.replace(destination);
-    })();
-  </script>
-</head>
-<body>
-  <p>Redirecting…</p>
-</body>
+        var path = window.location.pathname;
+        var destination = redirects[path] || "/";
+        window.location.replace(destination);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting…</p>
+  </body>
 </html>

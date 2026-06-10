@@ -1046,29 +1046,35 @@ textarea { font-family: inherit; }
 }
 
 .footer-social-link {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--white);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.footer-social-link svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+  transition: transform 0.2s ease;
 }
 
 .footer-social-link:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.5);
 }
+
+
+
+.footer-social-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 2px 2px 0px #0D0D0D;
+}
+
+.footer-social-img.img-ig,
+.footer-social-img.img-gmail {
+  background: #0D0D0D;
+  padding: 4px;
+}
+
+
+
+
 
 /* ==============================
    Toast Notifications
