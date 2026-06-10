@@ -1,329 +1,612 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta http-equiv="x-dns-prefetch-control" content="on" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Text to PDF — Free & Private | Flipp</title>
-  <meta name="description" content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed.">
-  <meta name="robots" content="index, follow" />
-  <meta name="keywords" content="text to pdf, convert text to pdf, text to pdf online, txt to pdf, plain text to pdf, free text to pdf converter" />
-  <link rel="canonical" href="https://unfollowaman.tech/tools/text-to-pdf/">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text to PDF — Free & Private | Flipp</title>
+    <meta
+      name="description"
+      content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="text to pdf, convert text to pdf, text to pdf online, txt to pdf, plain text to pdf, free text to pdf converter"
+    />
+    <link rel="canonical" href="https://unfollowaman.tech/tools/text-to-pdf/" />
     <meta property="og:title" content="Text to PDF — Free & Private | Flipp" />
-    <meta property="og:description" content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta property="og:url" content="https://unfollowaman.tech/tools/text-to-pdf/" />
+    <meta
+      property="og:description"
+      content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      property="og:url"
+      content="https://unfollowaman.tech/tools/text-to-pdf/"
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Text to PDF — Free & Private | Flipp" />
-    <meta name="twitter:description" content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      name="twitter:description"
+      content="Use Flipp's Text to PDF tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      name="twitter:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:site" content="@unfollowaman" />
-  <link rel="modulepreload" href="/js/text-to-pdf.js" />
-  <link rel="modulepreload" href="/js/drag-drop.js" />
+    <link rel="modulepreload" href="/js/text-to-pdf.js" />
+    <link rel="modulepreload" href="/js/drag-drop.js" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="theme-color" content="#F5E642" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Text to PDF Converter",
-    "url": "https://unfollowaman.tech/tools/text-to-pdf/",
-    "description": "Text to PDF conversion online for free in your browser. Convert plain text to PDF documents instantly with no upload, no signup, and private on-device processing.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": ["Convert text to PDF document", "Download generated PDF", "Paste text or upload text file"],
-    "browserRequirements": "Requires JavaScript"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unfollowaman.tech/" },
-      { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://unfollowaman.tech/tools/" },
-      { "@type": "ListItem", "position": 3, "name": "Text to PDF", "item": "https://unfollowaman.tech/tools/text-to-pdf/" }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to convert text to PDF online",
-    "step": [
-      { "@type": "HowToStep", "name": "Enter text", "text": "Type or paste your text into the text area, or select a text file." },
-      { "@type": "HowToStep", "name": "Process and download", "text": "Click the build button to generate your PDF and download it when complete." }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Is this Text to PDF converter free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. flipp's Text to PDF tool is completely free to use in your browser with no sign-up required." } },
-      { "@type": "Question", "name": "Are my text files uploaded to any server?", "acceptedAnswer": { "@type": "Answer", "text": "No. The conversion is performed entirely locally on your device in your web browser. No data is uploaded or stored." } },
-      { "@type": "Question", "name": "What font does the generated PDF use?", "acceptedAnswer": { "@type": "Answer", "text": "The generated PDF currently uses the standard 'Times' font to ensure maximum compatibility." } },
-      { "@type": "Question", "name": "Does it support rich text formatting like bold or italics?", "acceptedAnswer": { "@type": "Answer", "text": "No, this tool generates a plain text PDF document. Rich text formatting (like bold, italics, or varying font sizes) is currently not supported." } },
-      { "@type": "Question", "name": "Can it handle large amounts of text?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! The tool automatically handles line wrapping and pagination, so large amounts of text will be properly spread across multiple pages." } }
-    ]
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
-  <link rel="stylesheet" href="/css/styles.css" />
-  <style>
-    .text-area-container {
-      width: 100%;
-      margin-bottom: 24px;
-    }
-    textarea.raw-text-input {
-      width: 100%;
-      min-height: 250px;
-      padding: 16px;
-      border: 2px solid var(--black);
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 16px;
-      resize: vertical;
-      box-shadow: 4px 4px 0 var(--black);
-      margin-bottom: 16px;
-    }
-    .file-upload-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .file-info-text {
-      font-weight: 500;
-      color: var(--black);
-    }
-  </style>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Text to PDF",
-    "url": "https://unfollowaman.tech/tools/text-to-pdf/",
-    "applicationCategory": "UtilitiesApplication",
-    "description": "Convert text documents to PDF instantly on your device without any server uploads.",
-    "isPartOf": {
-      "@type": "WebApplication",
-      "name": "Flipp",
-      "url": "https://unfollowaman.tech"
-    }
-  }
-  </script>
-</head>
-<body>
-
-  <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/">flipp</a>
-    <span class="pipe">|</span>
-    <span class="tagline">file converter</span>
-    <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
-      <a class="nav-link" href="/tools/text-to-pdf/" aria-current="page">Text → PDF</a>
-      <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
-      <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
-      <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
-      <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
-    </div>
-  </nav>
-
-  <main class="tool-page-main">
-    <section class="section-inner" aria-labelledby="tool-title">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">TEXT → PDF</div>
-        <h1 class="converter-title" id="tool-title">Text to PDF</h1>
-        <p class="converter-desc">Convert plain text or a text file into a clean PDF document instantly. Everything happens securely in your browser.</p>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F5E642" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Text to PDF Converter",
+        "url": "https://unfollowaman.tech/tools/text-to-pdf/",
+        "description": "Text to PDF conversion online for free in your browser. Convert plain text to PDF documents instantly with no upload, no signup, and private on-device processing.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Convert text to PDF document",
+          "Download generated PDF",
+          "Paste text or upload text file"
+        ],
+        "browserRequirements": "Requires JavaScript"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://unfollowaman.tech/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://unfollowaman.tech/tools/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Text to PDF",
+            "item": "https://unfollowaman.tech/tools/text-to-pdf/"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to convert text to PDF online",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Enter text",
+            "text": "Type or paste your text into the text area, or select a text file."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Process and download",
+            "text": "Click the build button to generate your PDF and download it when complete."
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this Text to PDF converter free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. flipp's Text to PDF tool is completely free to use in your browser with no sign-up required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my text files uploaded to any server?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The conversion is performed entirely locally on your device in your web browser. No data is uploaded or stored."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What font does the generated PDF use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The generated PDF currently uses the standard 'Times' font to ensure maximum compatibility."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it support rich text formatting like bold or italics?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No, this tool generates a plain text PDF document. Rich text formatting (like bold, italics, or varying font sizes) is currently not supported."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can it handle large amounts of text?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! The tool automatically handles line wrapping and pagination, so large amounts of text will be properly spread across multiple pages."
+            }
+          }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+    /></noscript>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .text-area-container {
+        width: 100%;
+        margin-bottom: 24px;
+      }
+      textarea.raw-text-input {
+        width: 100%;
+        min-height: 250px;
+        padding: 16px;
+        border: 2px solid var(--black);
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 16px;
+        resize: vertical;
+        box-shadow: 4px 4px 0 var(--black);
+        margin-bottom: 16px;
+      }
+      .file-upload-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .file-info-text {
+        font-weight: 500;
+        color: var(--black);
+      }
+    </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Text to PDF",
+        "url": "https://unfollowaman.tech/tools/text-to-pdf/",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Convert text documents to PDF instantly on your device without any server uploads.",
+        "isPartOf": {
+          "@type": "WebApplication",
+          "name": "Flipp",
+          "url": "https://unfollowaman.tech"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="/">flipp</a>
+      <span class="pipe">|</span>
+      <span class="tagline">file converter</span>
+      <div class="nav-end">
+        <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
+        <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+        <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+        <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
+        <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
+        <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+        <a class="nav-link" href="/tools/text-to-pdf/" aria-current="page"
+          >Text → PDF</a
+        >
+        <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
+        <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
+        <a class="nav-link" href="/tools/add-watermark/">Add Watermark</a>
+        <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
       </div>
+    </nav>
 
-      <div class="text-area-container">
-        <textarea id="text-pdf-raw-input" class="raw-text-input" placeholder="Type or paste your text here..."></textarea>
-
-        <div class="file-upload-row">
-          <input type="file" id="text-pdf-file-input" accept=".txt,.md,.csv,.log,.json" hidden />
-          <button class="cta-btn cta-sky" id="text-pdf-use-file-btn">Or upload a text file</button>
-          <span id="text-pdf-file-info" class="file-info-text"></span>
+    <main class="tool-page-main">
+      <section class="section-inner" aria-labelledby="tool-title">
+        <div class="converter-header">
+          <div class="converter-badge" style="background: var(--yellow)">
+            TEXT → PDF
+          </div>
+          <h1 class="converter-title" id="tool-title">Text to PDF</h1>
+          <p class="converter-desc">
+            Convert plain text or a text file into a clean PDF document
+            instantly. Everything happens securely in your browser.
+          </p>
         </div>
-      </div>
 
-      <div class="preview-area" id="text-pdf-preview-area" style="display:none">
-        <div class="preview-header">
-          <span class="preview-count">Ready to convert</span>
-          <button class="cta-btn cta-pink" id="text-pdf-build-btn">Create PDF →</button>
-        </div>
-      </div>
+        <div class="text-area-container">
+          <textarea
+            id="text-pdf-raw-input"
+            class="raw-text-input"
+            placeholder="Type or paste your text here..."
+          ></textarea>
 
-      <div class="results-area" aria-live="polite" aria-label="Conversion results" id="text-pdf-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ PDF generated!</span>
-          <button class="cta-btn cta-mint" id="text-pdf-download-btn">Download PDF 📄</button>
-        </div>
-        <button class="reset-btn" id="text-pdf-reset-btn">Convert more text ↺</button>
-      </div>
-    </section>
-
-
-    <section class="tool-content-section" aria-labelledby="how-to-convert-heading">
-      <h2 class="tcs-headline" id="how-to-convert-heading">How to convert text into a PDF</h2>
-      <div class="tcs-steps">
-        <div class="tcs-step">
-          <div class="tcs-step-num">1</div>
-          <div class="tcs-step-body">
-            <div class="tcs-step-title">Input your text</div>
-            <div class="tcs-step-desc">You can directly type or paste plain text into the large input area above. Alternatively, click the upload button to select a local text-based file (like .txt, .md, .csv, or .json) from your device.</div>
+          <div class="file-upload-row">
+            <input
+              type="file"
+              id="text-pdf-file-input"
+              accept=".txt,.md,.csv,.log,.json"
+              hidden
+            />
+            <button class="cta-btn cta-sky" id="text-pdf-use-file-btn">
+              Or upload a text file
+            </button>
+            <span id="text-pdf-file-info" class="file-info-text"></span>
           </div>
         </div>
-        <div class="tcs-step">
-          <div class="tcs-step-num">2</div>
-          <div class="tcs-step-body">
-            <div class="tcs-step-title">Generate the PDF</div>
-            <div class="tcs-step-desc">Once your text is ready, click the "Create PDF" button. The tool will instantly format your text, handling margins, line wrapping, and multi-page layouts entirely within your browser.</div>
+
+        <div
+          class="preview-area"
+          id="text-pdf-preview-area"
+          style="display: none"
+        >
+          <div class="preview-header">
+            <span class="preview-count">Ready to convert</span>
+            <button class="cta-btn cta-pink" id="text-pdf-build-btn">
+              Create PDF →
+            </button>
           </div>
         </div>
-        <div class="tcs-step">
-          <div class="tcs-step-num">3</div>
-          <div class="tcs-step-body">
-            <div class="tcs-step-title">Save your document</div>
-            <div class="tcs-step-desc">Click the download button to save the newly created PDF to your computer or mobile device. The file is instantly ready to be shared, printed, or archived.</div>
+
+        <div
+          class="results-area"
+          aria-live="polite"
+          aria-label="Conversion results"
+          id="text-pdf-results"
+          style="display: none"
+        >
+          <div class="results-header">
+            <span class="results-title">✓ PDF generated!</span>
+            <button class="cta-btn cta-mint" id="text-pdf-download-btn">
+              Download PDF 📄
+            </button>
+          </div>
+          <button class="reset-btn" id="text-pdf-reset-btn">
+            Convert more text ↺
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="tool-content-section"
+        aria-labelledby="how-to-convert-heading"
+      >
+        <h2 class="tcs-headline" id="how-to-convert-heading">
+          How to convert text into a PDF
+        </h2>
+        <div class="tcs-steps">
+          <div class="tcs-step">
+            <div class="tcs-step-num">1</div>
+            <div class="tcs-step-body">
+              <div class="tcs-step-title">Input your text</div>
+              <div class="tcs-step-desc">
+                You can directly type or paste plain text into the large input
+                area above. Alternatively, click the upload button to select a
+                local text-based file (like .txt, .md, .csv, or .json) from your
+                device.
+              </div>
+            </div>
+          </div>
+          <div class="tcs-step">
+            <div class="tcs-step-num">2</div>
+            <div class="tcs-step-body">
+              <div class="tcs-step-title">Generate the PDF</div>
+              <div class="tcs-step-desc">
+                Once your text is ready, click the "Create PDF" button. The tool
+                will instantly format your text, handling margins, line
+                wrapping, and multi-page layouts entirely within your browser.
+              </div>
+            </div>
+          </div>
+          <div class="tcs-step">
+            <div class="tcs-step-num">3</div>
+            <div class="tcs-step-body">
+              <div class="tcs-step-title">Save your document</div>
+              <div class="tcs-step-desc">
+                Click the download button to save the newly created PDF to your
+                computer or mobile device. The file is instantly ready to be
+                shared, printed, or archived.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="tool-content-section" aria-labelledby="why-text-to-pdf-heading">
-      <h2 class="tcs-headline" id="why-text-to-pdf-heading">Why convert plain text to PDF?</h2>
-      <div class="tcs-two-col">
-        <div>
-          <h3 class="tcs-subheadline">Standardized Formatting</h3>
-          <p class="tcs-body">Plain text files (.txt) open differently depending on the operating system and default text editor used. Converting to PDF "locks in" the formatting, ensuring that the document looks exactly the same whether it's opened on a Mac, Windows PC, or smartphone.</p>
+      <section
+        class="tool-content-section"
+        aria-labelledby="why-text-to-pdf-heading"
+      >
+        <h2 class="tcs-headline" id="why-text-to-pdf-heading">
+          Why convert plain text to PDF?
+        </h2>
+        <div class="tcs-two-col">
+          <div>
+            <h3 class="tcs-subheadline">Standardized Formatting</h3>
+            <p class="tcs-body">
+              Plain text files (.txt) open differently depending on the
+              operating system and default text editor used. Converting to PDF
+              "locks in" the formatting, ensuring that the document looks
+              exactly the same whether it's opened on a Mac, Windows PC, or
+              smartphone.
+            </p>
+          </div>
+          <div>
+            <h3 class="tcs-subheadline">Read-Only Sharing</h3>
+            <p class="tcs-body">
+              When you share a raw text file or a Word document, the recipient
+              can easily and accidentally modify the contents. PDF is the
+              standard for read-only distribution, making it the perfect format
+              for sharing code snippets, server logs, or official memos.
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 class="tcs-subheadline">Read-Only Sharing</h3>
-          <p class="tcs-body">When you share a raw text file or a Word document, the recipient can easily and accidentally modify the contents. PDF is the standard for read-only distribution, making it the perfect format for sharing code snippets, server logs, or official memos.</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="tool-content-section" aria-labelledby="text-to-pdf-faq-heading">
-      <h2 class="tcs-headline" id="text-to-pdf-faq-heading">FAQ</h2>
-      <div class="tcs-faq">
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is this Text to PDF converter free to use?</button>
-          <div class="tcs-faq-a">Yes. flipp's Text to PDF tool is completely free to use in your browser with no sign-up required.</div>
+      <section
+        class="tool-content-section"
+        aria-labelledby="text-to-pdf-faq-heading"
+      >
+        <h2 class="tcs-headline" id="text-to-pdf-faq-heading">FAQ</h2>
+        <div class="tcs-faq">
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Is this Text to PDF converter free to use?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. flipp's Text to PDF tool is completely free to use in your
+              browser with no sign-up required.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Are my text files uploaded to any server?
+            </button>
+            <div class="tcs-faq-a">
+              No. The conversion is performed entirely locally on your device in
+              your web browser. No data is uploaded or stored.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              What font does the generated PDF use?
+            </button>
+            <div class="tcs-faq-a">
+              The generated PDF currently uses the standard 'Times' font to
+              ensure maximum compatibility.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Does it support rich text formatting like bold or italics?
+            </button>
+            <div class="tcs-faq-a">
+              No, this tool generates a plain text PDF document. Rich text
+              formatting (like bold, italics, or varying font sizes) is
+              currently not supported.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can it handle large amounts of text?
+            </button>
+            <div class="tcs-faq-a">
+              Yes! The tool automatically handles line wrapping and pagination,
+              so large amounts of text will be properly spread across multiple
+              pages.
+            </div>
+          </div>
         </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Are my text files uploaded to any server?</button>
-          <div class="tcs-faq-a">No. The conversion is performed entirely locally on your device in your web browser. No data is uploaded or stored.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">What font does the generated PDF use?</button>
-          <div class="tcs-faq-a">The generated PDF currently uses the standard 'Times' font to ensure maximum compatibility.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Does it support rich text formatting like bold or italics?</button>
-          <div class="tcs-faq-a">No, this tool generates a plain text PDF document. Rich text formatting (like bold, italics, or varying font sizes) is currently not supported.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can it handle large amounts of text?</button>
-          <div class="tcs-faq-a">Yes! The tool automatically handles line wrapping and pagination, so large amounts of text will be properly spread across multiple pages.</div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="related-tools-section" aria-labelledby="before-you-convert">
-      <div class="tool-content-section">
-        <h2 class="tcs-headline" id="before-you-convert">Other ways to manage your PDF</h2>
-        <div class="tools-grid">
-          <a class="tool-card" href="/tools/split-pdf/">
-            <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
-            <div class="tool-card-title">Split PDF</div>
-            <div class="tool-card-desc">Extract a range of pages from a PDF into separate files.</div>
+      <section
+        class="related-tools-section"
+        aria-labelledby="before-you-convert"
+      >
+        <div class="tool-content-section">
+          <h2 class="tcs-headline" id="before-you-convert">
+            Other ways to manage your PDF
+          </h2>
+          <div class="tools-grid">
+            <a class="tool-card" href="/tools/split-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/split-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div
+                  class="tool-card-badge"
+                  style="background: var(--sky-blue)"
+                >
+                  SPLIT
+                </div>
+                <div class="tool-card-title">Split PDF</div>
+                <div class="tool-card-desc">
+                  Extract a range of pages from a PDF into separate files.
+                </div>
+              </div>
+            </a>
+            <a class="tool-card" href="/tools/merge-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/merge-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  MERGE
+                </div>
+                <div class="tool-card-title">Merge PDFs</div>
+                <div class="tool-card-desc">
+                  Combine multiple PDF files into a single document in seconds.
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" aria-label="Site footer">
+      <div class="footer-links">
+        <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+        <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+        <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+        <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+        <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+        <a href="/tools/add-page-numbers/" class="footer-link"
+          >Add Page Numbers</a
+        >
+        <a href="/tools/text-to-pdf/" class="footer-link" aria-current="page"
+          >Text to PDF</a
+        >
+        <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
+        <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
+        <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
+        <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+      </div>
+      <div class="footer-inner">
+        <div class="footer-logo">flipp</div>
+        <div class="footer-social" aria-label="Social links">
+          <a
+            class="footer-social-link"
+            href="https://x.com/unfollowaman"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"
+              />
+            </svg>
           </a>
-          <a class="tool-card" href="/tools/merge-pdf/">
-            <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
-            <div class="tool-card-title">Merge PDFs</div>
-            <div class="tool-card-desc">Combine multiple PDF files into a single document in seconds.</div>
+          <a
+            class="footer-social-link"
+            href="https://www.instagram.com/unfollowaman_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="footer-social-link"
+            href="mailto:idontknowaman@gmail.com"
+            aria-label="Gmail"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"
+              />
+            </svg>
           </a>
         </div>
+        <a
+          href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="product-hunt-badge footer-ph-badge"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light"
+            alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt"
+          />
+        </a>
+        <div class="footer-copy">@unfollowaman</div>
       </div>
-    </section>
+    </footer>
 
-  </main>
-
-  <footer class="footer" aria-label="Site footer">
-    <div class="footer-links">
-      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
-      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
-      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
-      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
-      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
-      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
-      <a href="/tools/text-to-pdf/" class="footer-link" aria-current="page">Text to PDF</a>
-      <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
-      <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
-      <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
-      <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
-      <a href="/blog/" class="footer-link">Blog</a>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-logo">flipp</div>
-      <div class="footer-social" aria-label="Social links">
-        <a class="footer-social-link" href="https://x.com/unfollowaman" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="https://www.instagram.com/unfollowaman_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="mailto:idontknowaman@gmail.com" aria-label="Gmail">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"/></svg>
-        </a>
-      </div>
-      <a href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3" target="_blank" rel="noopener noreferrer" class="product-hunt-badge footer-ph-badge">
-        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light" alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt" />
-      </a>
-      <div class="footer-copy">@unfollowaman</div>
-    </div>
-  </footer>
-
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
-  <script type="module">
-    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
-    window['pdfjs-dist/build/pdf'] = pdfjsLib;
-  </script>
-  <script src="/js/faq.js"></script>
-  <script src="/js/text-to-pdf.js" type="module"></script>
-
-</body>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+      integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+      integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+      integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module">
+      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
+      window["pdfjs-dist/build/pdf"] = pdfjsLib;
+    </script>
+    <script src="/js/faq.js"></script>
+    <script src="/js/text-to-pdf.js" type="module"></script>
+  </body>
 </html>

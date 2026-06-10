@@ -1,410 +1,766 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta http-equiv="x-dns-prefetch-control" content="on" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>flipp — Free In-Browser PDF & Image Converter</title>
-  <meta name="description" content="Flipp is a free browser-based PDF toolkit. Merge, split, compress, protect, and convert PDFs — 100% in your browser. No uploads, no server, no privacy risk.">
-  <meta name="keywords" content="free PDF tool, merge PDF, split PDF, compress PDF, client-side PDF, no upload PDF, privacy PDF tool, browser PDF editor">
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://unfollowaman.tech/">
-    <meta property="og:title" content="Flipp — Free PDF Tools That Never Leave Your Browser" />
-    <meta property="og:description" content="Merge, split, compress, protect, and convert PDFs entirely in your browser. No uploads. No server. Complete privacy." />
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>flipp — Free In-Browser PDF & Image Converter</title>
+    <meta
+      name="description"
+      content="Flipp is a free browser-based PDF toolkit. Merge, split, compress, protect, and convert PDFs — 100% in your browser. No uploads, no server, no privacy risk."
+    />
+    <meta
+      name="keywords"
+      content="free PDF tool, merge PDF, split PDF, compress PDF, client-side PDF, no upload PDF, privacy PDF tool, browser PDF editor"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://unfollowaman.tech/" />
+    <meta
+      property="og:title"
+      content="Flipp — Free PDF Tools That Never Leave Your Browser"
+    />
+    <meta
+      property="og:description"
+      content="Merge, split, compress, protect, and convert PDFs entirely in your browser. No uploads. No server. Complete privacy."
+    />
     <meta property="og:url" content="https://unfollowaman.tech" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Flipp — Free PDF Tools That Never Leave Your Browser" />
-    <meta name="twitter:description" content="100% browser-based PDF toolkit. Your files never touch a server." />
-    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      name="twitter:title"
+      content="Flipp — Free PDF Tools That Never Leave Your Browser"
+    />
+    <meta
+      name="twitter:description"
+      content="100% browser-based PDF toolkit. Your files never touch a server."
+    />
+    <meta
+      name="twitter:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:site" content="@unfollowaman" />
     <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
-  <meta name="theme-color" content="#F5E642" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "flipp",
-    "url": "https://unfollowaman.tech/",
-    "logo": "https://unfollowaman.tech/favicon.png"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "flipp",
-    "url": "https://unfollowaman.tech/"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "flipp PDF Tools",
-    "url": "https://unfollowaman.tech/",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": [
-      "PDF to PNG Converter",
-      "Images to PDF Converter",
-      "Merge PDF",
-      "Split PDF",
-      "Protect PDF",
-      "Add Page Numbers"
-    ]
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
-  <link rel="stylesheet" href="css/styles.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Flipp",
-    "url": "https://unfollowaman.tech",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any (browser-based)",
-    "description": "Flipp is a free, browser-based PDF toolkit. All processing happens locally — no file uploads, no servers, no privacy risk.",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "keywords": ["client-side PDF tool", "privacy PDF", "no upload PDF", "secure PDF browser", "free PDF tools"]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/icons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/assets/icons/favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/icons/apple-touch-icon.png"
+    />
+    <meta name="theme-color" content="#F5E642" />
+    <script type="application/ld+json">
       {
-        "@type": "Question",
-        "name": "Does Flipp upload my files?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "No. Flipp processes all files entirely in your browser using WebAssembly and browser APIs. Nothing is ever sent to a server."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is Flipp free?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes, completely free with no account required."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is Flipp safe for confidential documents?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. Since files never leave your device, Flipp is safe for bank statements, legal documents, and any sensitive PDFs."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does Flipp work on mobile?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. Flipp works on any modern browser across desktop and mobile."
-        }
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "flipp",
+        "url": "https://unfollowaman.tech/",
+        "logo": "https://unfollowaman.tech/favicon.png"
       }
-    ]
-  }
-  </script>
-</head>
-<body>
-  <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/" aria-label="Flipp home">
-      <span class="logo-text">Flipp</span>
-    </a>
-    <span class="pipe">|</span>
-    <span class="tagline">file converter</span>
-    <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/">PDF<br>→ PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG<br>→ PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge<br>PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect<br>PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/">Split<br>PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page<br>Numbers</a>
-      <a class="nav-link" href="/tools/text-to-pdf/">Text<br>→ PDF</a>
-      <a class="nav-link" href="/tools/pdf-to-text/">PDF<br>→ Text</a>
-      <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange<br>PDF</a>
-      <a class="nav-link" href="/tools/add-watermark/">Add<br>Watermark</a>
-      <a class="nav-link" href="/tools/sign-pdf/">Sign<br>PDF</a>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <main>
-  <section class="hero" aria-labelledby="hero-heading">
-    <div class="hero-inner">
-      <div class="hero-text">
-        <div class="hero-badge">✦ no uploads. no servers. 100% local.</div>
-        <h1 class="hero-headline" id="hero-heading">Clean,<br/>Quick,<br/>Reliable<br/>Conversions.</h1>
-        <p class="hero-sub">PDF to PNG. PNG to PDF. Done in seconds — everything runs in your browser, nothing leaves your device.</p>
-        <div class="hero-actions">
-          <a href="/tools/split-pdf/" class="cta-btn cta-pink">Split PDF</a>
-          <a href="/tools/merge-pdf/" class="cta-btn cta-mint">Merge PDF</a>
-          <a href="/tools/protect-pdf/" class="cta-btn cta-yellow">Protect PDF</a>
-          <a href="/tools/add-watermark/" class="cta-btn cta-sky">Add Watermark</a>
-          <a href="/tools/sign-pdf/" class="cta-btn cta-pink">Sign PDF</a>
-          <a href="/tools/rearrange-pdf/" class="cta-btn cta-mint">Rearrange PDF</a>
-        </div>
-        <div style="margin-top: 16px; display: flex;">
-          <a href="#all-tools" class="cta-btn" style="background: var(--light-gray); color: var(--black); width: 100%; justify-content: center;">More tools &darr;</a>
-        </div>
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "flipp",
+        "url": "https://unfollowaman.tech/"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "flipp PDF Tools",
+        "url": "https://unfollowaman.tech/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "PDF to PNG Converter",
+          "Images to PDF Converter",
+          "Merge PDF",
+          "Split PDF",
+          "Protect PDF",
+          "Add Page Numbers"
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+    /></noscript>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Flipp",
+        "url": "https://unfollowaman.tech",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any (browser-based)",
+        "description": "Flipp is a free, browser-based PDF toolkit. All processing happens locally — no file uploads, no servers, no privacy risk.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "keywords": [
+          "client-side PDF tool",
+          "privacy PDF",
+          "no upload PDF",
+          "secure PDF browser",
+          "free PDF tools"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does Flipp upload my files?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Flipp processes all files entirely in your browser using WebAssembly and browser APIs. Nothing is ever sent to a server."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Flipp free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, completely free with no account required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Flipp safe for confidential documents?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Since files never leave your device, Flipp is safe for bank statements, legal documents, and any sensitive PDFs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Flipp work on mobile?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Flipp works on any modern browser across desktop and mobile."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="/" aria-label="Flipp home">
+        <span class="logo-text">Flipp</span>
+      </a>
+      <span class="pipe">|</span>
+      <span class="tagline">file converter</span>
+      <div class="nav-end">
+        <a class="nav-link" href="/tools/pdf-to-png/">PDF<br />→ PNG</a>
+        <a class="nav-link" href="/tools/images-to-pdf/">IMG<br />→ PDF</a>
+        <a class="nav-link" href="/tools/merge-pdf/">Merge<br />PDF</a>
+        <a class="nav-link" href="/tools/protect-pdf/">Protect<br />PDF</a>
+        <a class="nav-link" href="/tools/split-pdf/">Split<br />PDF</a>
+        <a class="nav-link" href="/tools/add-page-numbers/"
+          >Page<br />Numbers</a
+        >
+        <a class="nav-link" href="/tools/text-to-pdf/">Text<br />→ PDF</a>
+        <a class="nav-link" href="/tools/pdf-to-text/">PDF<br />→ Text</a>
+        <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange<br />PDF</a>
+        <a class="nav-link" href="/tools/add-watermark/">Add<br />Watermark</a>
+        <a class="nav-link" href="/tools/sign-pdf/">Sign<br />PDF</a>
       </div>
-      <div class="hero-visual">
-        <div class="browser-mock">
-          <div class="browser-chrome">
-            <div class="traffic-lights">
-              <span class="tl red"></span>
-              <span class="tl yellow"></span>
-              <span class="tl green"></span>
+    </nav>
+
+    <!-- HERO -->
+    <main>
+      <section class="hero" aria-labelledby="hero-heading">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <div class="hero-badge">✦ no uploads. no servers. 100% local.</div>
+            <h1 class="hero-headline" id="hero-heading">
+              Clean,<br />Quick,<br />Reliable<br />Conversions.
+            </h1>
+            <p class="hero-sub">
+              PDF to PNG. PNG to PDF. Done in seconds — everything runs in your
+              browser, nothing leaves your device.
+            </p>
+            <div class="hero-actions">
+              <a href="/tools/split-pdf/" class="cta-btn cta-pink">Split PDF</a>
+              <a href="/tools/merge-pdf/" class="cta-btn cta-mint">Merge PDF</a>
+              <a href="/tools/protect-pdf/" class="cta-btn cta-yellow"
+                >Protect PDF</a
+              >
+              <a href="/tools/add-watermark/" class="cta-btn cta-sky"
+                >Add Watermark</a
+              >
+              <a href="/tools/sign-pdf/" class="cta-btn cta-pink">Sign PDF</a>
+              <a href="/tools/rearrange-pdf/" class="cta-btn cta-mint"
+                >Rearrange PDF</a
+              >
             </div>
-            <div class="browser-url">flipp.app</div>
+            <div style="margin-top: 16px; display: flex">
+              <a
+                href="#all-tools"
+                class="cta-btn"
+                style="
+                  background: var(--light-gray);
+                  color: var(--black);
+                  width: 100%;
+                  justify-content: center;
+                "
+                >More tools &darr;</a
+              >
+            </div>
           </div>
-          <div class="browser-body">
-            <div class="file-stack">
-              <div class="file-card fc-back fc-back-2">
-                <div class="file-icon">📄</div>
-                <div class="file-label">Report.pdf</div>
+          <div class="hero-visual">
+            <div class="browser-mock">
+              <div class="browser-chrome">
+                <div class="traffic-lights">
+                  <span class="tl red"></span>
+                  <span class="tl yellow"></span>
+                  <span class="tl green"></span>
+                </div>
+                <div class="browser-url">flipp.app</div>
               </div>
-              <div class="file-card fc-back">
-                <div class="file-icon">🖼️</div>
-                <div class="file-label">Photo.png</div>
-              </div>
-              <div class="file-card fc-front">
-                <div class="drop-zone-inner">
-                  <div class="dz-icon">⬆</div>
-                  <div class="dz-text">Drop a file here</div>
-                  <div class="dz-sub">PDF, PNG, or JPG</div>
+              <div class="browser-body">
+                <div class="file-stack">
+                  <div class="file-card fc-back fc-back-2">
+                    <div class="file-icon">📄</div>
+                    <div class="file-label">Report.pdf</div>
+                  </div>
+                  <div class="file-card fc-back">
+                    <div class="file-icon">🖼️</div>
+                    <div class="file-label">Photo.png</div>
+                  </div>
+                  <div class="file-card fc-front">
+                    <div class="drop-zone-inner">
+                      <div class="dz-icon">⬆</div>
+                      <div class="dz-text">Drop a file here</div>
+                      <div class="dz-sub">PDF, PNG, or JPG</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="hero-decoration">
+              <div class="deco-pill deco-1">✓ client-side only</div>
+              <div class="deco-pill deco-2">✓ free forever</div>
+              <div class="deco-pill deco-3">✓ no sign-up</div>
+            </div>
           </div>
         </div>
-        <div class="hero-decoration">
-          <div class="deco-pill deco-1">✓ client-side only</div>
-          <div class="deco-pill deco-2">✓ free forever</div>
-          <div class="deco-pill deco-3">✓ no sign-up</div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section class="how-it-works" aria-labelledby="how-it-works-heading">
+        <div class="section-inner">
+          <h2 class="section-headline" id="how-it-works-heading">
+            How it works. 🥧
+          </h2>
+          <div class="steps-row">
+            <div class="step-card" style="background: var(--yellow)">
+              <div class="step-num">01</div>
+              <h3 class="step-title">Drop your file</h3>
+              <div class="step-body">
+                Drag and drop a PDF or image directly into the converter below.
+              </div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step-card" style="background: var(--sky-blue)">
+              <div class="step-num">02</div>
+              <h3 class="step-title">Pick your format</h3>
+              <div class="step-body">
+                Choose PDF→PNG or image→PDF. All processing happens in-browser
+                using PDF.js and jsPDF.
+              </div>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step-card" style="background: var(--mint)">
+              <div class="step-num">03</div>
+              <h3 class="step-title">Download instantly</h3>
+              <div class="step-body">
+                Your converted file is ready immediately. Nothing is stored or
+                transmitted.
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  
+      <section
+        id="all-tools"
+        class="tools-grid-section"
+        aria-labelledby="tools-heading"
+      >
+        <div class="section-inner">
+          <h2 class="section-headline" id="tools-heading">
+            All tools. Free. Private.
+          </h2>
+          <div class="tools-grid">
+            <a class="tool-card" id="tool-pdf-to-png" href="/tools/pdf-to-png/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/image.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  PDF → PNG
+                </div>
+                <div class="tool-card-title">PDF to Images</div>
+                <div class="tool-card-desc">
+                  PDF → Images: Export every page as a PNG file.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
 
-  <!-- HOW IT WORKS -->
-  <section class="how-it-works" aria-labelledby="how-it-works-heading">
-    <div class="section-inner">
-      <h2 class="section-headline" id="how-it-works-heading">How it works. 🥧</h2>
-      <div class="steps-row">
-        <div class="step-card" style="background: var(--yellow)">
-          <div class="step-num">01</div>
-          <h3 class="step-title">Drop your file</h3>
-          <div class="step-body">Drag and drop a PDF or image directly into the converter below.</div>
+            <a
+              class="tool-card"
+              id="tool-images-to-pdf"
+              href="/tools/images-to-pdf/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/pdf-2.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--pink)">
+                  IMG → PDF
+                </div>
+                <div class="tool-card-title">Images to PDF</div>
+                <div class="tool-card-desc">
+                  Images → PDF: Combine multiple images into one PDF.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a class="tool-card" id="tool-merge-pdf" href="/tools/merge-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/merge-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  MERGE
+                </div>
+                <div class="tool-card-title">Merge PDFs</div>
+                <div class="tool-card-desc">
+                  Merge: Combine multiple PDF files into a single document.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a class="tool-card" id="tool-split-pdf" href="/tools/split-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/split-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div
+                  class="tool-card-badge"
+                  style="background: var(--sky-blue)"
+                >
+                  SPLIT
+                </div>
+                <div class="tool-card-title">Split PDF</div>
+                <div class="tool-card-desc">
+                  Split: Extract pages from a PDF into separate files.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-protect-pdf"
+              href="/tools/protect-pdf/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/lock.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  PROTECT
+                </div>
+                <div class="tool-card-title">Protect PDF</div>
+                <div class="tool-card-desc">
+                  Protect: Password-encrypt a PDF to restrict access.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-add-page-numbers"
+              href="/tools/add-page-numbers/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/1-key.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  NUMBERS
+                </div>
+                <div class="tool-card-title">Add Page Numbers</div>
+                <div class="tool-card-desc">
+                  Numbers: Stamp page numbers onto any PDF.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-text-to-pdf"
+              href="/tools/text-to-pdf/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/document.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  TEXT → PDF
+                </div>
+                <div class="tool-card-title">Text to PDF</div>
+                <div class="tool-card-desc">
+                  Text → PDF: Convert plain text into a PDF document.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-pdf-to-text"
+              href="/tools/pdf-to-text/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/paste-as-text.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--pink)">
+                  PDF → TEXT
+                </div>
+                <div class="tool-card-title">PDF to Text</div>
+                <div class="tool-card-desc">
+                  PDF → Text: Extract text from any PDF document quickly.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-rearrange-pdf"
+              href="/tools/rearrange-pdf/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/reorder.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  REARRANGE
+                </div>
+                <div class="tool-card-title">Rearrange PDF</div>
+                <div class="tool-card-desc">
+                  Rearrange: Visually reorder pages within a PDF.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a
+              class="tool-card"
+              id="tool-add-watermark"
+              href="/tools/add-watermark/"
+            >
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/rubber-stamp.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  WATERMARK
+                </div>
+                <div class="tool-card-title">Add Watermark</div>
+                <div class="tool-card-desc">
+                  Watermark: Add text or image watermarks to PDFs.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+
+            <a class="tool-card" id="tool-sign-pdf" href="/tools/sign-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/signing-a-document.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  SIGN
+                </div>
+                <div class="tool-card-title">Sign PDF</div>
+                <div class="tool-card-desc">
+                  Sign: Add a visual signature to any PDF document.
+                </div>
+              </div>
+              <div class="tool-card-arrow">
+                <img
+                  src="/assets/arrow.png"
+                  alt="arrow"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </a>
+          </div>
         </div>
-        <div class="step-arrow">→</div>
-        <div class="step-card" style="background: var(--sky-blue)">
-          <div class="step-num">02</div>
-          <h3 class="step-title">Pick your format</h3>
-          <div class="step-body">Choose PDF→PNG or image→PDF. All processing happens in-browser using PDF.js and jsPDF.</div>
+      </section>
+
+      <!-- TRUST SECTION -->
+      <section class="trust-section" aria-labelledby="trust-heading">
+        <div class="section-inner trust-inner">
+          <h2 class="trust-headline" id="trust-heading">
+            Your files never leave<br />your browser. 🔒
+          </h2>
+          <div class="trust-pills-row">
+            <div class="trust-pill">No uploads to any server</div>
+            <div class="trust-pill">No account needed</div>
+            <div class="trust-pill">Works offline</div>
+            <div class="trust-pill">Open source libraries</div>
+            <div class="trust-pill">PDF.js by Mozilla</div>
+            <div class="trust-pill">jsPDF conversion</div>
+          </div>
         </div>
-        <div class="step-arrow">→</div>
-        <div class="step-card" style="background: var(--mint)">
-          <div class="step-num">03</div>
-          <h3 class="step-title">Download instantly</h3>
-          <div class="step-body">Your converted file is ready immediately. Nothing is stored or transmitted.</div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer" aria-label="Site footer">
+      <div class="footer-links">
+        <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+        <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+        <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+        <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+        <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+        <a href="/tools/add-page-numbers/" class="footer-link"
+          >Add Page Numbers</a
+        >
+        <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
+        <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
+        <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
+        <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
+        <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+      </div>
+      <div class="footer-inner">
+        <div class="footer-logo">flipp</div>
+        <div class="footer-social" aria-label="Social links">
+          <a
+            class="footer-social-link"
+            href="https://x.com/unfollowaman"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="footer-social-link"
+            href="https://www.instagram.com/unfollowaman_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="footer-social-link"
+            href="mailto:idontknowaman@gmail.com"
+            aria-label="Gmail"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"
+              />
+            </svg>
+          </a>
         </div>
+        <a
+          href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="product-hunt-badge footer-ph-badge"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light"
+            alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt"
+          />
+        </a>
+        <div class="footer-copy">@unfollowaman</div>
       </div>
-    </div>
-  </section>
-
-  
-
-  <section id="all-tools" class="tools-grid-section" aria-labelledby="tools-heading">
-    <div class="section-inner">
-      <h2 class="section-headline" id="tools-heading">All tools. Free. Private.</h2>
-      <div class="tools-grid">
-
-        <a class="tool-card" id="tool-pdf-to-png" href="/tools/pdf-to-png/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--yellow)">PDF → PNG</div>
-            <div class="tool-card-title">PDF to Images</div>
-            <div class="tool-card-desc">PDF → Images: Export every page as a PNG file.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-images-to-pdf" href="/tools/images-to-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--pink)">IMG → PDF</div>
-            <div class="tool-card-title">Images to PDF</div>
-            <div class="tool-card-desc">Images → PDF: Combine multiple images into one PDF.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-merge-pdf" href="/tools/merge-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--mint)">MERGE</div>
-            <div class="tool-card-title">Merge PDFs</div>
-            <div class="tool-card-desc">Merge: Combine multiple PDF files into a single document.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-split-pdf" href="/tools/split-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
-            <div class="tool-card-title">Split PDF</div>
-            <div class="tool-card-desc">Split: Extract pages from a PDF into separate files.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-protect-pdf" href="/tools/protect-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--yellow)">PROTECT</div>
-            <div class="tool-card-title">Protect PDF</div>
-            <div class="tool-card-desc">Protect: Password-encrypt a PDF to restrict access.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-add-page-numbers" href="/tools/add-page-numbers/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--mint)">NUMBERS</div>
-            <div class="tool-card-title">Add Page Numbers</div>
-            <div class="tool-card-desc">Numbers: Stamp page numbers onto any PDF.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-text-to-pdf" href="/tools/text-to-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--yellow)">TEXT → PDF</div>
-            <div class="tool-card-title">Text to PDF</div>
-            <div class="tool-card-desc">Text → PDF: Convert plain text into a PDF document.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-pdf-to-text" href="/tools/pdf-to-text/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--pink)">PDF → TEXT</div>
-            <div class="tool-card-title">PDF to Text</div>
-            <div class="tool-card-desc">PDF → Text: Extract text from any PDF document quickly.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-
-        <a class="tool-card" id="tool-rearrange-pdf" href="/tools/rearrange-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--yellow)">REARRANGE</div>
-            <div class="tool-card-title">Rearrange PDF</div>
-            <div class="tool-card-desc">Rearrange: Visually reorder pages within a PDF.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-add-watermark" href="/tools/add-watermark/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--yellow)">WATERMARK</div>
-            <div class="tool-card-title">Add Watermark</div>
-            <div class="tool-card-desc">Watermark: Add text or image watermarks to PDFs.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-        <a class="tool-card" id="tool-sign-pdf" href="/tools/sign-pdf/">
-          <div class="tool-card-content">
-            <div class="tool-card-badge" style="background: var(--mint)">SIGN</div>
-            <div class="tool-card-title">Sign PDF</div>
-            <div class="tool-card-desc">Sign: Add a visual signature to any PDF document.</div>
-          </div>
-          <div class="tool-card-arrow"><img src="/assets/arrow.png" alt="arrow" width="24" height="24"></div>
-        </a>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- TRUST SECTION -->
-  <section class="trust-section" aria-labelledby="trust-heading">
-    <div class="section-inner trust-inner">
-      <h2 class="trust-headline" id="trust-heading">Your files never leave<br/>your browser. 🔒</h2>
-      <div class="trust-pills-row">
-        <div class="trust-pill">No uploads to any server</div>
-        <div class="trust-pill">No account needed</div>
-        <div class="trust-pill">Works offline</div>
-        <div class="trust-pill">Open source libraries</div>
-        <div class="trust-pill">PDF.js by Mozilla</div>
-        <div class="trust-pill">jsPDF conversion</div>
-      </div>
-    </div>
-  </section>
-
-  
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="footer" aria-label="Site footer">
-    <div class="footer-links">
-      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
-      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
-      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
-      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
-      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
-      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
-      <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
-      <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
-      <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
-      <a href="/tools/add-watermark/" class="footer-link">Add Watermark</a>
-      <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
-      <a href="/blog/" class="footer-link">Blog</a>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-logo">flipp</div>
-      <div class="footer-social" aria-label="Social links">
-        <a class="footer-social-link" href="https://x.com/unfollowaman" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="https://www.instagram.com/unfollowaman_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="mailto:idontknowaman@gmail.com" aria-label="Gmail">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"/></svg>
-        </a>
-      </div>
-      <a href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3" target="_blank" rel="noopener noreferrer" class="product-hunt-badge footer-ph-badge">
-        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light" alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt" />
-      </a>
-      <div class="footer-copy">@unfollowaman</div>
-    </div>
-  </footer>
-
-  
-</body>
+    </footer>
+  </body>
 </html>

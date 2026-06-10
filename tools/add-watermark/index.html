@@ -1,353 +1,762 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0TBLST0MRT');
-  </script>
-  <meta charset="UTF-8" />
-  <meta http-equiv="x-dns-prefetch-control" content="on" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Watermark — Free & Private | Flipp</title>
-  <meta name="description" content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed.">
-  <meta name="robots" content="index, follow" />
-  <meta name="keywords" content="add watermark to pdf, pdf watermark, text watermark, image watermark, online watermark tool, secure pdf watermark" />
-  <link rel="canonical" href="https://unfollowaman.tech/tools/add-watermark/">
-    <meta property="og:title" content="Add Watermark — Free & Private | Flipp" />
-    <meta property="og:description" content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta property="og:url" content="https://unfollowaman.tech/tools/add-watermark/" />
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0TBLST0MRT"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-0TBLST0MRT");
+    </script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Watermark — Free & Private | Flipp</title>
+    <meta
+      name="description"
+      content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta
+      name="keywords"
+      content="add watermark to pdf, pdf watermark, text watermark, image watermark, online watermark tool, secure pdf watermark"
+    />
+    <link
+      rel="canonical"
+      href="https://unfollowaman.tech/tools/add-watermark/"
+    />
+    <meta
+      property="og:title"
+      content="Add Watermark — Free & Private | Flipp"
+    />
+    <meta
+      property="og:description"
+      content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      property="og:url"
+      content="https://unfollowaman.tech/tools/add-watermark/"
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      property="og:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Add Watermark — Free & Private | Flipp" />
-    <meta name="twitter:description" content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed." />
-    <meta name="twitter:image" content="https://unfollowaman.tech/og-image.png" />
+    <meta
+      name="twitter:title"
+      content="Add Watermark — Free & Private | Flipp"
+    />
+    <meta
+      name="twitter:description"
+      content="Use Flipp's Add Watermark tool — runs entirely in your browser. No file uploads, no server, no account needed."
+    />
+    <meta
+      name="twitter:image"
+      content="https://unfollowaman.tech/og-image.png"
+    />
     <meta name="twitter:site" content="@unfollowaman" />
-  <link rel="modulepreload" href="/js/add-watermark.js" />
-  <link rel="modulepreload" href="/js/drag-drop.js" />
+    <link rel="modulepreload" href="/js/add-watermark.js" />
+    <link rel="modulepreload" href="/js/drag-drop.js" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="theme-color" content="#F5E642" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Add Watermark to PDF",
-    "url": "https://unfollowaman.tech/tools/add-watermark/",
-    "description": "Add text or image watermarks to PDF files instantly in your browser. Customize position, opacity, size, and rotation with no uploads or sign-up required.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": ["Add text watermark", "Add image watermark", "Customize position, opacity, size, and rotation"],
-    "browserRequirements": "Requires JavaScript"
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unfollowaman.tech/" },
-      { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://unfollowaman.tech/tools/" },
-      { "@type": "ListItem", "position": 3, "name": "Add Watermark", "item": "https://unfollowaman.tech/tools/add-watermark/" }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    "name": "How to add watermark to PDF files online for free",
-    "step": [
-      { "@type": "HowToStep", "name": "Upload your file", "text": "Drag and drop your file into the upload area or browse to select it." },
-      { "@type": "HowToStep", "name": "Choose your options", "text": "Select the settings shown for this tool before processing." },
-      { "@type": "HowToStep", "name": "Process and download", "text": "Run the tool and download your output file when processing is complete." }
-    ]
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Does my PDF get uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. All processing happens entirely in your browser using local resources. Your files never leave your device." } },
-      { "@type": "Question", "name": "Can I add both text and image watermarks?", "acceptedAnswer": { "@type": "Answer", "text": "Currently, you can apply either a text watermark or an image watermark in a single pass. If you need both, you can apply one, download the file, and then process the new file to add the second." } },
-      { "@type": "Question", "name": "Can I customize watermark transparency?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can easily adjust the opacity slider to make your watermark as bold or as subtle as you need." } },
-      { "@type": "Question", "name": "Will the watermark appear on every page?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Once applied, the watermark is stamped consistently across every page of your PDF document." } },
-      { "@type": "Question", "name": "Does it work on mobile?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Our tool is designed to be fully responsive and works well on modern mobile browsers." } },
-      { "@type": "Question", "name": "Is this tool free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is 100% free to use with no hidden fees or sign-up required." } }
-    ]
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap" /></noscript>
-  <link rel="stylesheet" href="/css/styles.css" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Add Watermark",
-    "url": "https://unfollowaman.tech/tools/add-watermark/",
-    "applicationCategory": "UtilitiesApplication",
-    "description": "Stamp watermarks onto your PDFs securely in-browser without uploading your files.",
-    "isPartOf": {
-      "@type": "WebApplication",
-      "name": "Flipp",
-      "url": "https://unfollowaman.tech"
-    }
-  }
-  </script>
-</head>
-<body>
-
-  <nav class="navbar" aria-label="Main navigation">
-    <a class="logo" href="/">flipp</a>
-    <span class="pipe">|</span>
-    <span class="tagline">file converter</span>
-    <div class="nav-end">
-      <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
-      <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
-      <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
-      <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
-      <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
-      <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
-      <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
-      <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
-      <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
-      <a class="nav-link" href="/tools/add-watermark/" aria-current="page">Add Watermark</a>
-      <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
-    </div>
-  </nav>
-
-  <main class="tool-page-main">
-    <section class="section-inner" aria-labelledby="tool-title">
-      <div class="converter-header">
-        <div class="converter-badge" style="background: var(--yellow)">WATERMARK</div>
-        <h1 class="converter-title" id="tool-title">Add Watermark</h1>
-        <p class="converter-desc">Add text or image watermarks to PDF files instantly in your browser. Customize position, opacity, size, and rotation with no uploads or sign-up required.</p>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F5E642" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Add Watermark to PDF",
+        "url": "https://unfollowaman.tech/tools/add-watermark/",
+        "description": "Add text or image watermarks to PDF files instantly in your browser. Customize position, opacity, size, and rotation with no uploads or sign-up required.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Add text watermark",
+          "Add image watermark",
+          "Customize position, opacity, size, and rotation"
+        ],
+        "browserRequirements": "Requires JavaScript"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://unfollowaman.tech/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Tools",
+            "item": "https://unfollowaman.tech/tools/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Add Watermark",
+            "item": "https://unfollowaman.tech/tools/add-watermark/"
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to add watermark to PDF files online for free",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload your file",
+            "text": "Drag and drop your file into the upload area or browse to select it."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose your options",
+            "text": "Select the settings shown for this tool before processing."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Process and download",
+            "text": "Run the tool and download your output file when processing is complete."
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does my PDF get uploaded anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. All processing happens entirely in your browser using local resources. Your files never leave your device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I add both text and image watermarks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Currently, you can apply either a text watermark or an image watermark in a single pass. If you need both, you can apply one, download the file, and then process the new file to add the second."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I customize watermark transparency?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, you can easily adjust the opacity slider to make your watermark as bold or as subtle as you need."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Will the watermark appear on every page?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Once applied, the watermark is stamped consistently across every page of your PDF document."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work on mobile?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. Our tool is designed to be fully responsive and works well on modern mobile browsers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this tool free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, it is 100% free to use with no hidden fees or sign-up required."
+            }
+          }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+    /></noscript>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Add Watermark",
+        "url": "https://unfollowaman.tech/tools/add-watermark/",
+        "applicationCategory": "UtilitiesApplication",
+        "description": "Stamp watermarks onto your PDFs securely in-browser without uploading your files.",
+        "isPartOf": {
+          "@type": "WebApplication",
+          "name": "Flipp",
+          "url": "https://unfollowaman.tech"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="/">flipp</a>
+      <span class="pipe">|</span>
+      <span class="tagline">file converter</span>
+      <div class="nav-end">
+        <a class="nav-link" href="/tools/pdf-to-png/">PDF → PNG</a>
+        <a class="nav-link" href="/tools/images-to-pdf/">IMG → PDF</a>
+        <a class="nav-link" href="/tools/merge-pdf/">Merge PDF</a>
+        <a class="nav-link" href="/tools/protect-pdf/">Protect PDF</a>
+        <a class="nav-link" href="/tools/split-pdf/">Split PDF</a>
+        <a class="nav-link" href="/tools/add-page-numbers/">Page Numbers</a>
+        <a class="nav-link" href="/tools/text-to-pdf/">Text → PDF</a>
+        <a class="nav-link" href="/tools/pdf-to-text/">PDF → Text</a>
+        <a class="nav-link" href="/tools/rearrange-pdf/">Rearrange PDF</a>
+        <a class="nav-link" href="/tools/add-watermark/" aria-current="page"
+          >Add Watermark</a
+        >
+        <a class="nav-link" href="/tools/sign-pdf/">Sign PDF</a>
       </div>
+    </nav>
 
-      <div class="drop-zone" role="region" aria-label="PDF file upload area" id="wm-drop-zone" data-mode="watermark">
-        <input type="file" id="wm-file-input" accept=".pdf" hidden />
-        <div class="dz-content" id="wm-dz-content">
-          <div class="dz-upload-icon">📄</div>
-          <div class="dz-headline">Drop your PDF here</div>
-          <div class="dz-subtext">or <button class="dz-browse-btn" onclick="document.getElementById('wm-file-input').click()">browse files</button></div>
-          <div class="dz-formats">Accepts: .pdf only</div>
+    <main class="tool-page-main">
+      <section class="section-inner" aria-labelledby="tool-title">
+        <div class="converter-header">
+          <div class="converter-badge" style="background: var(--yellow)">
+            WATERMARK
+          </div>
+          <h1 class="converter-title" id="tool-title">Add Watermark</h1>
+          <p class="converter-desc">
+            Add text or image watermarks to PDF files instantly in your browser.
+            Customize position, opacity, size, and rotation with no uploads or
+            sign-up required.
+          </p>
         </div>
-      </div>
 
-      <!-- Watermark Options -->
-      <div class="options-bar" id="wm-options" style="display:none">
-
-        <div class="option-group" style="width: 100%;">
-          <div class="option-pills" id="wm-mode-pills" style="margin-bottom: 12px;">
-            <button class="opt-pill active" data-value="text">Text Watermark</button>
-            <button class="opt-pill" data-value="image">Image Watermark</button>
+        <div
+          class="drop-zone"
+          role="region"
+          aria-label="PDF file upload area"
+          id="wm-drop-zone"
+          data-mode="watermark"
+        >
+          <input type="file" id="wm-file-input" accept=".pdf" hidden />
+          <div class="dz-content" id="wm-dz-content">
+            <div class="dz-upload-icon">📄</div>
+            <div class="dz-headline">Drop your PDF here</div>
+            <div class="dz-subtext">
+              or
+              <button
+                class="dz-browse-btn"
+                onclick="document.getElementById('wm-file-input').click()"
+              >
+                browse files
+              </button>
+            </div>
+            <div class="dz-formats">Accepts: .pdf only</div>
           </div>
         </div>
 
-        <div style="display: flex; gap: 32px; flex-wrap: wrap; width: 100%;">
-
-          <!-- Text Mode Controls -->
-          <div id="wm-text-controls" style="display: flex; flex-direction: column; gap: 16px; flex: 1; min-width: 250px;">
-            <div class="option-group">
-              <label class="option-label">Watermark Text</label>
-              <input type="text" class="range-input" id="wm-text-input" value="CONFIDENTIAL" />
-            </div>
-            <div class="option-group">
-              <label class="option-label">Font Size (<span id="wm-font-size-val">48</span>)</label>
-              <input type="range" id="wm-font-size" min="12" max="144" value="48" style="width: 100%" />
-            </div>
-            <div class="option-group">
-              <label class="option-label">Color</label>
-              <input type="color" id="wm-color" value="#000000" style="width: 60px; height: 30px;" />
-            </div>
-          </div>
-
-          <!-- Image Mode Controls -->
-          <div id="wm-image-controls" style="display: none; flex-direction: column; gap: 16px; flex: 1; min-width: 250px;">
-            <div class="option-group">
-              <label class="option-label">Upload Image (PNG/JPG)</label>
-              <input type="file" id="wm-image-upload" accept="image/png, image/jpeg" style="font-size: 14px;" />
-              <img id="wm-image-preview" src="" style="display: none; max-height: 80px; max-width: 100%; object-fit: contain; margin-top: 8px; border: 1px solid #ccc; padding: 4px;" />
-            </div>
-            <div class="option-group">
-              <label class="option-label">Scale (<span id="wm-scale-val">1.0</span>x)</label>
-              <input type="range" id="wm-scale" min="0.1" max="3" step="0.1" value="1.0" style="width: 100%" />
+        <!-- Watermark Options -->
+        <div class="options-bar" id="wm-options" style="display: none">
+          <div class="option-group" style="width: 100%">
+            <div
+              class="option-pills"
+              id="wm-mode-pills"
+              style="margin-bottom: 12px"
+            >
+              <button class="opt-pill active" data-value="text">
+                Text Watermark
+              </button>
+              <button class="opt-pill" data-value="image">
+                Image Watermark
+              </button>
             </div>
           </div>
 
-          <!-- Shared Controls -->
-          <div style="display: flex; flex-direction: column; gap: 16px; flex: 1; min-width: 250px;">
-            <div class="option-group">
-              <label class="option-label">Opacity (<span id="wm-opacity-val">50</span>%)</label>
-              <input type="range" id="wm-opacity" min="5" max="100" value="50" style="width: 100%" />
+          <div style="display: flex; gap: 32px; flex-wrap: wrap; width: 100%">
+            <!-- Text Mode Controls -->
+            <div
+              id="wm-text-controls"
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                flex: 1;
+                min-width: 250px;
+              "
+            >
+              <div class="option-group">
+                <label class="option-label">Watermark Text</label>
+                <input
+                  type="text"
+                  class="range-input"
+                  id="wm-text-input"
+                  value="CONFIDENTIAL"
+                />
+              </div>
+              <div class="option-group">
+                <label class="option-label"
+                  >Font Size (<span id="wm-font-size-val">48</span>)</label
+                >
+                <input
+                  type="range"
+                  id="wm-font-size"
+                  min="12"
+                  max="144"
+                  value="48"
+                  style="width: 100%"
+                />
+              </div>
+              <div class="option-group">
+                <label class="option-label">Color</label>
+                <input
+                  type="color"
+                  id="wm-color"
+                  value="#000000"
+                  style="width: 60px; height: 30px"
+                />
+              </div>
             </div>
-            <div class="option-group">
-              <label class="option-label">Rotation (<span id="wm-rotation-val">45</span>°)</label>
-              <input type="range" id="wm-rotation" min="-180" max="180" value="45" style="width: 100%" />
+
+            <!-- Image Mode Controls -->
+            <div
+              id="wm-image-controls"
+              style="
+                display: none;
+                flex-direction: column;
+                gap: 16px;
+                flex: 1;
+                min-width: 250px;
+              "
+            >
+              <div class="option-group">
+                <label class="option-label">Upload Image (PNG/JPG)</label>
+                <input
+                  type="file"
+                  id="wm-image-upload"
+                  accept="image/png, image/jpeg"
+                  style="font-size: 14px"
+                />
+                <img
+                  id="wm-image-preview"
+                  src=""
+                  style="
+                    display: none;
+                    max-height: 80px;
+                    max-width: 100%;
+                    object-fit: contain;
+                    margin-top: 8px;
+                    border: 1px solid #ccc;
+                    padding: 4px;
+                  "
+                />
+              </div>
+              <div class="option-group">
+                <label class="option-label"
+                  >Scale (<span id="wm-scale-val">1.0</span>x)</label
+                >
+                <input
+                  type="range"
+                  id="wm-scale"
+                  min="0.1"
+                  max="3"
+                  step="0.1"
+                  value="1.0"
+                  style="width: 100%"
+                />
+              </div>
             </div>
-            <div class="option-group">
-              <label class="option-label">Position</label>
-              <select id="wm-position" class="range-input" style="width: 100%;">
-                <option value="center">Center</option>
-                <option value="top-left">Top Left</option>
-                <option value="top-right">Top Right</option>
-                <option value="bottom-left">Bottom Left</option>
-                <option value="bottom-right">Bottom Right</option>
-                <option value="tile">Tile Across Page</option>
-              </select>
+
+            <!-- Shared Controls -->
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                flex: 1;
+                min-width: 250px;
+              "
+            >
+              <div class="option-group">
+                <label class="option-label"
+                  >Opacity (<span id="wm-opacity-val">50</span>%)</label
+                >
+                <input
+                  type="range"
+                  id="wm-opacity"
+                  min="5"
+                  max="100"
+                  value="50"
+                  style="width: 100%"
+                />
+              </div>
+              <div class="option-group">
+                <label class="option-label"
+                  >Rotation (<span id="wm-rotation-val">45</span>°)</label
+                >
+                <input
+                  type="range"
+                  id="wm-rotation"
+                  min="-180"
+                  max="180"
+                  value="45"
+                  style="width: 100%"
+                />
+              </div>
+              <div class="option-group">
+                <label class="option-label">Position</label>
+                <select
+                  id="wm-position"
+                  class="range-input"
+                  style="width: 100%"
+                >
+                  <option value="center">Center</option>
+                  <option value="top-left">Top Left</option>
+                  <option value="top-right">Top Right</option>
+                  <option value="bottom-left">Bottom Left</option>
+                  <option value="bottom-right">Bottom Right</option>
+                  <option value="tile">Tile Across Page</option>
+                </select>
+              </div>
             </div>
           </div>
-
         </div>
 
-      </div>
-
-      <!-- PDF Preview -->
-      <div class="preview-area" id="wm-preview-area" style="display:none">
-        <div class="preview-header">
-          <span class="preview-count" id="wm-file-info"></span>
-          <button class="cta-btn cta-yellow" id="wm-convert-btn">Download Watermarked PDF</button>
-        </div>
-        <div class="preview-grid" id="wm-preview-grid" style="display: block;">
-          <!-- We show a single canvas representing the first page + live preview -->
-          <div class="preview-page-card" style="max-width: 500px; margin: 0 auto; border: 1px solid #ccc; position: relative; overflow: hidden; background: #fff;">
-            <canvas id="wm-preview-canvas" style="width: 100%; height: auto; display: block;"></canvas>
-            <div id="wm-loading-overlay" style="display:none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.7); align-items:center; justify-content:center; font-weight:bold; font-size: 14px;">Loading preview...</div>
+        <!-- PDF Preview -->
+        <div class="preview-area" id="wm-preview-area" style="display: none">
+          <div class="preview-header">
+            <span class="preview-count" id="wm-file-info"></span>
+            <button class="cta-btn cta-yellow" id="wm-convert-btn">
+              Download Watermarked PDF
+            </button>
+          </div>
+          <div class="preview-grid" id="wm-preview-grid" style="display: block">
+            <!-- We show a single canvas representing the first page + live preview -->
+            <div
+              class="preview-page-card"
+              style="
+                max-width: 500px;
+                margin: 0 auto;
+                border: 1px solid #ccc;
+                position: relative;
+                overflow: hidden;
+                background: #fff;
+              "
+            >
+              <canvas
+                id="wm-preview-canvas"
+                style="width: 100%; height: auto; display: block"
+              ></canvas>
+              <div
+                id="wm-loading-overlay"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  background: rgba(255, 255, 255, 0.7);
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: bold;
+                  font-size: 14px;
+                "
+              >
+                Loading preview...
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- PDF Progress -->
-      <div class="progress-area" aria-live="polite" aria-label="Conversion progress" id="wm-progress" style="display:none">
-        <div class="progress-label" id="wm-progress-label">Applying watermark...</div>
-        <div class="progress-track">
-          <div class="progress-bar" id="wm-progress-bar"></div>
+        <!-- PDF Progress -->
+        <div
+          class="progress-area"
+          aria-live="polite"
+          aria-label="Conversion progress"
+          id="wm-progress"
+          style="display: none"
+        >
+          <div class="progress-label" id="wm-progress-label">
+            Applying watermark...
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="wm-progress-bar"></div>
+          </div>
         </div>
-      </div>
 
-      <!-- PDF Results -->
-      <div class="results-area" aria-live="polite" aria-label="Conversion results" id="wm-results" style="display:none">
-        <div class="results-header">
-          <span class="results-title">✓ Watermark applied!</span>
-          <button class="cta-btn cta-mint" id="wm-download-btn">Download PDF</button>
+        <!-- PDF Results -->
+        <div
+          class="results-area"
+          aria-live="polite"
+          aria-label="Conversion results"
+          id="wm-results"
+          style="display: none"
+        >
+          <div class="results-header">
+            <span class="results-title">✓ Watermark applied!</span>
+            <button class="cta-btn cta-mint" id="wm-download-btn">
+              Download PDF
+            </button>
+          </div>
+          <button class="reset-btn" id="wm-reset-btn">
+            Watermark another file ↺
+          </button>
         </div>
-        <button class="reset-btn" id="wm-reset-btn">Watermark another file ↺</button>
-      </div>
-    </section>
+      </section>
 
-    <section class="tool-content-section" aria-labelledby="wm-faq-heading">
-      <h2 class="tcs-headline" id="wm-faq-heading">FAQ</h2>
-      <div class="tcs-faq">
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Does my PDF get uploaded anywhere?</button>
-          <div class="tcs-faq-a">No. All processing happens entirely in your browser using local resources. Your files never leave your device.</div>
+      <section class="tool-content-section" aria-labelledby="wm-faq-heading">
+        <h2 class="tcs-headline" id="wm-faq-heading">FAQ</h2>
+        <div class="tcs-faq">
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Does my PDF get uploaded anywhere?
+            </button>
+            <div class="tcs-faq-a">
+              No. All processing happens entirely in your browser using local
+              resources. Your files never leave your device.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can I add both text and image watermarks?
+            </button>
+            <div class="tcs-faq-a">
+              Currently, you can apply either a text watermark or an image
+              watermark in a single pass. If you need both, you can apply one,
+              download the file, and then process the new file to add the
+              second.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Can I customize watermark transparency?
+            </button>
+            <div class="tcs-faq-a">
+              Yes, you can easily adjust the opacity slider to make your
+              watermark as bold or as subtle as you need.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">
+              Will the watermark appear on every page?
+            </button>
+            <div class="tcs-faq-a">
+              Yes. Once applied, the watermark is stamped consistently across
+              every page of your PDF document.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">Does it work on mobile?</button>
+            <div class="tcs-faq-a">
+              Absolutely. Our tool is designed to be fully responsive and works
+              well on modern mobile browsers.
+            </div>
+          </div>
+          <div class="tcs-faq-item">
+            <button class="tcs-faq-q">Is this tool free?</button>
+            <div class="tcs-faq-a">
+              Yes, it is 100% free to use with no hidden fees or sign-up
+              required.
+            </div>
+          </div>
         </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can I add both text and image watermarks?</button>
-          <div class="tcs-faq-a">Currently, you can apply either a text watermark or an image watermark in a single pass. If you need both, you can apply one, download the file, and then process the new file to add the second.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Can I customize watermark transparency?</button>
-          <div class="tcs-faq-a">Yes, you can easily adjust the opacity slider to make your watermark as bold or as subtle as you need.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Will the watermark appear on every page?</button>
-          <div class="tcs-faq-a">Yes. Once applied, the watermark is stamped consistently across every page of your PDF document.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Does it work on mobile?</button>
-          <div class="tcs-faq-a">Absolutely. Our tool is designed to be fully responsive and works well on modern mobile browsers.</div>
-        </div>
-        <div class="tcs-faq-item">
-          <button class="tcs-faq-q">Is this tool free?</button>
-          <div class="tcs-faq-a">Yes, it is 100% free to use with no hidden fees or sign-up required.</div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="related-tools-section" aria-labelledby="other-ways-manage-pdf">
-      <div class="tool-content-section">
-        <h2 class="tcs-headline" id="other-ways-manage-pdf">Other ways to manage your PDF</h2>
-        <div class="tools-grid">
-          <a class="tool-card" href="/tools/protect-pdf/">
-            <div class="tool-card-badge" style="background: var(--yellow)">PROTECT</div>
-            <div class="tool-card-title">Protect PDF</div>
-            <div class="tool-card-desc">Password-encrypt a PDF to restrict access. Processed entirely on your device.</div>
+      <section
+        class="related-tools-section"
+        aria-labelledby="other-ways-manage-pdf"
+      >
+        <div class="tool-content-section">
+          <h2 class="tcs-headline" id="other-ways-manage-pdf">
+            Other ways to manage your PDF
+          </h2>
+          <div class="tools-grid">
+            <a class="tool-card" href="/tools/protect-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/lock.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--yellow)">
+                  PROTECT
+                </div>
+                <div class="tool-card-title">Protect PDF</div>
+                <div class="tool-card-desc">
+                  Password-encrypt a PDF to restrict access. Processed entirely
+                  on your device.
+                </div>
+              </div>
+            </a>
+            <a class="tool-card" href="/tools/add-page-numbers/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/1-key.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div class="tool-card-badge" style="background: var(--mint)">
+                  NUMBERS
+                </div>
+                <div class="tool-card-title">Add Page Numbers</div>
+                <div class="tool-card-desc">
+                  Stamp page numbers onto any PDF. Choose position and starting
+                  page.
+                </div>
+              </div>
+            </a>
+            <a class="tool-card" href="/tools/split-pdf/">
+              <div class="tool-card-icon-wrapper">
+                <img
+                  src="/assets/feature cards icons/split-horizontal.png"
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <div class="tool-card-content">
+                <div
+                  class="tool-card-badge"
+                  style="background: var(--sky-blue)"
+                >
+                  SPLIT
+                </div>
+                <div class="tool-card-title">Split PDF</div>
+                <div class="tool-card-desc">
+                  Extract a range of pages from a PDF into separate files.
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" aria-label="Site footer">
+      <div class="footer-links">
+        <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
+        <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
+        <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
+        <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
+        <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
+        <a href="/tools/add-page-numbers/" class="footer-link"
+          >Add Page Numbers</a
+        >
+        <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
+        <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
+        <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
+        <a href="/tools/add-watermark/" class="footer-link" aria-current="page"
+          >Add Watermark</a
+        >
+        <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+      </div>
+      <div class="footer-inner">
+        <div class="footer-logo">flipp</div>
+        <div class="footer-social" aria-label="Social links">
+          <a
+            class="footer-social-link"
+            href="https://x.com/unfollowaman"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"
+              />
+            </svg>
           </a>
-          <a class="tool-card" href="/tools/add-page-numbers/">
-            <div class="tool-card-badge" style="background: var(--mint)">NUMBERS</div>
-            <div class="tool-card-title">Add Page Numbers</div>
-            <div class="tool-card-desc">Stamp page numbers onto any PDF. Choose position and starting page.</div>
+          <a
+            class="footer-social-link"
+            href="https://www.instagram.com/unfollowaman_/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+              />
+            </svg>
           </a>
-          <a class="tool-card" href="/tools/split-pdf/">
-            <div class="tool-card-badge" style="background: var(--sky-blue)">SPLIT</div>
-            <div class="tool-card-title">Split PDF</div>
-            <div class="tool-card-desc">Extract a range of pages from a PDF into separate files.</div>
+          <a
+            class="footer-social-link"
+            href="mailto:idontknowaman@gmail.com"
+            aria-label="Gmail"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"
+              />
+            </svg>
           </a>
         </div>
+        <a
+          href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="product-hunt-badge footer-ph-badge"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light"
+            alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt"
+          />
+        </a>
+        <div class="footer-copy">@unfollowaman</div>
       </div>
-    </section>
+    </footer>
 
-  </main>
-
-  <footer class="footer" aria-label="Site footer">
-    <div class="footer-links">
-      <a href="/tools/pdf-to-png/" class="footer-link">PDF to PNG</a>
-      <a href="/tools/images-to-pdf/" class="footer-link">Images to PDF</a>
-      <a href="/tools/merge-pdf/" class="footer-link">Merge PDF</a>
-      <a href="/tools/split-pdf/" class="footer-link">Split PDF</a>
-      <a href="/tools/protect-pdf/" class="footer-link">Protect PDF</a>
-      <a href="/tools/add-page-numbers/" class="footer-link">Add Page Numbers</a>
-      <a href="/tools/text-to-pdf/" class="footer-link">Text to PDF</a>
-      <a href="/tools/pdf-to-text/" class="footer-link">PDF to Text</a>
-      <a href="/tools/rearrange-pdf/" class="footer-link">Rearrange PDF</a>
-      <a href="/tools/add-watermark/" class="footer-link" aria-current="page">Add Watermark</a>
-      <a href="/tools/sign-pdf/" class="footer-link">Sign PDF</a>
-      <a href="/blog/" class="footer-link">Blog</a>
-    </div>
-    <div class="footer-inner">
-      <div class="footer-logo">flipp</div>
-      <div class="footer-social" aria-label="Social links">
-        <a class="footer-social-link" href="https://x.com/unfollowaman" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.126L22.75 22h-6.547l-5.124-6.746L5.178 22H1.92l7.607-8.695L1.5 2h6.713l4.631 6.115L18.244 2Zm-1.142 18.05h1.805L7.232 3.853H5.293L17.102 20.05Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="https://www.instagram.com/unfollowaman_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5Zm9.1 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-        </a>
-        <a class="footer-social-link" href="mailto:idontknowaman@gmail.com" aria-label="Gmail">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.75A2.75 2.75 0 0 1 5.75 3h12.5A2.75 2.75 0 0 1 21 5.75v12.5A2.75 2.75 0 0 1 18.25 21H5.75A2.75 2.75 0 0 1 3 18.25V5.75Zm1.8.36v12.14c0 .525.425.95.95.95h12.5a.95.95 0 0 0 .95-.95V6.11l-7.35 5.51a1.5 1.5 0 0 1-1.8 0L4.8 6.11Zm13.63-1.31H5.57L11 8.88a.7.7 0 0 0 .84 0l5.59-4.08Z"/></svg>
-        </a>
-      </div>
-      <a href="https://www.producthunt.com/products/flipp-3?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-flipp-3" target="_blank" rel="noopener noreferrer" class="product-hunt-badge footer-ph-badge">
-        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1161458&theme=light" alt="Flipp - Private PDF Tools That Never Upload Your Files | Product Hunt" />
-      </a>
-      <div class="footer-copy">@unfollowaman</div>
-    </div>
-  </footer>
-
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI" crossorigin="anonymous"></script>
-  <script type="module">
-    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs';
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs';
-    window['pdfjs-dist/build/pdf'] = pdfjsLib;
-  </script>
-  <script src="/js/faq.js"></script>
-  <script src="/js/add-watermark.js" type="module"></script>
-
-</body>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+      integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module">
+      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
+      window["pdfjs-dist/build/pdf"] = pdfjsLib;
+    </script>
+    <script src="/js/faq.js"></script>
+    <script src="/js/add-watermark.js" type="module"></script>
+  </body>
 </html>
