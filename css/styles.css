@@ -1049,6 +1049,8 @@ textarea { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
   transition: transform 0.2s ease;
 }
 
@@ -1068,12 +1070,18 @@ textarea { font-family: inherit; }
 
 .footer-social-img.img-ig {
   background: #0D0D0D;
-  padding: 4px;
+  padding: 0px;
+  width: 29px;
+  height: 29px;
+  border-radius: 6px;
 }
 
 .footer-social-img.img-gmail {
   background: #FFFFFF;
   padding: 4px;
+  width: 29px;
+  height: 29px;
+  border-radius: 6px;
 }
 
 
