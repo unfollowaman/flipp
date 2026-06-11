@@ -1066,9 +1066,13 @@ textarea { font-family: inherit; }
   box-shadow: 2px 2px 0px #0D0D0D;
 }
 
-.footer-social-img.img-ig,
-.footer-social-img.img-gmail {
+.footer-social-img.img-ig {
   background: #0D0D0D;
+  padding: 4px;
+}
+
+.footer-social-img.img-gmail {
+  background: #FFFFFF;
   padding: 4px;
 }
 
