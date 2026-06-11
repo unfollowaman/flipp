@@ -198,7 +198,7 @@ function drawTextWatermarkOnCanvas(ctx, width, height, position, rotation) {
   const textHeight = fontSize; // rough estimation
 
   applyWatermarkPattern(position, width, height, textWidth, textHeight, 100, 100, getPositionCoordinates, (x, y) => {
-     drawTextAt(ctx, text, x, y, rotation, textWidth, textHeight);
+     drawTextAt(ctx, text, x, y, rotation);
   });
 }
 
@@ -261,7 +261,7 @@ function getPositionCoordinates(position, canvasW, canvasH, itemW, itemH) {
   return {x, y};
 }
 
-function drawTextAt(ctx, text, x, y, rotation, w, h) {
+function drawTextAt(ctx, text, x, y, rotation) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
