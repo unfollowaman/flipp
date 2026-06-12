@@ -15,9 +15,9 @@ No friction. No compromise. Just results.
 
 flipp is designed to eliminate the traditional bottlenecks of file conversion tools.
 
-- No uploads → No waiting  
-- No accounts → No barriers  
-- No servers → No risk  
+- No uploads → No waiting
+- No accounts → No barriers
+- No servers → No risk
 
 You drop a file.  
 You choose an action.  
@@ -30,53 +30,69 @@ That’s it.
 ## ⚡ Core Features
 
 ### 📄 PDF → PNG
-- Convert entire PDFs into high-quality images  
-- Adjustable resolution (1×, 2×, 3×)  
-- Export individually or as ZIP  
+
+- Convert entire PDFs into high-quality images
+- Adjustable resolution (1×, 2×, 3×)
+- Export individually or as ZIP
 
 ### 🖼️ Images → PDF
-- Combine multiple images into a single PDF  
-- Drag-and-drop reordering  
-- A4 / Letter / Auto sizing  
+
+- Combine multiple images into a single PDF
+- Drag-and-drop reordering
+- A4 / Letter / Auto sizing
 
 ### 🔗 Merge PDF
-- Combine multiple PDFs into one clean document  
+
+- Combine multiple PDFs into one clean document
+
+### 🗜️ Compress PDF
+
+- Reduce PDF file size entirely in-browser
+- Two modes: Lossless structure optimization or maximum compression via image rasterization
+- Compare file savings instantly
 
 ### ✂️ Split PDF
-- Extract specific page ranges into separate files  
+
+- Extract specific page ranges into separate files
 
 ### 🔢 Add Page Numbers
-- Fully customizable positioning  
-- Start from any page  
+
+- Fully customizable positioning
+- Start from any page
 
 ### 🔐 Protect PDF
-- Password-protect files securely  
-- Encryption handled locally  
+
+- Password-protect files securely
+- Encryption handled locally
 
 ### 📄 PDF → Text
+
 - Extract text from PDF files online for free
 - Automatic OCR support for scanned documents
 - Supports English and Hindi
 
 ### 📝 Text → PDF
+
 - Convert plain text to clean PDF documents instantly
 - Works with text input or text files
 
 ### 💧 Add Watermark
+
 - Add custom text or image watermarks
 - Full control over opacity, rotation, and placement
 - Stamp across all pages instantly
 
 ### ✍️ Sign PDF
+
 - Add visual signatures to any PDF
 - Draw, upload, or type your signature
 - Drag and resize on any page freely
 
 ### 🔄 Rearrange PDF
+
 - Visually drag and drop pages to reorder them
 - Delete unwanted pages
 - Save the new organized document locally
-
 
 ---
 
@@ -86,25 +102,25 @@ Traditional tools: Your File → Upload → Server → Process → Download
 
 flipp: Your File → Browser → Done
 
-
 Everything runs locally using modern browser APIs and open-source libraries.
 
 ---
 
 ## 🧱 Tech Stack
 
-- **Frontend**: Vanilla JavaScript (ES Modules)  
-- **Styling**: Custom CSS (Candy Brutalism system)  
-- **Libraries**:  
-  - PDF.js (Mozilla) → PDF parsing & rendering  
-  - jsPDF → PDF generation  
-  - PDF-lib → Advanced PDF manipulation  
-  - JSZip → File bundling  
+- **Frontend**: Vanilla JavaScript (ES Modules)
+- **Styling**: Custom CSS (Candy Brutalism system)
+- **Libraries**:
+  - PDF.js (Mozilla) → PDF parsing & rendering
+  - jsPDF → PDF generation
+  - PDF-lib → Advanced PDF manipulation
+  - JSZip → File bundling
   - Tesseract.js → OCR / text extraction
 
 ---
 
 ## 📂 Project Structure
+
 ```text
 flipp/
 ├── index.html                    # Landing page (hero, feature overview, navigation)
@@ -114,6 +130,7 @@ flipp/
 │   ├── images-to-pdf/index.html  # Images → PDF tool page
 │   ├── merge-pdf/index.html      # Merge PDF tool page
 │   ├── split-pdf/index.html      # Split PDF tool page
+│   ├── compress-pdf/index.html   # Compress PDF tool page
 │   ├── protect-pdf/index.html    # Protect PDF tool page
 │   ├── add-page-numbers/index.html # Add page numbers tool page
 │   ├── pdf-to-text/index.html    # PDF → Text tool page
@@ -131,6 +148,7 @@ flipp/
 │   ├── img-to-pdf.js             # Images → PDF conversion flow
 │   ├── pdf-merge.js              # PDF merge logic
 │   ├── pdf-split.js              # PDF split logic
+│   ├── pdf-compress.js           # PDF compression logic
 │   ├── pdf-protect.js            # PDF protection logic
 │   ├── pdf-page-numbers.js       # PDF page numbering logic
 │   ├── pdf-to-text.js            # PDF → Text extraction logic
@@ -154,6 +172,7 @@ flipp/
 ```
 
 ## 🗺️ Site Map
+
 ```text
 /
 ├── Hero Section
@@ -164,6 +183,7 @@ flipp/
 │   ├── Images → PDF
 │   ├── Merge PDF
 │   ├── Split PDF
+│   ├── Compress PDF
 │   ├── Protect PDF
 │   ├── Add Page Numbers
 │   ├── PDF → Text
@@ -180,6 +200,7 @@ flipp/
 ├── /tools/images-to-pdf/
 ├── /tools/merge-pdf/
 ├── /tools/split-pdf/
+├── /tools/compress-pdf/
 ├── /tools/protect-pdf/
 ├── /tools/add-page-numbers/
 ├── /tools/pdf-to-text/
@@ -197,10 +218,10 @@ flipp/
 
 ## 🔐 Privacy First
 
-- No file uploads  
-- No backend processing  
-- No tracking  
-- Works offline after initial load  
+- No file uploads
+- No backend processing
+- No tracking
+- Works offline after initial load
 
 Your data never leaves your device.
 
@@ -209,9 +230,11 @@ Your data never leaves your device.
 ## ⚙️ Deployment
 
 ### GitHub Pages
-- Push to `main`  
-- Auto-deploy via workflow  
+
+- Push to `main`
+- Auto-deploy via workflow
 
 ### Netlify / Vercel / Cloudflare
-- No build step required  
-- Deploy as static site  
+
+- No build step required
+- Deploy as static site

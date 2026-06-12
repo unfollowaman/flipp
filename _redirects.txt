@@ -39,3 +39,5 @@ https://unfollowaman.tech  https://unfollowaman.tech/ 301!
 /blog/pdf-file-size-guide/ /blog/server-side-vs-client-side-pdf-processing/ 301!
 /blog/how-to-protect-pdf-files/ /blog/remove-password-protection-pdf-locally/ 301!
 /blog/merge-vs-combine-pdf/ /blog/free-pdf-tools-no-storage-verify/ 301!
+
+/compress-pdf/*  /tools/compress-pdf/  301
