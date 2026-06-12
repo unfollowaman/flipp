@@ -41,3 +41,4 @@ https://unfollowaman.tech  https://unfollowaman.tech/ 301!
 /blog/merge-vs-combine-pdf/ /blog/free-pdf-tools-no-storage-verify/ 301!
 
 /compress-pdf/*  /tools/compress-pdf/  301
+/unlock-pdf /tools/unlock-pdf/ 301
