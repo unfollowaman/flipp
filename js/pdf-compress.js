@@ -3,6 +3,7 @@ import { initDropZone } from "./drag-drop.js";
 let selectedFile = null;
 
 const dropZone = document.getElementById("compress-drop-zone");
+const fileInput = document.getElementById("compress-file-input");
 const previewArea = document.getElementById("compress-preview-area");
 const resultsArea = document.getElementById("compress-results");
 const compressBtn = document.getElementById("compress-btn");
@@ -41,7 +42,7 @@ radios.forEach((radio) => {
   });
 });
 
-initDropZone(dropZone, (files) => {
+initDropZone(dropZone, fileInput, (files) => {
   if (!files.length) return;
   const file = files[0];
   if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
