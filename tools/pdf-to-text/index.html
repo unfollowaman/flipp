@@ -192,7 +192,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link
       rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&family=Anek+Devanagari:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap"
       as="style"
       onload="
         this.onload = null;
@@ -202,7 +202,7 @@
     <noscript
       ><link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&family=Anek+Devanagari:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap"
     /></noscript>
     <link rel="stylesheet" href="/css/styles.css" />
     <script type="application/ld+json">
@@ -263,7 +263,12 @@
           id="pdf-drop-zone"
           data-mode="pdf-to-text"
         >
-          <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" hidden />
+          <input
+            type="file"
+            id="pdf-file-input"
+            accept=".pdf,application/pdf"
+            hidden
+          />
           <div class="dz-content" id="pdf-dz-content">
             <div class="dz-upload-icon">📄</div>
             <div class="dz-headline">Drop your PDF here</div>
@@ -343,7 +348,8 @@
               padding: 12px;
               border: 2px solid var(--border-color);
               border-radius: 8px;
-              font-family: monospace;
+              font-family:
+                &quot;Poppins&quot;, &quot;Anek Devanagari&quot;, sans-serif;
               resize: vertical;
               margin-bottom: 16px;
             "
