@@ -163,7 +163,7 @@ async function handlePdfSelect(files) {
   if (!files || files.length === 0) return;
   const file = files[0];
 
-  if (file.type !== 'application/pdf') {
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
     showToast('Please select a valid PDF file.', 'error');
     return;
   }

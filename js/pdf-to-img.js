@@ -90,7 +90,7 @@ async function renderPageToCanvas(page, renderScale) {
 
 // ── Load PDF file ───────────────────────────────────────
 async function loadPDF(file) {
-  if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
     showToast('Please upload a PDF file.', 'error');
     return;
   }
@@ -315,7 +315,7 @@ function resetPdfConverter() {
 
 // ── Init drop zone ──────────────────────────────────────
 initDropZone(dropZoneEl, fileInputEl, (files) => {
-  const pdf = files.find(f => f.type === 'application/pdf' || f.name.endsWith('.pdf'));
+  const pdf = files.find(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
   if (pdf) loadPDF(pdf);
   else showToast('Please drop a PDF file.', 'error');
 });
