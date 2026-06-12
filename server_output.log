@@ -1,12 +1,10 @@
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /tools/pdf-to-text/ HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /css/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /js/pdf-to-text.js HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /js/drag-drop.js HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /js/faq.js HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /assets/icons/instagram-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /assets/icons/gmail-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:10] "GET /css/fonts.css HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:11] code 404, message File not found
-127.0.0.1 - - [12/Jun/2026 14:30:11] "GET /assets/feature%20cards%20icons/txt.png HTTP/1.1" 404 -
-127.0.0.1 - - [12/Jun/2026 14:30:11] "GET /assets/feature%20cards%20icons/split-horizontal.png HTTP/1.1" 200 -
-127.0.0.1 - - [12/Jun/2026 14:30:11] "GET /assets/feature%20cards%20icons/lock.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /tools/compress-pdf/ HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /css/styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /js/pdf-compress.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /js/drag-drop.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /js/faq.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /assets/icons/instagram-new.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /assets/icons/gmail-new.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /css/fonts.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /assets/feature%20cards%20icons/split-horizontal.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Jun/2026 20:44:42] "GET /assets/feature%20cards%20icons/merge-horizontal.png HTTP/1.1" 200 -
