@@ -58,7 +58,7 @@ downloadBtn.addEventListener('click', () => {
 });
 
 async function handleFile(file) {
-  if (file.type !== 'application/pdf') {
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
     showToast('Please upload a PDF file', 'error');
     return;
   }

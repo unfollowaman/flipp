@@ -44,7 +44,7 @@ radios.forEach((radio) => {
 initDropZone(dropZone, (files) => {
   if (!files.length) return;
   const file = files[0];
-  if (file.type !== "application/pdf") {
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
     alert("Please select a valid PDF file.");
     return;
   }
