@@ -272,7 +272,12 @@
           id="wm-drop-zone"
           data-mode="watermark"
         >
-          <input type="file" id="wm-file-input" accept=".pdf,application/pdf" hidden />
+          <input
+            type="file"
+            id="wm-file-input"
+            accept=".pdf,application/pdf"
+            hidden
+          />
           <div class="dz-content" id="wm-dz-content">
             <div class="dz-upload-icon">📄</div>
             <div class="dz-headline">Drop your PDF here</div>
@@ -583,6 +588,49 @@
 
       <section
         class="tool-content-section"
+        aria-labelledby="add-watermark-key-features-heading"
+      >
+        <h2 class="tcs-headline" id="add-watermark-key-features-heading">
+          Key Features
+        </h2>
+        <div class="tcs-use-cases">
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🔒</div>
+            <div class="tcs-use-case-title">Browser-Based Security</div>
+            <div class="tcs-use-case-desc">
+              Your sensitive files are watermarked locally on your device and
+              never uploaded to our servers.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">📝</div>
+            <div class="tcs-use-case-title">Text & Image Options</div>
+            <div class="tcs-use-case-desc">
+              Easily stamp custom text like "DRAFT" or upload your company logo
+              to protect your work.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🎛️</div>
+            <div class="tcs-use-case-title">Full Customization</div>
+            <div class="tcs-use-case-desc">
+              Adjust opacity, scale, rotation, and position to ensure the
+              watermark fits perfectly.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🆓</div>
+            <div class="tcs-use-case-title">Free to Use</div>
+            <div class="tcs-use-case-desc">
+              Add watermarks to as many documents as you like with absolutely no
+              hidden fees.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="tool-content-section"
         aria-labelledby="add-watermark-use-cases-heading"
       >
         <h2 class="tcs-headline" id="add-watermark-use-cases-heading">
@@ -683,6 +731,48 @@
       </section>
 
       <section
+        class="tool-content-section"
+        aria-labelledby="add-watermark-seo-article-heading"
+      >
+        <h2 class="tcs-headline" id="add-watermark-seo-article-heading">
+          Everything You Need to Know About Watermarking PDFs
+        </h2>
+        <div class="tcs-body">
+          <p>
+            Protecting your intellectual property and clearly marking the status
+            of a document are crucial steps in professional workflows. A
+            watermark is a simple, effective way to ensure your documents are
+            used correctly and your ownership is recognized.
+          </p>
+
+          <h3 class="tcs-subheadline">Why Watermark Your PDFs?</h3>
+          <p>
+            Watermarks serve multiple purposes. They can deter unauthorized
+            sharing of confidential files, assert copyright on your original
+            artwork or photography, or simply inform a reader that a document is
+            a "Draft" or "Copy" rather than the final version.
+          </p>
+
+          <h3 class="tcs-subheadline">How Flipp Protects Your Privacy</h3>
+          <p>
+            Unlike cloud-based tools that require you to upload your
+            confidential business documents to add a simple stamp, Flipp
+            performs all watermarking locally in your browser. Your files remain
+            completely secure on your own device.
+          </p>
+
+          <h3 class="tcs-subheadline">Tips for Effective Watermarking</h3>
+          <p>
+            A good watermark should be visible but not distracting. Adjust the
+            opacity so the underlying text remains readable. For maximum
+            protection against unauthorized use, use a tiled pattern or place
+            the watermark diagonally across the center of the page so it can't
+            be easily cropped out.
+          </p>
+        </div>
+      </section>
+
+      <section
         class="related-tools-section"
         aria-labelledby="other-ways-manage-pdf"
       >
@@ -726,27 +816,6 @@
                 <div class="tool-card-desc">
                   Stamp page numbers onto any PDF. Choose position and starting
                   page.
-                </div>
-              </div>
-            </a>
-            <a class="tool-card" href="/tools/split-pdf/">
-              <div class="tool-card-icon-wrapper">
-                <img
-                  src="/assets/feature cards icons/split-horizontal.png"
-                  alt=""
-                  loading="lazy"
-                />
-              </div>
-              <div class="tool-card-content">
-                <div
-                  class="tool-card-badge"
-                  style="background: var(--sky-blue)"
-                >
-                  SPLIT
-                </div>
-                <div class="tool-card-title">Split PDF</div>
-                <div class="tool-card-desc">
-                  Extract a range of pages from a PDF into separate files.
                 </div>
               </div>
             </a>
