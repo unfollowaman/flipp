@@ -56,39 +56,70 @@ async function rasterizePdfToEncryptedPdf(file, password) {
   if (pdf.numPages < 1) throw new Error('PDF has no pages');
 
   let doc = null;
+  const BATCH_SIZE = 5;
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas is unavailable');
+  for (let i = 1; i <= pdf.numPages; i += BATCH_SIZE) {
+    const batchPromises = [];
 
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
-    const page = await pdf.getPage(pageNum);
-    const viewport = page.getViewport({ scale: 2 });
+    for (let j = 0; j < BATCH_SIZE && (i + j) <= pdf.numPages; j += 1) {
+      const pageNum = i + j;
+      const renderPromise = (async () => {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2 });
 
-    canvas.width = Math.floor(viewport.width);
-    canvas.height = Math.floor(viewport.height);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas is unavailable");
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
 
-    const orientation = viewport.width >= viewport.height ? 'landscape' : 'portrait';
+        await page.render({ canvasContext: ctx, viewport }).promise;
 
-    if (!doc) {
-      doc = new JsPDF({
-        orientation,
-        unit: 'pt',
-        format: [viewport.width, viewport.height],
-        encryption: {
-          userPassword: password,
-          ownerPassword: password,
-          userPermissions: ['print'],
-        },
-      });
-    } else {
-      doc.addPage([viewport.width, viewport.height], orientation);
+        const orientation =
+          viewport.width >= viewport.height ? "landscape" : "portrait";
+        const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+        canvas.width = 0;
+        canvas.height = 0;
+
+        return { imgData, viewport, orientation };
+      })();
+
+      batchPromises.push(renderPromise);
     }
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.92);
-    doc.addImage(imgData, 'JPEG', 0, 0, viewport.width, viewport.height, undefined, 'FAST');
+    const batchResults = await Promise.all(batchPromises);
+
+    for (const result of batchResults) {
+      const { imgData, viewport, orientation } = result;
+
+      if (!doc) {
+        doc = new JsPDF({
+          orientation,
+          unit: "pt",
+          format: [viewport.width, viewport.height],
+          encryption: {
+            userPassword: password,
+            ownerPassword: password,
+            userPermissions: ["print"],
+          },
+        });
+      } else {
+        doc.addPage([viewport.width, viewport.height], orientation);
+      }
+
+      doc.addImage(
+        imgData,
+        "JPEG",
+        0,
+        0,
+        viewport.width,
+        viewport.height,
+        undefined,
+        "FAST",
+      );
+    }
   }
 
   if (!doc) throw new Error('Failed to create PDF');
