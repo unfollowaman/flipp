@@ -11,6 +11,7 @@ Tools available:
 - PDF to PNG: https://unfollowaman.tech/tools/pdf-to-png/
 - Images to PDF: https://unfollowaman.tech/tools/images-to-pdf/
 - Protect PDF: https://unfollowaman.tech/tools/protect-pdf/
+- Unlock PDF: Remove passwords and restrictions (https://unfollowaman.tech/tools/unlock-pdf/)
 - Remove PDF Password: https://unfollowaman.tech/tools/protect-pdf/
 - Add Page Numbers: https://unfollowaman.tech/tools/add-page-numbers/
 - Add Watermark: https://unfollowaman.tech/tools/add-watermark/

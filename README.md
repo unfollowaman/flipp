@@ -62,6 +62,11 @@ That’s it.
 
 ### 🔐 Protect PDF
 
+### 🔓 Unlock PDF
+- **Feature:** Remove passwords and permission restrictions from PDF files.
+- **Tech:** Uses pdf-lib entirely in the browser to decrypt files (handles owner restrictions instantly, prompts for open passwords).
+- **Privacy:** Files are never uploaded. Decryption happens purely locally on your machine.
+
 - Password-protect files securely
 - Encryption handled locally
 
@@ -132,6 +137,7 @@ flipp/
 │   ├── split-pdf/index.html      # Split PDF tool page
 │   ├── compress-pdf/index.html   # Compress PDF tool page
 │   ├── protect-pdf/index.html    # Protect PDF tool page
+│   ├── unlock-pdf/index.html     # Unlock PDF tool page
 │   ├── add-page-numbers/index.html # Add page numbers tool page
 │   ├── pdf-to-text/index.html    # PDF → Text tool page
 │   ├── text-to-pdf/index.html    # Text → PDF tool page
@@ -185,6 +191,7 @@ flipp/
 │   ├── Split PDF
 │   ├── Compress PDF
 │   ├── Protect PDF
+│   ├── Unlock PDF
 │   ├── Add Page Numbers
 │   ├── PDF → Text
 │   ├── Text → PDF
