@@ -344,7 +344,12 @@
           id="sign-drop-zone"
           data-mode="sign"
         >
-          <input type="file" id="sign-file-input" accept=".pdf,application/pdf" hidden />
+          <input
+            type="file"
+            id="sign-file-input"
+            accept=".pdf,application/pdf"
+            hidden
+          />
           <div class="dz-content" id="sign-dz-content">
             <div class="dz-upload-icon">📄</div>
             <div class="dz-headline">Drop your PDF here</div>
@@ -672,6 +677,49 @@
 
       <section
         class="tool-content-section"
+        aria-labelledby="sign-pdf-key-features-heading"
+      >
+        <h2 class="tcs-headline" id="sign-pdf-key-features-heading">
+          Key Features
+        </h2>
+        <div class="tcs-use-cases">
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🔒</div>
+            <div class="tcs-use-case-title">100% Local Privacy</div>
+            <div class="tcs-use-case-desc">
+              Sign sensitive agreements locally. Your documents and signature
+              never touch our servers.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">✍️</div>
+            <div class="tcs-use-case-title">Draw Your Signature</div>
+            <div class="tcs-use-case-desc">
+              Use your mouse or touchscreen to draw a smooth, natural-looking
+              signature directly on the page.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🎛️</div>
+            <div class="tcs-use-case-title">Freely Position</div>
+            <div class="tcs-use-case-desc">
+              Drag and drop your signature exactly where it needs to be, and
+              scale it to fit the signature line perfectly.
+            </div>
+          </div>
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🆓</div>
+            <div class="tcs-use-case-title">Free & Unlimited</div>
+            <div class="tcs-use-case-desc">
+              Sign as many documents as you need without expensive subscriptions
+              or limits.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="tool-content-section"
         aria-labelledby="sign-pdf-use-cases-heading"
       >
         <h2 class="tcs-headline" id="sign-pdf-use-cases-heading">
@@ -768,6 +816,50 @@
       </section>
 
       <section
+        class="tool-content-section"
+        aria-labelledby="sign-pdf-seo-article-heading"
+      >
+        <h2 class="tcs-headline" id="sign-pdf-seo-article-heading">
+          Everything You Need to Know About Signing PDFs Online
+        </h2>
+        <div class="tcs-body">
+          <p>
+            The days of printing, signing with a pen, and scanning a document
+            back into your computer are over. Digital signatures have become the
+            standard for modern business, offering a faster and more efficient
+            way to execute agreements.
+          </p>
+
+          <h3 class="tcs-subheadline">Why Sign PDFs Electronically?</h3>
+          <p>
+            Signing documents electronically saves time, reduces paper waste,
+            and accelerates workflows. Whether you're a freelancer agreeing to
+            terms, a tenant signing a lease, or a business finalizing a
+            contract, e-signing lets you close deals in minutes rather than
+            days.
+          </p>
+
+          <h3 class="tcs-subheadline">The Privacy of In-Browser Signing</h3>
+          <p>
+            Contracts often contain highly sensitive financial or personal data.
+            Unlike traditional e-signature platforms that store your documents
+            in the cloud, Flipp processes your signature locally in your
+            browser. This means your private agreements and your personal
+            signature remain strictly on your device.
+          </p>
+
+          <h3 class="tcs-subheadline">Tips for a Great Digital Signature</h3>
+          <p>
+            For the best results, use a touchscreen device or a stylus to draw
+            your signature, as it provides a more natural stroke than a mouse.
+            Once drawn, carefully scale and position the signature so it rests
+            naturally on the signature line without obscuring important text
+            below it.
+          </p>
+        </div>
+      </section>
+
+      <section
         class="related-tools-section"
         aria-labelledby="other-ways-manage-pdf"
       >
@@ -811,27 +903,6 @@
                 <div class="tool-card-desc">
                   Password-encrypt a PDF to restrict access. Processed entirely
                   on your device.
-                </div>
-              </div>
-            </a>
-            <a class="tool-card" href="/tools/split-pdf/">
-              <div class="tool-card-icon-wrapper">
-                <img
-                  src="/assets/feature cards icons/split-horizontal.png"
-                  alt=""
-                  loading="lazy"
-                />
-              </div>
-              <div class="tool-card-content">
-                <div
-                  class="tool-card-badge"
-                  style="background: var(--sky-blue)"
-                >
-                  SPLIT
-                </div>
-                <div class="tool-card-title">Split PDF</div>
-                <div class="tool-card-desc">
-                  Extract a range of pages from a PDF into separate files.
                 </div>
               </div>
             </a>
