@@ -376,7 +376,9 @@
         class="how-it-works tool-content-section"
         aria-labelledby="how-it-works-heading"
       >
-        <h2 class="tcs-headline" id="how-it-works-heading">How It Works</h2>
+        <h2 class="tcs-headline" id="how-it-works-heading">
+          How to unlock a PDF
+        </h2>
         <div class="tcs-steps">
           <div class="tcs-step">
             <div class="tcs-step-num">01</div>
@@ -456,26 +458,29 @@
       <section class="tool-content-section" aria-labelledby="use-cases-heading">
         <h2 class="tcs-headline" id="use-cases-heading">Common Use Cases</h2>
         <div class="tcs-use-cases">
-          <div class="tcs-use-case">
-            <h3 class="tcs-use-case-title">Print Restricted PDFs</h3>
-            <p class="tcs-use-case-desc">
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">🖨️</div>
+            <div class="tcs-use-case-title">Print Restricted PDFs</div>
+            <div class="tcs-use-case-desc">
               Remove printing restrictions from documents you own so you can get
               a hard copy.
-            </p>
+            </div>
           </div>
-          <div class="tcs-use-case">
-            <h3 class="tcs-use-case-title">Edit Locked Forms</h3>
-            <p class="tcs-use-case-desc">
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">📝</div>
+            <div class="tcs-use-case-title">Edit Locked Forms</div>
+            <div class="tcs-use-case-desc">
               Strip form-filling and editing restrictions so you can make
               necessary changes.
-            </p>
+            </div>
           </div>
-          <div class="tcs-use-case">
-            <h3 class="tcs-use-case-title">Remove Annoying Passwords</h3>
-            <p class="tcs-use-case-desc">
+          <div class="tcs-use-case-card">
+            <div class="tcs-use-case-icon">📂</div>
+            <div class="tcs-use-case-title">Remove Annoying Passwords</div>
+            <div class="tcs-use-case-desc">
               Permanently remove the open password from bank statements or
               utility bills for easier personal storage.
-            </p>
+            </div>
           </div>
         </div>
       </section>
@@ -567,58 +572,15 @@
       </section>
 
       <!-- EDUCATIONAL ARTICLE -->
-      <section class="tool-content-section" aria-labelledby="article-heading">
-        <h2 class="tcs-headline" id="article-heading">
-          Understanding PDF Password Protection
-        </h2>
-        <div class="tcs-body">
-          <p>
-            PDF files utilize two distinct types of password protection:
-            <strong>User (Open) Passwords</strong> and
-            <strong>Owner (Permissions) Passwords</strong>. Knowing the
-            difference helps explain how unlocking works.
-          </p>
-          <p>
-            A <strong>User Password</strong> encrypts the entire file. You
-            cannot even view the contents of the PDF without entering this
-            password. When you use Flipp to unlock a file with a user password,
-            you must provide the password once. Our client-side script uses
-            pdf-lib to decrypt the file locally, and then exports a clean,
-            unencrypted version you can open freely from then on.
-          </p>
-          <p>
-            An <strong>Owner Password</strong>, on the other hand, does not
-            prevent you from opening the document. Instead, it restricts what
-            you can do with it—such as disabling printing, preventing text from
-            being copied to your clipboard, or blocking edits. Flipp can
-            automatically strip these owner restrictions without requiring you
-            to enter the password, allowing you full control over your own
-            files.
-          </p>
-          <p>
-            Many people receive password-protected bank statements, pay stubs,
-            or tax documents. Having to type a password every time you want to
-            view your own records is frustrating. By using an unlocker tool, you
-            remove the encryption.
-          </p>
-          <p>
-            Crucially, unlocking sensitive documents should never be done by
-            uploading them to an online server. Competitors process your files
-            on their servers, exposing your private data. Flipp relies entirely
-            on your browser's local processing power. When you unlock a PDF
-            here, the decryption happens right on your device. Your file is
-            never uploaded, guaranteeing that your personal information remains
-            strictly yours.
-          </p>
-        </div>
-      </section>
 
       <section
         class="related-tools-section"
         aria-labelledby="related-tools-heading"
       >
         <div class="tool-content-section">
-          <h2 class="tcs-headline" id="related-tools-heading">Related Tools</h2>
+          <h2 class="tcs-headline" id="related-tools-heading">
+            You might also need
+          </h2>
           <div class="tools-grid">
             <a class="tool-card" href="/tools/protect-pdf/">
               <div class="tool-card-icon-wrapper">
