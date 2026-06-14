@@ -1011,7 +1011,7 @@ textarea {
   flex-shrink: 0;
 }
 .result-download-btn.icon-btn {
-  padding: 4px;
+  padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
