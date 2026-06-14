@@ -242,7 +242,15 @@ function showResults() {
 
     const dlBtn = document.createElement('button');
     dlBtn.className   = 'result-download-btn';
-    dlBtn.textContent = '↓';
+
+    const icon = document.createElement("img");
+    icon.src = "/assets/icons/download--v2.png";
+    icon.alt = "download";
+    icon.width = 12;
+    icon.height = 12;
+    icon.style.verticalAlign = "middle";
+
+    dlBtn.appendChild(icon);
     dlBtn.title = `Download ${filename}`;
     dlBtn.addEventListener('click', () => downloadDataUrl(dataUrl, filename));
     actions.appendChild(dlBtn);
