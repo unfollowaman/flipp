@@ -382,6 +382,28 @@
               <button class="opt-pill" data-value="upload">Upload Image</button>
               <button class="opt-pill" data-value="type">Type</button>
             </div>
+
+            <div
+              class="option-pills"
+              id="sign-color-pills"
+              style="margin-bottom: 16px; justify-content: center"
+            >
+              <button
+                class="opt-pill active color-pill-black"
+                data-value="#000000"
+              >
+                Black
+              </button>
+              <button class="opt-pill color-pill-blue" data-value="#0000FF">
+                Blue
+              </button>
+              <button class="opt-pill color-pill-red" data-value="#FF0000">
+                Red
+              </button>
+              <button class="opt-pill color-pill-green" data-value="#008000">
+                Green
+              </button>
+            </div>
           </div>
 
           <div
@@ -526,11 +548,17 @@
                   id="sign-prev-page"
                   style="
                     padding: 4px 12px;
-                    background: #333;
-                    border: 1px solid #555;
+                    background: #fff;
+                    border: 1px solid #000;
                   "
                 >
-                  &larr;
+                  <img
+                    src="/assets/arrow.png"
+                    alt="Previous"
+                    width="20"
+                    height="20"
+                    style="transform: scaleX(-1); display: block"
+                  />
                 </button>
                 <span id="sign-page-info" style="font-weight: 500"
                   >Page 1 of 1</span
@@ -540,11 +568,17 @@
                   id="sign-next-page"
                   style="
                     padding: 4px 12px;
-                    background: #333;
-                    border: 1px solid #555;
+                    background: #fff;
+                    border: 1px solid #000;
                   "
                 >
-                  &rarr;
+                  <img
+                    src="/assets/arrow.png"
+                    alt="Next"
+                    width="20"
+                    height="20"
+                    style="display: block"
+                  />
                 </button>
               </div>
             </div>
