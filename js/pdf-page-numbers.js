@@ -92,7 +92,6 @@ addBtn.addEventListener('click', async () => {
     resultsEl.style.display = 'block';
     showToast('✓ Page numbers added!');
   } catch (err) {
-    console.error(err);
     showToast('Could not add page numbers. Please try another PDF.', 'error');
   }
 });
