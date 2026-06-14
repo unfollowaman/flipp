@@ -60,7 +60,17 @@ function createDownloadButton(blob, filename, label) {
   btn.href = URL.createObjectURL(blob);
   btn.download = filename;
   btn.className = "cta-btn cta-mint";
-  btn.textContent = `↓ Download ${label}`;
+
+  const icon = document.createElement("img");
+  icon.src = "/assets/icons/download--v2.png";
+  icon.alt = "download";
+  icon.width = 16;
+  icon.height = 16;
+  icon.style.verticalAlign = "middle";
+  icon.style.marginRight = "4px";
+
+  btn.appendChild(icon);
+  btn.appendChild(document.createTextNode(` Download ${label}`));
   return btn;
 }
 
