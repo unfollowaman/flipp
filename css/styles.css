@@ -623,6 +623,51 @@ textarea {
   color: var(--white);
 }
 
+/* Color Pills */
+.color-pill-black {
+  color: #000;
+  border-color: #000;
+  font-weight: bold;
+}
+.color-pill-black.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.color-pill-blue {
+  color: #0000ff;
+  border-color: #0000ff;
+  font-weight: bold;
+}
+.color-pill-blue.active {
+  background: #0000ff;
+  color: #fff;
+  border-color: #0000ff;
+}
+
+.color-pill-red {
+  color: #ff0000;
+  border-color: #ff0000;
+  font-weight: bold;
+}
+.color-pill-red.active {
+  background: #ff0000;
+  color: #fff;
+  border-color: #ff0000;
+}
+
+.color-pill-green {
+  color: #008000;
+  border-color: #008000;
+  font-weight: bold;
+}
+.color-pill-green.active {
+  background: #008000;
+  color: #fff;
+  border-color: #008000;
+}
+
 .range-input {
   background: var(--white);
   border: var(--border-std);
