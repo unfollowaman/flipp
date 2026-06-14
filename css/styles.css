@@ -1010,6 +1010,12 @@ textarea {
     box-shadow 0.1s ease;
   flex-shrink: 0;
 }
+.result-download-btn.icon-btn {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .result-download-btn:hover {
   transform: translateY(-1px);
   box-shadow: 2px 2px 0 var(--black);
