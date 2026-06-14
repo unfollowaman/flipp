@@ -256,14 +256,14 @@ function showResults() {
     lbl.textContent = filename;
     actions.appendChild(lbl);
 
-    const dlBtn = document.createElement("button");
-    dlBtn.className = "result-download-btn icon-btn";
+    const dlBtn = document.createElement('button');
+    dlBtn.className   = 'result-download-btn icon-btn';
 
     const icon = document.createElement("img");
     icon.src = "/assets/icons/download--v2.png";
     icon.alt = "download";
-    icon.width = 16;
-    icon.height = 16;
+    icon.width = 10;
+    icon.height = 10;
     icon.style.verticalAlign = "middle";
 
     dlBtn.appendChild(icon);
