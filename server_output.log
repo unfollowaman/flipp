@@ -1,36 +1,11 @@
-127.0.0.1 - - [14/Jun/2026 19:33:26] code 404, message File not found
-127.0.0.1 - - [14/Jun/2026 19:33:26] "GET /pdf-to-img.html HTTP/1.1" 404 -
-127.0.0.1 - - [14/Jun/2026 19:33:36] code 404, message File not found
-127.0.0.1 - - [14/Jun/2026 19:33:36] "GET /pdf-to-img/index.html HTTP/1.1" 404 -
-127.0.0.1 - - [14/Jun/2026 19:33:48] code 404, message File not found
-127.0.0.1 - - [14/Jun/2026 19:33:48] "GET /pdf-to-img/ HTTP/1.1" 404 -
-127.0.0.1 - - [14/Jun/2026 19:34:17] "GET /pdf-to-png/index.html HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:41] "GET /pdf-to-png/index.html HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /tools/pdf-to-png/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /js/pdf-to-img.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /js/faq.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /css/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /js/drag-drop.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /assets/icons/instagram-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /assets/icons/gmail-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /css/fonts.css HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /assets/feature%20cards%20icons/split-horizontal.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:42] "GET /assets/feature%20cards%20icons/merge-horizontal.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:35:43] "GET /assets/icons/download--v2.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:37:17] code 404, message File not found
-127.0.0.1 - - [14/Jun/2026 19:37:17] "GET /pdf-to-img/index.html HTTP/1.1" 404 -
-127.0.0.1 - - [14/Jun/2026 19:37:26] code 404, message File not found
-127.0.0.1 - - [14/Jun/2026 19:37:26] "GET /pdf-to-img.html HTTP/1.1" 404 -
-127.0.0.1 - - [14/Jun/2026 19:37:46] "GET /pdf-to-png/index.html HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /pdf-to-png/index.html HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /tools/pdf-to-png/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /js/pdf-to-img.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /js/drag-drop.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /css/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /assets/icons/instagram-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /assets/icons/gmail-new.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /js/faq.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /css/fonts.css HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /assets/feature%20cards%20icons/split-horizontal.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:07] "GET /assets/feature%20cards%20icons/merge-horizontal.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Jun/2026 19:38:10] "GET /assets/icons/download--v2.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /tools/sign-pdf/index.html HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /css/styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /js/drag-drop.js HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /js/sign-pdf.js HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /js/faq.js HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /assets/arrow.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /assets/icons/gmail-new.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /assets/icons/instagram-new.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /css/fonts.css HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /assets/feature%20cards%20icons/rubber-stamp.png HTTP/1.1" 200 -
+127.0.0.1 - - [14/Jun/2026 13:08:27] "GET /assets/feature%20cards%20icons/lock.png HTTP/1.1" 200 -
