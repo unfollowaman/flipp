@@ -480,6 +480,44 @@ textarea {
 
 .converter-header {
   margin-bottom: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.converter-title {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .converter-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 24px;
+  }
+  .converter-badge {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+  .converter-title {
+    grid-column: 1;
+    grid-row: 2;
+    margin-bottom: 0;
+    width: auto;
+  }
+  .merge-result-illustration {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+  }
 }
 
 .converter-badge {
@@ -491,15 +529,16 @@ textarea {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
 }
 
-.converter-title {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin-bottom: 12px;
+@media (max-width: 767px) {
+  .converter-badge {
+    margin-bottom: 0px;
+  }
+  .converter-title {
+    margin-bottom: 0px;
+  }
 }
 
 .converter-desc {
@@ -1900,5 +1939,61 @@ textarea {
 @media (max-width: 767px) {
   .github-star-btn {
     display: none !important;
+  }
+}
+
+/* Merge PDF Illustration */
+.merge-result-illustration {
+  display: block;
+}
+
+.merge-svg {
+  overflow: visible;
+}
+
+.merge-svg .doc-icon {
+  transform-origin: center;
+}
+
+.merge-svg .doc-left {
+  animation: slideLeft 3s infinite ease-in-out;
+}
+
+.merge-svg .doc-right {
+  animation: slideRight 3s infinite ease-in-out;
+}
+
+.merge-svg .doc-center {
+  animation: pulseCenter 3s infinite ease-in-out;
+}
+
+@keyframes slideLeft {
+  0%, 15% { transform: translateX(0); }
+  35%, 65% { transform: translateX(40px); }
+  85%, 100% { transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  0%, 15% { transform: translateX(0); }
+  35%, 65% { transform: translateX(-40px); }
+  85%, 100% { transform: translateX(0); }
+}
+
+@keyframes pulseCenter {
+  0%, 30% { transform: scale(1); opacity: 0; }
+  35% { transform: scale(1.1); opacity: 1; }
+  65% { transform: scale(1); opacity: 1; }
+  75%, 100% { transform: scale(1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .merge-svg .doc-left,
+  .merge-svg .doc-right {
+    display: none;
+  }
+  .merge-svg .doc-center {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
