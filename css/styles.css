@@ -1945,55 +1945,104 @@ textarea {
 /* Merge PDF Illustration */
 .merge-result-illustration {
   display: block;
+  width: 100%;
+  max-width: 240px; /* Limit size */
+  margin: 0 auto;
 }
 
-.merge-svg {
+@media (min-width: 768px) {
+  .merge-result-illustration {
+    margin: 0;
+  }
+}
+
+.merge-svg-scene {
   overflow: visible;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.merge-svg .doc-icon {
+.ambient-scene .anim-shape {
   transform-origin: center;
 }
 
-.merge-svg .doc-left {
-  animation: slideLeft 3s infinite ease-in-out;
+.ambient-scene .anim-float {
+  transform-origin: center;
 }
 
-.merge-svg .doc-right {
-  animation: slideRight 3s infinite ease-in-out;
-}
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-scene .shape-circle {
+    animation: pulseScale 8s infinite alternate ease-in-out;
+  }
 
-.merge-svg .doc-center {
-  animation: pulseCenter 3s infinite ease-in-out;
-}
+  .ambient-scene .shape-blob {
+    animation: driftRotate 12s infinite alternate ease-in-out;
+    transform-origin: 100px 100px;
+  }
 
-@keyframes slideLeft {
-  0%, 15% { transform: translateX(0); }
-  35%, 65% { transform: translateX(40px); }
-  85%, 100% { transform: translateX(0); }
-}
+  .ambient-scene .shape-triangle {
+    animation: floatVertical 6s infinite alternate ease-in-out;
+  }
 
-@keyframes slideRight {
-  0%, 15% { transform: translateX(0); }
-  35%, 65% { transform: translateX(-40px); }
-  85%, 100% { transform: translateX(0); }
-}
+  .ambient-scene .shape-small-circle {
+    animation: pulseScale 5s infinite alternate ease-in-out;
+  }
 
-@keyframes pulseCenter {
-  0%, 30% { transform: scale(1); opacity: 0; }
-  35% { transform: scale(1.1); opacity: 1; }
-  65% { transform: scale(1); opacity: 1; }
-  75%, 100% { transform: scale(1); opacity: 0; }
+  .ambient-scene .float-1 {
+    animation:
+      floatVertical 4s infinite alternate ease-in-out,
+      driftRotate 7s infinite alternate ease-in-out;
+  }
+
+  .ambient-scene .float-2 {
+    animation:
+      floatVertical 5s infinite alternate ease-in-out 1s,
+      driftRotate 8s infinite alternate ease-in-out 0.5s;
+  }
+
+  .ambient-scene .float-3 {
+    animation:
+      floatVertical 4.5s infinite alternate ease-in-out 0.5s,
+      driftRotate 6s infinite alternate ease-in-out 1s;
+  }
+
+  .ambient-scene .float-shield {
+    animation:
+      floatVertical 6s infinite alternate ease-in-out 2s,
+      driftRotate 9s infinite alternate ease-in-out;
+  }
+
+  @keyframes floatVertical {
+    0% {
+      translate: 0px 0px;
+    }
+    100% {
+      translate: 0px -10px;
+    }
+  }
+
+  @keyframes driftRotate {
+    0% {
+      rotate: -3deg;
+    }
+    100% {
+      rotate: 3deg;
+    }
+  }
+
+  @keyframes pulseScale {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.05);
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .merge-svg .doc-left,
-  .merge-svg .doc-right {
-    display: none;
-  }
-  .merge-svg .doc-center {
-    animation: none;
-    opacity: 1;
-    transform: none;
+  .ambient-scene * {
+    animation: none !important;
   }
 }
