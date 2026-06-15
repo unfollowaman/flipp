@@ -256,17 +256,9 @@ function showResults() {
     lbl.textContent = filename;
     actions.appendChild(lbl);
 
-    const dlBtn = document.createElement('button');
-    dlBtn.className   = 'result-download-btn icon-btn';
-
-    const icon = document.createElement("img");
-    icon.src = "/assets/icons/download--v2.png";
-    icon.alt = "download";
-    icon.width = 10;
-    icon.height = 10;
-    icon.style.verticalAlign = "middle";
-
-    dlBtn.appendChild(icon);
+    const dlBtn = document.createElement("button");
+    dlBtn.className = "result-download-btn";
+    dlBtn.textContent = "Download";
     dlBtn.title = `Download ${filename}`;
     dlBtn.addEventListener("click", () => downloadDataUrl(dataUrl, filename));
     actions.appendChild(dlBtn);
