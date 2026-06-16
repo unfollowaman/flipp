@@ -229,177 +229,17 @@ textarea {
   text-align: center;
 }
 
-/* Browser Mock */
+/* Homepage Hero Image */
 .hero-visual {
   position: relative;
-  padding-bottom: 80px;
 }
 
-.browser-mock {
-  background: #111;
-  border-radius: var(--radius-lg);
-  border: var(--border-std);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-}
-
-.browser-chrome {
-  background: #1a1a1a;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid #333;
-}
-
-.traffic-lights {
-  display: flex;
-  gap: 6px;
-}
-.tl {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.tl.red {
-  background: #ff5f57;
-}
-.tl.yellow {
-  background: #ffbd2e;
-}
-.tl.green {
-  background: #28c840;
-}
-
-.browser-url {
-  flex: 1;
-  background: #2a2a2a;
-  border-radius: 4px;
-  padding: 4px 12px;
-  font-size: 12px;
-  color: #888;
-  font-family: monospace;
-}
-
-.browser-body {
-  background: var(--light-blue);
-  padding: 32px 24px;
-  min-height: 280px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.file-stack {
-  position: relative;
-  width: 280px;
-  height: 200px;
-}
-
-.file-card {
-  position: absolute;
-  background: var(--white);
-  border: var(--border-std);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.fc-back-2 {
-  width: 240px;
-  height: 160px;
-  top: 0;
-  left: 20px;
-  transform: rotate(-6deg);
-  opacity: 0.6;
-  background: var(--yellow);
-}
-.fc-back {
-  width: 240px;
-  height: 160px;
-  top: 10px;
-  left: 10px;
-  transform: rotate(-3deg);
-  opacity: 0.8;
-  background: var(--blush-pink);
-}
-.fc-front {
-  width: 260px;
-  height: 170px;
-  top: 15px;
-  left: 0;
-  z-index: 2;
-}
-
-.file-icon {
-  font-size: 32px;
-}
-.file-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #444;
-}
-
-.drop-zone-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.dz-icon {
-  font-size: 28px;
-}
-.dz-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--black);
-}
-.dz-sub {
-  font-size: 11px;
-  color: #888;
-}
-
-/* Decoration pills */
-.hero-decoration {
-  position: absolute;
-  bottom: 24px;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-.deco-pill {
-  background: var(--white);
-  border: var(--border-std);
-  border-radius: 100px;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  animation: float 3s ease-in-out infinite;
-}
-.deco-1 {
-  animation-delay: 0s;
-}
-.deco-2 {
-  animation-delay: 0.8s;
-}
-.deco-3 {
-  animation-delay: 1.6s;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+.homepage-hero-img {
+  width: 100%;
+  max-width: 580px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 /* ==============================
@@ -481,10 +321,9 @@ textarea {
 .converter-header {
   margin-bottom: 40px;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 2rem;
+  align-items: center;
+  gap: 16px;
 }
 
 .converter-title {
@@ -492,8 +331,33 @@ textarea {
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  margin-bottom: 0;
-  margin-right: auto;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .converter-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 24px;
+  }
+  .converter-badge {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+  .converter-title {
+    grid-column: 1;
+    grid-row: 2;
+    margin-bottom: 0;
+    width: auto;
+  }
+  .merge-result-illustration {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+  }
 }
 
 .converter-badge {
@@ -1919,26 +1783,106 @@ textarea {
 }
 
 /* Merge PDF Illustration */
-.merge-illustration {
+.merge-result-illustration {
   display: block;
   width: 100%;
-  margin: 0 auto;
-}
-
-.merge-illustration img {
-  width: 100%;
-  max-width: 380px;
-  height: auto;
-  display: block;
+  max-width: 240px; /* Limit size */
   margin: 0 auto;
 }
 
 @media (min-width: 768px) {
-  .merge-illustration {
-    width: auto;
+  .merge-result-illustration {
     margin: 0;
   }
-  .merge-illustration img {
-    margin: 0;
+}
+
+.merge-svg-scene {
+  overflow: visible;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ambient-scene .anim-shape {
+  transform-origin: center;
+}
+
+.ambient-scene .anim-float {
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-scene .shape-circle {
+    animation: pulseScale 8s infinite alternate ease-in-out;
+  }
+
+  .ambient-scene .shape-blob {
+    animation: driftRotate 12s infinite alternate ease-in-out;
+    transform-origin: 100px 100px;
+  }
+
+  .ambient-scene .shape-triangle {
+    animation: floatVertical 6s infinite alternate ease-in-out;
+  }
+
+  .ambient-scene .shape-small-circle {
+    animation: pulseScale 5s infinite alternate ease-in-out;
+  }
+
+  .ambient-scene .float-1 {
+    animation:
+      floatVertical 4s infinite alternate ease-in-out,
+      driftRotate 7s infinite alternate ease-in-out;
+  }
+
+  .ambient-scene .float-2 {
+    animation:
+      floatVertical 5s infinite alternate ease-in-out 1s,
+      driftRotate 8s infinite alternate ease-in-out 0.5s;
+  }
+
+  .ambient-scene .float-3 {
+    animation:
+      floatVertical 4.5s infinite alternate ease-in-out 0.5s,
+      driftRotate 6s infinite alternate ease-in-out 1s;
+  }
+
+  .ambient-scene .float-shield {
+    animation:
+      floatVertical 6s infinite alternate ease-in-out 2s,
+      driftRotate 9s infinite alternate ease-in-out;
+  }
+
+  @keyframes floatVertical {
+    0% {
+      translate: 0px 0px;
+    }
+    100% {
+      translate: 0px -10px;
+    }
+  }
+
+  @keyframes driftRotate {
+    0% {
+      rotate: -3deg;
+    }
+    100% {
+      rotate: 3deg;
+    }
+  }
+
+  @keyframes pulseScale {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-scene * {
+    animation: none !important;
   }
 }
