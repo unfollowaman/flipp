@@ -481,9 +481,10 @@ textarea {
 .converter-header {
   margin-bottom: 40px;
   display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-start;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 
 .converter-title {
@@ -491,33 +492,8 @@ textarea {
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  margin-bottom: 12px;
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .converter-header {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    column-gap: 24px;
-  }
-  .converter-badge {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: start;
-  }
-  .converter-title {
-    grid-column: 1;
-    grid-row: 2;
-    margin-bottom: 0;
-    width: auto;
-  }
-  .merge-result-illustration {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: end;
-  }
+  margin-bottom: 0;
+  margin-right: auto;
 }
 
 .converter-badge {
@@ -1943,106 +1919,26 @@ textarea {
 }
 
 /* Merge PDF Illustration */
-.merge-result-illustration {
+.merge-illustration {
   display: block;
   width: 100%;
-  max-width: 240px; /* Limit size */
+  margin: 0 auto;
+}
+
+.merge-illustration img {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  display: block;
   margin: 0 auto;
 }
 
 @media (min-width: 768px) {
-  .merge-result-illustration {
+  .merge-illustration {
+    width: auto;
     margin: 0;
   }
-}
-
-.merge-svg-scene {
-  overflow: visible;
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.ambient-scene .anim-shape {
-  transform-origin: center;
-}
-
-.ambient-scene .anim-float {
-  transform-origin: center;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .ambient-scene .shape-circle {
-    animation: pulseScale 8s infinite alternate ease-in-out;
-  }
-
-  .ambient-scene .shape-blob {
-    animation: driftRotate 12s infinite alternate ease-in-out;
-    transform-origin: 100px 100px;
-  }
-
-  .ambient-scene .shape-triangle {
-    animation: floatVertical 6s infinite alternate ease-in-out;
-  }
-
-  .ambient-scene .shape-small-circle {
-    animation: pulseScale 5s infinite alternate ease-in-out;
-  }
-
-  .ambient-scene .float-1 {
-    animation:
-      floatVertical 4s infinite alternate ease-in-out,
-      driftRotate 7s infinite alternate ease-in-out;
-  }
-
-  .ambient-scene .float-2 {
-    animation:
-      floatVertical 5s infinite alternate ease-in-out 1s,
-      driftRotate 8s infinite alternate ease-in-out 0.5s;
-  }
-
-  .ambient-scene .float-3 {
-    animation:
-      floatVertical 4.5s infinite alternate ease-in-out 0.5s,
-      driftRotate 6s infinite alternate ease-in-out 1s;
-  }
-
-  .ambient-scene .float-shield {
-    animation:
-      floatVertical 6s infinite alternate ease-in-out 2s,
-      driftRotate 9s infinite alternate ease-in-out;
-  }
-
-  @keyframes floatVertical {
-    0% {
-      translate: 0px 0px;
-    }
-    100% {
-      translate: 0px -10px;
-    }
-  }
-
-  @keyframes driftRotate {
-    0% {
-      rotate: -3deg;
-    }
-    100% {
-      rotate: 3deg;
-    }
-  }
-
-  @keyframes pulseScale {
-    0% {
-      transform: scale(1);
-    }
-    100% {
-      transform: scale(1.05);
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ambient-scene * {
-    animation: none !important;
+  .merge-illustration img {
+    margin: 0;
   }
 }
