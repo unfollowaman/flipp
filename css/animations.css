@@ -1,0 +1,90 @@
+/* Ambient Floating Animations for Complex 3D SVG Scenes */
+
+@keyframes float-1 {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(-2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-2 {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-3 {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(-1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-shield {
+  0% { transform: translateY(0px) scale(1) rotate(0deg); }
+  50% { transform: translateY(-15px) scale(1.05) rotate(5deg); }
+  100% { transform: translateY(0px) scale(1) rotate(0deg); }
+}
+
+@keyframes pulse-blob {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-float,
+  .anim-shape,
+  .float-1,
+  .float-2,
+  .float-3,
+  .float-shield,
+  .shape-blob,
+  .shape-circle,
+  .shape-triangle,
+  .shape-small-circle {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+.float-1 {
+  animation: float-1 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.float-2 {
+  animation: float-2 5s ease-in-out infinite;
+  transform-origin: center;
+  animation-delay: 1s;
+}
+
+.float-3 {
+  animation: float-3 4.5s ease-in-out infinite;
+  transform-origin: center;
+  animation-delay: 0.5s;
+}
+
+.float-shield {
+  animation: float-shield 6s ease-in-out infinite;
+  transform-origin: center;
+  animation-delay: 0.2s;
+}
+
+.shape-blob {
+  animation: pulse-blob 6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.shape-circle,
+.shape-triangle {
+  animation: float-2 7s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+.shape-small-circle {
+  animation: float-3 3s ease-in-out infinite alternate;
+}
