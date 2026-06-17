@@ -1,4 +1,4 @@
-import { initDropZone } from "./drag-drop.js";
+import { initDropZone, showToast } from "./drag-drop.js";
 
 let selectedFile = null;
 
@@ -45,8 +45,11 @@ radios.forEach((radio) => {
 initDropZone(dropZone, fileInput, (files) => {
   if (!files.length) return;
   const file = files[0];
-  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-    alert("Please select a valid PDF file.");
+  if (
+    file.type !== "application/pdf" &&
+    !file.name.toLowerCase().endsWith(".pdf")
+  ) {
+    showToast("Please select a valid PDF file.", "error");
     return;
   }
   selectedFile = file;
@@ -217,10 +220,7 @@ compressBtn.addEventListener("click", async () => {
     progressContainer.style.display = "none";
     resultsArea.style.display = "block";
   } catch (error) {
-    console.error(error);
-    alert(
-      "An error occurred while compressing the PDF. See console for details.",
-    );
+    showToast("Failed to compress PDF.", "error");
     progressContainer.style.display = "none";
     previewArea.style.display = "flex";
   }
