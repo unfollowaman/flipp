@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress, setupDragReorder } from '/js/drag-drop.js';
+import { initDropZone, showToast, setProgress, setupDragReorder } from './drag-drop.js';
 
 let originalPdfFile = null;
 let originalPdfBytes = null;

@@ -5,7 +5,7 @@ import {
   showToast,
   setProgress,
   activatePill,
-} from "/js/drag-drop.js";
+} from "./drag-drop.js";
 
 // ── State ──────────────────────────────────────────────
 let pdfDoc = null;

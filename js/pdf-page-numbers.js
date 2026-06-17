@@ -1,4 +1,4 @@
-import { initDropZone, showToast } from '/js/drag-drop.js';
+import { initDropZone, showToast } from './drag-drop.js';
 
 const dropZoneEl = document.getElementById('number-drop-zone');
 const fileInputEl = document.getElementById('number-file-input');
