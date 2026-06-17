@@ -179,11 +179,21 @@ textarea {
 .hero-inner {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-bottom: 80px;
+}
+
+.hero-content-top {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 64px;
   align-items: center;
-  padding-bottom: 80px;
+}
+
+.hero-content-bottom {
+  width: 100%;
 }
 
 .hero-badge {
@@ -1148,15 +1158,14 @@ textarea {
    Responsive
    ============================== */
 @media (max-width: 1023px) {
+  .hero-content-top {
+    gap: 20px;
+  }
   .hero-inner {
-    grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
     padding-bottom: 40px;
   }
-  .hero-visual {
-    display: block;
-    margin-top: 32px;
-  }
+
   .homepage-hero-img {
     max-width: 400px;
   }
