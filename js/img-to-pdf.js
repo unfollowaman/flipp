@@ -313,7 +313,6 @@ convertBtn.addEventListener("click", async () => {
     progressArea.style.display = "none";
     showResults(result.totalPagesAdded);
   } catch (err) {
-    console.error("Error generating PDF:", err);
     showToast("An error occurred while generating the PDF.", "error");
     progressArea.style.display = "none";
   }
