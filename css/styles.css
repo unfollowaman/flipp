@@ -1195,8 +1195,22 @@ textarea {
   .hero {
     padding: 48px 16px 0;
   }
+  .hero-badge {
+    font-size: 10px;
+    padding: 6px 12px;
+  }
   .hero-headline {
     font-size: clamp(40px, 10vw, 56px);
+  }
+  .homepage-hero-img {
+    max-width: 150%;
+    width: 150%;
+    margin-left: -20%;
+    transform: translateY(-40px);
+  }
+  .hero-content-top {
+    grid-template-columns: 1.5fr 1fr;
+    gap: 12px;
   }
   .converter-section,
   .how-it-works,
