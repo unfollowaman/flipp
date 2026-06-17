@@ -9,6 +9,9 @@ let src = fs.readFileSync(srcPath, 'utf8');
 // Robustly strip all import statements
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
+// Expose internal functions
+src += '\nreturn { addImageFiles, resetImgConverter };\n';
+
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
   let toastType = null;
@@ -47,6 +50,7 @@ test('img-to-pdf error handling', async (t) => {
   };
   const mockSetProgress = () => {};
   const mockActivatePill = () => {};
+  const mockSetupDragReorder = () => {};
 
   const wrapper = new Function(
     'document',
@@ -55,6 +59,7 @@ test('img-to-pdf error handling', async (t) => {
     'showToast',
     'setProgress',
     'activatePill',
+    'setupDragReorder',
     'Blob',
     'URL',
     'FileReader',
@@ -111,6 +116,7 @@ test('img-to-pdf error handling', async (t) => {
       mockShowToast,
       mockSetProgress,
       mockActivatePill,
+      mockSetupDragReorder,
       class Blob {},
       { createObjectURL: () => '', revokeObjectURL: () => '' },
       class FileReader {},
@@ -129,5 +135,75 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(elements['img-options'].style.display, 'initial-options');
     assert.strictEqual(elements['img-progress'].style.display, 'initial-progress');
     assert.strictEqual(elements['img-results'].style.display, 'initial-results');
+  });
+
+  await t.test('properly formats pluralization for single vs multiple images', async () => {
+    const elements = {
+        'img-convert-btn': createMockElement('img-convert-btn'),
+        'img-preview-area': createMockElement('img-preview-area'),
+        'img-options': createMockElement('img-options'),
+        'img-progress': createMockElement('img-progress'),
+        'img-results': createMockElement('img-results'),
+        'img-drop-zone': createMockElement('img-drop-zone'),
+        'img-file-input': createMockElement('img-file-input'),
+        'img-size-pills': createMockElement('img-size-pills'),
+        'img-orient-pills': createMockElement('img-orient-pills'),
+        'img-filename-input': createMockElement('img-filename-input'),
+        'img-file-count': createMockElement('img-file-count'),
+        'img-add-more-btn': createMockElement('img-add-more-btn'),
+        'img-preview-grid': createMockElement('img-preview-grid'),
+        'img-progress-bar': createMockElement('img-progress-bar'),
+        'img-progress-label': createMockElement('img-progress-label'),
+        'img-download-btn': createMockElement('img-download-btn'),
+        'img-result-info': createMockElement('img-result-info'),
+        'img-reset-btn': createMockElement('img-reset-btn'),
+    };
+
+    const localMockDocument = {
+      getElementById: (id) => elements[id] || createMockElement(id),
+      createElement: () => createMockElement(),
+      createDocumentFragment: () => createMockElement()
+    };
+
+    const { addImageFiles, resetImgConverter } = wrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      class Image {}
+    );
+
+    // Ensure state is clean
+    resetImgConverter();
+
+    // Test single image pluralization
+    const singleFile = { name: 'test1.jpg', type: 'image/jpeg' };
+    addImageFiles([singleFile]);
+    assert.strictEqual(
+      elements['img-file-count'].textContent,
+      '1 image selected',
+      'Should not be plural for exactly 1 image'
+    );
+
+    // Ensure state is clean before next test
+    resetImgConverter();
+
+    // Test multiple images pluralization
+    const multipleFiles = [
+      { name: 'test1.jpg', type: 'image/jpeg' },
+      { name: 'test2.png', type: 'image/png' }
+    ];
+    addImageFiles(multipleFiles);
+    assert.strictEqual(
+      elements['img-file-count'].textContent,
+      '2 images selected',
+      'Should be plural for more than 1 image'
+    );
   });
 });
