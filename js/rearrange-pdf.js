@@ -130,7 +130,6 @@ async function loadPdfAndRenderThumbnails() {
     previewArea.style.display = 'block';
 
   } catch (error) {
-    console.error(error);
     showToast('Error loading PDF.', 'error');
     resetRearrange();
   }
@@ -179,7 +178,6 @@ rearrangeBtn.addEventListener('click', async () => {
         showToast('PDF rearranged successfully!');
 
     } catch(err) {
-        console.error(err);
         showToast('Failed to rearrange PDF.', 'error');
         resetRearrange();
     }
