@@ -6,7 +6,7 @@ import {
   setProgress,
   activatePill,
   setupDragReorder,
-} from "/js/drag-drop.js";
+} from "./drag-drop.js";
 
 // ── State ──────────────────────────────────────────────
 let imageFiles = []; // { file, objectUrl, name }
