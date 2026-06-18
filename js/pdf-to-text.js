@@ -90,86 +90,114 @@ async function handleFile(file) {
     const numPages = pdfDoc.numPages;
 
     let ocrTriggered = false;
+    let completedPages = 0;
 
-    for (let i = 1; i <= numPages; i++) {
-      setProgress(
-        progressBar,
-        progressLabel,
-        ((i - 1) / numPages) * 100,
-        `Extracting text from page ${i} of ${numPages}...`,
-      );
-
-      const page = await pdfDoc.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item) => item.str).join(" ");
-
-      const cleaned = pageText.replace(/\s/g, "");
-      const devanagariCount = (pageText.match(/[\u0900-\u097F]/g) || []).length;
-      const devanagariRatio =
-        cleaned.length > 0 ? devanagariCount / cleaned.length : 0;
-      const englishWordCount = (
-        pageText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
-      ).length;
-
-      let needsOCR = false;
-
-      // Condition 1: Scanned / Empty
-      if (cleaned.length < 5) {
-        needsOCR = true;
+    // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
+    let ocrWorkerPromise = null;
+    const getOcrWorker = () => {
+      if (!ocrWorkerPromise) {
+        ocrWorkerPromise = window.Tesseract.createWorker("hin+eng");
       }
-      // Condition 2: Garbled / Legacy-Encoded
-      else if (
-        cleaned.length >= 20 &&
-        devanagariRatio < 0.1 &&
-        englishWordCount < 3
-      ) {
-        needsOCR = true;
-      }
+      return ocrWorkerPromise;
+    };
 
-      let finalPageText = "";
+    const batchSize = 25;
+    const pageTexts = new Array(numPages);
 
-      if (needsOCR) {
-        ocrTriggered = true;
-        ocrNotice.style.display = "block";
-        setProgress(
-          progressBar,
-          progressLabel,
-          ((i - 1) / numPages) * 100,
-          `Running OCR on page ${i} of ${numPages} — this may take a moment...`,
+    for (let start = 1; start <= numPages; start += batchSize) {
+      const batch = [];
+      const end = Math.min(start + batchSize - 1, numPages);
+
+      for (let i = start; i <= end; i++) {
+        batch.push(
+          (async () => {
+            const page = await pdfDoc.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+              .map((item) => item.str)
+              .join(" ");
+
+            const cleaned = pageText.replace(/\s/g, "");
+            const devanagariCount = (pageText.match(/[\u0900-\u097F]/g) || [])
+              .length;
+            const devanagariRatio =
+              cleaned.length > 0 ? devanagariCount / cleaned.length : 0;
+            const englishWordCount = (
+              pageText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
+            ).length;
+
+            let needsOCR = false;
+
+            // Condition 1: Scanned / Empty
+            if (cleaned.length < 5) {
+              needsOCR = true;
+            }
+            // Condition 2: Garbled / Legacy-Encoded
+            else if (
+              cleaned.length >= 20 &&
+              devanagariRatio < 0.1 &&
+              englishWordCount < 3
+            ) {
+              needsOCR = true;
+            }
+
+            let finalPageText = "";
+
+            if (needsOCR) {
+              ocrTriggered = true;
+              ocrNotice.style.display = "block";
+
+              const worker = await getOcrWorker();
+
+              const viewport = page.getViewport({ scale: 2.0 });
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+
+              const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport,
+              };
+
+              await page.render(renderContext).promise;
+              const imageData = canvas.toDataURL("image/png");
+
+              const {
+                data: { text },
+              } = await worker.recognize(imageData);
+              finalPageText = text;
+
+              // Free canvas memory immediately
+              canvas.width = 0;
+              canvas.height = 0;
+            } else {
+              finalPageText = pageText;
+            }
+
+            pageTexts[i - 1] = finalPageText;
+            completedPages++;
+
+            setProgress(
+              progressBar,
+              progressLabel,
+              (completedPages / numPages) * 100,
+              `Extracting text... (${completedPages} of ${numPages} pages)`,
+            );
+          })(),
         );
-
-        if (!ocrWorker) {
-          ocrWorker = await Tesseract.createWorker("hin+eng");
-        }
-
-        const viewport = page.getViewport({ scale: 2.0 });
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const renderContext = {
-          canvasContext: ctx,
-          viewport: viewport,
-        };
-
-        await page.render(renderContext).promise;
-        const imageData = canvas.toDataURL("image/png");
-
-        const {
-          data: { text },
-        } = await ocrWorker.recognize(imageData);
-        finalPageText = text;
-      } else {
-        finalPageText = pageText;
       }
 
-      currentText += finalPageText + "\n\n";
+      await Promise.all(batch);
+
+      // Update text output progressively
+      currentText = pageTexts.filter((t) => t !== undefined).join("\n\n");
       textOutput.value = currentText.trim();
     }
 
-    if (ocrWorker) {
-      await ocrWorker.terminate();
+    if (ocrWorkerPromise) {
+      const worker = await ocrWorkerPromise;
+      await worker.terminate();
     }
 
     setProgress(progressBar, progressLabel, 100, "Extraction complete!");
@@ -179,9 +207,10 @@ async function handleFile(file) {
   } catch (error) {
     console.error("Error processing PDF:", error);
     showToast("Failed to process PDF", "error");
-    if (ocrWorker) {
+    if (ocrWorkerPromise) {
       try {
-        await ocrWorker.terminate();
+        const worker = await ocrWorkerPromise;
+        await worker.terminate();
       } catch (e) {
         // Ignore termination errors on failure
       }
