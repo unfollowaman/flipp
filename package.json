@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "playwright": "^1.61.0"
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.61.0",
+    "puppeteer": "^25.1.0"
   }
 }
