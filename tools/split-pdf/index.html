@@ -305,28 +305,66 @@
             <div
               style="
                 display: flex;
-                gap: 10px;
-                align-items: center;
+                gap: 20px;
+                align-items: flex-start;
                 flex-wrap: wrap;
               "
             >
-              <input
-                type="number"
-                min="1"
-                class="range-input"
-                id="split-range-start"
-                placeholder="From page"
-                style="max-width: 160px"
-              />
-              <span>to</span>
-              <input
-                type="number"
-                min="1"
-                class="range-input"
-                id="split-range-end"
-                placeholder="To page"
-                style="max-width: 160px"
-              />
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <input
+                  type="number"
+                  min="1"
+                  class="range-input"
+                  id="split-range-start"
+                  placeholder="From page"
+                  style="max-width: 160px"
+                />
+                <div
+                  id="split-preview-start"
+                  style="
+                    width: 160px;
+                    min-height: 200px;
+                    border: 1px dashed var(--black);
+                    border-radius: var(--radius-sm);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.9rem;
+                    color: var(--black);
+                    background: #f9f9f9;
+                  "
+                >
+                  <!-- Canvas or message goes here -->
+                </div>
+              </div>
+              <span style="margin-top: 10px">to</span>
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <input
+                  type="number"
+                  min="1"
+                  class="range-input"
+                  id="split-range-end"
+                  placeholder="To page"
+                  style="max-width: 160px"
+                />
+                <div
+                  id="split-preview-end"
+                  style="
+                    width: 160px;
+                    min-height: 200px;
+                    border: 1px dashed var(--black);
+                    border-radius: var(--radius-sm);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.9rem;
+                    color: var(--black);
+                    background: #f9f9f9;
+                  "
+                >
+                  <!-- Canvas or message goes here -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
