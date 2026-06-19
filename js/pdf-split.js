@@ -3,6 +3,7 @@ import { initDropZone, showToast } from "./drag-drop.js";
 let pdfFile = null;
 let splitBlobs = [];
 let totalPages = 0;
+let pdfDocument = null; // Holds the pdf.js document for rendering previews
 
 const dropZoneEl = document.getElementById("split-drop-zone");
 const fileInputEl = document.getElementById("split-file-input");
@@ -14,6 +15,52 @@ const downloadsEl = document.getElementById("split-downloads");
 const resetBtn = document.getElementById("split-reset-btn");
 const rangeStartEl = document.getElementById("split-range-start");
 const rangeEndEl = document.getElementById("split-range-end");
+const previewStartEl = document.getElementById("split-preview-start");
+const previewEndEl = document.getElementById("split-preview-end");
+
+async function renderPagePreview(pageNum, container) {
+  container.innerHTML = ""; // Clear previous content
+
+  if (!pdfDocument) return;
+
+  const pageNumber = Number(pageNum);
+  if (
+    !Number.isInteger(pageNumber) ||
+    pageNumber < 1 ||
+    pageNumber > totalPages
+  ) {
+    container.textContent = "No such page 😑";
+    return;
+  }
+
+  try {
+    const page = await pdfDocument.getPage(pageNumber);
+    const scale = 0.5; // Adjust scale as needed to fit the container roughly
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    // Scale canvas CSS to fit inside the fixed 160px container
+    canvas.style.maxWidth = "100%";
+    canvas.style.maxHeight = "100%";
+    canvas.style.objectFit = "contain";
+
+    const ctx = canvas.getContext("2d");
+
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: viewport,
+    };
+
+    container.appendChild(canvas);
+    await page.render(renderContext).promise;
+  } catch (error) {
+    console.error("Error rendering page:", error);
+    container.textContent = "Error rendering page";
+  }
+}
 
 function addFiles(files) {
   const first = files.find(
@@ -39,7 +86,8 @@ function addFiles(files) {
 
   (async () => {
     try {
-      const srcPdf = await PDFLib.PDFDocument.load(await first.arrayBuffer());
+      const arrayBuffer = await first.arrayBuffer();
+      const srcPdf = await PDFLib.PDFDocument.load(arrayBuffer);
       totalPages = srcPdf.getPageCount();
       infoEl.textContent = `Selected: ${first.name} (${totalPages} pages)`;
       rangeStartEl.min = "1";
@@ -48,12 +96,33 @@ function addFiles(files) {
       rangeEndEl.max = String(totalPages);
       rangeStartEl.value = "1";
       rangeEndEl.value = String(Math.max(1, totalPages - 1));
-    } catch {
+
+      // Load pdfDocument using pdf.js for rendering previews
+      const pdfjsLib = window["pdfjs-dist/build/pdf"];
+      if (pdfjsLib) {
+        // Create a copy of the buffer because pdfLib might have modified/consumed it
+        const bufferCopy = arrayBuffer.slice(0);
+        pdfDocument = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
+
+        // Initial render for previews
+        await renderPagePreview(rangeStartEl.value, previewStartEl);
+        await renderPagePreview(rangeEndEl.value, previewEndEl);
+      }
+    } catch (e) {
+      console.error(e);
       showToast("Failed to read PDF page count.", "error");
       infoEl.textContent = `Selected: ${first.name}`;
     }
   })();
 }
+
+rangeStartEl.addEventListener("input", () => {
+  renderPagePreview(rangeStartEl.value, previewStartEl);
+});
+
+rangeEndEl.addEventListener("input", () => {
+  renderPagePreview(rangeEndEl.value, previewEndEl);
+});
 
 splitBtn.addEventListener("click", async () => {
   if (!pdfFile) return;
@@ -142,12 +211,15 @@ resetBtn.addEventListener("click", () => {
   pdfFile = null;
   splitBlobs = [];
   totalPages = 0;
+  pdfDocument = null;
   previewArea.style.display = "none";
   resultsArea.style.display = "none";
   infoEl.textContent = "";
   downloadsEl.innerHTML = "";
   rangeStartEl.value = "";
   rangeEndEl.value = "";
+  previewStartEl.innerHTML = "";
+  previewEndEl.innerHTML = "";
 });
 
 initDropZone(dropZoneEl, fileInputEl, addFiles);
