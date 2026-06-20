@@ -170,8 +170,8 @@ flipp/
 ├── sitemap.xml                   # Search indexing map
 ├── sitemap-blog.xml              # Blog post search indexing map
 ├── robots.txt                    # Crawler rules
-├── _headers.txt                  # Edge/server header config
-├── _redirects.txt                # Route redirects for static hosting
+├── _headers                      # Edge/server header config
+├── _redirects                    # Route redirects for static hosting
 ├── ai-plugin.json                # AI plugin manifest
 ├── llms.txt                      # Project manifest for LLM crawlers
 └── deploy.yml                    # Deployment workflow/config
