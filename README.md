@@ -236,12 +236,14 @@ Your data never leaves your device.
 
 ## ⚙️ Deployment
 
-### GitHub Pages
+### Cloudflare Pages (Active)
 
-- Push to `main`
-- Auto-deploy via workflow
+- Connected via custom domain with Cloudflare nameservers.
+- Auto-deploy natively via Cloudflare Pages Git integration.
+- True HTTP 301 server-side redirects via `_redirects` file.
 
-### Netlify / Vercel / Cloudflare
+### Netlify / Vercel / GitHub Pages
 
-- No build step required
-- Deploy as static site
+- Project remains completely static-host-agnostic.
+- No build step required.
+- Can be deployed to any static host, but Cloudflare Pages is the current live deployment target.
