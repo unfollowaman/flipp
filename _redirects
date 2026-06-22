@@ -15,7 +15,6 @@
 https://www.unfollowaman.tech/* https://unfollowaman.tech/:splat 301!
 
 # Normalize trailing slash on root (optional — most hosts handle this, but explicit is safer)
-https://unfollowaman.tech  https://unfollowaman.tech/ 301!
 
 # Legacy anchor URLs → new tool pages (in case any external links exist)
 /# /  301
