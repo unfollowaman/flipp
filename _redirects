@@ -9,10 +9,7 @@
 # 2. GitHub Pages will serve both www and non-www — the canonical tag in HTML
 #    is the only enforcement mechanism available at this hosting level.
 # 3. For proper www redirect, migrate to Netlify or Cloudflare Pages.
-#
-# All rules below apply to Netlify deployments only.
-# Redirect www to non-www (authoritative: no-www)
-https://www.unfollowaman.tech/* https://unfollowaman.tech/:splat 301!
+
 
 # Normalize trailing slash on root (optional — most hosts handle this, but explicit is safer)
 
