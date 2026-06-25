@@ -173,8 +173,7 @@ flipp/
 ├── _headers                      # Edge/server header config
 ├── _redirects                    # Route redirects for static hosting
 ├── ai-plugin.json                # AI plugin manifest
-├── llms.txt                      # Project manifest for LLM crawlers
-└── deploy.yml                    # Deployment workflow/config
+└── llms.txt                      # Project manifest for LLM crawlers
 ```
 
 ## 🗺️ Site Map
