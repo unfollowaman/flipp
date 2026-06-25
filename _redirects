@@ -1,14 +1,4 @@
-# NOTE: This file is processed by Netlify only.
-# On GitHub Pages, redirect rules in this file have NO effect.
-#
-# www → non-www redirect:
-# GitHub Pages does NOT support www redirects via files.
-# To enforce www → non-www on GitHub Pages:
-# 1. In your DNS provider, set the www CNAME to point to your apex domain
-#    OR set the www A record to the same GitHub Pages IP addresses as the apex
-# 2. GitHub Pages will serve both www and non-www — the canonical tag in HTML
-#    is the only enforcement mechanism available at this hosting level.
-# 3. For proper www redirect, migrate to Netlify or Cloudflare Pages.
+# Cloudflare Pages configuration rules.
 
 
 # Normalize trailing slash on root (optional — most hosts handle this, but explicit is safer)

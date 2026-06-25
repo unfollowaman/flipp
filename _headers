@@ -1,11 +1,4 @@
-# NOTE: This file is processed by Netlify only.
-# On GitHub Pages, these headers have NO effect.
-# GitHub Pages uses its own default caching headers which cannot be overridden via files.
-# Cache-Control for GitHub Pages static assets is typically:
-#   HTML files: max-age=600 (10 minutes)
-#   All other assets: max-age=600 (10 minutes)
-# To control cache headers, migrate to Netlify, Cloudflare Pages, or Vercel.
-# Netlify-only header rules; ignored by GitHub Pages.
+# Cloudflare Pages configuration rules.
 /css/styles.css
   Cache-Control: public, max-age=31536000, immutable
 
