@@ -79,7 +79,7 @@ async function handleFile(file) {
   ocrNotice.style.display = "none";
   setProgress(progressBar, progressLabel, 0, "Analyzing PDF...");
 
-  let ocrWorker = null;
+  let ocrWorkerPromise = null;
 
   try {
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
@@ -93,7 +93,6 @@ async function handleFile(file) {
     let completedPages = 0;
 
     // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
-    let ocrWorkerPromise = null;
     const getOcrWorker = () => {
       if (!ocrWorkerPromise) {
         ocrWorkerPromise = window.Tesseract.createWorker("hin+eng");
