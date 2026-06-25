@@ -15,26 +15,26 @@
 
 # Legacy anchor URLs → new tool pages (in case any external links exist)
 /# /  301
-/index.html  /  301!
+/index.html  /  301
 
-/pdf-to-png/         /tools/pdf-to-png/         301!
-/images-to-pdf/      /tools/images-to-pdf/      301!
-/merge-pdf/          /tools/merge-pdf/          301!
-/split-pdf/          /tools/split-pdf/          301!
-/protect-pdf/        /tools/protect-pdf/        301!
-/add-page-numbers/   /tools/add-page-numbers/   301!
-/pdf-to-text/        /tools/pdf-to-text/        301!
-/text-to-pdf/        /tools/text-to-pdf/        301!
-/add-watermark/      /tools/add-watermark/      301!
-/sign-pdf/           /tools/sign-pdf/           301!
-/rearrange-pdf/      /tools/rearrange-pdf/      301!
+/pdf-to-png/         /tools/pdf-to-png/         301
+/images-to-pdf/      /tools/images-to-pdf/      301
+/merge-pdf/          /tools/merge-pdf/          301
+/split-pdf/          /tools/split-pdf/          301
+/protect-pdf/        /tools/protect-pdf/        301
+/add-page-numbers/   /tools/add-page-numbers/   301
+/pdf-to-text/        /tools/pdf-to-text/        301
+/text-to-pdf/        /tools/text-to-pdf/        301
+/add-watermark/      /tools/add-watermark/      301
+/sign-pdf/           /tools/sign-pdf/           301
+/rearrange-pdf/      /tools/rearrange-pdf/      301
 
 # Blog redirects
-/blog/what-is-a-pdf/ /blog/free-pdf-converters-privacy-risk/ 301!
-/blog/how-browser-pdf-tools-work/ /blog/merge-confidential-pdf-documents-browser/ 301!
-/blog/pdf-file-size-guide/ /blog/server-side-vs-client-side-pdf-processing/ 301!
-/blog/how-to-protect-pdf-files/ /blog/remove-password-protection-pdf-locally/ 301!
-/blog/merge-vs-combine-pdf/ /blog/free-pdf-tools-no-storage-verify/ 301!
+/blog/what-is-a-pdf/ /blog/free-pdf-converters-privacy-risk/ 301
+/blog/how-browser-pdf-tools-work/ /blog/merge-confidential-pdf-documents-browser/ 301
+/blog/pdf-file-size-guide/ /blog/server-side-vs-client-side-pdf-processing/ 301
+/blog/how-to-protect-pdf-files/ /blog/remove-password-protection-pdf-locally/ 301
+/blog/merge-vs-combine-pdf/ /blog/free-pdf-tools-no-storage-verify/ 301
 
 /compress-pdf/*  /tools/compress-pdf/  301
 /unlock-pdf /tools/unlock-pdf/ 301
