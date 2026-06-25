@@ -1,56 +1,20 @@
-# Hosting Architecture (GitHub Pages)
+# Hosting Architecture
 
-This project is deployed as a static site on GitHub Pages.
+This project is natively deployed via Cloudflare Pages using Git integration.
 
-## What GitHub Pages can and cannot do
+## Deployment Features
 
-GitHub Pages **can**:
-- Serve static files directly from the deployed artifact
-- Route by file and folder structure (for example, `/tools/pdf-to-png/` from `tools/pdf-to-png/index.html`)
-- Serve a root `404.html` when no file path matches
-- Use a custom domain via the `CNAME` file
+- Auto-deployed directly from the repository upon pushing to the designated branch.
+- No build step is required; the static files in the repository are served directly.
+- Natively supports HTTP 301 server-side routing and custom response headers via `_redirects` and `_headers` files.
+- The site operates entirely client-side, using modern browser APIs to process files without uploading to a server.
 
-GitHub Pages **cannot**:
-- Process Netlify `_redirects` rules
-- Process Netlify `_headers` rules
-- Run server-side middleware, edge functions, or backend code
-- Override response headers via repository files
+## Key Configuration Files
 
-## GitHub Pages-specific files
+- `_redirects`: Defines server-side HTTP 301 redirects, ensuring that legacy tool paths reliably point to their current URLs (e.g., `/pdf-to-png` routes to `/tools/pdf-to-png/`).
+- `_headers`: Specifies custom HTTP response headers (e.g., caching rules or security policies) applied to requests directly at the edge.
 
-- `CNAME`: binds the site to `unfollowaman.tech`
-- `.nojekyll`: disables Jekyll processing so underscore-prefixed files are included
-- `404.html`: handles not-found behavior and client-side fallback redirects for legacy paths
+## Architecture Guidelines
 
-## Netlify-specific files (inert on GitHub Pages)
-
-- `_redirects`: kept for migration compatibility; ignored by GitHub Pages
-- `_headers`: kept for migration compatibility; ignored by GitHub Pages
-
-## Redirect behavior on this host
-
-Because GitHub Pages has no native redirect rules, legacy flat tool paths are handled in `404.html` with JavaScript-based path mapping to `/tools/.../` URLs.
-
-Important limitation: these are client-side redirects, not HTTP 301 redirects.
-
-## Deploy workflow
-
-Deployment is handled by `deploy.yml` and publishes the repository root (`path: '.'`) to GitHub Pages.
-
-Automatic deploys run on pushes to `main` except when only ignored paths changed. Manual deploys are always available through `workflow_dispatch`.
-
-A pre-upload verification step checks for critical files (`index.html`, `CNAME`, `robots.txt`, `sitemap.xml`, and key `tools/*/index.html` pages) and fails the run if any are missing.
-
-## Custom domain requirements
-
-`CNAME` must exist at the repository root and contain exactly one line:
-
-`unfollowaman.tech`
-
-Do not include `https://` or `www.` in `CNAME`.
-
-If `CNAME` is removed, GitHub Pages will revert to the repository `*.github.io` domain on the next deploy, which breaks canonical URLs, schema URLs, and sitemap consistency.
-
-## If you need server-side redirects or custom headers
-
-Migrate hosting to a platform that supports them (for example Netlify, Cloudflare Pages, or Vercel). The existing `_redirects` and `_headers` files can serve as a starting point for a Netlify migration.
+- Do not use client-side javascript-based fallbacks or HTTP `<meta>` refresh tags for routing. Always update the `_redirects` file for any new or modified routes.
+- Cloudflare Pages handles apex-domain trailing-slash normalization at the edge. Avoid adding manual trailing-slash redirect rules for the apex domain in the `_redirects` file, as this conflicts with Cloudflare's built-in behavior and can cause infinite redirect loops.
