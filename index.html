@@ -269,40 +269,77 @@
       </section>
 
       <!-- HOW IT WORKS -->
-      <section class="how-it-works" aria-labelledby="how-it-works-heading">
-        <div class="section-inner">
-          <h2 class="section-headline" id="how-it-works-heading">
-            How it works. 🥧
-          </h2>
-          <div class="steps-row">
-            <div class="step-card" style="background: var(--yellow)">
-              <div class="step-num">01</div>
-              <h3 class="step-title">Drop your file</h3>
-              <div class="step-body">
-                Drag and drop a PDF or image directly into the converter below.
-              </div>
+     <section class="how-it-works" aria-labelledby="how-it-works-heading">
+    <div class="section-inner">
+      <h2 class="section-headline" id="how-it-works-heading">How it works. 🥧</h2>
+      <div class="steps-row">
+        <div class="step-card step-card-upload">
+          <div class="step-copy">
+            <div class="step-num">01</div>
+            <h3 class="step-title">Drop your file</h3>
+            <div class="step-body">Drag &amp; drop your PDF or image here.</div>
+          </div>
+          <div class="step-visual upload-visual" aria-hidden="true">
+            <div class="visual-glow glow-yellow"></div>
+            <div class="sparkle sparkle-a"></div>
+            <div class="sparkle sparkle-b"></div>
+            <div class="ray ray-a"></div>
+            <div class="ray ray-b"></div>
+            <div class="file-3d pdf-file">
+              <div class="file-fold"></div>
+              <div class="file-line line-wide"></div>
+              <div class="file-line line-short"></div>
+              <div class="file-badge badge-red">PDF</div>
             </div>
-            <div class="step-arrow">→</div>
-            <div class="step-card" style="background: var(--sky-blue)">
-              <div class="step-num">02</div>
-              <h3 class="step-title">Pick your format</h3>
-              <div class="step-body">
-                Choose PDF→PNG or image→PDF. All processing happens in-browser
-                using PDF.js and jsPDF.
-              </div>
-            </div>
-            <div class="step-arrow">→</div>
-            <div class="step-card" style="background: var(--mint)">
-              <div class="step-num">03</div>
-              <h3 class="step-title">Download instantly</h3>
-              <div class="step-body">
-                Your converted file is ready immediately. Nothing is stored or
-                transmitted.
-              </div>
+            <div class="upload-arrow-3d">↓</div>
+            <div class="drop-target"></div>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card step-card-convert">
+          <div class="step-copy">
+            <div class="step-num">02</div>
+            <h3 class="step-title">Pick your format</h3>
+            <div class="step-body">Choose PDF→PNG or image→PDF.</div>
+          </div>
+          <div class="step-visual convert-visual" aria-hidden="true">
+            <div class="visual-glow glow-blue"></div>
+            <div class="sparkle sparkle-a"></div>
+            <div class="sparkle sparkle-b"></div>
+            <div class="format-tile tile-pdf">PDF</div>
+            <div class="swap-arrows">↔</div>
+            <div class="format-tile tile-png">PNG</div>
+            <div class="conversion-chips">
+              <div class="conversion-chip"><span class="mini-badge mini-red">PDF</span><span>→</span><span class="mini-badge mini-blue">PNG</span></div>
+              <div class="chip-divider"></div>
+              <div class="conversion-chip"><span class="mini-badge mini-green">IMG</span><span>→</span><span class="mini-badge mini-green">PDF</span></div>
             </div>
           </div>
         </div>
-      </section>
+        <div class="step-arrow">→</div>
+        <div class="step-card step-card-download">
+          <div class="step-copy">
+            <div class="step-num">03</div>
+            <h3 class="step-title">Download instantly</h3>
+            <div class="step-body">Your file is ready. Nothing is stored or transmitted.</div>
+          </div>
+          <div class="step-visual download-visual" aria-hidden="true">
+            <div class="visual-glow glow-green"></div>
+            <div class="ray ray-a"></div>
+            <div class="ray ray-b"></div>
+            <div class="file-3d success-file">
+              <div class="file-fold"></div>
+              <div class="file-line line-wide"></div>
+              <div class="file-line line-short"></div>
+              <div class="success-check">✓</div>
+            </div>
+            <div class="download-tray"><span>↓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
       <section
         id="all-tools"
