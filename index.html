@@ -275,29 +275,83 @@
             How it works. 🥧
           </h2>
           <div class="steps-row">
-            <div class="step-card" style="background: var(--yellow)">
-              <div class="step-num">01</div>
-              <h3 class="step-title">Drop your file</h3>
-              <div class="step-body">
-                Drag and drop a PDF or image directly into the converter below.
+            <div class="step-card">
+              <div class="step-card-visual">
+                <div class="sc-glow sc-glow-yellow"></div>
+                <div class="sc-drop-zone"></div>
+                <div class="sc-document">
+                  <div class="sc-doc-lines">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="sc-down-arrow">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                </div>
+                <div class="sc-accent-rays">
+                  <span class="ray ray-1"></span>
+                  <span class="ray ray-2"></span>
+                  <span class="ray ray-3"></span>
+                </div>
+              </div>
+              <div class="step-card-content">
+                <div class="step-badge">01</div>
+                <h3 class="step-title">Drop your file</h3>
+                <div class="step-desc">
+                  Drag and drop a PDF or image directly into the converter below.
+                </div>
               </div>
             </div>
             <div class="step-arrow">→</div>
-            <div class="step-card" style="background: var(--sky-blue)">
-              <div class="step-num">02</div>
-              <h3 class="step-title">Pick your format</h3>
-              <div class="step-body">
-                Choose PDF→PNG or image→PDF. All processing happens in-browser
-                using PDF.js and jsPDF.
+            <div class="step-card">
+              <div class="step-card-visual">
+                <div class="sc-glow sc-glow-blue"></div>
+                <div class="sc-tiles-container">
+                  <div class="sc-tile sc-tile-pdf">PDF</div>
+                  <div class="sc-conversion-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="sc-tile sc-tile-png">PNG</div>
+                </div>
+                <div class="sc-chips">
+                  <span class="sc-chip">PDF &rarr; PNG</span>
+                  <span class="sc-chip">Image &rarr; PDF</span>
+                </div>
+                <div class="sc-sparkles">
+                  <span class="sparkle sparkle-1">✦</span>
+                  <span class="sparkle sparkle-2">✦</span>
+                </div>
+              </div>
+              <div class="step-card-content">
+                <div class="step-badge">02</div>
+                <h3 class="step-title">Pick your format</h3>
+                <div class="step-desc">
+                  Choose PDF&rarr;PNG or image&rarr;PDF. All processing happens in-browser.
+                </div>
               </div>
             </div>
             <div class="step-arrow">→</div>
-            <div class="step-card" style="background: var(--mint)">
-              <div class="step-num">03</div>
-              <h3 class="step-title">Download instantly</h3>
-              <div class="step-body">
-                Your converted file is ready immediately. Nothing is stored or
-                transmitted.
+            <div class="step-card">
+              <div class="step-card-visual">
+                <div class="sc-glow sc-glow-green"></div>
+                <div class="sc-tray"></div>
+                <div class="sc-success-doc">
+                  <div class="sc-success-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div class="sc-download-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  </div>
+                </div>
+                <div class="sc-success-sparkles">
+                  <span class="sparkle sparkle-3">✦</span>
+                </div>
+              </div>
+              <div class="step-card-content">
+                <div class="step-badge">03</div>
+                <h3 class="step-title">Download instantly</h3>
+                <div class="step-desc">
+                  Your converted file is ready immediately. Nothing is stored or transmitted.
+                </div>
               </div>
             </div>
           </div>

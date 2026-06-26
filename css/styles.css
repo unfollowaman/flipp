@@ -276,40 +276,283 @@ textarea {
   gap: 0;
 }
 
+/* ==============================
+   Step Cards (How it works)
+   ============================== */
 .step-card {
   flex: 1;
-  border: var(--border-std);
-  border-radius: var(--radius-lg);
-  padding: 32px 28px;
-  min-height: 200px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 32px;
+  padding: 24px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.02);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.step-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-hard);
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.step-num {
-  font-size: 13px;
+.step-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.step-card-visual {
+  flex: 1;
+  min-height: 160px;
+  background: transparent;
+  position: relative;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.step-card-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 8px 8px;
+}
+
+.step-badge {
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.4);
-  margin-bottom: 12px;
+  color: var(--black);
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 12px;
+  align-self: flex-start;
+  margin-bottom: 16px;
   letter-spacing: 0.05em;
 }
 
 .step-title {
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  color: var(--black);
 }
 
-.step-body {
+.step-desc {
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #666;
+}
+
+/* Common 3D Visual Elements */
+.sc-glow {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+  z-index: 0;
+}
+.sc-glow-yellow {
+  background: var(--yellow);
+}
+.sc-glow-blue {
+  background: var(--sky-blue);
+}
+.sc-glow-green {
+  background: var(--mint);
+}
+
+.sparkle {
+  position: absolute;
+  color: #ffd700;
+  font-size: 12px;
+  z-index: 10;
+  opacity: 0.8;
+}
+.sparkle-1 {
+  top: 20px;
+  left: 30px;
+  font-size: 16px;
+}
+.sparkle-2 {
+  bottom: 30px;
+  right: 20px;
+  font-size: 10px;
+}
+.sparkle-3 {
+  top: 30px;
+  right: 40px;
+  font-size: 18px;
+}
+
+/* Card 1 Visuals */
+.sc-drop-zone {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  z-index: 1;
+  bottom: 10px;
+  transform: rotateX(60deg);
+}
+
+.sc-document {
+  position: relative;
+  width: 70px;
+  height: 90px;
+  background: white;
+  border-radius: 8px;
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 6px;
+  transform: translateY(-20px) rotate(-5deg);
+}
+
+.sc-doc-lines span {
+  display: block;
+  height: 4px;
+  background: #eaeaea;
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+.sc-doc-lines span:nth-child(1) {
+  width: 100%;
+}
+.sc-doc-lines span:nth-child(2) {
+  width: 80%;
+}
+.sc-doc-lines span:nth-child(3) {
+  width: 60%;
+}
+
+.sc-down-arrow {
+  position: absolute;
+  z-index: 4;
+  color: var(--black);
+  transform: translateY(20px);
+  background: white;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sc-accent-rays {
+  position: absolute;
+  z-index: 2;
+}
+
+/* Card 2 Visuals */
+.sc-tiles-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 3;
+  position: relative;
+  transform: translateY(-10px);
+}
+
+.sc-tile {
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--black);
+}
+
+.sc-conversion-arrow {
+  color: var(--black);
+  background: white;
+  border-radius: 50%;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sc-chips {
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.sc-chip {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Card 3 Visuals */
+.sc-tray {
+  position: absolute;
+  bottom: 20px;
+  width: 100px;
+  height: 20px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1;
+  transform: rotateX(45deg);
+}
+
+.sc-success-doc {
+  position: relative;
+  width: 70px;
+  height: 90px;
+  background: white;
+  border-radius: 8px;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  z-index: 3;
+  transform: translateY(-15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-success-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #34c759;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(52, 199, 89, 0.3);
+}
+
+.sc-download-icon {
+  color: var(--black);
+  opacity: 0.8;
 }
 
 .step-arrow {
