@@ -131,50 +131,69 @@ compressBtn.addEventListener("click", async () => {
       });
 
       // Avoid blocking the main thread entirely
-      for (let i = 1; i <= totalPages; i++) {
-        updateProgress(`Compressing page ${i} of ${totalPages}...`);
+      const concurrencyLimit = 5;
+      for (let i = 1; i <= totalPages; i += concurrencyLimit) {
+        updateProgress(
+          `Compressing pages ${i} to ${Math.min(i + concurrencyLimit - 1, totalPages)} of ${totalPages}...`,
+        );
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        const page = await pdfjsDoc.getPage(i);
-        const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
+        const batch = [];
+        for (let j = i; j < i + concurrencyLimit && j <= totalPages; j++) {
+          batch.push(
+            (async () => {
+              const page = await pdfjsDoc.getPage(j);
+              const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
 
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
+              const renderContext = {
+                canvasContext: context,
+                viewport: viewport,
+              };
 
-        await page.render(renderContext).promise;
+              await page.render(renderContext).promise;
 
-        // Compress canvas as jpeg
-        const imgData = canvas.toDataURL("image/jpeg", 0.7);
+              // Compress canvas as jpeg
+              const imgData = canvas.toDataURL("image/jpeg", 0.7);
 
-        // Resize jsPDF page to match viewport dimensions
-        if (i > 1) {
-          jsPdfDoc.addPage(
-            [viewport.width, viewport.height],
-            viewport.width > viewport.height ? "l" : "p",
+              // Immediately release canvas
+              canvas.width = 0;
+              canvas.height = 0;
+
+              return {
+                index: j,
+                imgData,
+                width: viewport.width,
+                height: viewport.height,
+              };
+            })(),
           );
-        } else {
-          jsPdfDoc.setPage(1);
-          // Not easy to set format of first page after creation in jsPDF, we try to orient it
         }
 
-        jsPdfDoc.internal.pageSize.setWidth(viewport.width);
-        jsPdfDoc.internal.pageSize.setHeight(viewport.height);
+        const results = await Promise.all(batch);
+        results.sort((a, b) => a.index - b.index);
 
-        jsPdfDoc.addImage(
-          imgData,
-          "JPEG",
-          0,
-          0,
-          viewport.width,
-          viewport.height,
-        );
+        for (const res of results) {
+          // Resize jsPDF page to match viewport dimensions
+          if (res.index > 1) {
+            jsPdfDoc.addPage(
+              [res.width, res.height],
+              res.width > res.height ? "l" : "p",
+            );
+          } else {
+            jsPdfDoc.setPage(1);
+            // Not easy to set format of first page after creation in jsPDF, we try to orient it
+          }
+
+          jsPdfDoc.internal.pageSize.setWidth(res.width);
+          jsPdfDoc.internal.pageSize.setHeight(res.height);
+
+          jsPdfDoc.addImage(res.imgData, "JPEG", 0, 0, res.width, res.height);
+        }
       }
 
       updateProgress("Finalizing...");
