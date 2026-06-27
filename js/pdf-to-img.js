@@ -139,10 +139,17 @@ async function showPreview(filename) {
   // Render first few pages as thumbnails (max 12 for perf)
   const thumbPages = Math.min(totalPages, 12);
   const fragment = document.createDocumentFragment();
-  for (let i = 1; i <= thumbPages; i++) {
-    const page = await pdfDoc.getPage(i);
-    const { canvas } = await renderPageToCanvas(page, 0.3);
 
+  const renderPromises = [];
+  for (let i = 1; i <= thumbPages; i++) {
+    renderPromises.push(
+      pdfDoc.getPage(i).then(page => renderPageToCanvas(page, 0.3).then(res => ({ i, canvas: res.canvas })))
+    );
+  }
+
+  const results = await Promise.all(renderPromises);
+
+  for (const { i, canvas } of results) {
     const card = document.createElement("div");
     card.className = "preview-page-card";
     card.appendChild(canvas);
