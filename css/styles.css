@@ -376,7 +376,7 @@ textarea {
 }
 
 .step-visual {
-  min-height: 220px;
+  height: 220px;
   width: 100%;
   perspective: 900px;
 }
