@@ -15,6 +15,7 @@ src = src.replace(/export\s+let/g, 'let');
 src += `
   return {
     showToast,
+    activatePill,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -76,7 +77,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('showToast', async (t) => {
   t.beforeEach(() => {
@@ -151,5 +152,89 @@ test('showToast', async (t) => {
     // Execute second timeout (remove)
     timeouts[1].cb();
     assert.strictEqual(toast.removed, true);
+  });
+});
+
+test('activatePill', async (t) => {
+  await t.test('activates only the pill matching the value', () => {
+    const createPill = (value, isActive = false) => {
+      let hasActive = isActive;
+      return {
+        dataset: { value },
+        classList: {
+          toggle: (cls, force) => {
+            if (cls === 'active') {
+              hasActive = force;
+            }
+          },
+          contains: (cls) => cls === 'active' ? hasActive : false
+        },
+        isActive: () => hasActive
+      };
+    };
+
+    const pillA = createPill('a', false);
+    const pillB = createPill('b', true);
+    const pillC = createPill('c', false);
+
+    const group = {
+      querySelectorAll: (selector) => {
+        if (selector === '.opt-pill') {
+          return [pillA, pillB, pillC];
+        }
+        return [];
+      }
+    };
+
+    activatePill(group, 'a');
+
+    assert.strictEqual(pillA.isActive(), true);
+    assert.strictEqual(pillB.isActive(), false);
+    assert.strictEqual(pillC.isActive(), false);
+  });
+
+  await t.test('deactivates all pills if no value matches', () => {
+    const createPill = (value, isActive = false) => {
+      let hasActive = isActive;
+      return {
+        dataset: { value },
+        classList: {
+          toggle: (cls, force) => {
+            if (cls === 'active') {
+              hasActive = force;
+            }
+          },
+          contains: (cls) => cls === 'active' ? hasActive : false
+        },
+        isActive: () => hasActive
+      };
+    };
+
+    const pillA = createPill('a', true);
+    const pillB = createPill('b', true);
+
+    const group = {
+      querySelectorAll: (selector) => {
+        if (selector === '.opt-pill') {
+          return [pillA, pillB];
+        }
+        return [];
+      }
+    };
+
+    activatePill(group, 'c');
+
+    assert.strictEqual(pillA.isActive(), false);
+    assert.strictEqual(pillB.isActive(), false);
+  });
+
+  await t.test('handles empty group gracefully', () => {
+    const group = {
+      querySelectorAll: () => []
+    };
+
+    // Should not throw
+    activatePill(group, 'a');
+    assert.ok(true);
   });
 });
