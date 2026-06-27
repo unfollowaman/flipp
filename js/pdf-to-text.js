@@ -112,66 +112,15 @@ async function handleFile(file) {
           (async () => {
             const page = await pdfDoc.getPage(i);
             const textContent = await page.getTextContent();
-            const pageText = textContent.items
-              .map((item) => item.str)
-              .join(" ");
+            const { text: finalPageText, usedOcr } = await extractTextFromPage(
+              page,
+              textContent,
+              getOcrWorker,
+            );
 
-            const cleaned = pageText.replace(/\s/g, "");
-            const devanagariCount = (pageText.match(/[\u0900-\u097F]/g) || [])
-              .length;
-            const devanagariRatio =
-              cleaned.length > 0 ? devanagariCount / cleaned.length : 0;
-            const englishWordCount = (
-              pageText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
-            ).length;
-
-            let needsOCR = false;
-
-            // Condition 1: Scanned / Empty
-            if (cleaned.length < 5) {
-              needsOCR = true;
-            }
-            // Condition 2: Garbled / Legacy-Encoded
-            else if (
-              cleaned.length >= 20 &&
-              devanagariRatio < 0.1 &&
-              englishWordCount < 3
-            ) {
-              needsOCR = true;
-            }
-
-            let finalPageText = "";
-
-            if (needsOCR) {
+            if (usedOcr) {
               ocrTriggered = true;
               ocrNotice.style.display = "block";
-
-              const worker = await getOcrWorker();
-
-              const viewport = page.getViewport({ scale: 2.0 });
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport,
-              };
-
-              await page.render(renderContext).promise;
-              const imageData = canvas.toDataURL("image/png");
-
-              const {
-                data: { text },
-              } = await worker.recognize(imageData);
-              finalPageText = text;
-
-              // Free canvas memory immediately
-              canvas.width = 0;
-              canvas.height = 0;
-            } else {
-              finalPageText = pageText;
             }
 
             pageTexts[i - 1] = finalPageText;
@@ -218,4 +167,64 @@ async function handleFile(file) {
     resultsArea.style.display = "none";
     dropZone.style.display = "block";
   }
+}
+
+async function extractTextFromPage(page, textContent, getOcrWorker) {
+  const pageText = textContent.items.map((item) => item.str).join(" ");
+
+  const cleaned = pageText.replace(/\s/g, "");
+  const devanagariCount = (pageText.match(/[\u0900-\u097F]/g) || []).length;
+  const devanagariRatio =
+    cleaned.length > 0 ? devanagariCount / cleaned.length : 0;
+  const englishWordCount = (
+    pageText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
+  ).length;
+
+  let needsOCR = false;
+
+  // Condition 1: Scanned / Empty
+  if (cleaned.length < 5) {
+    needsOCR = true;
+  }
+  // Condition 2: Garbled / Legacy-Encoded
+  else if (
+    cleaned.length >= 20 &&
+    devanagariRatio < 0.1 &&
+    englishWordCount < 3
+  ) {
+    needsOCR = true;
+  }
+
+  let finalPageText = "";
+
+  if (needsOCR) {
+    const worker = await getOcrWorker();
+
+    const viewport = page.getViewport({ scale: 2.0 });
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: viewport,
+    };
+
+    await page.render(renderContext).promise;
+    const imageData = canvas.toDataURL("image/png");
+
+    const {
+      data: { text },
+    } = await worker.recognize(imageData);
+    finalPageText = text;
+
+    // Free canvas memory immediately
+    canvas.width = 0;
+    canvas.height = 0;
+  } else {
+    finalPageText = pageText;
+  }
+
+  return { text: finalPageText, usedOcr: needsOCR };
 }
