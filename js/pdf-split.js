@@ -101,8 +101,10 @@ async function loadPdfMetadataAndPreviews(file) {
       pdfDocument = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
 
       // Initial render for previews
-      await renderPagePreview(rangeStartEl.value, previewStartEl);
-      await renderPagePreview(rangeEndEl.value, previewEndEl);
+      await Promise.all([
+        renderPagePreview(rangeStartEl.value, previewStartEl),
+        renderPagePreview(rangeEndEl.value, previewEndEl),
+      ]);
     }
   } catch (e) {
     console.error(e);
