@@ -104,6 +104,38 @@ test('setProgress', async (t) => {
 
     assert.strictEqual(barEl.style.width, '100%');
   });
+
+  await t.test('handles 0 correctly', () => {
+    const barEl = { style: { width: '' } };
+    const labelEl = { textContent: '' };
+
+    setProgress(barEl, labelEl, 0, 'Start');
+
+    assert.strictEqual(barEl.style.width, '0%');
+    assert.strictEqual(labelEl.textContent, 'Start');
+  });
+
+  await t.test('handles 100 correctly', () => {
+    const barEl = { style: { width: '' } };
+    const labelEl = { textContent: '' };
+
+    setProgress(barEl, labelEl, 100, 'Complete');
+
+    assert.strictEqual(barEl.style.width, '100%');
+    assert.strictEqual(labelEl.textContent, 'Complete');
+  });
+
+  await t.test('throws TypeError if barEl is null', () => {
+    assert.throws(() => {
+      setProgress(null, null, 50, 'Loading...');
+    }, TypeError);
+  });
+
+  await t.test('throws TypeError if barEl lacks style property', () => {
+    assert.throws(() => {
+      setProgress({}, null, 50, 'Loading...');
+    }, TypeError);
+  });
 });
 
 test('showToast', async (t) => {
