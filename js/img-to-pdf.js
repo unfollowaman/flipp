@@ -79,10 +79,10 @@ function addImageFiles(files) {
 
 // ── Render preview grid ─────────────────────────────────
 function showPreview() {
-  optionsEl.style.display = "flex";
-  previewArea.style.display = "block";
+  optionsEl.classList.add("is-visible");
+  previewArea.classList.add("is-visible");
   progressArea.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   renderPreviewGrid();
 }
 
@@ -297,10 +297,10 @@ async function generatePdfFromImages(files, options, onProgress) {
 convertBtn.addEventListener("click", async () => {
   if (!imageFiles.length) return;
 
-  previewArea.style.display = "none";
-  optionsEl.style.display = "none";
+  previewArea.classList.remove("is-visible");
+  optionsEl.classList.remove("is-visible");
   progressArea.style.display = "block";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
 
   try {
     const result = await generatePdfFromImages(
@@ -320,7 +320,7 @@ convertBtn.addEventListener("click", async () => {
 
 // ── Show results ────────────────────────────────────────
 function showResults(pageCount) {
-  resultsArea.style.display = "block";
+  resultsArea.classList.add("is-visible");
 
   const sizeMB = (pdfBlob.size / 1024 / 1024).toFixed(2);
   resultInfo.innerHTML = `
@@ -360,10 +360,10 @@ function resetImgConverter() {
   pageSize = "auto";
   orientation = "portrait";
 
-  optionsEl.style.display = "none";
-  previewArea.style.display = "none";
+  optionsEl.classList.remove("is-visible");
+  previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   previewGrid.innerHTML = "";
   resultInfo.innerHTML = "";
   setProgress(progressBar, progressLabel, 0, "");

@@ -36,6 +36,7 @@ const evaluateCode = `
   };
 
   const document = {
+    addEventListener: () => {},
     body: {
       appendChild: (el) => {
         bodyChildren.push(el);

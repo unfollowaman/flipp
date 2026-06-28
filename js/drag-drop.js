@@ -7,8 +7,8 @@ export function initDropZone(dropZoneEl, fileInputEl, onFiles) {
 
     // Check if either area is already visible before we process the files
     const wasVisible =
-      (optionsBar && window.getComputedStyle(optionsBar).display !== "none") ||
-      (previewArea && window.getComputedStyle(previewArea).display !== "none");
+      (optionsBar && optionsBar.classList.contains("is-visible")) ||
+      (previewArea && previewArea.classList.contains("is-visible"));
 
     onFiles(files);
 
@@ -18,7 +18,7 @@ export function initDropZone(dropZoneEl, fileInputEl, onFiles) {
         const target = [
           document.querySelector(".options-bar"),
           document.querySelector(".preview-area"),
-        ].find((el) => el && window.getComputedStyle(el).display !== "none");
+        ].find((el) => el && el.classList.contains("is-visible"));
         if (target) {
           target.scrollIntoView({ behavior: "smooth" });
         }

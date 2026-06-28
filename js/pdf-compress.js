@@ -54,7 +54,7 @@ initDropZone(dropZone, fileInput, (files) => {
   }
   selectedFile = file;
   dropZone.style.display = "none";
-  previewArea.style.display = "flex";
+  previewArea.classList.add("is-visible");
   infoText.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
 });
 
@@ -87,8 +87,8 @@ compressBtn.addEventListener("click", async () => {
   const mode = document.querySelector(
     'input[name="compressionMode"]:checked',
   ).value;
-  previewArea.style.display = "none";
-  progressContainer.style.display = "flex";
+  previewArea.classList.remove("is-visible");
+  progressContainer.classList.add("is-visible");
 
   try {
     const arrayBuffer = await selectedFile.arrayBuffer();
@@ -236,19 +236,19 @@ compressBtn.addEventListener("click", async () => {
 
     downloadsDiv.appendChild(createDownloadButton(blob, outName, outName));
 
-    progressContainer.style.display = "none";
-    resultsArea.style.display = "block";
+    progressContainer.classList.remove("is-visible");
+    resultsArea.classList.add("is-visible");
   } catch (error) {
     showToast("Failed to compress PDF.", "error");
-    progressContainer.style.display = "none";
-    previewArea.style.display = "flex";
+    progressContainer.classList.remove("is-visible");
+    previewArea.classList.add("is-visible");
   }
 });
 
 resetBtn.addEventListener("click", () => {
   selectedFile = null;
   document.getElementById("compress-file-input").value = "";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   dropZone.style.display = "block";
   downloadsDiv.innerHTML = "";
   statsSavings.textContent = "";
