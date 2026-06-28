@@ -781,16 +781,22 @@ textarea {
     transform 0.15s ease;
   position: relative;
 }
-.drop-zone:hover,
+.drop-zone:hover {
+  background: var(--yellow);
+  transform: scale(1.01);
+}
+
 .drop-zone.drag-over {
   background: var(--yellow);
   transform: scale(1.01);
+  animation: pulse-shadow 1.5s ease-in-out infinite alternate;
 }
 
 .dz-upload-icon {
   font-size: 48px;
   margin-bottom: 16px;
   display: block;
+  animation: float-icon 2.5s ease-in-out infinite alternate;
 }
 
 .dz-headline {
