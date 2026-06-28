@@ -16,6 +16,7 @@ src += `
   return {
     showToast,
     activatePill,
+    setProgress,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -55,10 +56,14 @@ const evaluateCode = `
         children: [],
         removed: false,
         appendChild: function(child) {
+          child.parentElement = this;
           this.children.push(child);
         },
         remove: function() {
           this.removed = true;
+          if (this.parentElement) {
+            this.parentElement.children = this.parentElement.children.filter(e => e !== this);
+          }
           if (bodyChildren.includes(this)) {
             bodyChildren = bodyChildren.filter(e => e !== this);
           }
@@ -77,7 +82,28 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, getDOMState, resetDOM } = new Function(evaluateCode)();
+
+test('setProgress', async (t) => {
+  await t.test('updates progress bar width and label text', () => {
+    const barEl = { style: { width: '' } };
+    const labelEl = { textContent: '' };
+
+    setProgress(barEl, labelEl, 45, 'Processing...');
+
+    assert.strictEqual(barEl.style.width, '45%');
+    assert.strictEqual(labelEl.textContent, 'Processing...');
+  });
+
+  await t.test('handles omitted label element gracefully', () => {
+    const barEl = { style: { width: '' } };
+
+    // Should not throw when labelEl is null
+    setProgress(barEl, null, 100, 'Done');
+
+    assert.strictEqual(barEl.style.width, '100%');
+  });
+});
 
 test('showToast', async (t) => {
   t.beforeEach(() => {
@@ -152,6 +178,7 @@ test('showToast', async (t) => {
     // Execute second timeout (remove)
     timeouts[1].cb();
     assert.strictEqual(toast.removed, true);
+    assert.strictEqual(container.children.length, 0);
   });
 });
 
