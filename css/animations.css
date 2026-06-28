@@ -204,3 +204,20 @@
     transform: none !important;
   }
 }
+
+/* Marquee Scroll Animation */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-pills-row {
+    animation: none !important;
+    transform: none !important;
+  }
+}

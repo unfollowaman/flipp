@@ -1386,11 +1386,22 @@ textarea {
   margin-bottom: 40px;
 }
 
+.trust-marquee-container {
+  overflow: hidden;
+  width: 100%;
+}
+
 .trust-pills-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
-  justify-content: center;
+  padding-right: 10px;
+  width: max-content;
+  animation: marquee-scroll 25s linear infinite;
+}
+
+.trust-marquee-container:hover .trust-pills-row {
+  animation-play-state: paused;
 }
 
 .trust-pill {
