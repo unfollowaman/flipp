@@ -1925,15 +1925,25 @@ textarea {
 }
 
 .tcs-faq-a {
-  display: none;
-  padding: 0 24px 20px;
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 24px 0;
+  opacity: 0;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease,
+    padding 0.3s ease,
+    border-top-color 0.3s ease;
   font-size: 14px;
   line-height: 1.75;
   color: #555;
-  border-top: 1px solid #eee;
+  border-top: 1px solid transparent;
 }
 .tcs-faq-item.open .tcs-faq-a {
-  display: block;
+  max-height: 500px;
+  opacity: 1;
+  padding: 0 24px 20px;
+  border-top-color: #eee;
 }
 
 /* Privacy callout */
