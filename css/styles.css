@@ -1676,6 +1676,11 @@ textarea {
   width: 32px;
   height: 32px;
   object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.tool-card:hover .tool-card-icon-wrapper img {
+  transform: scale(1.05) rotate(2deg);
 }
 
 .tool-card-content {
