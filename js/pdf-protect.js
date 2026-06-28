@@ -45,6 +45,61 @@ function validatePasswords() {
   return password;
 }
 
+async function renderPageToImage(pdf, pageNum) {
+  const page = await pdf.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 2 });
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas is unavailable");
+
+  canvas.width = Math.floor(viewport.width);
+  canvas.height = Math.floor(viewport.height);
+
+  await page.render({ canvasContext: ctx, viewport }).promise;
+
+  const orientation =
+    viewport.width >= viewport.height ? "landscape" : "portrait";
+  const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+  canvas.width = 0;
+  canvas.height = 0;
+
+  return { imgData, viewport, orientation };
+}
+
+function appendImageToPdf(doc, result, password, JsPDF) {
+  const { imgData, viewport, orientation } = result;
+
+  if (!doc) {
+    doc = new JsPDF({
+      orientation,
+      unit: "pt",
+      format: [viewport.width, viewport.height],
+      encryption: {
+        userPassword: password,
+        ownerPassword: password,
+        userPermissions: ["print"],
+      },
+    });
+  } else {
+    doc.addPage([viewport.width, viewport.height], orientation);
+  }
+
+  doc.addImage(
+    imgData,
+    "JPEG",
+    0,
+    0,
+    viewport.width,
+    viewport.height,
+    undefined,
+    "FAST",
+  );
+
+  return doc;
+}
+
 async function rasterizePdfToEncryptedPdf(file, password) {
   const pdfjsLib = getPdfJs();
   const JsPDF = getJsPdf();
@@ -62,63 +117,13 @@ async function rasterizePdfToEncryptedPdf(file, password) {
     const batchPromises = [];
 
     for (let j = 0; j < BATCH_SIZE && (i + j) <= pdf.numPages; j += 1) {
-      const pageNum = i + j;
-      const renderPromise = (async () => {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 2 });
-
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas is unavailable");
-
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
-
-        await page.render({ canvasContext: ctx, viewport }).promise;
-
-        const orientation =
-          viewport.width >= viewport.height ? "landscape" : "portrait";
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
-
-        canvas.width = 0;
-        canvas.height = 0;
-
-        return { imgData, viewport, orientation };
-      })();
-
-      batchPromises.push(renderPromise);
+      batchPromises.push(renderPageToImage(pdf, i + j));
     }
 
     const batchResults = await Promise.all(batchPromises);
 
     for (const result of batchResults) {
-      const { imgData, viewport, orientation } = result;
-
-      if (!doc) {
-        doc = new JsPDF({
-          orientation,
-          unit: "pt",
-          format: [viewport.width, viewport.height],
-          encryption: {
-            userPassword: password,
-            ownerPassword: password,
-            userPermissions: ["print"],
-          },
-        });
-      } else {
-        doc.addPage([viewport.width, viewport.height], orientation);
-      }
-
-      doc.addImage(
-        imgData,
-        "JPEG",
-        0,
-        0,
-        viewport.width,
-        viewport.height,
-        undefined,
-        "FAST",
-      );
+      doc = appendImageToPdf(doc, result, password, JsPDF);
     }
   }
 
