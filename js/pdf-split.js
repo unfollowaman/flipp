@@ -64,8 +64,8 @@ async function renderPagePreview(pageNum, container) {
 
 function resetSplitUIState(file) {
   pdfFile = file;
-  previewArea.style.display = "block";
-  resultsArea.style.display = "none";
+  previewArea.classList.add("is-visible");
+  resultsArea.classList.remove("is-visible");
   splitBlobs = [];
   downloadsEl.innerHTML = "";
   infoEl.textContent = `Selected: ${file.name} — loading page count…`;
@@ -193,8 +193,8 @@ splitBtn.addEventListener("click", async () => {
     blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
   });
 
-  previewArea.style.display = "none";
-  resultsArea.style.display = "block";
+  previewArea.classList.remove("is-visible");
+  resultsArea.classList.add("is-visible");
   downloadsEl.innerHTML = "";
   splitBlobs.forEach((entry) => {
     const btn = document.createElement("button");
@@ -220,8 +220,8 @@ resetBtn.addEventListener("click", () => {
   splitBlobs = [];
   totalPages = 0;
   pdfDocument = null;
-  previewArea.style.display = "none";
-  resultsArea.style.display = "none";
+  previewArea.classList.remove("is-visible");
+  resultsArea.classList.remove("is-visible");
   infoEl.textContent = "";
   downloadsEl.innerHTML = "";
   rangeStartEl.value = "";

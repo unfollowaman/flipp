@@ -201,8 +201,8 @@ async function handlePdfSelect(files) {
 
   fileInfo.textContent = file.name;
   dropZone.style.display = "none";
-  optionsBar.style.display = "block";
-  previewArea.style.display = "block";
+  optionsBar.classList.add("is-visible");
+  previewArea.classList.add("is-visible");
 
   const arrayBuffer = await file.arrayBuffer();
   pdfBytesOriginal = arrayBuffer;
@@ -536,8 +536,8 @@ downloadBtn.addEventListener("click", async () => {
     };
   });
 
-  optionsBar.style.display = "none";
-  previewArea.style.display = "none";
+  optionsBar.classList.remove("is-visible");
+  previewArea.classList.remove("is-visible");
   progressArea.style.display = "flex";
   setProgress(progressBar, progressLabel, 10, "Loading PDF...");
 
@@ -611,7 +611,7 @@ downloadBtn.addEventListener("click", async () => {
     setProgress(progressBar, progressLabel, 100, "Done!");
     setTimeout(() => {
       progressArea.style.display = "none";
-      resultsArea.style.display = "flex";
+      resultsArea.classList.add("is-visible");
 
       const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
@@ -632,8 +632,8 @@ downloadBtn.addEventListener("click", async () => {
     console.error(err);
     showToast("An error occurred while saving the PDF.", "error");
     progressArea.style.display = "none";
-    optionsBar.style.display = "block";
-    previewArea.style.display = "block";
+    optionsBar.classList.add("is-visible");
+    previewArea.classList.add("is-visible");
   }
 });
 
@@ -652,10 +652,10 @@ function resetTool() {
   updateTypePreview();
 
   dropZone.style.display = "flex";
-  optionsBar.style.display = "none";
-  previewArea.style.display = "none";
+  optionsBar.classList.remove("is-visible");
+  previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   fileInput.value = "";
 }
 

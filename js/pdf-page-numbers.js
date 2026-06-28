@@ -1,54 +1,57 @@
-import { initDropZone, showToast } from './drag-drop.js';
+import { initDropZone, showToast } from "./drag-drop.js";
 
-const dropZoneEl = document.getElementById('number-drop-zone');
-const fileInputEl = document.getElementById('number-file-input');
-const previewEl = document.getElementById('number-preview-area');
-const infoEl = document.getElementById('number-info');
-const addBtn = document.getElementById('number-btn');
-const resultsEl = document.getElementById('number-results');
-const downloadBtn = document.getElementById('number-download-btn');
-const resetBtn = document.getElementById('number-reset-btn');
-const startPageInput = document.getElementById('number-start-page');
-const positionEl = document.getElementById('number-page-position');
+const dropZoneEl = document.getElementById("number-drop-zone");
+const fileInputEl = document.getElementById("number-file-input");
+const previewEl = document.getElementById("number-preview-area");
+const infoEl = document.getElementById("number-info");
+const addBtn = document.getElementById("number-btn");
+const resultsEl = document.getElementById("number-results");
+const downloadBtn = document.getElementById("number-download-btn");
+const resetBtn = document.getElementById("number-reset-btn");
+const startPageInput = document.getElementById("number-start-page");
+const positionEl = document.getElementById("number-page-position");
 
 let sourceFile = null;
 let outputBytes = null;
-let position = 'bottom-right';
+let position = "bottom-right";
 
 function onFiles(files) {
   const file = files[0];
-  if (!file || (!file.type.includes('pdf') && !/\.pdf$/i.test(file.name))) {
-    showToast('Please choose a PDF file.', 'error');
+  if (!file || (!file.type.includes("pdf") && !/\.pdf$/i.test(file.name))) {
+    showToast("Please choose a PDF file.", "error");
     return;
   }
   sourceFile = file;
-  previewEl.style.display = 'block';
-  resultsEl.style.display = 'none';
+  previewEl.classList.add("is-visible");
+  resultsEl.classList.remove("is-visible");
   infoEl.textContent = `Selected: ${file.name}`;
 }
 
-positionEl.addEventListener('click', (e) => {
-  const card = e.target.closest('.position-card');
+positionEl.addEventListener("click", (e) => {
+  const card = e.target.closest(".position-card");
   if (!card) return;
   position = card.dataset.value;
-  positionEl.querySelectorAll('.position-card').forEach((b) => b.classList.toggle('active', b.dataset.value === position));
+  positionEl
+    .querySelectorAll(".position-card")
+    .forEach((b) => b.classList.toggle("active", b.dataset.value === position));
 });
 
-addBtn.addEventListener('click', async () => {
+addBtn.addEventListener("click", async () => {
   if (!sourceFile) return;
   try {
     const pdfLib = window.PDFLib;
-    if (!pdfLib) throw new Error('PDF-lib is not ready');
-    if (!window.fontkit) throw new Error('fontkit is not ready');
+    if (!pdfLib) throw new Error("PDF-lib is not ready");
+    if (!window.fontkit) throw new Error("fontkit is not ready");
 
     const bytes = await sourceFile.arrayBuffer();
     const pdfDoc = await pdfLib.PDFDocument.load(bytes);
     pdfDoc.registerFontkit(window.fontkit);
 
     // Fetch IBM Plex Serif font (.woff format since pdf-lib does not support woff2 out of the box)
-    const fontUrl = 'https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff';
+    const fontUrl =
+      "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff";
     const fontResponse = await fetch(fontUrl);
-    if (!fontResponse.ok) throw new Error('Could not load font');
+    if (!fontResponse.ok) throw new Error("Could not load font");
     const fontBytes = await fontResponse.arrayBuffer();
     const font = await pdfDoc.embedFont(fontBytes);
 
@@ -76,48 +79,60 @@ addBtn.addEventListener('click', async () => {
 
       let x = width - margin - textWidth;
       let y = margin;
-      if (position === 'top-right') {
+      if (position === "top-right") {
         x = width - margin - textWidth;
         y = height - margin - fontSize;
-      } else if (position === 'bottom-center') {
+      } else if (position === "bottom-center") {
         x = (width - textWidth) / 2;
         y = margin;
       }
 
-      page.drawText(text, { x, y, size: fontSize, font, color: pdfLib.rgb(0.25, 0.25, 0.25) });
+      page.drawText(text, {
+        x,
+        y,
+        size: fontSize,
+        font,
+        color: pdfLib.rgb(0.25, 0.25, 0.25),
+      });
     }
 
     outputBytes = await pdfDoc.save();
-    previewEl.style.display = 'none';
-    resultsEl.style.display = 'block';
-    showToast('✓ Page numbers added!');
+    previewEl.classList.remove("is-visible");
+    resultsEl.classList.add("is-visible");
+    showToast("✓ Page numbers added!");
   } catch (err) {
     console.error(err);
-    showToast('Could not add page numbers. Please try another PDF.', 'error');
+    showToast("Could not add page numbers. Please try another PDF.", "error");
   }
 });
 
-downloadBtn.addEventListener('click', () => {
+downloadBtn.addEventListener("click", () => {
   if (!outputBytes) return;
-  const blob = new Blob([outputBytes], { type: 'application/pdf' });
+  const blob = new Blob([outputBytes], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  const baseName = sourceFile?.name ? sourceFile.name.replace(/\.pdf$/i, '').replace(/[\/\\]/g, '_') : 'document';
-  a.download = baseName + '-numbered.pdf';
+  const baseName = sourceFile?.name
+    ? sourceFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_")
+    : "document";
+  a.download = baseName + "-numbered.pdf";
   a.click();
   URL.revokeObjectURL(url);
 });
 
-resetBtn.addEventListener('click', () => {
+resetBtn.addEventListener("click", () => {
   sourceFile = null;
   outputBytes = null;
-  position = 'bottom-right';
-  startPageInput.value = '1';
-  previewEl.style.display = 'none';
-  resultsEl.style.display = 'none';
-  infoEl.textContent = '';
-  positionEl.querySelectorAll('.position-card').forEach((b) => b.classList.toggle('active', b.dataset.value === 'bottom-right'));
+  position = "bottom-right";
+  startPageInput.value = "1";
+  previewEl.classList.remove("is-visible");
+  resultsEl.classList.remove("is-visible");
+  infoEl.textContent = "";
+  positionEl
+    .querySelectorAll(".position-card")
+    .forEach((b) =>
+      b.classList.toggle("active", b.dataset.value === "bottom-right"),
+    );
 });
 
 initDropZone(dropZoneEl, fileInputEl, onFiles);

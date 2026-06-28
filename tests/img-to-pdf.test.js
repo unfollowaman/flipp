@@ -22,7 +22,14 @@ test('img-to-pdf error handling', async (t) => {
       id,
       value: '',
       style: { display: '' },
-      classList: { add: () => {}, remove: () => {}, contains: () => false },
+      classList: (() => {
+        let classes = [];
+        return {
+          add: (c) => { if(!classes.includes(c)) classes.push(c); },
+          remove: (c) => { classes = classes.filter(x => x !== c); },
+          contains: (c) => classes.includes(c)
+        };
+      })(),
       appendChild: () => {},
       innerHTML: '',
       textContent: '',
@@ -96,7 +103,7 @@ test('img-to-pdf error handling', async (t) => {
     };
 
     // set initial states that we can verify weren't changed
-    elements['img-preview-area'].style.display = 'initial-preview';
+    elements['img-preview-area'].classList.add("is-visible");
     elements['img-options'].style.display = 'initial-options';
     elements['img-progress'].style.display = 'initial-progress';
     elements['img-results'].style.display = 'initial-results';
@@ -131,7 +138,7 @@ test('img-to-pdf error handling', async (t) => {
 
     // Assert that the styles were NOT modified, because imageFiles is empty
     // and it should have returned early.
-    assert.strictEqual(elements['img-preview-area'].style.display, 'initial-preview');
+    assert.strictEqual(elements['img-preview-area'].classList.contains("is-visible"), true);
     assert.strictEqual(elements['img-options'].style.display, 'initial-options');
     assert.strictEqual(elements['img-progress'].style.display, 'initial-progress');
     assert.strictEqual(elements['img-results'].style.display, 'initial-results');

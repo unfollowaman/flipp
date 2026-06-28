@@ -874,11 +874,14 @@ textarea {
   cursor: pointer;
   transition:
     background 0.1s ease,
-    transform 0.1s ease,
+    transform 0.15s ease-out,
     box-shadow 0.1s ease;
 }
 .opt-pill:hover {
   background: var(--cream);
+}
+.opt-pill:active {
+  transform: scale(1.05);
 }
 .opt-pill.active {
   background: var(--black);
@@ -2285,4 +2288,39 @@ textarea {
   .ambient-scene * {
     animation: none !important;
   }
+}
+
+/* Smooth Expansion for Dynamic UI Sections */
+.options-bar,
+.preview-area,
+.results-area {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  pointer-events: none;
+  transition:
+    max-height 0.35s cubic-bezier(0.2, 0, 0, 1),
+    opacity 0.25s ease-out,
+    margin 0.3s ease-out,
+    padding 0.3s ease-out,
+    border-width 0.3s ease-out;
+}
+
+.options-bar.is-visible,
+.preview-area.is-visible,
+.results-area.is-visible {
+  max-height: 2000px;
+  opacity: 1;
+  margin-top: 24px;
+  pointer-events: auto;
+}
+
+.options-bar.is-visible {
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-width: 2px;
 }

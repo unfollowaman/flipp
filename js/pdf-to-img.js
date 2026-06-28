@@ -128,10 +128,10 @@ async function loadPDF(file) {
 // ── Show thumbnails preview ─────────────────────────────
 async function showPreview(filename) {
   // Show options + preview area
-  optionsEl.style.display = "flex";
-  previewArea.style.display = "block";
+  optionsEl.classList.add("is-visible");
+  previewArea.classList.add("is-visible");
   progressArea.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   previewGrid.innerHTML = "";
 
   pageCountEl.textContent = `${totalPages} page${totalPages !== 1 ? "s" : ""} — "${filename}"`;
@@ -143,7 +143,14 @@ async function showPreview(filename) {
   const renderPromises = [];
   for (let i = 1; i <= thumbPages; i++) {
     renderPromises.push(
-      pdfDoc.getPage(i).then(page => renderPageToCanvas(page, 0.3).then(res => ({ i, canvas: res.canvas })))
+      pdfDoc
+        .getPage(i)
+        .then((page) =>
+          renderPageToCanvas(page, 0.3).then((res) => ({
+            i,
+            canvas: res.canvas,
+          })),
+        ),
     );
   }
 
@@ -186,10 +193,10 @@ convertBtn.addEventListener("click", async () => {
   }
 
   // Show progress
-  previewArea.style.display = "none";
-  optionsEl.style.display = "none";
+  previewArea.classList.remove("is-visible");
+  optionsEl.classList.remove("is-visible");
   progressArea.style.display = "block";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   setProgress(progressBar, progressLabel, 0, `Preparing…`);
 
   renderedPages = [];
@@ -240,7 +247,7 @@ convertBtn.addEventListener("click", async () => {
 // ── Show results ────────────────────────────────────────
 function showResults() {
   progressArea.style.display = "none";
-  resultsArea.style.display = "block";
+  resultsArea.classList.add("is-visible");
   resultsGrid.innerHTML = "";
 
   const fragment = document.createDocumentFragment();
@@ -327,10 +334,10 @@ function resetPdfConverter() {
   scale = 1;
   pageMode = "all";
 
-  optionsEl.style.display = "none";
-  previewArea.style.display = "none";
+  optionsEl.classList.remove("is-visible");
+  previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   previewGrid.innerHTML = "";
   resultsGrid.innerHTML = "";
   rangeGroup.style.display = "none";

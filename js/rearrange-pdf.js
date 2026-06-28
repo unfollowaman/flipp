@@ -149,8 +149,8 @@ async function renderThumbnails(numPages) {
 async function loadPdfAndRenderThumbnails() {
   dropZoneEl.style.display = "none";
   progressArea.style.display = "block";
-  previewArea.style.display = "none";
-  resultsArea.style.display = "none";
+  previewArea.classList.remove("is-visible");
+  resultsArea.classList.remove("is-visible");
 
   setProgress(progressBar, progressLabel, 0, "Loading PDF...");
 
@@ -159,7 +159,7 @@ async function loadPdfAndRenderThumbnails() {
     await renderThumbnails(numPages);
 
     progressArea.style.display = "none";
-    previewArea.style.display = "block";
+    previewArea.classList.add("is-visible");
   } catch (error) {
     showToast("Error loading PDF.", "error");
     resetRearrange();
@@ -189,7 +189,7 @@ rearrangeBtn.addEventListener("click", async () => {
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");
 
-  previewArea.style.display = "none";
+  previewArea.classList.remove("is-visible");
   progressArea.style.display = "block";
   setProgress(progressBar, progressLabel, 0, "Generating rearranged PDF...");
 
@@ -205,7 +205,7 @@ rearrangeBtn.addEventListener("click", async () => {
     rearrangedBlob = new Blob([bytes], { type: "application/pdf" });
 
     progressArea.style.display = "none";
-    resultsArea.style.display = "block";
+    resultsArea.classList.add("is-visible");
     showToast("PDF rearranged successfully!");
   } catch (err) {
     showToast("Failed to rearrange PDF.", "error");
@@ -240,8 +240,8 @@ function resetRearrange() {
   pdfDocument = null;
 
   dropZoneEl.style.display = "block";
-  previewArea.style.display = "none";
-  resultsArea.style.display = "none";
+  previewArea.classList.remove("is-visible");
+  resultsArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   previewGrid.innerHTML = "";
   countEl.textContent = "";

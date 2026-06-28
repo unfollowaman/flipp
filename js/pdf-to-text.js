@@ -26,7 +26,7 @@ resetBtn.addEventListener("click", () => {
   currentText = "";
   textOutput.value = "";
   ocrNotice.style.display = "none";
-  resultsArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   dropZone.style.display = "block";
   fileInput.value = "";
@@ -74,7 +74,7 @@ async function handleFile(file) {
   textOutput.value = "";
   dropZone.style.display = "none";
   progressArea.style.display = "block";
-  resultsArea.style.display = "flex";
+  resultsArea.classList.add("is-visible");
   resultsArea.style.flexDirection = "column";
   ocrNotice.style.display = "none";
   setProgress(progressBar, progressLabel, 0, "Analyzing PDF...");
@@ -164,7 +164,7 @@ async function handleFile(file) {
       }
     }
     progressArea.style.display = "none";
-    resultsArea.style.display = "none";
+    resultsArea.classList.remove("is-visible");
     dropZone.style.display = "block";
   }
 }
