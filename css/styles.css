@@ -172,7 +172,7 @@ textarea {
    ============================== */
 .hero {
   background: var(--cream);
-  padding: 80px 32px 0;
+  padding: 28.74px 32px 0;
   border-bottom: var(--border-std);
 }
 
@@ -182,7 +182,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 40px;
-  padding-bottom: 80px;
+  padding-bottom: 13.734px;
 }
 
 .hero-content-top {
@@ -1565,6 +1565,9 @@ textarea {
 }
 
 @media (max-width: 767px) {
+  .hero-inner {
+    padding-bottom: 10px;
+  }
   .steps-row {
     flex-direction: column;
     gap: 16px;
@@ -1582,7 +1585,7 @@ textarea {
     padding: 0 16px;
   }
   .hero {
-    padding: 48px 16px 0;
+    padding: 35px 16px 0;
   }
   .hero-badge {
     font-size: 10px;
