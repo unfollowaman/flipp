@@ -2355,3 +2355,12 @@ textarea {
   padding-bottom: 24px;
   border-width: 2px;
 }
+
+@media (min-width: 768px) {
+  .steps-row {
+    align-items: stretch;
+  }
+  .step-card {
+    aspect-ratio: auto;
+  }
+}
