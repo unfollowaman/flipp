@@ -86,6 +86,50 @@ function showPreview() {
   renderPreviewGrid();
 }
 
+function createImageCard(entry, idx) {
+  const card = document.createElement("div");
+  card.className = "img-thumb-card";
+  card.draggable = true;
+  card.dataset.idx = idx;
+
+  const num = document.createElement("div");
+  num.className = "img-thumb-num";
+  num.textContent = idx + 1;
+  card.appendChild(num);
+
+  const img = document.createElement("img");
+  img.src = entry.objectUrl;
+  img.loading = "lazy";
+  img.alt = entry.name;
+  card.appendChild(img);
+
+  const lbl = document.createElement("div");
+  lbl.className = "img-thumb-label";
+  lbl.textContent = entry.name;
+  card.appendChild(lbl);
+
+  const rmBtn = document.createElement("button");
+  rmBtn.className = "img-thumb-remove";
+  rmBtn.textContent = "×";
+  rmBtn.title = `Remove ${entry.name}`;
+  rmBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    URL.revokeObjectURL(entry.objectUrl);
+    imageFiles.splice(idx, 1);
+    if (imageFiles.length === 0) {
+      resetImgConverter();
+    } else {
+      renderPreviewGrid();
+    }
+  });
+  card.appendChild(rmBtn);
+
+  // Drag to reorder
+  setupDragReorder(card, updateImageOrder);
+
+  return card;
+}
+
 function renderPreviewGrid() {
   previewGrid.innerHTML = "";
   fileCountEl.textContent = `${imageFiles.length} image${imageFiles.length !== 1 ? "s" : ""} selected`;
@@ -93,46 +137,7 @@ function renderPreviewGrid() {
   const fragment = document.createDocumentFragment();
 
   imageFiles.forEach((entry, idx) => {
-    const card = document.createElement("div");
-    card.className = "img-thumb-card";
-    card.draggable = true;
-    card.dataset.idx = idx;
-
-    const num = document.createElement("div");
-    num.className = "img-thumb-num";
-    num.textContent = idx + 1;
-    card.appendChild(num);
-
-    const img = document.createElement("img");
-    img.src = entry.objectUrl;
-    img.loading = "lazy";
-    img.alt = entry.name;
-    card.appendChild(img);
-
-    const lbl = document.createElement("div");
-    lbl.className = "img-thumb-label";
-    lbl.textContent = entry.name;
-    card.appendChild(lbl);
-
-    const rmBtn = document.createElement("button");
-    rmBtn.className = "img-thumb-remove";
-    rmBtn.textContent = "×";
-    rmBtn.title = `Remove ${entry.name}`;
-    rmBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      URL.revokeObjectURL(entry.objectUrl);
-      imageFiles.splice(idx, 1);
-      if (imageFiles.length === 0) {
-        resetImgConverter();
-      } else {
-        renderPreviewGrid();
-      }
-    });
-    card.appendChild(rmBtn);
-
-    // Drag to reorder
-    setupDragReorder(card, updateImageOrder);
-
+    const card = createImageCard(entry, idx);
     fragment.appendChild(card);
   });
 
