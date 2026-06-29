@@ -12,19 +12,35 @@ src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 src = src.replace(/export\s+function/g, 'function');
 
 // To extract formatBytes function we can append a return statement
-src += '\nreturn { formatBytes };\n';
+src += '\nreturn { formatBytes, createDownloadButton, updateProgress };\n';
+
+const elementMap = {};
 
 const mockDocument = {
-  getElementById: () => ({
-    addEventListener: () => {},
-    style: {},
-    classList: { add: () => {}, remove: () => {} },
-    appendChild: () => {},
-    value: '',
-    textContent: ''
-  }),
+  getElementById: (id) => {
+    if (!elementMap[id]) {
+      elementMap[id] = {
+        addEventListener: () => {},
+        style: {},
+        classList: { add: () => {}, remove: () => {} },
+        appendChild: () => {},
+        value: '',
+        textContent: ''
+      };
+    }
+    return elementMap[id];
+  },
   getElementsByName: () => [{ addEventListener: () => {} }],
-  querySelector: () => ({ value: '' })
+  querySelector: () => ({ value: '' }),
+  createElement: (tagName) => ({
+    tagName,
+    style: {},
+    appendChild: function(child) {
+      if (!this.children) this.children = [];
+      this.children.push(child);
+    }
+  }),
+  createTextNode: (text) => ({ textNode: true, textContent: text })
 };
 
 const mockWindow = {};
@@ -33,14 +49,14 @@ const mockShowToast = () => {};
 
 const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', src);
 
-// Evaluate and get formatBytes
-const { formatBytes } = wrapper(
+// Evaluate and get functions
+const { formatBytes, createDownloadButton, updateProgress } = wrapper(
   mockDocument,
   mockWindow,
   mockInitDropZone,
   mockShowToast,
   class Blob {},
-  { createObjectURL: () => '', revokeObjectURL: () => '' }
+  { createObjectURL: () => 'blob:mock-url', revokeObjectURL: () => '' }
 );
 
 test('formatBytes function', async (t) => {
@@ -79,5 +95,46 @@ test('formatBytes function', async (t) => {
 
   await t.test('handles negative decimals as 0', () => {
     assert.strictEqual(formatBytes(1536, -1), '2 KB');
+  });
+});
+
+test('createDownloadButton function', async (t) => {
+  await t.test('creates download button with correct properties', () => {
+    const mockBlob = new Blob(['mock content']);
+    const filename = 'test-file.pdf';
+    const label = 'test-file.pdf';
+
+    const btn = createDownloadButton(mockBlob, filename, label);
+
+    assert.strictEqual(btn.tagName, 'a');
+    assert.strictEqual(btn.href, 'blob:mock-url');
+    assert.strictEqual(btn.download, filename);
+    assert.strictEqual(btn.className, 'cta-btn cta-mint');
+
+    assert.strictEqual(btn.children.length, 2);
+
+    const icon = btn.children[0];
+    assert.strictEqual(icon.tagName, 'img');
+    assert.strictEqual(icon.src, '/assets/icons/download--v2.png');
+    assert.strictEqual(icon.alt, 'download');
+    assert.strictEqual(icon.width, 16);
+    assert.strictEqual(icon.height, 16);
+    assert.strictEqual(icon.style.verticalAlign, 'middle');
+    assert.strictEqual(icon.style.marginRight, '4px');
+
+    const textNode = btn.children[1];
+    assert.strictEqual(textNode.textNode, true);
+    assert.strictEqual(textNode.textContent, ' Download test-file.pdf');
+  });
+});
+
+test('updateProgress function', async (t) => {
+  await t.test('updates the text content of progressText', () => {
+    const progressTextElement = elementMap['compress-progress-text'];
+    progressTextElement.textContent = ''; // Reset before test
+
+    updateProgress('Compressing...');
+
+    assert.strictEqual(progressTextElement.textContent, 'Compressing...');
   });
 });
