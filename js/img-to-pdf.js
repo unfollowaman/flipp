@@ -196,12 +196,17 @@ function fileToDataUrl(file) {
 }
 
 // ── Core PDF Generation Logic ───────────────────────────
-async function generatePdfFromImages(files, options, onProgress) {
-  const { pageSize, orientation } = options;
-  onProgress(0, "Loading jsPDF…");
+async function loadImagesForPdf(files) {
+  return Promise.all(
+    files.map(async (entry) => {
+      const dataUrl = await fileToDataUrl(entry.file);
+      const { w: imgW, h: imgH } = await getImageDimensions(dataUrl);
+      return { entry, dataUrl, imgW, imgH };
+    }),
+  );
+}
 
-  const jsPDF = await waitForJsPDF();
-
+function calculatePageDimensions(imgW, imgH, pageSize, orientation) {
   // Page dimensions in mm (jsPDF uses mm)
   // a4: 210×297, letter: 215.9×279.4
   const pageSizes = {
@@ -209,17 +214,48 @@ async function generatePdfFromImages(files, options, onProgress) {
     letter: [215.9, 279.4],
   };
 
+  let docW, docH;
+  if (pageSize === "auto") {
+    // Convert pixels to mm (assume 96dpi: 1px = 0.264583mm)
+    docW = imgW * 0.264583;
+    docH = imgH * 0.264583;
+  } else {
+    [docW, docH] = pageSizes[pageSize];
+    if (orientation === "landscape") [docW, docH] = [docH, docW];
+  }
+  return { docW, docH };
+}
+
+function calculateImageDrawDimensions(imgW, imgH, docW, docH, pageSize) {
+  let imgX = 0,
+    imgY = 0,
+    drawW = docW,
+    drawH = docH;
+
+  if (pageSize !== "auto") {
+    const margin = 10; // mm
+    const usableW = docW - margin * 2;
+    const usableH = docH - margin * 2;
+    const ratio = Math.min(usableW / imgW, usableH / imgH);
+    drawW = imgW * ratio;
+    drawH = imgH * ratio;
+    imgX = margin + (usableW - drawW) / 2;
+    imgY = margin + (usableH - drawH) / 2;
+  }
+  return { imgX, imgY, drawW, drawH };
+}
+
+async function generatePdfFromImages(files, options, onProgress) {
+  const { pageSize, orientation } = options;
+  onProgress(0, "Loading jsPDF…");
+
+  const jsPDF = await waitForJsPDF();
+
   let pdf = null;
   let totalPagesAdded = 0;
 
   onProgress(0, "Preparing images…");
-  const loadedImages = await Promise.all(
-    files.map(async (entry) => {
-      const dataUrl = await fileToDataUrl(entry.file);
-      const { w: imgW, h: imgH } = await getImageDimensions(dataUrl);
-      return { entry, dataUrl, imgW, imgH };
-    }),
-  );
+  const loadedImages = await loadImagesForPdf(files);
 
   for (let i = 0; i < loadedImages.length; i++) {
     const { entry, dataUrl, imgW, imgH } = loadedImages[i];
@@ -231,15 +267,12 @@ async function generatePdfFromImages(files, options, onProgress) {
     // Determine format string for jsPDF
     const imgFormat = entry.file.type === "image/png" ? "PNG" : "JPEG";
 
-    let docW, docH;
-    if (pageSize === "auto") {
-      // Convert pixels to mm (assume 96dpi: 1px = 0.264583mm)
-      docW = imgW * 0.264583;
-      docH = imgH * 0.264583;
-    } else {
-      [docW, docH] = pageSizes[pageSize];
-      if (orientation === "landscape") [docW, docH] = [docH, docW];
-    }
+    const { docW, docH } = calculatePageDimensions(
+      imgW,
+      imgH,
+      pageSize,
+      orientation,
+    );
 
     if (!pdf) {
       pdf = new jsPDF({
@@ -254,22 +287,13 @@ async function generatePdfFromImages(files, options, onProgress) {
       );
     }
 
-    // Fit image to page with margins if using standard page size
-    let imgX = 0,
-      imgY = 0,
-      drawW = docW,
-      drawH = docH;
-
-    if (pageSize !== "auto") {
-      const margin = 10; // mm
-      const usableW = docW - margin * 2;
-      const usableH = docH - margin * 2;
-      const ratio = Math.min(usableW / imgW, usableH / imgH);
-      drawW = imgW * ratio;
-      drawH = imgH * ratio;
-      imgX = margin + (usableW - drawW) / 2;
-      imgY = margin + (usableH - drawH) / 2;
-    }
+    const { imgX, imgY, drawW, drawH } = calculateImageDrawDimensions(
+      imgW,
+      imgH,
+      docW,
+      docH,
+      pageSize,
+    );
 
     pdf.addImage(
       dataUrl,
