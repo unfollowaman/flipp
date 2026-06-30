@@ -17,6 +17,7 @@ src += `
     showToast,
     activatePill,
     setProgress,
+    initDropZone,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -83,7 +84,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -296,5 +297,135 @@ test('activatePill', async (t) => {
     // Should not throw
     activatePill(group, 'a');
     assert.ok(true);
+  });
+});
+
+
+test('initDropZone', async (t) => {
+  const createMockElement = (classes = []) => {
+    const listeners = {};
+    const classSet = new Set(classes);
+    return {
+      listeners,
+      addEventListener: (evt, cb) => {
+        if (!listeners[evt]) listeners[evt] = [];
+        listeners[evt].push(cb);
+      },
+      dispatchEvent: (evtName, eObj = {}) => {
+        if (listeners[evtName]) {
+          listeners[evtName].forEach(cb => cb(eObj));
+        }
+      },
+      classList: {
+        contains: (cls) => classSet.has(cls),
+        add: (cls) => classSet.add(cls),
+        remove: (cls) => classSet.delete(cls)
+      },
+      contains: () => false,
+      style: { display: 'none' },
+      click: function() { this.clicked = true; },
+      value: '',
+      clicked: false,
+      className: classes.join(' ')
+    };
+  };
+
+  await t.test('click on drop zone triggers file input click', () => {
+    const dropZone = createMockElement();
+    const fileInput = createMockElement();
+    let onFilesCalled = false;
+
+    initDropZone(dropZone, fileInput, () => { onFilesCalled = true; });
+
+    dropZone.dispatchEvent('click', { target: { classList: { contains: () => false } } });
+
+    assert.strictEqual(fileInput.clicked, true);
+    assert.strictEqual(onFilesCalled, false);
+  });
+
+  await t.test('click on drop zone ignores clicks on .dz-browse-btn', () => {
+    const dropZone = createMockElement();
+    const fileInput = createMockElement();
+
+    initDropZone(dropZone, fileInput, () => {});
+
+    dropZone.dispatchEvent('click', { target: { classList: { contains: (cls) => cls === 'dz-browse-btn' } } });
+
+    assert.strictEqual(fileInput.clicked, false);
+  });
+
+  await t.test('file input change triggers onFiles and resets value', () => {
+    const dropZone = createMockElement();
+    const fileInput = createMockElement();
+
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    fileInput.dispatchEvent('change', {
+      target: {
+        files: ['file1.txt', 'file2.txt'],
+        value: 'non-empty'
+      }
+    });
+
+    assert.deepStrictEqual(receivedFiles, ['file1.txt', 'file2.txt']);
+    assert.strictEqual(fileInput.value, '');
+  });
+
+  await t.test('dragover adds .drag-over class and prevents default', () => {
+    const dropZone = createMockElement();
+    const fileInput = createMockElement();
+    let preventDefaultCalled = false;
+
+    initDropZone(dropZone, fileInput, () => {});
+
+    dropZone.dispatchEvent('dragover', {
+      preventDefault: () => { preventDefaultCalled = true; }
+    });
+
+    assert.strictEqual(preventDefaultCalled, true);
+    assert.strictEqual(dropZone.classList.contains('drag-over'), true);
+  });
+
+  await t.test('dragleave removes .drag-over class', () => {
+    const dropZone = createMockElement(['drag-over']);
+    const fileInput = createMockElement();
+
+    initDropZone(dropZone, fileInput, () => {});
+
+    dropZone.dispatchEvent('dragleave', { relatedTarget: null });
+
+    assert.strictEqual(dropZone.classList.contains('drag-over'), false);
+  });
+
+  await t.test('drop removes .drag-over class, prevents default, and calls onFiles', () => {
+    const dropZone = createMockElement(['drag-over']);
+    const fileInput = createMockElement();
+    let preventDefaultCalled = false;
+    let receivedFiles = null;
+
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const mockFiles = Object.assign([{name: 'file3.pdf'}], {
+      [Symbol.iterator]: function() {
+        let i = 0;
+        return {
+          next: () => {
+            const res = { value: this[i], done: i >= this.length };
+            i++;
+            return res;
+          }
+        };
+      }
+    });
+
+    dropZone.dispatchEvent('drop', {
+      preventDefault: () => { preventDefaultCalled = true; },
+      dataTransfer: { files: mockFiles }
+    });
+
+    assert.strictEqual(preventDefaultCalled, true);
+    assert.strictEqual(dropZone.classList.contains('drag-over'), false);
+    assert.deepStrictEqual(receivedFiles, [{name: 'file3.pdf'}]);
   });
 });
