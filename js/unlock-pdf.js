@@ -20,7 +20,7 @@ const resetBtn = document.getElementById("unlock-reset-btn");
 let pdfDocToSave = null;
 let needsPassword = false;
 
-initDropZone("unlock-drop-zone", "unlock-file-input", async (files) => {
+initDropZone(dropZoneEl, document.getElementById("unlock-file-input"), async (files) => {
   const file = files[0];
   if (!file) return;
 
