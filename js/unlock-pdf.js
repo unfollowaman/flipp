@@ -20,57 +20,88 @@ const resetBtn = document.getElementById("unlock-reset-btn");
 let pdfDocToSave = null;
 let needsPassword = false;
 
-initDropZone(dropZoneEl, document.getElementById("unlock-file-input"), async (files) => {
-  const file = files[0];
-  if (!file) return;
+initDropZone(
+  dropZoneEl,
+  document.getElementById("unlock-file-input"),
+  async (files) => {
+    const file = files[0];
+    if (!file) return;
 
-  if (
-    file.type !== "application/pdf" &&
-    !file.name.toLowerCase().endsWith(".pdf")
-  ) {
-    showToast("Please select a PDF file.");
-    return;
-  }
+    if (
+      file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf")
+    ) {
+      showToast("Please select a PDF file.");
+      return;
+    }
 
-  currentFileName = file.name;
+    currentFileName = file.name;
 
-  try {
-    currentFileBytes = await file.arrayBuffer();
-
-    // First, attempt to load the document without a password
     try {
-      pdfDocToSave = await PDFDocument.load(currentFileBytes);
-      needsPassword = false;
+      currentFileBytes = await file.arrayBuffer();
 
-      dropZoneEl.style.display = "none";
-      previewAreaEl.classList.add("is-visible");
-      infoEl.textContent = `Ready to unlock: ${currentFileName}`;
-      passwordGroupEl.style.display = "none";
-      errorMsgEl.style.display = "none";
-    } catch (e) {
-      const errorMsg = String(e).toLowerCase();
-      if (errorMsg.includes("password") || errorMsg.includes("encrypted")) {
-        // Document requires a user password
-        needsPassword = true;
-        pdfDocToSave = null;
+      // First, attempt to load the document with ignoreEncryption
+      // to check if it's protected by ANY password (owner or open)
+      try {
+        const tempDoc = await PDFDocument.load(currentFileBytes, {
+          ignoreEncryption: true,
+        });
 
-        dropZoneEl.style.display = "none";
-        previewAreaEl.classList.add("is-visible");
-        infoEl.textContent = `Ready to unlock: ${currentFileName}`;
-        passwordGroupEl.style.display = "block";
-        errorMsgEl.style.display = "none";
-        passwordInput.value = "";
-        passwordInput.focus();
-      } else {
+        if (!tempDoc.isEncrypted) {
+          // PDF is completely unprotected
+          showToast("This PDF is not password protected.", "error");
+          currentFileBytes = null;
+          currentFileName = "";
+          return;
+        }
+
+        // It IS encrypted. Let's see if it requires an open password.
+        // We try to load it WITHOUT ignoreEncryption and WITHOUT a password.
+        // If it throws an EncryptedPDFError, it needs an open password.
+        let requiresOpenPassword = false;
+        try {
+          await PDFDocument.load(currentFileBytes);
+        } catch (err) {
+          const errorMsg = String(err).toLowerCase();
+          if (errorMsg.includes("password") || errorMsg.includes("encrypted")) {
+            requiresOpenPassword = true;
+          } else {
+            throw err;
+          }
+        }
+
+        if (requiresOpenPassword) {
+          needsPassword = true;
+          pdfDocToSave = null;
+
+          dropZoneEl.style.display = "none";
+          previewAreaEl.classList.add("is-visible");
+          infoEl.textContent = `Ready to unlock: ${currentFileName}`;
+          passwordGroupEl.style.display = "block";
+          errorMsgEl.style.display = "none";
+          passwordInput.value = "";
+          passwordInput.focus();
+        } else {
+          // It has owner restrictions only (which are bypassed by ignoreEncryption)
+          needsPassword = false;
+          pdfDocToSave = tempDoc;
+
+          dropZoneEl.style.display = "none";
+          previewAreaEl.classList.add("is-visible");
+          infoEl.textContent = `Ready to unlock: ${currentFileName}`;
+          passwordGroupEl.style.display = "none";
+          errorMsgEl.style.display = "none";
+        }
+      } catch (e) {
         // Some other loading error (e.g., corrupt PDF)
         throw e;
       }
+    } catch (err) {
+      console.error("Error loading PDF:", err);
+      showToast("Failed to read PDF. It might be corrupted.");
     }
-  } catch (err) {
-    console.error("Error loading PDF:", err);
-    showToast("Failed to read PDF. It might be corrupted.");
-  }
-});
+  },
+);
 
 unlockBtn.addEventListener("click", async () => {
   if (!currentFileBytes) return;
@@ -83,7 +114,10 @@ unlockBtn.addEventListener("click", async () => {
     if (needsPassword) {
       const password = passwordInput.value;
       try {
-        pdfDocToSave = await PDFDocument.load(currentFileBytes, { password });
+        pdfDocToSave = await PDFDocument.load(currentFileBytes, {
+          password,
+          ignoreEncryption: true,
+        });
       } catch (e) {
         const errorMsg = String(e).toLowerCase();
         if (errorMsg.includes("password") || errorMsg.includes("encrypted")) {
@@ -98,8 +132,17 @@ unlockBtn.addEventListener("click", async () => {
       }
     }
 
-    // At this point, we have a successfully loaded pdfDocToSave
-    const unlockedBytes = await pdfDocToSave.save();
+    // To properly remove encryption using pdf-lib, we must create a new document
+    // and copy all the pages from the loaded (decrypted-in-memory) document.
+    const newDoc = await PDFDocument.create();
+    const copiedPages = await newDoc.copyPages(
+      pdfDocToSave,
+      pdfDocToSave.getPageIndices(),
+    );
+    copiedPages.forEach((page) => newDoc.addPage(page));
+
+    // Save the new unencrypted document
+    const unlockedBytes = await newDoc.save();
 
     const blob = new Blob([unlockedBytes], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
