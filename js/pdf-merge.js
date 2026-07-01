@@ -41,25 +41,33 @@ mergeBtn.addEventListener("click", async () => {
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");
 
-  const outPdf = await PDFLib.PDFDocument.create();
+  mergeBtn.disabled = true;
+  mergeBtn.textContent = "Merging...";
 
-  const loadedPdfs = await Promise.all(
-    pdfFiles.map(async (file) => {
+  try {
+    const outPdf = await PDFLib.PDFDocument.create();
+
+    for (const file of pdfFiles) {
       const srcBytes = await file.arrayBuffer();
-      return await PDFLib.PDFDocument.load(srcBytes);
-    }),
-  );
+      const srcPdf = await PDFLib.PDFDocument.load(srcBytes, {
+        ignoreEncryption: true,
+      });
+      const pages = await outPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+      pages.forEach((p) => outPdf.addPage(p));
+    }
 
-  for (const srcPdf of loadedPdfs) {
-    const pages = await outPdf.copyPages(srcPdf, srcPdf.getPageIndices());
-    pages.forEach((p) => outPdf.addPage(p));
+    const bytes = await outPdf.save();
+    mergedBlob = new Blob([bytes], { type: "application/pdf" });
+    previewArea.classList.remove("is-visible");
+    resultsArea.classList.add("is-visible");
+    showToast("Merged PDF is ready!");
+  } catch (error) {
+    console.error("Error merging PDFs:", error);
+    showToast("Failed to merge PDFs. Ensure files are valid and not password protected.", "error");
+  } finally {
+    mergeBtn.disabled = false;
+    mergeBtn.textContent = "Merge PDFs →";
   }
-
-  const bytes = await outPdf.save();
-  mergedBlob = new Blob([bytes], { type: "application/pdf" });
-  previewArea.classList.remove("is-visible");
-  resultsArea.classList.add("is-visible");
-  showToast("Merged PDF is ready!");
 });
 
 downloadBtn.addEventListener("click", () => {
