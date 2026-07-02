@@ -1850,13 +1850,13 @@ Results ============================== */
   color: #333;
   margin-bottom: 20px;
 }
-.blog-post-body a {
+.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a) {
   color: var(--black);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.blog-post-body a:hover {
+.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a):hover {
   background: var(--yellow);
 }
 .blog-post-body ul,
