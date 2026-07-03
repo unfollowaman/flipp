@@ -195,7 +195,7 @@ rearrangeBtn.addEventListener("click", async () => {
 
   try {
     const outPdf = await PDFLib.PDFDocument.create();
-    const srcPdf = await PDFLib.PDFDocument.load(originalPdfBytes);
+    const srcPdf = await PDFLib.PDFDocument.load(originalPdfBytes, { ignoreEncryption: true });
 
     // Use the new order to copy pages
     const copiedPages = await outPdf.copyPages(srcPdf, pagesOrder);

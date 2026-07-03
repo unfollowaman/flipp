@@ -544,7 +544,7 @@ downloadBtn.addEventListener("click", async () => {
   try {
     const { PDFDocument } = window.PDFLib;
     // Load fresh from original bytes
-    const pdfDoc = await PDFDocument.load(pdfBytesOriginal);
+    const pdfDoc = await PDFDocument.load(pdfBytesOriginal, { ignoreEncryption: true });
     const pages = pdfDoc.getPages();
 
     setProgress(progressBar, progressLabel, 40, "Embedding signatures...");
