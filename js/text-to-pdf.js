@@ -38,9 +38,7 @@ fileInputEl.addEventListener("change", () => {
   const file = fileInputEl.files?.[0];
   if (!file) return;
 
-  const looksLikeText =
-    file.type.startsWith("text/") ||
-    /\.(txt|md|csv|log|json)$/i.test(file.name);
+  const looksLikeText = /\.(txt|md|csv|log|json)$/i.test(file.name);
   if (!looksLikeText) {
     showToast(
       "Please choose a text file (.txt, .md, .csv, .log, .json).",
