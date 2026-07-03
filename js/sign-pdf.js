@@ -1,5 +1,7 @@
 import { initDropZone, showToast, setProgress } from "./drag-drop.js";
 
+let currentDownloadUrl = null;
+
 let pdfDoc = null;
 let pdfBytesOriginal = null;
 let numPages = 0;
@@ -614,11 +616,15 @@ downloadBtn.addEventListener("click", async () => {
       resultsArea.classList.add("is-visible");
 
       const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
+
+      if (currentDownloadUrl) {
+        URL.revokeObjectURL(currentDownloadUrl);
+      }
+      currentDownloadUrl = URL.createObjectURL(blob);
 
       downloadFinalBtn.onclick = () => {
         const a = document.createElement("a");
-        a.href = url;
+        a.href = currentDownloadUrl;
         const safeName = fileInfo.textContent
           .replace(".pdf", "")
           .replace(/[\/\\]/g, "_");
@@ -626,6 +632,13 @@ downloadBtn.addEventListener("click", async () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+
+        setTimeout(() => {
+          if (currentDownloadUrl) {
+            URL.revokeObjectURL(currentDownloadUrl);
+            currentDownloadUrl = null;
+          }
+        }, 100);
       };
     }, 500);
   } catch (err) {
@@ -638,6 +651,11 @@ downloadBtn.addEventListener("click", async () => {
 });
 
 function resetTool() {
+  if (currentDownloadUrl) {
+    URL.revokeObjectURL(currentDownloadUrl);
+    currentDownloadUrl = null;
+  }
+
   pdfBytesOriginal = null;
   pdfjsDocument = null;
   uploadedImageSrc = null;

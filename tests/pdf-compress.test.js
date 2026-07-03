@@ -35,6 +35,7 @@ const mockDocument = {
   createElement: (tagName) => ({
     tagName,
     style: {},
+    addEventListener: () => {},
     appendChild: function(child) {
       if (!this.children) this.children = [];
       this.children.push(child);
