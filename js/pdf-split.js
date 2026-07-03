@@ -137,82 +137,88 @@ splitBtn.addEventListener("click", async () => {
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");
 
-  const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
-  totalPages = srcPdf.getPageCount();
-  if (totalPages < 2)
-    return showToast("PDF needs at least 2 pages to split.", "error");
+  try {
+    const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
+    totalPages = srcPdf.getPageCount();
+    if (totalPages < 2)
+      return showToast("PDF needs at least 2 pages to split.", "error");
 
-  const start = Number(rangeStartEl.value);
-  const end = Number(rangeEndEl.value);
-  if (!Number.isInteger(start) || !Number.isInteger(end)) {
-    return showToast("Enter valid page numbers.", "error");
-  }
-  if (
-    start < 1 ||
-    end < 1 ||
-    start > totalPages ||
-    end > totalPages ||
-    start > end
-  ) {
-    return showToast(
-      `Choose a valid range between 1 and ${totalPages}.`,
-      "error",
+    const start = Number(rangeStartEl.value);
+    const end = Number(rangeEndEl.value);
+    if (!Number.isInteger(start) || !Number.isInteger(end)) {
+      return showToast("Enter valid page numbers.", "error");
+    }
+    if (
+      start < 1 ||
+      end < 1 ||
+      start > totalPages ||
+      end > totalPages ||
+      start > end
+    ) {
+      return showToast(
+        `Choose a valid range between 1 and ${totalPages}.`,
+        "error",
+      );
+    }
+    if (end >= totalPages) {
+      return showToast(
+        "End page must be before the last page so second file is not empty.",
+        "error",
+      );
+    }
+
+    splitBlobs = [];
+    const baseName = pdfFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
+
+    const firstOut = await PDFLib.PDFDocument.create();
+    const firstPageIndexes = Array.from(
+      { length: end - start + 1 },
+      (_, i) => start - 1 + i,
     );
-  }
-  if (end >= totalPages) {
-    return showToast(
-      "End page must be before the last page so second file is not empty.",
-      "error",
-    );
-  }
-
-  splitBlobs = [];
-  const baseName = pdfFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
-
-  const firstOut = await PDFLib.PDFDocument.create();
-  const firstPageIndexes = Array.from(
-    { length: end - start + 1 },
-    (_, i) => start - 1 + i,
-  );
-  const firstPages = await firstOut.copyPages(srcPdf, firstPageIndexes);
-  firstPages.forEach((page) => firstOut.addPage(page));
-  splitBlobs.push({
-    name: `${baseName} 1.pdf`,
-    blob: new Blob([await firstOut.save()], { type: "application/pdf" }),
-  });
-
-  const secondOut = await PDFLib.PDFDocument.create();
-  const secondPageIndexes = Array.from(
-    { length: totalPages - end },
-    (_, i) => end + i,
-  );
-  const secondPages = await secondOut.copyPages(srcPdf, secondPageIndexes);
-  secondPages.forEach((page) => secondOut.addPage(page));
-  splitBlobs.push({
-    name: `${baseName} 2.pdf`,
-    blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
-  });
-
-  previewArea.classList.remove("is-visible");
-  resultsArea.classList.add("is-visible");
-  downloadsEl.innerHTML = "";
-  splitBlobs.forEach((entry) => {
-    const btn = document.createElement("button");
-    btn.className = "cta-btn cta-yellow";
-    btn.textContent = `Download ${entry.name}`;
-    btn.addEventListener("click", () => {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(entry.blob);
-      a.download = entry.name;
-      a.click();
-      URL.revokeObjectURL(a.href);
+    const firstPages = await firstOut.copyPages(srcPdf, firstPageIndexes);
+    firstPages.forEach((page) => firstOut.addPage(page));
+    splitBlobs.push({
+      name: `${baseName} 1.pdf`,
+      blob: new Blob([await firstOut.save()], { type: "application/pdf" }),
     });
-    downloadsEl.appendChild(btn);
-  });
 
-  showToast(
-    `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
-  );
+    const secondOut = await PDFLib.PDFDocument.create();
+    const secondPageIndexes = Array.from(
+      { length: totalPages - end },
+      (_, i) => end + i,
+    );
+    const secondPages = await secondOut.copyPages(srcPdf, secondPageIndexes);
+    secondPages.forEach((page) => secondOut.addPage(page));
+    splitBlobs.push({
+      name: `${baseName} 2.pdf`,
+      blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
+    });
+
+    previewArea.classList.remove("is-visible");
+    resultsArea.classList.add("is-visible");
+    downloadsEl.innerHTML = "";
+    splitBlobs.forEach((entry) => {
+      const btn = document.createElement("button");
+      btn.className = "cta-btn cta-yellow";
+      btn.textContent = `Download ${entry.name}`;
+      btn.addEventListener("click", () => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(entry.blob);
+        a.download = entry.name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+      downloadsEl.appendChild(btn);
+    });
+
+    showToast(
+      `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
+    );
+  } catch (error) {
+    console.error(error);
+    showToast("Error loading PDF.", "error");
+    resetBtn.click();
+  }
 });
 
 resetBtn.addEventListener("click", () => {
