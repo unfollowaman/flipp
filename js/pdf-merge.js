@@ -44,6 +44,9 @@ mergeBtn.addEventListener("click", async () => {
   mergeBtn.disabled = true;
   mergeBtn.textContent = "Merging...";
 
+  // Yield the main thread to allow the browser to paint the button state changes
+  await new Promise((r) => setTimeout(r, 50));
+
   try {
     const outPdf = await PDFLib.PDFDocument.create();
 
