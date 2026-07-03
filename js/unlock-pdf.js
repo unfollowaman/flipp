@@ -2,6 +2,7 @@ import { initDropZone, showToast } from "./drag-drop.js";
 
 const { PDFDocument } = window.PDFLib;
 
+let currentDownloadUrl = null;
 let currentFileBytes = null;
 let currentFileName = "";
 
@@ -145,7 +146,11 @@ unlockBtn.addEventListener("click", async () => {
     const unlockedBytes = await newDoc.save();
 
     const blob = new Blob([unlockedBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+
+    if (currentDownloadUrl) {
+      URL.revokeObjectURL(currentDownloadUrl);
+    }
+    currentDownloadUrl = URL.createObjectURL(blob);
 
     // Sanitize original filename and append prefix
     const safeName = currentFileName.replace(/[\\/]/g, "_");
@@ -153,11 +158,18 @@ unlockBtn.addEventListener("click", async () => {
 
     downloadBtn.onclick = () => {
       const a = document.createElement("a");
-      a.href = url;
+      a.href = currentDownloadUrl;
       a.download = outName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      setTimeout(() => {
+        if (currentDownloadUrl) {
+          URL.revokeObjectURL(currentDownloadUrl);
+          currentDownloadUrl = null;
+        }
+      }, 100);
     };
 
     previewAreaEl.classList.remove("is-visible");
@@ -171,6 +183,11 @@ unlockBtn.addEventListener("click", async () => {
 });
 
 resetBtn.addEventListener("click", () => {
+  if (currentDownloadUrl) {
+    URL.revokeObjectURL(currentDownloadUrl);
+    currentDownloadUrl = null;
+  }
+
   currentFileBytes = null;
   currentFileName = "";
   pdfDocToSave = null;

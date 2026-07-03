@@ -1,6 +1,7 @@
 import { initDropZone, showToast } from "./drag-drop.js";
 
 let selectedFile = null;
+let currentDownloadUrl = null;
 
 const dropZone = document.getElementById("compress-drop-zone");
 const fileInput = document.getElementById("compress-file-input");
@@ -60,7 +61,13 @@ initDropZone(dropZone, fileInput, (files) => {
 
 function createDownloadButton(blob, filename, label) {
   const btn = document.createElement("a");
-  btn.href = URL.createObjectURL(blob);
+
+  if (currentDownloadUrl) {
+    URL.revokeObjectURL(currentDownloadUrl);
+  }
+  currentDownloadUrl = URL.createObjectURL(blob);
+
+  btn.href = currentDownloadUrl;
   btn.download = filename;
   btn.className = "cta-btn cta-mint";
 
@@ -74,6 +81,16 @@ function createDownloadButton(blob, filename, label) {
 
   btn.appendChild(icon);
   btn.appendChild(document.createTextNode(` Download ${label}`));
+
+  btn.addEventListener("click", () => {
+    setTimeout(() => {
+      if (currentDownloadUrl) {
+        URL.revokeObjectURL(currentDownloadUrl);
+        currentDownloadUrl = null;
+      }
+    }, 100);
+  });
+
   return btn;
 }
 
@@ -246,6 +263,10 @@ compressBtn.addEventListener("click", async () => {
 });
 
 resetBtn.addEventListener("click", () => {
+  if (currentDownloadUrl) {
+    URL.revokeObjectURL(currentDownloadUrl);
+    currentDownloadUrl = null;
+  }
   selectedFile = null;
   document.getElementById("compress-file-input").value = "";
   resultsArea.classList.remove("is-visible");
