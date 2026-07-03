@@ -349,7 +349,7 @@ convertBtn.addEventListener("click", async () => {
   try {
     const { PDFDocument, rgb, degrees, StandardFonts } = window.PDFLib;
 
-    const pdfDoc = await PDFDocument.load(currentPdfBuffer);
+    const pdfDoc = await PDFDocument.load(currentPdfBuffer, { ignoreEncryption: true });
     const pages = pdfDoc.getPages();
     const numPages = pages.length;
 

@@ -44,7 +44,7 @@ addBtn.addEventListener("click", async () => {
     if (!window.fontkit) throw new Error("fontkit is not ready");
 
     const bytes = await sourceFile.arrayBuffer();
-    const pdfDoc = await pdfLib.PDFDocument.load(bytes);
+    const pdfDoc = await pdfLib.PDFDocument.load(bytes, { ignoreEncryption: true });
     pdfDoc.registerFontkit(window.fontkit);
 
     // Fetch IBM Plex Serif font (.woff format since pdf-lib does not support woff2 out of the box)

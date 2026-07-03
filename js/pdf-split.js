@@ -83,7 +83,7 @@ async function loadPdfMetadataAndPreviews(file) {
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const srcPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+    const srcPdf = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
     totalPages = srcPdf.getPageCount();
     infoEl.textContent = `Selected: ${file.name} (${totalPages} pages)`;
     rangeStartEl.min = "1";
@@ -137,7 +137,7 @@ splitBtn.addEventListener("click", async () => {
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");
 
-  const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer());
+  const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
   totalPages = srcPdf.getPageCount();
   if (totalPages < 2)
     return showToast("PDF needs at least 2 pages to split.", "error");
