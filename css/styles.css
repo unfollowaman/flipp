@@ -153,7 +153,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 40px;
-  padding-bottom: 13.734px;
+  padding-bottom: 40px;
 }
 .hero-content-top {
   display: grid;
@@ -1882,13 +1882,13 @@ Results ============================== */
   color: #333;
   margin-bottom: 20px;
 }
-.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a) {
+.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a, .tool-card) {
   color: var(--black);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a):hover {
+.blog-post-body a:not(.blog-tools-cta-item, .blog-cta-box a, .tool-card):hover {
   background: var(--yellow);
 }
 .blog-post-body ul,
