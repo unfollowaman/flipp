@@ -153,7 +153,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 40px;
-  padding-bottom: 30px;
+  padding-bottom: 40px;
 }
 .hero-content-top {
   display: grid;
