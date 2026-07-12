@@ -1245,6 +1245,20 @@ Results ============================== */
   width: 100%;
   padding-top: 10px;
   padding-bottom: 10px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
 }
 .trust-pills-row {
   display: flex;
@@ -1272,6 +1286,18 @@ Results ============================== */
 .trust-pill:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hard);
+  background: var(--sky-blue) !important;
+}
+.trust-pill:nth-child(4n + 1) {
+  background: var(--yellow);
+}
+.trust-pill:nth-child(4n + 2) {
+  background: var(--pink);
+}
+.trust-pill:nth-child(4n + 3) {
+  background: var(--mint);
+}
+.trust-pill:nth-child(4n + 4) {
   background: var(--sky-blue);
 } /*
 ============================== Footer ============================== */
