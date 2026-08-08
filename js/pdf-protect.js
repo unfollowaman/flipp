@@ -14,13 +14,6 @@ const resetBtn = document.getElementById("protect-reset-btn");
 const passwordEl = document.getElementById("protect-password");
 const confirmPasswordEl = document.getElementById("protect-password-confirm");
 
-function getPdfJs() {
-  return window["pdfjs-dist/build/pdf"];
-}
-function getJsPdf() {
-  return window.jspdf?.jsPDF;
-}
-
 function addFiles(files) {
   const first = files.find(
     (f) =>
@@ -52,90 +45,25 @@ function validatePasswords() {
   return password;
 }
 
-async function renderPageToImage(pdf, pageNum) {
-  const page = await pdf.getPage(pageNum);
-  const viewport = page.getViewport({ scale: 2 });
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas is unavailable");
-
-  canvas.width = Math.floor(viewport.width);
-  canvas.height = Math.floor(viewport.height);
-
-  await page.render({ canvasContext: ctx, viewport }).promise;
-
-  const orientation =
-    viewport.width >= viewport.height ? "landscape" : "portrait";
-  const imgData = canvas.toDataURL("image/jpeg", 0.92);
-
-  canvas.width = 0;
-  canvas.height = 0;
-
-  return { imgData, viewport, orientation };
-}
-
-function appendImageToPdf(doc, result, password, JsPDF) {
-  const { imgData, viewport, orientation } = result;
-
-  if (!doc) {
-    doc = new JsPDF({
-      orientation,
-      unit: "pt",
-      format: [viewport.width, viewport.height],
-      encryption: {
-        userPassword: password,
-        ownerPassword: password,
-        userPermissions: ["print"],
-      },
-    });
-  } else {
-    doc.addPage([viewport.width, viewport.height], orientation);
-  }
-
-  doc.addImage(
-    imgData,
-    "JPEG",
-    0,
-    0,
-    viewport.width,
-    viewport.height,
-    undefined,
-    "FAST",
-  );
-
-  return doc;
-}
-
-async function rasterizePdfToEncryptedPdf(file, password) {
-  const pdfjsLib = getPdfJs();
-  const JsPDF = getJsPdf();
-  if (!pdfjsLib) throw new Error("PDF.js is not ready");
-  if (!JsPDF) throw new Error("jsPDF is not ready");
+async function encryptPdf(file, password) {
+  const { PDFDocument } = window.PDFLib;
+  if (!PDFDocument) throw new Error("pdf-lib is not ready");
 
   const buffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-  if (pdf.numPages < 1) throw new Error("PDF has no pages");
 
-  let doc = null;
-  const BATCH_SIZE = 5;
+  // Load the document (if it's already encrypted, we assume they have the right to encrypt it further,
+  // though typically they'd just be re-encrypting. Ignore encryption to read the original if possible.)
+  const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
 
-  for (let i = 1; i <= pdf.numPages; i += BATCH_SIZE) {
-    const batchPromises = [];
+  const pdfBytes = await pdfDoc.save({
+    userPassword: password,
+    ownerPassword: password,
+    permissions: {
+      printing: 'highResolution',
+    },
+  });
 
-    for (let j = 0; j < BATCH_SIZE && i + j <= pdf.numPages; j += 1) {
-      batchPromises.push(renderPageToImage(pdf, i + j));
-    }
-
-    const batchResults = await Promise.all(batchPromises);
-
-    for (const result of batchResults) {
-      doc = appendImageToPdf(doc, result, password, JsPDF);
-    }
-  }
-
-  if (!doc) throw new Error("Failed to create PDF");
-  return doc.output("blob");
+  return new Blob([pdfBytes], { type: "application/pdf" });
 }
 
 protectBtn.addEventListener("click", async () => {
@@ -148,7 +76,7 @@ protectBtn.addEventListener("click", async () => {
   protectBtn.textContent = "Protecting…";
 
   try {
-    protectedBlob = await rasterizePdfToEncryptedPdf(pdfFile, password);
+    protectedBlob = await encryptPdf(pdfFile, password);
     previewArea.classList.remove("is-visible");
     resultsArea.classList.add("is-visible");
     showToast("Protected PDF is ready!");

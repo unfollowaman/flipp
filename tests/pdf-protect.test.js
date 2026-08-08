@@ -48,17 +48,34 @@ const mockShowToast = (msg, type) => {
   toastMessages.push({ msg, type });
 };
 
-const mockWindow = {};
+const mockWindow = {
+  PDFLib: {
+    PDFDocument: {
+      load: async () => ({
+        save: async () => new Uint8Array([1, 2, 3]),
+      })
+    }
+  }
+};
 const mockInitDropZone = () => {};
 
-const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', src);
+// Mock Blob globally for the test environment
+global.Blob = class Blob {
+  constructor(data, options) {
+    this.data = data;
+    this.options = options;
+  }
+};
+
+const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', 'Blob', src);
 
 const { validatePasswords, addFiles, getPdfFile, getProtectedBlob } = wrapper(
   mockDocument,
   mockWindow,
   mockInitDropZone,
   mockShowToast,
-  { createObjectURL: () => '', revokeObjectURL: () => '' }
+  { createObjectURL: () => '', revokeObjectURL: () => '' },
+  global.Blob
 );
 
 test('validatePasswords function', async (t) => {

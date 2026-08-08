@@ -140,7 +140,7 @@
             "name": "Will the password protection work in Adobe Acrobat, Apple Preview, and mobile PDF apps?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. flipp uses jsPDF's AES-based encryption which produces a standard encrypted PDF. The password prompt will appear in Adobe Acrobat Reader, Adobe Acrobat Pro, Apple Preview on macOS, Google Chrome's built-in PDF viewer, and most mobile PDF applications on iOS and Android."
+              "text": "Yes. flipp uses standard PDF encryption. The password prompt will appear in Adobe Acrobat Reader, Adobe Acrobat Pro, Apple Preview on macOS, Google Chrome's built-in PDF viewer, and most mobile PDF applications on iOS and Android."
             }
           },
           {
@@ -503,7 +503,7 @@
               and mobile PDF apps?
             </button>
             <div class="tcs-faq-a">
-              Yes. flipp uses jsPDF's AES-based encryption which produces a
+              Yes. flipp uses standard PDF encryption which produces a
               standard encrypted PDF. The password prompt will appear in Adobe
               Acrobat Reader, Adobe Acrobat Pro, Apple Preview on macOS, Google
               Chrome's built-in PDF viewer, and most mobile PDF applications on
@@ -755,22 +755,10 @@
     ></script>
     <script
       defer
-      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
-      integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      defer
       src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
       integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
       crossorigin="anonymous"
     ></script>
-    <script type="module">
-      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
-      window["pdfjs-dist/build/pdf"] = pdfjsLib;
-    </script>
     <script src="/js/faq.js"></script>
     <script src="/js/pdf-protect.js" type="module"></script>
     <script src="/js/scroll-reveal.js" defer></script>
