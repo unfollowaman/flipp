@@ -240,7 +240,7 @@ textarea {
   text-align: center;
   gap: 18px;
   overflow: hidden;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: auto;
   padding: 30px 26px 28px;
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 24px;
@@ -2110,9 +2110,6 @@ for Dynamic UI Sections */
 @media (min-width: 768px) {
   .steps-row {
     align-items: stretch;
-  }
-  .step-card {
-    aspect-ratio: auto;
   }
 } /* ============================== Blog Tools CTA (Try Now!)
 ============================== */
