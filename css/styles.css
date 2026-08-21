@@ -620,6 +620,7 @@ textarea {
   color: var(--black);
   padding: 0 16px;
   flex-shrink: 0;
+  align-self: center;
 } /*
 ============================== Converter Sections ==============================
 */
