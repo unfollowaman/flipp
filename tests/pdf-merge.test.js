@@ -89,4 +89,35 @@ test('pdf-merge error handling', async (t) => {
     assert.strictEqual(toastMessage, 'PDF library not ready yet.');
     assert.strictEqual(toastType, 'error');
   });
+
+  await t.test('successfully merges multiple PDFs using Promise.all concurrent loading', async () => {
+    let loadCount = 0;
+    const mockPDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          copyPages: async (src, indices) => indices.map((i) => ({ index: i })),
+          addPage: () => {},
+          save: async () => new Uint8Array([1, 2, 3])
+        }),
+        load: async (bytes) => {
+          loadCount++;
+          return {
+            getPageIndices: () => [0]
+          };
+        }
+      }
+    };
+    mockWindow.PDFLib = mockPDFLib;
+
+    addFilesCallback([
+      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: '2.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: '3.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    await mockMergeClick();
+
+    assert.strictEqual(loadCount, 3);
+    assert.strictEqual(toastMessage, 'Merged PDF is ready!');
+  });
 });

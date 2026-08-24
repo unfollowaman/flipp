@@ -50,11 +50,16 @@ mergeBtn.addEventListener("click", async () => {
   try {
     const outPdf = await PDFLib.PDFDocument.create();
 
-    for (const file of pdfFiles) {
-      const srcBytes = await file.arrayBuffer();
-      const srcPdf = await PDFLib.PDFDocument.load(srcBytes, {
-        ignoreEncryption: true,
-      });
+    const loadedPdfs = await Promise.all(
+      pdfFiles.map(async (file) => {
+        const srcBytes = await file.arrayBuffer();
+        return PDFLib.PDFDocument.load(srcBytes, {
+          ignoreEncryption: true,
+        });
+      })
+    );
+
+    for (const srcPdf of loadedPdfs) {
       const pages = await outPdf.copyPages(srcPdf, srcPdf.getPageIndices());
       pages.forEach((p) => outPdf.addPage(p));
     }
