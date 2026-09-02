@@ -278,12 +278,20 @@
         </div>
         <div class="preview-area" id="merge-preview-area">
           <div class="preview-header">
-            <span class="preview-count" id="merge-file-count"></span
-            ><button class="cta-btn cta-pink" id="merge-btn">
+            <span class="preview-count" id="merge-file-count"></span>
+            <button
+              class="reset-btn"
+              id="merge-add-more-btn"
+              style="padding: 6px 12px; font-size: 13px; margin-right: 12px;"
+            >
+              + Add files
+            </button>
+            <button class="cta-btn cta-pink" id="merge-btn">
               Merge PDFs →
             </button>
           </div>
-          <ul id="merge-file-list"></ul>
+          <div class="img-reorder-hint">Drag cards to reorder PDFs</div>
+          <div class="img-preview-grid" id="merge-file-grid"></div>
         </div>
         <div
           class="results-area"
