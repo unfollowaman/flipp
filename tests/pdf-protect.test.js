@@ -11,7 +11,7 @@ src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 // Strip export keywords
 src = src.replace(/export\s+function/g, 'function');
 
-src += '\nreturn { validatePasswords, addFiles, getPdfFile: () => pdfFile, getProtectedBlob: () => protectedBlob };\n';
+src += '\nreturn { validatePasswords, addFiles, encryptPdf, getPdfFile: () => pdfFile, getProtectedBlob: () => protectedBlob };\n';
 
 const elementMap = {};
 
@@ -39,7 +39,7 @@ const mockDocument = {
     tagName,
     style: {},
     getContext: () => ({}),
-    toDataURL: () => ''
+    toDataURL: () => 'data:image/jpeg;base64,123'
   })
 };
 
@@ -48,15 +48,38 @@ const mockShowToast = (msg, type) => {
   toastMessages.push({ msg, type });
 };
 
-const mockWindow = {
-  PDFLib: {
-    PDFDocument: {
-      load: async () => ({
-        save: async () => new Uint8Array([1, 2, 3]),
-      })
+const mockJsPDFInstance = {
+  internal: {
+    pageSize: {
+      setWidth: () => {},
+      setHeight: () => {}
     }
+  },
+  addPage: () => {},
+  addImage: () => {},
+  output: () => new global.Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' })
+};
+
+const mockWindow = {
+  jspdf: {
+    jsPDF: function(options) {
+      this.options = options;
+      return mockJsPDFInstance;
+    }
+  },
+  "pdfjs-dist/build/pdf": {
+    getDocument: () => ({
+      promise: Promise.resolve({
+        numPages: 1,
+        getPage: () => Promise.resolve({
+          getViewport: ({ scale }) => ({ width: 100 * scale, height: 100 * scale }),
+          render: () => ({ promise: Promise.resolve() })
+        })
+      })
+    })
   }
 };
+
 const mockInitDropZone = () => {};
 
 // Mock Blob globally for the test environment
@@ -69,7 +92,7 @@ global.Blob = class Blob {
 
 const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', 'Blob', src);
 
-const { validatePasswords, addFiles, getPdfFile, getProtectedBlob } = wrapper(
+const { validatePasswords, addFiles, encryptPdf, getPdfFile, getProtectedBlob } = wrapper(
   mockDocument,
   mockWindow,
   mockInitDropZone,
@@ -161,5 +184,15 @@ test('addFiles function', async (t) => {
     assert.strictEqual(elementMap['protect-password'].value, '');
     assert.strictEqual(elementMap['protect-password-confirm'].value, '');
     assert.strictEqual(elementMap['protect-info'].textContent, 'Selected: test.pdf');
+  });
+});
+
+test('encryptPdf function', async (t) => {
+  await t.test('encrypts PDF using PDF.js and jsPDF', async () => {
+    const dummyFile = {
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+    const blob = await encryptPdf(dummyFile, 'password123');
+    assert.ok(blob);
   });
 });

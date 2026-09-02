@@ -46,24 +46,59 @@ function validatePasswords() {
 }
 
 async function encryptPdf(file, password) {
-  const { PDFDocument } = window.PDFLib;
-  if (!PDFDocument) throw new Error("pdf-lib is not ready");
+  const pdfjsLib = window["pdfjs-dist/build/pdf"];
+  const { jsPDF } = window.jspdf || {};
 
-  const buffer = await file.arrayBuffer();
+  if (!pdfjsLib || !jsPDF) {
+    throw new Error("PDF processing libraries are not ready.");
+  }
 
-  // Load the document (if it's already encrypted, we assume they have the right to encrypt it further,
-  // though typically they'd just be re-encrypting. Ignore encryption to read the original if possible.)
-  const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+  const pdfjsDoc = await loadingTask.promise;
+  const numPages = pdfjsDoc.numPages;
 
-  const pdfBytes = await pdfDoc.save({
-    userPassword: password,
-    ownerPassword: password,
-    permissions: {
-      printing: 'highResolution',
+  const jsPdfDoc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a4",
+    encryption: {
+      userPassword: password,
+      ownerPassword: password,
+      userPermissions: ["print", "modify", "copy", "annot-forms"],
     },
   });
 
-  return new Blob([pdfBytes], { type: "application/pdf" });
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdfjsDoc.getPage(i);
+    const unscaledViewport = page.getViewport({ scale: 1.0 });
+    const widthPt = unscaledViewport.width;
+    const heightPt = unscaledViewport.height;
+
+    const renderViewport = page.getViewport({ scale: 2.0 });
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = renderViewport.width;
+    canvas.height = renderViewport.height;
+
+    await page.render({ canvasContext: context, viewport: renderViewport }).promise;
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+    canvas.width = 0;
+    canvas.height = 0;
+
+    if (i > 1) {
+      jsPdfDoc.addPage([widthPt, heightPt], widthPt > heightPt ? "l" : "p");
+    } else {
+      jsPdfDoc.internal.pageSize.setWidth(widthPt);
+      jsPdfDoc.internal.pageSize.setHeight(heightPt);
+    }
+
+    jsPdfDoc.addImage(imgData, "JPEG", 0, 0, widthPt, heightPt);
+  }
+
+  return jsPdfDoc.output("blob");
 }
 
 protectBtn.addEventListener("click", async () => {
@@ -71,6 +106,12 @@ protectBtn.addEventListener("click", async () => {
 
   const password = validatePasswords();
   if (!password) return;
+
+  const pdfjsLib = window["pdfjs-dist/build/pdf"];
+  const { jsPDF } = window.jspdf || {};
+  if (!pdfjsLib || !jsPDF) {
+    return showToast("PDF library is still loading. Please try again in a moment.", "error");
+  }
 
   protectBtn.disabled = true;
   protectBtn.textContent = "Protecting…";

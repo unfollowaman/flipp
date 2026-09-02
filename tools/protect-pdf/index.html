@@ -746,6 +746,16 @@
       integrity="sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI"
       crossorigin="anonymous"
     ></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    ></script>
+    <script type="module">
+      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.mjs";
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
+      window["pdfjs-dist/build/pdf"] = pdfjsLib;
+    </script>
     <script src="../../js/faq.js"></script>
     <script src="../../js/pdf-protect.js" type="module"></script>
     <script src="../../js/scroll-reveal.js" defer></script>
