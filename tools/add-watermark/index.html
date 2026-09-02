@@ -447,40 +447,90 @@
             </button>
           </div>
           <div class="preview-grid" id="wm-preview-grid" style="display: block">
-            <!-- We show a single canvas representing the first page + live preview -->
-            <div
-              class="preview-page-card"
-              style="
-                max-width: 500px;
-                margin: 0 auto;
-                border: 1px solid #ccc;
-                position: relative;
-                overflow: hidden;
-                background: #fff;
-              "
-            >
-              <canvas
-                id="wm-preview-canvas"
-                style="width: 100%; height: auto; display: block"
-              ></canvas>
+            <!-- PDF Preview with navigation and interactive canvas -->
+            <div class="wm-preview-wrapper">
+              <button
+                id="wm-prev-page"
+                class="preview-nav-btn prev-btn"
+                aria-label="Previous page"
+                title="Previous page"
+                disabled
+              >
+                ◀
+              </button>
+
               <div
-                id="wm-loading-overlay"
+                class="preview-page-card"
                 style="
-                  display: none;
-                  position: absolute;
-                  top: 0;
-                  left: 0;
-                  width: 100%;
-                  height: 100%;
-                  background: rgba(255, 255, 255, 0.7);
-                  align-items: center;
-                  justify-content: center;
-                  font-weight: bold;
-                  font-size: 14px;
+                  flex: 1;
+                  max-width: 500px;
+                  margin: 0 auto;
+                  border: var(--border-std);
+                  position: relative;
+                  overflow: hidden;
+                  background: #fff;
+                  touch-action: none;
                 "
               >
-                Loading preview...
+                <!-- Apply Scope Prompt Toast -->
+                <div
+                  id="wm-apply-scope-prompt"
+                  class="wm-scope-prompt"
+                  style="display: none"
+                >
+                  <span class="wm-scope-text">Apply this change to all pages?</span>
+                  <div class="wm-scope-actions">
+                    <button
+                      id="wm-apply-page-only-btn"
+                      class="wm-scope-btn wm-scope-btn-sec"
+                      type="button"
+                    >
+                      This page only
+                    </button>
+                    <button
+                      id="wm-apply-all-pages-btn"
+                      class="wm-scope-btn wm-scope-btn-pri"
+                      type="button"
+                    >
+                      All pages
+                    </button>
+                  </div>
+                </div>
+
+                <canvas
+                  id="wm-preview-canvas"
+                  style="width: 100%; height: auto; display: block; cursor: move;"
+                ></canvas>
+                <div
+                  id="wm-loading-overlay"
+                  style="
+                    display: none;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(255, 255, 255, 0.7);
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    font-size: 14px;
+                    z-index: 10;
+                  "
+                >
+                  Loading preview...
+                </div>
               </div>
+
+              <button
+                id="wm-next-page"
+                class="preview-nav-btn next-btn"
+                aria-label="Next page"
+                title="Next page"
+                disabled
+              >
+                ▶
+              </button>
             </div>
           </div>
         </div>
