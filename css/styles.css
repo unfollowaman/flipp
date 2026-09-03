@@ -950,6 +950,105 @@ textarea {
   height: auto;
   display: block;
 }
+
+/* Watermark & Sign Navigation & Scope Prompt */
+.wm-preview-wrapper {
+  position: relative;
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.preview-nav-btn {
+  background: var(--yellow);
+  color: var(--black);
+  border: var(--border-std);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm, 2px 2px 0 var(--black));
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+  user-select: none;
+  z-index: 5;
+  flex-shrink: 0;
+}
+.preview-nav-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--black);
+}
+.preview-nav-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 var(--black);
+}
+.preview-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+.wm-scope-prompt {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  background: var(--white);
+  border: var(--border-std);
+  box-shadow: 3px 3px 0 var(--black);
+  border-radius: var(--radius-sm, 6px);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  max-width: calc(100% - 24px);
+  width: max-content;
+  flex-wrap: wrap;
+  justify-content: center;
+  box-sizing: border-box;
+  animation: fadeInDown 0.15s ease-out;
+}
+.wm-scope-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wm-scope-btn {
+  padding: 5px 10px;
+  border: var(--border-std);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+.wm-scope-btn:hover {
+  transform: translateY(-1px);
+}
+.wm-scope-btn:active {
+  transform: translateY(0);
+}
+.wm-scope-btn-pri {
+  background: var(--yellow);
+  color: var(--black);
+}
+.wm-scope-btn-sec {
+  background: #e2e8f0;
+  color: var(--black);
+}
 .preview-page-label {
   padding: 6px 10px;
   font-size: 11px;
