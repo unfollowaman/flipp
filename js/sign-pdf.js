@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress } from "./drag-drop.js";
+import { initDropZone, showToast, setProgress, fileToDataUrl } from "./drag-drop.js";
 
 let currentDownloadUrl = null;
 
@@ -127,7 +127,7 @@ clearBtn.addEventListener("click", () => {
 // Upload Mode
 initDropZone(imgDrop, imgUpload, handleImageSelect);
 
-function handleImageSelect(files) {
+async function handleImageSelect(files) {
   if (!files || files.length === 0) return;
   const file = files[0];
 
@@ -135,14 +135,14 @@ function handleImageSelect(files) {
     showToast("Please upload a valid image file (PNG/JPG).", "error");
     return;
   }
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    uploadedImageSrc = e.target.result;
+  try {
+    uploadedImageSrc = await fileToDataUrl(file);
     imgPreview.src = uploadedImageSrc;
     imgPreview.style.display = "block";
     imgDrop.style.display = "none";
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    showToast("Error reading image file.", "error");
+  }
 }
 
 imgPreview.addEventListener("click", () => {

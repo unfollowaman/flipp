@@ -6,6 +6,7 @@ import {
   setProgress,
   activatePill,
   setupDragReorder,
+  fileToDataUrl,
 } from "./drag-drop.js";
 
 // ── State ──────────────────────────────────────────────
@@ -187,16 +188,6 @@ function getImageDimensions(dataUrl) {
     const img = new Image();
     img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
     img.src = dataUrl;
-  });
-}
-
-// ── File to base64 ──────────────────────────────────────
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
   });
 }
 

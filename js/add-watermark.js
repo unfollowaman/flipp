@@ -3,6 +3,7 @@ import {
   showToast,
   setProgress,
   activatePill,
+  fileToDataUrl,
 } from "./drag-drop.js";
 
 let currentPdfBuffer = null;
@@ -169,17 +170,17 @@ modePills.forEach((pill) => {
 });
 
 // Image Upload Handling
-imageUpload.addEventListener("change", (e) => {
+imageUpload.addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      uploadedImageURL = event.target.result;
+    try {
+      uploadedImageURL = await fileToDataUrl(file);
       imagePreview.src = uploadedImageURL;
       imagePreview.style.display = "block";
       schedulePreviewUpdate();
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      showToast("Error reading image file.", "error");
+    }
   }
 });
 
