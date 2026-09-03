@@ -18,6 +18,7 @@ src += `
     activatePill,
     setProgress,
     initDropZone,
+    fileToDataUrl,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -31,6 +32,20 @@ const evaluateCode = `
   let bodyChildren = [];
   let allElements = [];
   let timeouts = [];
+
+  class FileReader {
+    readAsDataURL(file) {
+      if (file && file.shouldError) {
+        if (typeof this.onerror === 'function') {
+          this.onerror(new Error('Failed to read file'));
+        }
+      } else {
+        if (typeof this.onload === 'function') {
+          this.onload({ target: { result: 'data:image/png;base64,mockdata' } });
+        }
+      }
+    }
+  }
 
   const window = {
     getComputedStyle: () => ({ display: 'block' }),
@@ -84,7 +99,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, fileToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -427,5 +442,23 @@ test('initDropZone', async (t) => {
     assert.strictEqual(preventDefaultCalled, true);
     assert.strictEqual(dropZone.classList.contains('drag-over'), false);
     assert.deepStrictEqual(receivedFiles, [{name: 'file3.pdf'}]);
+  });
+});
+
+test('fileToDataUrl', async (t) => {
+  await t.test('resolves with data URL on successful read', async () => {
+    const mockFile = { name: 'test.png', type: 'image/png' };
+    const result = await fileToDataUrl(mockFile);
+    assert.strictEqual(result, 'data:image/png;base64,mockdata');
+  });
+
+  await t.test('rejects with error when file read fails', async () => {
+    const mockFile = { name: 'error.png', shouldError: true };
+    await assert.rejects(
+      async () => {
+        await fileToDataUrl(mockFile);
+      },
+      { message: 'Failed to read file' }
+    );
   });
 });
