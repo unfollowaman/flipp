@@ -759,6 +759,18 @@ convertBtn.addEventListener("click", async () => {
       }
     }
 
+    const textDimensionCache = new Map();
+    const getTextDimensions = (text, fontSize) => {
+      const cacheKey = `${text}_${fontSize}`;
+      if (!textDimensionCache.has(cacheKey)) {
+        textDimensionCache.set(cacheKey, {
+          textWidth: font.widthOfTextAtSize(text, fontSize),
+          textHeight: font.heightAtSize(fontSize),
+        });
+      }
+      return textDimensionCache.get(cacheKey);
+    };
+
     for (let i = 0; i < pdfNumPages; i++) {
       const pageNum = i + 1;
       setProgress(
@@ -781,8 +793,7 @@ convertBtn.addEventListener("click", async () => {
         const text = pageConfig.text;
         if (!text) continue;
         const fontSize = pageConfig.fontSize;
-        const textWidth = font.widthOfTextAtSize(text, fontSize);
-        const textHeight = font.heightAtSize(fontSize);
+        const { textWidth, textHeight } = getTextDimensions(text, fontSize);
 
         let pdfColor = defaultPdfColor;
         if (pageConfig.color && pageConfig.color !== colorInput.value) {
