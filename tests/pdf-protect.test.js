@@ -195,4 +195,63 @@ test('encryptPdf function', async (t) => {
     const blob = await encryptPdf(dummyFile, 'password123');
     assert.ok(blob);
   });
+
+  await t.test('encrypts multi-page PDF in parallel batches maintaining page order', async () => {
+    const addedPages = [];
+    const addedImages = [];
+
+    const customJsPDFInstance = {
+      internal: {
+        pageSize: {
+          setWidth: (w) => { addedPages.push({ type: 'firstPageWidth', w }); },
+          setHeight: (h) => { addedPages.push({ type: 'firstPageHeight', h }); }
+        }
+      },
+      addPage: (dim, orientation) => { addedPages.push({ type: 'addPage', dim, orientation }); },
+      addImage: (imgData, format, x, y, w, h) => { addedImages.push({ imgData, format, x, y, w, h }); },
+      output: () => new global.Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' })
+    };
+
+    const multiPageWindow = {
+      jspdf: {
+        jsPDF: function(options) {
+          this.options = options;
+          return customJsPDFInstance;
+        }
+      },
+      "pdfjs-dist/build/pdf": {
+        getDocument: () => ({
+          promise: Promise.resolve({
+            numPages: 6,
+            getPage: (pageNum) => Promise.resolve({
+              getViewport: ({ scale }) => ({ width: pageNum * 10 * scale, height: pageNum * 20 * scale }),
+              render: () => ({ promise: Promise.resolve() })
+            })
+          })
+        })
+      }
+    };
+
+    const customWrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', 'Blob', src);
+    const { encryptPdf: multiEncryptPdf } = customWrapper(
+      mockDocument,
+      multiPageWindow,
+      mockInitDropZone,
+      mockShowToast,
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      global.Blob
+    );
+
+    const dummyFile = { arrayBuffer: async () => new ArrayBuffer(8) };
+    const blob = await multiEncryptPdf(dummyFile, 'password123');
+    assert.ok(blob);
+
+    // 6 pages total: page 1 sets initial size, pages 2..6 call addPage
+    assert.strictEqual(addedImages.length, 6);
+    // Page 1 width = 1 * 10 = 10, Page 6 width = 6 * 10 = 60
+    assert.strictEqual(addedImages[0].w, 10);
+    assert.strictEqual(addedImages[5].w, 60);
+    // Ensure 5 additional pages added in order
+    assert.strictEqual(addedPages.filter(p => p.type === 'addPage').length, 5);
+  });
 });

@@ -69,33 +69,50 @@ async function encryptPdf(file, password) {
     },
   });
 
-  for (let i = 1; i <= numPages; i++) {
-    const page = await pdfjsDoc.getPage(i);
-    const unscaledViewport = page.getViewport({ scale: 1.0 });
-    const widthPt = unscaledViewport.width;
-    const heightPt = unscaledViewport.height;
+  const BATCH_SIZE = 4;
+  for (let start = 1; start <= numPages; start += BATCH_SIZE) {
+    const end = Math.min(start + BATCH_SIZE - 1, numPages);
+    const pagePromises = [];
 
-    const renderViewport = page.getViewport({ scale: 2.0 });
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.width = renderViewport.width;
-    canvas.height = renderViewport.height;
+    for (let pageNum = start; pageNum <= end; pageNum++) {
+      pagePromises.push(
+        (async () => {
+          const page = await pdfjsDoc.getPage(pageNum);
+          const unscaledViewport = page.getViewport({ scale: 1.0 });
+          const widthPt = unscaledViewport.width;
+          const heightPt = unscaledViewport.height;
 
-    await page.render({ canvasContext: context, viewport: renderViewport }).promise;
+          const renderViewport = page.getViewport({ scale: 2.0 });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = renderViewport.width;
+          canvas.height = renderViewport.height;
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          await page.render({ canvasContext: context, viewport: renderViewport }).promise;
 
-    canvas.width = 0;
-    canvas.height = 0;
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-    if (i > 1) {
-      jsPdfDoc.addPage([widthPt, heightPt], widthPt > heightPt ? "l" : "p");
-    } else {
-      jsPdfDoc.internal.pageSize.setWidth(widthPt);
-      jsPdfDoc.internal.pageSize.setHeight(heightPt);
+          canvas.width = 0;
+          canvas.height = 0;
+
+          return { pageNum, widthPt, heightPt, imgData };
+        })()
+      );
     }
 
-    jsPdfDoc.addImage(imgData, "JPEG", 0, 0, widthPt, heightPt);
+    const pages = await Promise.all(pagePromises);
+
+    for (const pageData of pages) {
+      const { pageNum, widthPt, heightPt, imgData } = pageData;
+      if (pageNum > 1) {
+        jsPdfDoc.addPage([widthPt, heightPt], widthPt > heightPt ? "l" : "p");
+      } else {
+        jsPdfDoc.internal.pageSize.setWidth(widthPt);
+        jsPdfDoc.internal.pageSize.setHeight(heightPt);
+      }
+
+      jsPdfDoc.addImage(imgData, "JPEG", 0, 0, widthPt, heightPt);
+    }
   }
 
   return jsPdfDoc.output("blob");
