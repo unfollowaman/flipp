@@ -97,6 +97,11 @@ let initialTouchX = 0;
 let lastTouchTarget = null;
 
 export function setupDragReorder(card, onReorder) {
+  setupTouchDragReorder(card, onReorder);
+  setupMouseDragReorder(card, onReorder);
+}
+
+function setupTouchDragReorder(card, onReorder) {
   // Mobile touch support
   card.addEventListener(
     "touchstart",
@@ -164,7 +169,9 @@ export function setupDragReorder(card, onReorder) {
     },
     { passive: false },
   );
+}
 
+function setupMouseDragReorder(card, onReorder) {
   // Desktop drag support
   card.addEventListener("dragstart", (e) => {
     dragSrcCard = card;

@@ -19,6 +19,7 @@ src += `
     activatePill,
     setProgress,
     initDropZone,
+    setupDragReorder,
     fileToDataUrl,
     renderPageToDataUrl,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
@@ -105,7 +106,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, fileToDataUrl, renderPageToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, renderPageToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -486,5 +487,126 @@ test('renderPageToDataUrl', async (t) => {
     assert.strictEqual(dataUrl, 'data:image/png;base64,mockdata');
     assert.strictEqual(renderCalledWith.viewport, mockViewport);
     assert.ok(renderCalledWith.canvasContext);
+  });
+});
+
+test('setupDragReorder', async (t) => {
+  const createCardMock = () => {
+    const listeners = {};
+    const classSet = new Set(['img-thumb-card']);
+    const style = {};
+    let parent = null;
+
+    const card = {
+      listeners,
+      style,
+      classList: {
+        add: (cls) => classSet.add(cls),
+        remove: (cls) => classSet.delete(cls),
+        contains: (cls) => classSet.has(cls)
+      },
+      addEventListener: (evt, cb) => {
+        if (!listeners[evt]) listeners[evt] = [];
+        listeners[evt].push(cb);
+      },
+      dispatchEvent: (evtName, eventObj = {}) => {
+        if (listeners[evtName]) {
+          listeners[evtName].forEach(cb => cb(eventObj));
+        }
+      },
+      closest: (sel) => {
+        if (sel === '.img-thumb-card') return card;
+        if (sel === '.img-thumb-remove') return null;
+        return null;
+      }
+    };
+
+    Object.defineProperty(card, 'parentElement', {
+      get: () => parent,
+      set: (p) => { parent = p; }
+    });
+
+    return card;
+  };
+
+  await t.test('registers both touch and drag event listeners on card', () => {
+    const card = createCardMock();
+    let reorderCalled = false;
+
+    setupDragReorder(card, () => { reorderCalled = true; });
+
+    assert.ok(card.listeners['touchstart']);
+    assert.ok(card.listeners['touchmove']);
+    assert.ok(card.listeners['touchend']);
+    assert.ok(card.listeners['dragstart']);
+    assert.ok(card.listeners['dragend']);
+    assert.ok(card.listeners['dragover']);
+    assert.ok(card.listeners['drop']);
+    assert.strictEqual(reorderCalled, false);
+  });
+
+  await t.test('desktop dragstart and dragend correctly manage CSS classes', () => {
+    const card1 = createCardMock();
+    const card2 = createCardMock();
+    const parent = {
+      querySelectorAll: (sel) => sel === '.img-thumb-card' ? [card1, card2] : []
+    };
+    card1.parentElement = parent;
+    card2.parentElement = parent;
+
+    setupDragReorder(card1);
+    setupDragReorder(card2);
+
+    const dataTransfer = {};
+    card1.dispatchEvent('dragstart', { dataTransfer });
+    assert.strictEqual(card1.classList.contains('dragging'), true);
+    assert.strictEqual(dataTransfer.effectAllowed, 'move');
+
+    card2.classList.add('drag-target');
+    card1.dispatchEvent('dragend');
+    assert.strictEqual(card1.classList.contains('dragging'), false);
+    assert.strictEqual(card2.classList.contains('drag-target'), false);
+  });
+
+  await t.test('touch drag handlers update touch styling and reorder upon drop', () => {
+    const card1 = createCardMock();
+    const card2 = createCardMock();
+    let cards = [card1, card2];
+    let reorderCalls = 0;
+
+    const parent = {
+      querySelectorAll: (sel) => sel === '.img-thumb-card' ? cards : []
+    };
+    card1.parentElement = parent;
+    card2.parentElement = parent;
+
+    card1.after = (node) => {
+      cards = [card2, node];
+    };
+    card1.before = (node) => {
+      cards = [node, card2];
+    };
+    card2.after = (node) => {
+      cards = [card1, node];
+    };
+    card2.before = (node) => {
+      cards = [node, card1];
+    };
+
+    setupDragReorder(card1, () => { reorderCalls++; });
+    setupDragReorder(card2, () => { reorderCalls++; });
+
+    // Simulate touch start on card1
+    card1.dispatchEvent('touchstart', {
+      target: card1,
+      touches: [{ clientX: 10, clientY: 20 }]
+    });
+    assert.strictEqual(card1.classList.contains('dragging'), true);
+    assert.strictEqual(card1.style.zIndex, '1000');
+
+    // Simulate touch end (drop target is set in lastTouchTarget logic)
+    card1.dispatchEvent('touchend');
+    assert.strictEqual(card1.classList.contains('dragging'), false);
+    assert.strictEqual(card1.style.zIndex, '');
   });
 });
