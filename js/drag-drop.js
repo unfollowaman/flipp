@@ -229,3 +229,20 @@ export function fileToDataUrl(file) {
     reader.readAsDataURL(file);
   });
 }
+
+export function triggerDownload(url, filename, revokeUrl = false) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  if (revokeUrl) {
+    setTimeout(() => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    }, 100);
+  }
+}
