@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setupDragReorder } from "./drag-drop.js";
+import { initDropZone, showToast, setupDragReorder, renderPageToDataUrl } from "./drag-drop.js";
 
 let pdfItems = [];
 let mergedBlob = null;
@@ -30,18 +30,7 @@ async function renderPdfFirstPage(file) {
 
     const page = await pdfDoc.getPage(1);
     const viewport = page.getViewport({ scale: 0.3 });
-
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const ctx = canvas.getContext("2d");
-
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    const dataUrl = canvas.toDataURL();
-
-    canvas.width = 0;
-    canvas.height = 0;
-    return dataUrl;
+    return await renderPageToDataUrl(page, viewport);
   } catch (err) {
     console.error("Thumbnail rendering error for", file.name, err);
     return null;

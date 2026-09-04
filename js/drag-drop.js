@@ -246,3 +246,19 @@ export function triggerDownload(url, filename, revokeUrl = false) {
     }, 100);
   }
 }
+
+export async function renderPageToDataUrl(page, viewport, imageType, imageQuality) {
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext("2d");
+
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  const dataUrl = canvas.toDataURL(imageType, imageQuality);
+
+  // Clean up canvas memory
+  canvas.width = 0;
+  canvas.height = 0;
+
+  return dataUrl;
+}

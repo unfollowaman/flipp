@@ -8,6 +8,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 
 // Robustly strip all import statements
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+src = src.replace(/export\s+async\s+function/g, 'async function');
 src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 src = src.replace(/export\s+let/g, 'let');
@@ -19,6 +20,7 @@ src += `
     setProgress,
     initDropZone,
     fileToDataUrl,
+    renderPageToDataUrl,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -86,6 +88,10 @@ const evaluateCode = `
           }
         }
       };
+      if (tag === 'canvas') {
+        el.getContext = () => ({});
+        el.toDataURL = () => 'data:image/png;base64,mockdata';
+      }
       allElements.push(el);
       return el;
     }
@@ -99,7 +105,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, fileToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, fileToDataUrl, renderPageToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -460,5 +466,25 @@ test('fileToDataUrl', async (t) => {
       },
       { message: 'Failed to read file' }
     );
+  });
+});
+
+test('renderPageToDataUrl', async (t) => {
+  await t.test('renders page to canvas, returns data URL, and resets canvas dimensions', async () => {
+    let renderCalledWith = null;
+
+    const mockPage = {
+      render: (options) => {
+        renderCalledWith = options;
+        return { promise: Promise.resolve() };
+      }
+    };
+    const mockViewport = { width: 300, height: 400 };
+
+    const dataUrl = await renderPageToDataUrl(mockPage, mockViewport, 'image/jpeg', 0.8);
+
+    assert.strictEqual(dataUrl, 'data:image/png;base64,mockdata');
+    assert.strictEqual(renderCalledWith.viewport, mockViewport);
+    assert.ok(renderCalledWith.canvasContext);
   });
 });
