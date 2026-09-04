@@ -40,21 +40,29 @@ export function initDropZone(dropZoneEl, fileInputEl, onFiles) {
     e.target.value = "";
   });
 
+  const setDragState = (isDragging) => {
+    if (isDragging) {
+      dropZoneEl.classList.add("drag-over");
+    } else {
+      dropZoneEl.classList.remove("drag-over");
+    }
+  };
+
   // Drag events
   dropZoneEl.addEventListener("dragover", (e) => {
     e.preventDefault();
-    dropZoneEl.classList.add("drag-over");
+    setDragState(true);
   });
 
   dropZoneEl.addEventListener("dragleave", (e) => {
     if (!dropZoneEl.contains(e.relatedTarget)) {
-      dropZoneEl.classList.remove("drag-over");
+      setDragState(false);
     }
   });
 
   dropZoneEl.addEventListener("drop", (e) => {
     e.preventDefault();
-    dropZoneEl.classList.remove("drag-over");
+    setDragState(false);
     const files = Array.from(e.dataTransfer.files);
     if (files.length) handleFilesWithScroll(files);
   });
