@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress, fileToDataUrl } from "./drag-drop.js";
+import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload } from "./drag-drop.js";
 
 let currentDownloadUrl = null;
 
@@ -623,22 +623,11 @@ downloadBtn.addEventListener("click", async () => {
       currentDownloadUrl = URL.createObjectURL(blob);
 
       downloadFinalBtn.onclick = () => {
-        const a = document.createElement("a");
-        a.href = currentDownloadUrl;
         const safeName = fileInfo.textContent
           .replace(".pdf", "")
           .replace(/[\/\\]/g, "_");
-        a.download = `${safeName}_signed.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        setTimeout(() => {
-          if (currentDownloadUrl) {
-            URL.revokeObjectURL(currentDownloadUrl);
-            currentDownloadUrl = null;
-          }
-        }, 100);
+        triggerDownload(currentDownloadUrl, `${safeName}_signed.pdf`, true);
+        currentDownloadUrl = null;
       };
     }, 500);
   } catch (err) {
