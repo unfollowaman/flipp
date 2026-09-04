@@ -113,6 +113,14 @@ compressBtn.addEventListener("click", async () => {
     let compressedPdfBytes;
 
     if (mode === "recommended") {
+      const PDFLib = window.PDFLib;
+      if (!PDFLib) {
+        showToast("PDF library not ready yet.", "error");
+        progressContainer.classList.remove("is-visible");
+        previewArea.classList.add("is-visible");
+        return;
+      }
+
       updateProgress("Optimizing PDF structure...");
       // Let the browser UI update
       await new Promise((resolve) => setTimeout(resolve, 0));

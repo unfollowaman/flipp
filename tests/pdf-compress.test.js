@@ -139,3 +139,90 @@ test('updateProgress function', async (t) => {
     assert.strictEqual(progressTextElement.textContent, 'Compressing...');
   });
 });
+
+test('pdf-compress error handling', async (t) => {
+  await t.test('shows error toast when PDFLib is unavailable on compress click', async () => {
+    let capturedToastMessage = '';
+    let capturedToastType = '';
+    const mockShowToastLocal = (msg, type) => {
+      capturedToastMessage = msg;
+      capturedToastType = type;
+    };
+
+    const localElementMap = {};
+    const mockDocumentLocal = {
+      getElementById: (id) => {
+        if (!localElementMap[id]) {
+          localElementMap[id] = {
+            listeners: {},
+            addEventListener: function(evt, handler) {
+              this.listeners[evt] = handler;
+            },
+            click: function() {
+              if (this.listeners['click']) this.listeners['click']();
+            },
+            style: {},
+            classList: { add: () => {}, remove: () => {} },
+            appendChild: () => {},
+            value: '',
+            textContent: ''
+          };
+        }
+        return localElementMap[id];
+      },
+      getElementsByName: () => [{ addEventListener: () => {} }],
+      querySelector: (selector) => {
+        if (selector.includes('compressionMode')) return { value: 'recommended' };
+        return { value: '' };
+      },
+      createElement: () => ({ addEventListener: () => {}, appendChild: () => {} }),
+      createTextNode: (text) => ({ textNode: true, textContent: text })
+    };
+
+    let dropZoneCallback;
+    const mockInitDropZoneLocal = (dz, fi, cb) => {
+      dropZoneCallback = cb;
+    };
+
+    const mockWindowLocal = {}; // PDFLib is undefined on window
+
+    let localSrc = fs.readFileSync(srcPath, 'utf8');
+    localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+    localSrc = localSrc.replace(/export\s+function/g, 'function');
+
+    const localWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'Blob',
+      'URL',
+      localSrc
+    );
+
+    localWrapper(
+      mockDocumentLocal,
+      mockWindowLocal,
+      mockInitDropZoneLocal,
+      mockShowToastLocal,
+      class Blob {},
+      { createObjectURL: () => 'blob:mock-url', revokeObjectURL: () => '' }
+    );
+
+    // Simulate selecting a valid file via drop zone
+    const mockFile = {
+      type: 'application/pdf',
+      name: 'test.pdf',
+      size: 1024,
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+    dropZoneCallback([mockFile]);
+
+    // Click compress button
+    const compressBtnLocal = localElementMap['compress-btn'];
+    await compressBtnLocal.click();
+
+    assert.strictEqual(capturedToastMessage, 'PDF library not ready yet.');
+    assert.strictEqual(capturedToastType, 'error');
+  });
+});
