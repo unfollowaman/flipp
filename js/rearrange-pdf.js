@@ -3,6 +3,7 @@ import {
   showToast,
   setProgress,
   setupDragReorder,
+  renderPageToDataUrl,
 } from "./drag-drop.js";
 
 let originalPdfFile = null;
@@ -117,18 +118,7 @@ async function renderThumbnails(numPages) {
           const page = await pdfDocument.getPage(i);
           const scale = 0.3;
           const viewport = page.getViewport({ scale });
-
-          const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext("2d");
-
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          const dataUrl = canvas.toDataURL();
-
-          // Clean up canvas memory
-          canvas.width = 0;
-          canvas.height = 0;
+          const dataUrl = await renderPageToDataUrl(page, viewport);
 
           return { dataUrl, i };
         })(),

@@ -97,12 +97,25 @@ test('pdf-merge functionality', async (t) => {
     setupDragReorderCalls.push({ card, onReorder });
   };
 
+  const mockRenderPageToDataUrl = async (page, viewport, type, quality) => {
+    const canvas = mockDocument.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const dataUrl = canvas.toDataURL(type, quality);
+    canvas.width = 0;
+    canvas.height = 0;
+    return dataUrl;
+  };
+
   const wrapper = new Function(
     'document',
     'window',
     'initDropZone',
     'showToast',
     'setupDragReorder',
+    'renderPageToDataUrl',
     'Blob',
     'URL',
     src
@@ -122,6 +135,7 @@ test('pdf-merge functionality', async (t) => {
       mockInitDropZone,
       mockShowToast,
       mockSetupDragReorder,
+      mockRenderPageToDataUrl,
       class Blob {},
       { createObjectURL: () => '', revokeObjectURL: () => '' }
     );

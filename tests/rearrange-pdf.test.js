@@ -154,6 +154,18 @@ test('rearrange-pdf functionality', async (t) => {
     }
   }
 
+  const mockRenderPageToDataUrl = async (page, viewport, type, quality) => {
+    const canvas = mockDocument.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const dataUrl = canvas.toDataURL(type, quality);
+    canvas.width = 0;
+    canvas.height = 0;
+    return dataUrl;
+  };
+
   const wrapper = new Function(
     'document',
     'window',
@@ -161,6 +173,7 @@ test('rearrange-pdf functionality', async (t) => {
     'showToast',
     'setProgress',
     'setupDragReorder',
+    'renderPageToDataUrl',
     'Blob',
     'URL',
     'setTimeout',
@@ -188,6 +201,7 @@ test('rearrange-pdf functionality', async (t) => {
       mockShowToast,
       mockSetProgress,
       mockSetupDragReorder,
+      mockRenderPageToDataUrl,
       MockBlob,
       mockURL,
       setTimeout
