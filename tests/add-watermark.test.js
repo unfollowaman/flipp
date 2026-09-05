@@ -12,7 +12,7 @@ src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 
 // Expose functions for testing
-src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope };\n';
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern };\n';
 
 function createMockDocument() {
   const elements = {};
@@ -182,5 +182,63 @@ test('getPageConfig and applyWatermarkScope functionality', async (t) => {
 
     applyWatermarkScope('all', 1);
     assert.strictEqual(toastMessage, 'Applied change to all pages');
+  });
+});
+
+test('applyWatermarkPattern functionality', async (t) => {
+  const mockDocument = createMockDocument();
+  const mockWindow = {};
+  const mockInitDropZone = () => {};
+  const mockShowToast = () => {};
+  const mockSetProgress = () => {};
+  const mockActivatePill = () => {};
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
+  const { applyWatermarkPattern } = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+
+  await t.test('calls getCoordsFn and drawFn for single position', () => {
+    let coordsCalled = false;
+    let drawCoords = null;
+
+    const getCoordsFn = (pos, w, h, iw, ih) => {
+      coordsCalled = true;
+      return { x: 100, y: 200 };
+    };
+
+    const drawFn = (x, y) => {
+      drawCoords = { x, y };
+    };
+
+    applyWatermarkPattern('center', 800, 600, 50, 50, 20, 20, getCoordsFn, drawFn);
+
+    assert.strictEqual(coordsCalled, true);
+    assert.deepStrictEqual(drawCoords, { x: 100, y: 200 });
+  });
+
+  await t.test('tiles watermark efficiently across canvas', () => {
+    const drawnPoints = [];
+    const drawFn = (x, y) => {
+      drawnPoints.push({ x, y });
+    };
+
+    const width = 800;
+    const height = 600;
+    const itemW = 100;
+    const itemH = 50;
+    const padX = 100;
+    const padY = 100;
+
+    applyWatermarkPattern('tile', width, height, itemW, itemH, padX, padY, null, drawFn);
+
+    // Verify drawn points are generated
+    assert.ok(drawnPoints.length > 0);
+
+    // Check that drawn points include canvas area [0, 800] x [0, 600]
+    const hasCanvasCover = drawnPoints.some(p => p.x >= 0 && p.x <= width && p.y >= 0 && p.y <= height);
+    assert.strictEqual(hasCanvasCover, true);
+
+    // Verify iteration count is bounded significantly better than naive [-width, width*2]
+    // 800x600 with step 200x150 should be around ~56 calls (vs 144 in old code)
+    assert.ok(drawnPoints.length < 100, `Expected call count < 100, got ${drawnPoints.length}`);
   });
 });

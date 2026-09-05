@@ -650,10 +650,15 @@ function applyWatermarkPattern(
   drawFn,
 ) {
   if (position === "tile") {
-    const stepX = itemW + padX;
-    const stepY = itemH + padY;
-    for (let x = -width; x < width * 2; x += stepX) {
-      for (let y = -height; y < height * 2; y += stepY) {
+    const stepX = Math.max(1, itemW + padX);
+    const stepY = Math.max(1, itemH + padY);
+    const maxDim = Math.max(stepX, stepY, Math.hypot(itemW, itemH));
+    const startX = -Math.ceil(maxDim / stepX) * stepX;
+    const endX = width + maxDim;
+    const startY = -Math.ceil(maxDim / stepY) * stepY;
+    const endY = height + maxDim;
+    for (let x = startX; x <= endX + 0.1; x += stepX) {
+      for (let y = startY; y <= endY + 0.1; y += stepY) {
         drawFn(x, y);
       }
     }
