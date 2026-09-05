@@ -170,10 +170,12 @@ mergeBtn.addEventListener("click", async () => {
       }),
     );
 
-    for (const srcPdf of loadedPdfs) {
-      const pages = await outPdf.copyPages(srcPdf, srcPdf.getPageIndices());
-      pages.forEach((p) => outPdf.addPage(p));
-    }
+    const pagesList = await Promise.all(
+      loadedPdfs.map((srcPdf) =>
+        outPdf.copyPages(srcPdf, srcPdf.getPageIndices()),
+      ),
+    );
+    pagesList.forEach((pages) => pages.forEach((p) => outPdf.addPage(p)));
 
     const bytes = await outPdf.save();
     mergedBlob = new Blob([bytes], { type: "application/pdf" });
