@@ -1405,21 +1405,64 @@ Results ============================== */
   background: var(--black);
   padding: 32px 0;
 }
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.footer-brand {
+  margin-bottom: 24px;
+}
+.footer-brand-logo {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--white);
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  display: inline-block;
+}
+.footer-brand-logo:hover {
+  color: var(--yellow);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 32px 48px;
+}
+.footer-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.footer-tools-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-info-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 .footer-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 32px 32px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 16px;
-}
-.footer-logo {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--white);
-  letter-spacing: -0.04em;
 }
 .footer-copy {
   font-size: 13px;
@@ -1917,15 +1960,6 @@ Results ============================== */
 .related-tools-section .tool-content-section {
   border-top: none;
 }
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  padding: 24px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  max-width: 1200px;
-  margin: 0 auto;
-}
 .footer-link {
   font-size: 13px;
   font-weight: 600;
@@ -1940,8 +1974,19 @@ Results ============================== */
   color: var(--yellow);
 }
 @media (max-width: 767px) {
-  .footer-links {
-    padding: 20px 16px;
+  .footer-container {
+    padding: 0 20px 24px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .footer-tools-links {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px 16px;
+  }
+  .footer-inner {
+    padding: 24px 20px 0;
   }
 } /* ============================== Blog Post Pages
 ============================== */
