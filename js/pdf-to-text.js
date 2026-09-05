@@ -9,11 +9,15 @@ const resultsArea = document.getElementById("pdf-results");
 const textOutput = document.getElementById("pdf-text-output");
 const ocrNotice = document.getElementById("ocr-notice");
 const copyBtn = document.getElementById("pdf-copy-btn");
+const boxCopyBtn = document.getElementById("pdf-box-copy-btn");
 const downloadBtn = document.getElementById("pdf-download-btn");
 const resetBtn = document.getElementById("pdf-reset-btn");
 
 let currentFile = null;
 let currentText = "";
+
+const COPY_SVG = `<svg class="copy-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+const CHECK_SVG = `<svg class="copy-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
 initDropZone(dropZone, fileInput, (files) => {
   if (files.length > 0) {
@@ -30,21 +34,42 @@ resetBtn.addEventListener("click", () => {
   progressArea.style.display = "none";
   dropZone.style.display = "block";
   fileInput.value = "";
+  if (boxCopyBtn) {
+    boxCopyBtn.classList.remove("copied");
+    boxCopyBtn.innerHTML = COPY_SVG;
+  }
 });
 
-copyBtn.addEventListener("click", () => {
-  if (currentText) {
+function copyText(isBoxButton = false) {
+  const textToCopy = currentText || textOutput.value;
+  if (textToCopy) {
     navigator.clipboard
-      .writeText(currentText)
+      .writeText(textToCopy)
       .then(() => {
         showToast("Text copied to clipboard!");
+        if (isBoxButton && boxCopyBtn) {
+          boxCopyBtn.classList.add("copied");
+          boxCopyBtn.innerHTML = CHECK_SVG;
+          setTimeout(() => {
+            boxCopyBtn.classList.remove("copied");
+            boxCopyBtn.innerHTML = COPY_SVG;
+          }, 1500);
+        }
       })
       .catch((err) => {
         console.error("Failed to copy text", err);
         showToast("Failed to copy text", "error");
       });
   }
-});
+}
+
+if (copyBtn) {
+  copyBtn.addEventListener("click", () => copyText(false));
+}
+
+if (boxCopyBtn) {
+  boxCopyBtn.addEventListener("click", () => copyText(true));
+}
 
 downloadBtn.addEventListener("click", () => {
   if (currentText && currentFile) {
