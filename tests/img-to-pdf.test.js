@@ -10,7 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
 // Expose internal functions
-src += '\nreturn { addImageFiles, resetImgConverter };\n';
+src += '\nreturn { addImageFiles, resetImgConverter, showResults };\n';
 
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
@@ -142,6 +142,103 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(elements['img-options'].style.display, 'initial-options');
     assert.strictEqual(elements['img-progress'].style.display, 'initial-progress');
     assert.strictEqual(elements['img-results'].style.display, 'initial-results');
+  });
+
+  await t.test('showResults builds DOM without innerHTML assignment and safely displays content', async () => {
+    const appendedNodes = [];
+    const mockResultInfo = createMockElement('img-result-info');
+    mockResultInfo.append = (...nodes) => {
+      appendedNodes.push(...nodes);
+    };
+
+    const elements = {
+        'img-convert-btn': createMockElement('img-convert-btn'),
+        'img-preview-area': createMockElement('img-preview-area'),
+        'img-options': createMockElement('img-options'),
+        'img-progress': createMockElement('img-progress'),
+        'img-results': createMockElement('img-results'),
+        'img-drop-zone': createMockElement('img-drop-zone'),
+        'img-file-input': createMockElement('img-file-input'),
+        'img-size-pills': createMockElement('img-size-pills'),
+        'img-orient-pills': createMockElement('img-orient-pills'),
+        'img-filename-input': createMockElement('img-filename-input'),
+        'img-file-count': createMockElement('img-file-count'),
+        'img-add-more-btn': createMockElement('img-add-more-btn'),
+        'img-preview-grid': createMockElement('img-preview-grid'),
+        'img-progress-bar': createMockElement('img-progress-bar'),
+        'img-progress-label': createMockElement('img-progress-label'),
+        'img-download-btn': createMockElement('img-download-btn'),
+        'img-result-info': mockResultInfo,
+        'img-reset-btn': createMockElement('img-reset-btn'),
+    };
+
+    elements['img-filename-input'].value = '<script>alert("xss")</script>.pdf';
+
+    const localMockDocument = {
+      getElementById: (id) => elements[id] || createMockElement(id),
+      createElement: (tag) => {
+        const el = createMockElement(tag);
+        el.tagName = tag.toUpperCase();
+        return el;
+      },
+      createDocumentFragment: () => createMockElement()
+    };
+
+    const { showResults } = wrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      class Image {}
+    );
+
+    // Set mock pdfBlob in scope before calling showResults
+    const mockBlob = { size: 1048576 };
+    // Trigger showResults when pdfBlob is present
+    const testWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'setProgress',
+      'activatePill',
+      'setupDragReorder',
+      'Blob',
+      'URL',
+      'FileReader',
+      'Image',
+      src.replace('function showResults(pageCount) {', 'pdfBlob = { size: 1048576 };\nfunction showResults(pageCount) {')
+    );
+
+    const { showResults: showResultsWithBlob } = testWrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      class Image {}
+    );
+
+    showResultsWithBlob(3);
+
+    assert.ok(elements['img-results'].classList.contains('is-visible'));
+    assert.strictEqual(appendedNodes.length, 9);
+
+    // Check filename element
+    const filenameNode = appendedNodes.find(n => n.id === 'img-result-filename');
+    assert.ok(filenameNode, 'Filename span should be constructed');
+    assert.strictEqual(filenameNode.textContent, '<script>alert("xss")</script>.pdf');
   });
 
   await t.test('properly formats pluralization for single vs multiple images', async () => {
