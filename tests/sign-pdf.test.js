@@ -12,7 +12,7 @@ src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 src = src.replace(/export\s+function/g, 'function');
 
 // Append return statement exposing internal variables and functions for testing
-src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; } };\n';
+src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, createSignatureOverlay, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; } };\n';
 
 const elementMap = {};
 
@@ -23,6 +23,7 @@ function createMockElement(id = '') {
       id,
       value: '',
       style: {},
+      dataset: {},
       classList: {
         add: (cls) => classes.add(cls),
         remove: (cls) => classes.delete(cls),
@@ -145,6 +146,7 @@ const {
   handlePdfSelect,
   handleImageSelect,
   resetTool,
+  createSignatureOverlay,
   getPdfjsDocument,
   setPdfjsDocument,
   setNumPages,
@@ -264,5 +266,31 @@ test('sign-pdf file selection error paths', async (t) => {
     assert.strictEqual(toastMessages.length, 1);
     assert.strictEqual(toastMessages[0].msg, 'Please upload a valid image file (PNG/JPG).');
     assert.strictEqual(toastMessages[0].type, 'error');
+  });
+});
+
+test('sign-pdf createSignatureOverlay', async (t) => {
+  await t.test('createSignatureOverlay sets delete handle textContent correctly', () => {
+    const appendedElements = [];
+    elementMap['sign-canvas-container'].appendChild = (child) => {
+      appendedElements.push(child);
+    };
+
+    const createdElements = [];
+    const origCreateElement = mockDocument.createElement;
+    mockDocument.createElement = (tagName) => {
+      const el = origCreateElement(tagName);
+      createdElements.push(el);
+      return el;
+    };
+
+    createSignatureOverlay('data:image/png;base64,sample');
+
+    const deleteBtn = createdElements.find((el) => el.className === 'delete-handle');
+    assert.ok(deleteBtn, 'Delete handle should be created');
+    assert.strictEqual(deleteBtn.textContent, '✕');
+    assert.strictEqual(deleteBtn.innerHTML, '');
+
+    mockDocument.createElement = origCreateElement;
   });
 });

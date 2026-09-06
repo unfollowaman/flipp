@@ -321,7 +321,7 @@ function createSignatureOverlay(src) {
 
   const deleteBtn = document.createElement("div");
   deleteBtn.className = "delete-handle";
-  deleteBtn.innerHTML = "✕";
+  deleteBtn.textContent = "✕";
   deleteBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     overlay.remove();
