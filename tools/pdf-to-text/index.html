@@ -319,21 +319,37 @@
             better accuracy.
           </div>
 
-          <textarea
-            id="pdf-text-output"
-            style="
-              width: 100%;
-              height: 300px;
-              padding: 12px;
-              border: 2px solid var(--border-color);
-              border-radius: 8px;
-              font-family:
-                &quot;Poppins&quot;, &quot;Anek Devanagari&quot;, sans-serif;
-              resize: vertical;
-              margin-bottom: 16px;
-            "
-            readonly
-          ></textarea>
+          <div class="text-box-container">
+            <button
+              class="text-box-copy-btn"
+              id="pdf-box-copy-btn"
+              title="Copy text to clipboard"
+              aria-label="Copy text to clipboard"
+            >
+              <svg
+                class="copy-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path
+                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                ></path>
+              </svg>
+            </button>
+            <textarea
+              id="pdf-text-output"
+              class="text-box-output"
+              placeholder="Extracted text will appear here..."
+              readonly
+            ></textarea>
+          </div>
 
           <div class="results-actions">
             <button class="reset-btn" id="pdf-reset-btn">
