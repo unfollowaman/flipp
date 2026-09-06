@@ -10,7 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
 // Expose internal functions
-src += '\nreturn { addImageFiles, resetImgConverter, showResults };\n';
+src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions };\n';
 
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
@@ -309,5 +309,40 @@ test('img-to-pdf error handling', async (t) => {
       '2 images selected',
       'Should be plural for more than 1 image'
     );
+  });
+
+  await t.test('getImageDimensions resolves image natural dimensions correctly', async () => {
+    class MockImage {
+      constructor() {
+        this.naturalWidth = 1920;
+        this.naturalHeight = 1080;
+      }
+      set src(url) {
+        this._src = url;
+        if (typeof this.onload === 'function') {
+          setTimeout(() => this.onload(), 0);
+        }
+      }
+      get src() {
+        return this._src;
+      }
+    }
+
+    const { getImageDimensions } = wrapper(
+      { getElementById: createMockElement, createElement: createMockElement },
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      MockImage
+    );
+
+    const dimensions = await getImageDimensions('data:image/png;base64,mock');
+    assert.deepStrictEqual(dimensions, { w: 1920, h: 1080 });
   });
 });
