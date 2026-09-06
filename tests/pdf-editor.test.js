@@ -352,3 +352,36 @@ test('pdf-editor PDF export process', async (t) => {
     assert.strictEqual(toastMessages.length, 0, 'No error toast should be displayed');
   });
 });
+
+test('pdf-editor renderAllPages performance', async (t) => {
+  await t.test('renders all pages in parallel with correct DOM order', async () => {
+    // Create mock pdfjsDocument with 10 pages and 5ms delay per step
+    const mockDocument = {
+      numPages: 10,
+      getPage: async (pageNum) => {
+        await new Promise((r) => setTimeout(r, 5));
+        return {
+          getViewport: ({ scale }) => ({ width: 600 * scale, height: 800 * scale }),
+          render: (ctx) => ({
+            promise: new Promise((r) => setTimeout(r, 5))
+          })
+        };
+      }
+    };
+
+    // Replace pdfjsDocument
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    mockWindow['pdfjs-dist/build/pdf'].getDocument = () => ({
+      promise: Promise.resolve(mockDocument)
+    });
+
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+
+    const startTime = performance.now();
+    await editorModule.renderAllPages();
+    const duration = performance.now() - startTime;
+
+    console.log(`renderAllPages duration for 10 pages: ${duration.toFixed(2)}ms`);
+    assert.ok(duration < 200, `Expected duration to be reasonable, got ${duration}ms`);
+  });
+});

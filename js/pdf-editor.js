@@ -195,11 +195,19 @@ export async function renderAllPages() {
   pagesScrollArea.innerHTML = "";
   pageMetricsCache.clear();
 
+  const pagePromises = [];
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-    const page = await pdfjsDocument.getPage(pageNum);
+    pagePromises.push(pdfjsDocument.getPage(pageNum));
+  }
+  const pages = await Promise.all(pagePromises);
+
+  const maxContainerW = Math.min(pagesScrollArea.clientWidth - 48 || 800, 900);
+  const dpr = window.devicePixelRatio || 1;
+
+  const renderPromises = pages.map((page, index) => {
+    const pageNum = index + 1;
     const unscaledViewport = page.getViewport({ scale: 1 });
 
-    const maxContainerW = Math.min(pagesScrollArea.clientWidth - 48 || 800, 900);
     const baseScale = maxContainerW / unscaledViewport.width;
     const finalScale = baseScale * zoomLevel;
 
@@ -218,7 +226,6 @@ export async function renderAllPages() {
     pageWrapper.style.height = `${viewport.height}px`;
 
     const canvas = document.createElement("canvas");
-    const dpr = window.devicePixelRatio || 1;
     canvas.width = viewport.width * dpr;
     canvas.height = viewport.height * dpr;
     canvas.style.width = `${viewport.width}px`;
@@ -240,10 +247,12 @@ export async function renderAllPages() {
     pageWrapper.appendChild(badge);
     pagesScrollArea.appendChild(pageWrapper);
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
-
     setupOverlayEvents(overlay, pageNum);
-  }
+
+    return page.render({ canvasContext: ctx, viewport }).promise;
+  });
+
+  await Promise.all(renderPromises);
 
   renderAllObjects();
 }
