@@ -343,13 +343,31 @@ function showResults(pageCount) {
   resultsArea.classList.add("is-visible");
 
   const sizeMB = (pdfBlob.size / 1024 / 1024).toFixed(2);
-  resultInfo.innerHTML = `
-    <strong>Pages:</strong> ${pageCount}<br/>
-    <strong>File size:</strong> ${sizeMB} MB<br/>
-    <strong>Filename:</strong> <span id="img-result-filename"></span>
-  `;
-  resultInfo.querySelector("#img-result-filename").textContent =
-    filenameInput.value || "converted.pdf";
+
+  resultInfo.textContent = "";
+
+  const pagesStrong = document.createElement("strong");
+  pagesStrong.textContent = "Pages:";
+  const sizeStrong = document.createElement("strong");
+  sizeStrong.textContent = "File size:";
+  const nameStrong = document.createElement("strong");
+  nameStrong.textContent = "Filename:";
+
+  const filenameSpan = document.createElement("span");
+  filenameSpan.id = "img-result-filename";
+  filenameSpan.textContent = filenameInput.value || "converted.pdf";
+
+  resultInfo.append(
+    pagesStrong,
+    ` ${pageCount}`,
+    document.createElement("br"),
+    sizeStrong,
+    ` ${sizeMB} MB`,
+    document.createElement("br"),
+    nameStrong,
+    " ",
+    filenameSpan
+  );
 
   showToast(`✓ PDF built with ${pageCount} page${pageCount !== 1 ? "s" : ""}!`);
 }
@@ -384,8 +402,8 @@ function resetImgConverter() {
   previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
-  previewGrid.innerHTML = "";
-  resultInfo.innerHTML = "";
+  previewGrid.textContent = "";
+  resultInfo.textContent = "";
   setProgress(progressBar, progressLabel, 0, "");
   activatePill(sizePills, "auto");
   activatePill(orientPills, "portrait");
