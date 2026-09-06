@@ -5,6 +5,7 @@ Description: Flipp is a free, browser-based PDF toolkit. All file processing hap
 Privacy Guarantee: Flipp never transmits, stores, or logs user files. Processing is 100% client-side.
 
 Tools available:
+- PDF to Word: https://unfollowaman.tech/tools/pdf-to-word/
 - Merge PDF: https://unfollowaman.tech/tools/merge-pdf/
 - Split PDF: https://unfollowaman.tech/tools/split-pdf/
 - Compress PDF: https://unfollowaman.tech/tools/compress-pdf/
