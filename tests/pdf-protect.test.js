@@ -196,6 +196,43 @@ test('encryptPdf function', async (t) => {
     assert.ok(blob);
   });
 
+  await t.test('rejects when getDocument promise rejects', async () => {
+    const errorWindow = {
+      jspdf: {
+        jsPDF: function(options) {
+          this.options = options;
+          return mockJsPDFInstance;
+        }
+      },
+      "pdfjs-dist/build/pdf": {
+        getDocument: () => ({
+          promise: Promise.reject(new Error("Failed to parse PDF document"))
+        })
+      }
+    };
+
+    const customWrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', 'Blob', src);
+    const { encryptPdf: errorEncryptPdf } = customWrapper(
+      mockDocument,
+      errorWindow,
+      mockInitDropZone,
+      mockShowToast,
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      global.Blob
+    );
+
+    const dummyFile = { arrayBuffer: async () => new ArrayBuffer(8) };
+    await assert.rejects(
+      async () => {
+        await errorEncryptPdf(dummyFile, 'password123');
+      },
+      {
+        name: 'Error',
+        message: 'Failed to parse PDF document'
+      }
+    );
+  });
+
   await t.test('encrypts multi-page PDF in parallel batches maintaining page order', async () => {
     const addedPages = [];
     const addedImages = [];
