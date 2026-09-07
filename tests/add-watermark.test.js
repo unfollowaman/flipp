@@ -12,7 +12,7 @@ src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 
 // Expose functions for testing
-src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern };\n';
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas };\n';
 
 function createMockDocument() {
   const elements = {};
@@ -240,5 +240,158 @@ test('applyWatermarkPattern functionality', async (t) => {
     // Verify iteration count is bounded significantly better than naive [-width, width*2]
     // 800x600 with step 200x150 should be around ~56 calls (vs 144 in old code)
     assert.ok(drawnPoints.length < 100, `Expected call count < 100, got ${drawnPoints.length}`);
+  });
+});
+
+test('drawWatermarkOnCanvas functionality', async (t) => {
+  const mockDocument = createMockDocument();
+  const mockWindow = {};
+  const mockInitDropZone = () => {};
+  const mockShowToast = () => {};
+  const mockSetProgress = () => {};
+  const mockActivatePill = () => {};
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
+  const { drawWatermarkOnCanvas } = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+
+  await t.test('renders text watermark on canvas with context operations', () => {
+    let saved = false;
+    let restored = false;
+    let filledText = null;
+    let globalAlphaSet = null;
+
+    const mockCtx = {
+      save: () => { saved = true; },
+      restore: () => { restored = true; },
+      translate: () => {},
+      rotate: () => {},
+      fillText: (text, x, y) => { filledText = text; },
+      measureText: () => ({ width: 120 }),
+      strokeRect: () => {},
+      fillRect: () => {},
+      setLineDash: () => {},
+      font: '',
+      fillStyle: '',
+      textAlign: '',
+      textBaseline: '',
+      get globalAlpha() { return globalAlphaSet; },
+      set globalAlpha(v) { globalAlphaSet = v; }
+    };
+
+    const config = {
+      mode: 'text',
+      text: 'CONFIDENTIAL',
+      fontSize: 24,
+      color: '#ff0000',
+      opacity: 0.8,
+      rotation: 45,
+      position: 'center',
+      customX: null,
+      customY: null
+    };
+
+    drawWatermarkOnCanvas(mockCtx, 800, 600, config);
+
+    assert.strictEqual(saved, true);
+    assert.strictEqual(restored, true);
+    assert.strictEqual(globalAlphaSet, 0.8);
+    assert.strictEqual(filledText, 'CONFIDENTIAL');
+  });
+
+  await t.test('handles empty text watermark gracefully without drawing text', () => {
+    let filledText = null;
+    const mockCtx = {
+      save: () => {},
+      restore: () => {},
+      translate: () => {},
+      rotate: () => {},
+      fillText: (text, x, y) => { filledText = text; },
+      measureText: () => ({ width: 0 }),
+      strokeRect: () => {},
+      fillRect: () => {},
+      setLineDash: () => {},
+      get globalAlpha() { return 1; },
+      set globalAlpha(v) {}
+    };
+
+    const config = {
+      mode: 'text',
+      text: '',
+      fontSize: 24,
+      color: '#ff0000',
+      opacity: 1,
+      rotation: 0,
+      position: 'center'
+    };
+
+    drawWatermarkOnCanvas(mockCtx, 800, 600, config);
+
+    assert.strictEqual(filledText, null);
+  });
+
+  await t.test('renders tiled text watermark', () => {
+    let fillTextCount = 0;
+    const mockCtx = {
+      save: () => {},
+      restore: () => {},
+      translate: () => {},
+      rotate: () => {},
+      fillText: () => { fillTextCount++; },
+      measureText: () => ({ width: 100 }),
+      strokeRect: () => {},
+      fillRect: () => {},
+      setLineDash: () => {},
+      get globalAlpha() { return 1; },
+      set globalAlpha(v) {}
+    };
+
+    const config = {
+      mode: 'text',
+      text: 'SAMPLE',
+      fontSize: 20,
+      color: '#000000',
+      opacity: 0.5,
+      rotation: 30,
+      position: 'tile'
+    };
+
+    drawWatermarkOnCanvas(mockCtx, 800, 600, config);
+
+    assert.ok(fillTextCount > 1, `Expected multiple fillText calls for tile mode, got ${fillTextCount}`);
+  });
+
+  await t.test('renders custom position watermark', () => {
+    let translateCoords = [];
+    const mockCtx = {
+      save: () => {},
+      restore: () => {},
+      translate: (x, y) => { translateCoords.push({ x, y }); },
+      rotate: () => {},
+      fillText: () => {},
+      measureText: () => ({ width: 100 }),
+      strokeRect: () => {},
+      fillRect: () => {},
+      setLineDash: () => {},
+      get globalAlpha() { return 1; },
+      set globalAlpha(v) {}
+    };
+
+    const config = {
+      mode: 'text',
+      text: 'CUSTOM',
+      fontSize: 20,
+      color: '#000000',
+      opacity: 1,
+      rotation: 0,
+      position: 'custom',
+      customX: 0.25,
+      customY: 0.75
+    };
+
+    drawWatermarkOnCanvas(mockCtx, 800, 600, config);
+
+    // customX: 0.25 * 800 = 200, customY: 0.75 * 600 = 450
+    const textTranslate = translateCoords.find(c => c.x === 200 && c.y === 450);
+    assert.ok(textTranslate, 'Expected text to translate to custom coordinates (200, 450)');
   });
 });

@@ -317,7 +317,7 @@ export function applyWatermarkScope(scope, targetPage = currentPage) {
   }
 }
 
-function drawWatermarkOnCanvas(ctx, width, height, config) {
+export function drawWatermarkOnCanvas(ctx, width, height, config) {
   ctx.save();
   ctx.globalAlpha = config.opacity;
   const rotationRad = config.rotation * (Math.PI / 180);
