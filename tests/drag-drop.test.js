@@ -22,6 +22,7 @@ src += `
     setupDragReorder,
     fileToDataUrl,
     renderPageToDataUrl,
+    renderPdfFirstPage,
     getDOMState: () => ({ bodyChildren, allElements, timeouts }),
     resetDOM: () => {
       bodyChildren = [];
@@ -50,9 +51,16 @@ const evaluateCode = `
     }
   }
 
-  const window = {
+  const window = new Proxy({
     getComputedStyle: () => ({ display: 'block' }),
-  };
+  }, {
+    get: (target, prop) => {
+      if (typeof globalThis.window !== 'undefined' && prop in globalThis.window) {
+        return globalThis.window[prop];
+      }
+      return target[prop];
+    }
+  });
 
   const document = {
     addEventListener: () => {},
@@ -106,7 +114,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, renderPageToDataUrl, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -487,6 +495,62 @@ test('renderPageToDataUrl', async (t) => {
     assert.strictEqual(dataUrl, 'data:image/png;base64,mockdata');
     assert.strictEqual(renderCalledWith.viewport, mockViewport);
     assert.ok(renderCalledWith.canvasContext);
+  });
+});
+
+test('renderPdfFirstPage', async (t) => {
+  await t.test('returns null when pdfjs is missing', async () => {
+    delete global.window;
+    const file = { arrayBuffer: async () => new ArrayBuffer(8) };
+    const result = await renderPdfFirstPage(file);
+    assert.strictEqual(result, null);
+  });
+
+  await t.test('returns dataUrl when valid PDF page is rendered', async () => {
+    const mockPage = {
+      getViewport: () => ({ width: 100, height: 100 }),
+      render: () => ({ promise: Promise.resolve() })
+    };
+    const mockDoc = {
+      numPages: 1,
+      getPage: async (num) => mockPage
+    };
+    const mockPdfjs = {
+      getDocument: () => ({ promise: Promise.resolve(mockDoc) })
+    };
+
+    const origWindow = global.window;
+    global.window = {
+      'pdfjs-dist/build/pdf': mockPdfjs
+    };
+
+    try {
+      const file = { name: 'test.pdf', arrayBuffer: async () => new ArrayBuffer(8) };
+      const result = await renderPdfFirstPage(file);
+      assert.strictEqual(result, 'data:image/png;base64,mockdata');
+    } finally {
+      global.window = origWindow;
+    }
+  });
+
+  await t.test('returns null when pdfDoc has zero pages or on error', async () => {
+    const mockDoc = { numPages: 0 };
+    const mockPdfjs = {
+      getDocument: () => ({ promise: Promise.resolve(mockDoc) })
+    };
+
+    const origWindow = global.window;
+    global.window = {
+      'pdfjs-dist/build/pdf': mockPdfjs
+    };
+
+    try {
+      const file = { name: 'empty.pdf', arrayBuffer: async () => new ArrayBuffer(8) };
+      const result = await renderPdfFirstPage(file);
+      assert.strictEqual(result, null);
+    } finally {
+      global.window = origWindow;
+    }
   });
 });
 

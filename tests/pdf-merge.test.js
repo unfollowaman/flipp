@@ -97,16 +97,8 @@ test('pdf-merge functionality', async (t) => {
     setupDragReorderCalls.push({ card, onReorder });
   };
 
-  const mockRenderPageToDataUrl = async (page, viewport, type, quality) => {
-    const canvas = mockDocument.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const ctx = canvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    const dataUrl = canvas.toDataURL(type, quality);
-    canvas.width = 0;
-    canvas.height = 0;
-    return dataUrl;
+  const mockRenderPdfFirstPage = async (file) => {
+    return 'data:image/png;base64,mockthumbnail';
   };
 
   const wrapper = new Function(
@@ -115,7 +107,7 @@ test('pdf-merge functionality', async (t) => {
     'initDropZone',
     'showToast',
     'setupDragReorder',
-    'renderPageToDataUrl',
+    'renderPdfFirstPage',
     'Blob',
     'URL',
     src
@@ -135,7 +127,7 @@ test('pdf-merge functionality', async (t) => {
       mockInitDropZone,
       mockShowToast,
       mockSetupDragReorder,
-      mockRenderPageToDataUrl,
+      mockRenderPdfFirstPage,
       class Blob {},
       { createObjectURL: () => '', revokeObjectURL: () => '' }
     );

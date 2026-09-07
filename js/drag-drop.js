@@ -277,3 +277,22 @@ export async function renderPageToDataUrl(page, viewport, imageType, imageQualit
 
   return dataUrl;
 }
+
+export async function renderPdfFirstPage(file) {
+  try {
+    const pdfjs = window["pdfjs-dist/build/pdf"];
+    if (!pdfjs) return null;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer.slice(0) })
+      .promise;
+    if (pdfDoc.numPages < 1) return null;
+
+    const page = await pdfDoc.getPage(1);
+    const viewport = page.getViewport({ scale: 0.3 });
+    return await renderPageToDataUrl(page, viewport);
+  } catch (err) {
+    console.error("Thumbnail rendering error for", file.name, err);
+    return null;
+  }
+}
