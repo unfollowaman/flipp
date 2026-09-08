@@ -141,10 +141,10 @@ export async function handlePdfSelect(files) {
     const arrayBuffer = await file.arrayBuffer();
     pdfBytesOriginal = arrayBuffer;
 
-    await loadPdfFromBytes(arrayBuffer);
-
     if (dropZone) dropZone.style.display = "none";
     if (workspaceContainer) workspaceContainer.style.display = "flex";
+
+    await loadPdfFromBytes(arrayBuffer);
   } catch (err) {
     console.error(err);
     if (err && err.name === "PasswordException") {
@@ -189,7 +189,9 @@ export async function renderAllPages() {
   }
   const pages = await Promise.all(pagePromises);
 
-  const maxContainerW = Math.min(pagesScrollArea.clientWidth - 48 || 800, 900);
+  const scrollAreaW = pagesScrollArea.clientWidth;
+  const availableW = scrollAreaW > 48 ? scrollAreaW - 48 : 800;
+  const maxContainerW = Math.min(availableW, 900);
   const dpr = window.devicePixelRatio || 1;
 
   const renderPromises = pages.map((page, index) => {
@@ -243,6 +245,28 @@ export async function renderAllPages() {
   await Promise.all(renderPromises);
 
   renderAllObjects();
+}
+
+// ── Zoom Controls ──────────────────────────────────────────────────
+
+function updateZoom(newZoom) {
+  zoomLevel = Math.max(0.25, Math.min(3.0, newZoom));
+  if (zoomValLabel) {
+    zoomValLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
+  }
+  renderAllPages();
+}
+
+if (zoomInBtn) {
+  zoomInBtn.addEventListener("click", () => {
+    updateZoom(zoomLevel + 0.15);
+  });
+}
+
+if (zoomOutBtn) {
+  zoomOutBtn.addEventListener("click", () => {
+    updateZoom(zoomLevel - 0.15);
+  });
 }
 
 // ── Toolbar & Tool Selection ───────────────────────────────────────
@@ -1262,6 +1286,7 @@ export function resetEditor() {
   redoStack = [];
   selectedObjId = null;
   zoomLevel = 1.0;
+  if (zoomValLabel) zoomValLabel.textContent = "100%";
 
   if (dropZone) dropZone.style.display = "flex";
   if (workspaceContainer) workspaceContainer.style.display = "none";

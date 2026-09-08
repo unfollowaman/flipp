@@ -23,6 +23,8 @@ src += `\nreturn {
   redoAction,
   resetEditor,
   exportEditedPdf,
+  updateZoom,
+  getZoomLevel: () => zoomLevel,
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
   getSelectedObjId: () => selectedObjId,
@@ -369,5 +371,49 @@ test('pdf-editor renderAllPages performance', async (t) => {
 
     console.log(`renderAllPages duration for 10 pages: ${duration.toFixed(2)}ms`);
     assert.ok(duration < 200, `Expected duration to be reasonable, got ${duration}ms`);
+  });
+});
+
+test('pdf-editor container width fallback and zoom controls', async (t) => {
+  await t.test('renderAllPages handles 0 clientWidth safely without negative scales', async () => {
+    const pagesScroll = mockDocument.getElementById('editor-pages-scroll');
+    pagesScroll.clientWidth = 0; // Simulate hidden container
+
+    let renderedViewport = null;
+    const mockDoc = {
+      numPages: 1,
+      getPage: async () => ({
+        getViewport: ({ scale }) => {
+          renderedViewport = { scale, width: 600 * scale, height: 800 * scale };
+          return renderedViewport;
+        },
+        render: () => ({ promise: Promise.resolve() })
+      })
+    };
+
+    mockWindow['pdfjs-dist/build/pdf'].getDocument = () => ({
+      promise: Promise.resolve(mockDoc)
+    });
+
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+
+    assert.ok(renderedViewport, 'Page viewport should be computed');
+    assert.ok(renderedViewport.scale > 0, 'Scale factor must be positive even when container clientWidth is 0');
+    assert.ok(renderedViewport.width > 0, 'Viewport width must be positive');
+  });
+
+  await t.test('updateZoom bounds zoom level between 0.25 and 3.0', async () => {
+    editorModule.updateZoom(1.5);
+    assert.strictEqual(editorModule.getZoomLevel(), 1.5);
+
+    editorModule.updateZoom(5.0);
+    assert.strictEqual(editorModule.getZoomLevel(), 3.0);
+
+    editorModule.updateZoom(0.1);
+    assert.strictEqual(editorModule.getZoomLevel(), 0.25);
+
+    editorModule.resetEditor();
+    assert.strictEqual(editorModule.getZoomLevel(), 1.0);
   });
 });
