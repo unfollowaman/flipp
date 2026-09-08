@@ -15,6 +15,11 @@ export function sanitizeFilename(filename) {
   return `${base}.docx`;
 }
 
+export function formatProgressMessage(baseMessage, percent) {
+  const formattedPercent = Number(percent).toFixed(1);
+  return `${baseMessage} (${formattedPercent}%)`;
+}
+
 // Coordinate transformation: convert PDF Y (from bottom) to top-down Y
 export function extractPageTextItems(textContent, viewportHeight) {
   if (!textContent || !textContent.items) return [];
@@ -430,7 +435,7 @@ export function initPdfToWordUI() {
     dropZone.style.display = "none";
     progressArea.style.display = "block";
     if (optionsArea) optionsArea.style.display = "block";
-    setProgress(progressBar, progressLabel, 0, "Analyzing PDF...");
+    setProgress(progressBar, progressLabel, 0, formatProgressMessage("Analyzing PDF...", 0));
 
     const pdfjsLib = getPdfJsLib();
     const docxLib = getDocxLib();
@@ -474,11 +479,12 @@ export function initPdfToWordUI() {
       };
 
       for (let i = 1; i <= numPages; i++) {
+        const pagePercent = (i / numPages) * 70;
         setProgress(
           progressBar,
           progressLabel,
-          (i / numPages) * 70,
-          `Analyzing & extracting page ${i} of ${numPages}...`
+          pagePercent,
+          formatProgressMessage(`Analyzing & extracting page ${i} of ${numPages}...`, pagePercent)
         );
 
         const page = await pdfDoc.getPage(i);
@@ -496,8 +502,8 @@ export function initPdfToWordUI() {
             setProgress(
               progressBar,
               progressLabel,
-              (i / numPages) * 70,
-              `Running OCR on page ${i} of ${numPages}...`
+              pagePercent,
+              formatProgressMessage(`Running OCR on page ${i} of ${numPages}...`, pagePercent)
             );
             const worker = await getOcrWorker();
             const renderViewport = page.getViewport({ scale: 2.0 });
@@ -556,14 +562,14 @@ export function initPdfToWordUI() {
         }
       }
 
-      setProgress(progressBar, progressLabel, 85, "Building Word document (.docx)...");
+      setProgress(progressBar, progressLabel, 85, formatProgressMessage("Building Word document (.docx)...", 85));
 
       // Yield thread briefly for DOM paint
       await new Promise(r => setTimeout(r, 50));
 
       generatedBlob = await generateDocxBlobFromPdfData(pagesData, docxLib);
 
-      setProgress(progressBar, progressLabel, 100, "Conversion complete!");
+      setProgress(progressBar, progressLabel, 100, formatProgressMessage("Conversion complete!", 100));
       setTimeout(() => {
         progressArea.style.display = "none";
         if (optionsArea) optionsArea.style.display = "none";
