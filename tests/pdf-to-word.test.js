@@ -26,6 +26,7 @@ const fn = new Function(`
   ${cleanedSource}
   return {
     sanitizeFilename,
+    formatProgressMessage,
     extractPageTextItems,
     sortAndDetectColumns,
     groupItemsIntoLines,
@@ -44,6 +45,13 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(pdfToWordModule.sanitizeFilename("my_document.PDF"), "my_document.docx");
     assert.strictEqual(pdfToWordModule.sanitizeFilename("path/to/file.pdf"), "path_to_file.docx");
     assert.strictEqual(pdfToWordModule.sanitizeFilename(null), "document.docx");
+  });
+
+  it("formatProgressMessage appends rounded one-decimal percentage", () => {
+    assert.strictEqual(pdfToWordModule.formatProgressMessage("Analyzing PDF...", 0), "Analyzing PDF... (0.0%)");
+    assert.strictEqual(pdfToWordModule.formatProgressMessage("Running OCR on page 1 of 15...", 4.66666), "Running OCR on page 1 of 15... (4.7%)");
+    assert.strictEqual(pdfToWordModule.formatProgressMessage("Building Word document (.docx)...", 85), "Building Word document (.docx)... (85.0%)");
+    assert.strictEqual(pdfToWordModule.formatProgressMessage("Conversion complete!", 100), "Conversion complete! (100.0%)");
   });
 
   it("extractPageTextItems transforms PDF coordinates to top-down coordinates", () => {
