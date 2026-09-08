@@ -11,7 +11,8 @@ const rawSource = fs.readFileSync(jsPath, "utf-8");
 const cleanedSource = rawSource
   .replace(/import\s+.*?from\s+['"][^'"]+['"];?/g, "")
   .replace(/export\s+function/g, "function")
-  .replace(/export\s+async\s+function/g, "async function");
+  .replace(/export\s+async\s+function/g, "async function")
+  .replace(/export\s+class/g, "class");
 
 const fn = new Function(`
   const window = {
@@ -24,9 +25,16 @@ const fn = new Function(`
     addEventListener: () => {}
   };
   ${cleanedSource}
+  function setProgress(barEl, labelEl, value, label) {
+    if (barEl) barEl.style = barEl.style || {};
+    if (barEl) barEl.style.width = value + "%";
+    if (labelEl) labelEl.textContent = label;
+  }
+
   return {
     sanitizeFilename,
     formatProgressMessage,
+    SmoothProgressController,
     extractPageTextItems,
     sortAndDetectColumns,
     groupItemsIntoLines,
@@ -137,6 +145,35 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(table.length, 2);
     assert.deepStrictEqual(table[0], ["Header 1", "Header 2"]);
     assert.deepStrictEqual(table[1], ["Value 1", "Value 2"]);
+  });
+
+  it("SmoothProgressController smoothly interpolates progress percentage and updates elements", () => {
+    const mockBar = { style: {} };
+    const mockLabel = { textContent: "" };
+
+    const controller = new pdfToWordModule.SmoothProgressController(mockBar, mockLabel, { stepSize: 1, intervalMs: 10 });
+    controller.start(0, "Analyzing PDF...");
+
+    assert.strictEqual(mockBar.style.width, "0%");
+    assert.strictEqual(mockLabel.textContent, "Analyzing PDF... (0.0%)");
+
+    controller.setTarget(10, "Extracting page 1...");
+    assert.strictEqual(controller.targetPercent, 10);
+
+    // Simulate clock ticks
+    controller.tick();
+    assert.strictEqual(controller.currentPercent, 1);
+    assert.strictEqual(mockBar.style.width, "1%");
+    assert.strictEqual(mockLabel.textContent, "Extracting page 1... (1.0%)");
+
+    controller.tick();
+    assert.strictEqual(controller.currentPercent, 2);
+
+    controller.finish("Done!");
+    assert.strictEqual(controller.currentPercent, 100);
+    assert.strictEqual(mockBar.style.width, "100%");
+    assert.strictEqual(mockLabel.textContent, "Done! (100.0%)");
+    assert.strictEqual(controller.timer, null);
   });
 
   it("createDocxElementsFromPageData generates valid docx element instances", () => {

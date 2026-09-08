@@ -20,6 +20,82 @@ export function formatProgressMessage(baseMessage, percent) {
   return `${baseMessage} (${formattedPercent}%)`;
 }
 
+export class SmoothProgressController {
+  constructor(barEl, labelEl, options = {}) {
+    this.barEl = barEl;
+    this.labelEl = labelEl;
+    this.intervalMs = options.intervalMs || 30;
+    this.stepSize = options.stepSize || 0.1;
+    this.currentPercent = 0;
+    this.targetPercent = 0;
+    this.currentMessage = "";
+    this.timer = null;
+  }
+
+  start(initialPercent = 0, initialMessage = "") {
+    this.stop();
+    this.currentPercent = initialPercent;
+    this.targetPercent = initialPercent;
+    this.currentMessage = initialMessage;
+    this.render();
+    this.timer = setInterval(() => this.tick(), this.intervalMs);
+  }
+
+  setTarget(targetPercent, message) {
+    this.targetPercent = Math.min(100, Math.max(0, targetPercent));
+    if (message !== undefined) {
+      this.currentMessage = message;
+    }
+    if (!this.timer) {
+      this.timer = setInterval(() => this.tick(), this.intervalMs);
+    }
+    this.render();
+  }
+
+  tick() {
+    if (Math.abs(this.targetPercent - this.currentPercent) < 0.01) {
+      this.currentPercent = this.targetPercent;
+      this.render();
+      return;
+    }
+
+    const diff = this.targetPercent - this.currentPercent;
+    if (diff > 0) {
+      const dynamicStep = Math.max(this.stepSize, diff * 0.1);
+      this.currentPercent = Math.min(this.targetPercent, this.currentPercent + dynamicStep);
+    } else {
+      const dynamicStep = Math.max(this.stepSize, Math.abs(diff) * 0.1);
+      this.currentPercent = Math.max(this.targetPercent, this.currentPercent - dynamicStep);
+    }
+
+    this.render();
+  }
+
+  render() {
+    if (this.barEl || this.labelEl) {
+      const formattedLabel = formatProgressMessage(this.currentMessage, this.currentPercent);
+      setProgress(this.barEl, this.labelEl, this.currentPercent, formattedLabel);
+    }
+  }
+
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
+  finish(message = "Conversion complete!") {
+    this.targetPercent = 100;
+    this.currentPercent = 100;
+    if (message !== undefined) {
+      this.currentMessage = message;
+    }
+    this.render();
+    this.stop();
+  }
+}
+
 // Coordinate transformation: convert PDF Y (from bottom) to top-down Y
 export function extractPageTextItems(textContent, viewportHeight) {
   if (!textContent || !textContent.items) return [];
@@ -388,6 +464,7 @@ export function initPdfToWordUI() {
   let currentFile = null;
   let generatedBlob = null;
   let ocrWorkerPromise = null;
+  let progressController = null;
 
   initDropZone(dropZone, fileInput, (files) => {
     if (files.length > 0) {
@@ -405,6 +482,9 @@ export function initPdfToWordUI() {
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
+      if (progressController) {
+        progressController.stop();
+      }
       currentFile = null;
       generatedBlob = null;
       if (fileInput) fileInput.value = "";
@@ -435,7 +515,9 @@ export function initPdfToWordUI() {
     dropZone.style.display = "none";
     progressArea.style.display = "block";
     if (optionsArea) optionsArea.style.display = "block";
-    setProgress(progressBar, progressLabel, 0, formatProgressMessage("Analyzing PDF...", 0));
+
+    progressController = new SmoothProgressController(progressBar, progressLabel);
+    progressController.start(0, "Analyzing PDF...");
 
     const pdfjsLib = getPdfJsLib();
     const docxLib = getDocxLib();
@@ -480,12 +562,7 @@ export function initPdfToWordUI() {
 
       for (let i = 1; i <= numPages; i++) {
         const pagePercent = (i / numPages) * 70;
-        setProgress(
-          progressBar,
-          progressLabel,
-          pagePercent,
-          formatProgressMessage(`Analyzing & extracting page ${i} of ${numPages}...`, pagePercent)
-        );
+        progressController.setTarget(pagePercent, `Analyzing & extracting page ${i} of ${numPages}...`);
 
         const page = await pdfDoc.getPage(i);
         const viewport = page.getViewport({ scale: 1.0 });
@@ -499,12 +576,7 @@ export function initPdfToWordUI() {
 
         if (forceOcr && window.Tesseract) {
           try {
-            setProgress(
-              progressBar,
-              progressLabel,
-              pagePercent,
-              formatProgressMessage(`Running OCR on page ${i} of ${numPages}...`, pagePercent)
-            );
+            progressController.setTarget(pagePercent, `Running OCR on page ${i} of ${numPages}...`);
             const worker = await getOcrWorker();
             const renderViewport = page.getViewport({ scale: 2.0 });
             const canvas = document.createElement("canvas");
@@ -562,14 +634,14 @@ export function initPdfToWordUI() {
         }
       }
 
-      setProgress(progressBar, progressLabel, 85, formatProgressMessage("Building Word document (.docx)...", 85));
+      progressController.setTarget(85, "Building Word document (.docx)...");
 
       // Yield thread briefly for DOM paint
       await new Promise(r => setTimeout(r, 50));
 
       generatedBlob = await generateDocxBlobFromPdfData(pagesData, docxLib);
 
-      setProgress(progressBar, progressLabel, 100, formatProgressMessage("Conversion complete!", 100));
+      progressController.finish("Conversion complete!");
       setTimeout(() => {
         progressArea.style.display = "none";
         if (optionsArea) optionsArea.style.display = "none";
@@ -584,6 +656,9 @@ export function initPdfToWordUI() {
   }
 
   function showPasswordError() {
+    if (progressController) {
+      progressController.stop();
+    }
     progressArea.style.display = "none";
     if (optionsArea) optionsArea.style.display = "none";
     dropZone.style.display = "block";
@@ -591,6 +666,9 @@ export function initPdfToWordUI() {
   }
 
   function resetToUpload() {
+    if (progressController) {
+      progressController.stop();
+    }
     progressArea.style.display = "none";
     if (optionsArea) optionsArea.style.display = "none";
     dropZone.style.display = "block";
