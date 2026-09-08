@@ -107,18 +107,6 @@ export function domToPdfCoords(domRect, pageViewport, pdfSize) {
   return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
 }
 
-export function pdfToDomCoords(pdfRect, pageViewport, pdfSize) {
-  const scaleX = pageViewport.width / pdfSize.width;
-  const scaleY = pageViewport.height / pdfSize.height;
-
-  const domW = pdfRect.width * scaleX;
-  const domH = pdfRect.height * scaleY;
-  const domX = pdfRect.x * scaleX;
-  const domY = (pdfSize.height - pdfRect.y - pdfRect.height) * scaleY;
-
-  return { x: domX, y: domY, width: domW, height: domH };
-}
-
 // Helper to parse hex color string to pdf-lib RGB color object
 function hexToPdfRgb(hex) {
   if (!hex || hex === "none") return null;

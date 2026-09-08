@@ -15,7 +15,6 @@ src = src.replace(/export\s+async\s+function/g, 'async function');
 // Append return statement exposing internal/exported state & methods for testing
 src += `\nreturn {
   domToPdfCoords,
-  pdfToDomCoords,
   handlePdfSelect,
   loadPdfFromBytes,
   renderAllPages,
@@ -202,19 +201,6 @@ test('pdf-editor centralized coordinate conversion', async (t) => {
     assert.strictEqual(pdfCoords.y, 900);
     assert.strictEqual(pdfCoords.width, 300);
     assert.strictEqual(pdfCoords.height, 150);
-  });
-
-  await t.test('pdfToDomCoords correctly maps PDF points to DOM box', () => {
-    const pdfRect = { x: 75, y: 900, width: 300, height: 150 };
-    const pageViewport = { width: 400, height: 800 };
-    const pdfSize = { width: 600, height: 1200 };
-
-    const domCoords = editorModule.pdfToDomCoords(pdfRect, pageViewport, pdfSize);
-
-    assert.strictEqual(domCoords.x, 50);
-    assert.strictEqual(domCoords.y, 100);
-    assert.strictEqual(domCoords.width, 200);
-    assert.strictEqual(domCoords.height, 100);
   });
 });
 
