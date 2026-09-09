@@ -213,6 +213,13 @@ test('rearrange-pdf functionality', async (t) => {
     resetRearrange = exportsObj.resetRearrange;
   });
 
+  await t.test('returns early without error when handleFiles is called with null, undefined, or empty array', async () => {
+    assert.doesNotThrow(() => handleFiles(null));
+    assert.doesNotThrow(() => handleFiles(undefined));
+    assert.doesNotThrow(() => handleFiles([]));
+    assert.strictEqual(toastMessage, null);
+  });
+
   await t.test('shows error toast when non-PDF file is selected', async () => {
     handleFiles([{ name: 'test.txt', type: 'text/plain' }]);
     assert.strictEqual(toastMessage, 'Please select a PDF file.');

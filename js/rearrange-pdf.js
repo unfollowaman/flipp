@@ -26,9 +26,10 @@ const downloadBtn = document.getElementById("rearrange-download-btn");
 const resetBtn = document.getElementById("rearrange-reset-btn");
 
 function handleFiles(files) {
+  if (!files || !files.length) return;
   const valid = files.filter(
     (f) =>
-      f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
+      f && (f.type === "application/pdf" || (f.name && f.name.toLowerCase().endsWith(".pdf"))),
   );
   if (!valid.length) return showToast("Please select a PDF file.", "error");
 
