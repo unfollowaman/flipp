@@ -108,6 +108,43 @@ textarea {
   font-weight: 500;
   color: #666;
 }
+.header-tools-nav {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto;
+}
+@media (min-width: 900px) {
+  .header-tools-nav {
+    display: flex;
+  }
+}
+.header-tool-shortcut {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+  line-height: 1.2;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.header-tool-shortcut:hover {
+  background-color: var(--yellow);
+  border-color: var(--black);
+  transform: translateY(-1px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+.header-tool-shortcut:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+}
 .nav-end {
   margin-left: auto;
   display: flex;
@@ -1634,8 +1671,9 @@ Results ============================== */
   .navbar {
     padding: 0 16px;
   }
-  .nav-link {
-    display: none;
+  .nav-link,
+  .header-tools-nav {
+    display: none !important;
   }
   .section-inner {
     padding: 0 16px;
