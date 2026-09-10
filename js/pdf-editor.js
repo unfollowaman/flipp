@@ -40,6 +40,8 @@ const zoomInBtn = document.getElementById("editor-zoom-in");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
 const undoBtn = document.getElementById("editor-undo-btn");
 const redoBtn = document.getElementById("editor-redo-btn");
+const prevPageBtn = document.getElementById("editor-prev-page");
+const nextPageBtn = document.getElementById("editor-next-page");
 
 const toolbar = document.getElementById("editor-toolbar");
 const propsBar = document.getElementById("editor-props-bar");
@@ -142,7 +144,13 @@ export async function handlePdfSelect(files) {
     pdfBytesOriginal = arrayBuffer;
 
     if (dropZone) dropZone.style.display = "none";
-    if (workspaceContainer) workspaceContainer.style.display = "flex";
+    if (workspaceContainer) {
+      workspaceContainer.style.display = "flex";
+      workspaceContainer.classList.add("is-active");
+    }
+
+    const header = document.getElementById("editor-header");
+    if (header) header.classList.add("is-compact");
 
     await loadPdfFromBytes(arrayBuffer);
   } catch (err) {
@@ -167,7 +175,7 @@ export async function loadPdfFromBytes(arrayBuffer) {
   pdfjsDocument = await loadingTask.promise;
 
   numPages = pdfjsDocument.numPages;
-  if (pageIndicator) pageIndicator.textContent = `Page 1 of ${numPages}`;
+  if (pageIndicator) pageIndicator.textContent = `1 / ${numPages}`;
 
   editorObjects = [];
   historyStack = [];
@@ -245,6 +253,67 @@ export async function renderAllPages() {
   await Promise.all(renderPromises);
 
   renderAllObjects();
+  setupScrollPageObserver();
+}
+
+// ── Page Scroll Observer & Navigation ───────────────────────────────
+
+let currentPageNumber = 1;
+
+function setupScrollPageObserver() {
+  if (!pagesScrollArea) return;
+
+  pagesScrollArea.removeEventListener("scroll", onScrollUpdatePageIndicator);
+  pagesScrollArea.addEventListener("scroll", onScrollUpdatePageIndicator);
+}
+
+function onScrollUpdatePageIndicator() {
+  const wrappers = pagesScrollArea.querySelectorAll(".pdf-page-wrapper");
+  if (!wrappers.length) return;
+
+  const scrollContainerTop = pagesScrollArea.getBoundingClientRect().top;
+
+  let currentVisiblePage = 1;
+  let minDistance = Infinity;
+
+  wrappers.forEach((wrapper) => {
+    const rect = wrapper.getBoundingClientRect();
+    const dist = Math.abs(rect.top - scrollContainerTop);
+    if (dist < minDistance) {
+      minDistance = dist;
+      currentVisiblePage = parseInt(wrapper.dataset.pageNum, 10) || 1;
+    }
+  });
+
+  currentPageNumber = currentVisiblePage;
+  if (pageIndicator) {
+    pageIndicator.textContent = `${currentPageNumber} / ${numPages}`;
+  }
+}
+
+function scrollToPage(targetPageNum) {
+  const pageWrapper = pagesScrollArea.querySelector(`.pdf-page-wrapper[data-page-num="${targetPageNum}"]`);
+  if (pageWrapper) {
+    pageWrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+    currentPageNumber = targetPageNum;
+    if (pageIndicator) pageIndicator.textContent = `${currentPageNumber} / ${numPages}`;
+  }
+}
+
+if (prevPageBtn) {
+  prevPageBtn.addEventListener("click", () => {
+    if (currentPageNumber > 1) {
+      scrollToPage(currentPageNumber - 1);
+    }
+  });
+}
+
+if (nextPageBtn) {
+  nextPageBtn.addEventListener("click", () => {
+    if (currentPageNumber < numPages) {
+      scrollToPage(currentPageNumber + 1);
+    }
+  });
 }
 
 // ── Zoom Controls ──────────────────────────────────────────────────
@@ -288,6 +357,8 @@ if (toolbar) {
 }
 
 function updatePropsBarVisibility() {
+  let hasActiveProps = false;
+
   propTextGroup.forEach((el) => (el.style.display = "none"));
   propColorGroup.forEach((el) => (el.style.display = "none"));
   propShapeGroup.forEach((el) => (el.style.display = "none"));
@@ -297,19 +368,24 @@ function updatePropsBarVisibility() {
   if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
     propColorGroup.forEach((el) => (el.style.display = "flex"));
+    hasActiveProps = true;
   } else if (activeTool === "highlight") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+    hasActiveProps = true;
   } else if (activeTool === "draw") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    hasActiveProps = true;
   } else if (activeTool === "shape") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propShapeGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    hasActiveProps = true;
   } else if (activeTool === "select" && selectedObjId) {
     const obj = editorObjects.find((o) => o.id === selectedObjId);
     if (obj) {
+      hasActiveProps = true;
       if (obj.type === "text") {
         propTextGroup.forEach((el) => (el.style.display = "flex"));
         propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -323,6 +399,14 @@ function updatePropsBarVisibility() {
           propShapeGroup.forEach((el) => (el.style.display = "flex"));
         }
       }
+    }
+  }
+
+  if (propsBar) {
+    if (hasActiveProps) {
+      propsBar.classList.add("is-visible");
+    } else {
+      propsBar.classList.remove("is-visible");
     }
   }
 }
@@ -1281,6 +1365,7 @@ export function resetEditor() {
   pdfjsDocument = null;
   pdfBytesOriginal = null;
   numPages = 0;
+  currentPageNumber = 1;
   editorObjects = [];
   historyStack = [];
   redoStack = [];
@@ -1289,7 +1374,13 @@ export function resetEditor() {
   if (zoomValLabel) zoomValLabel.textContent = "100%";
 
   if (dropZone) dropZone.style.display = "flex";
-  if (workspaceContainer) workspaceContainer.style.display = "none";
+  if (workspaceContainer) {
+    workspaceContainer.style.display = "none";
+    workspaceContainer.classList.remove("is-active");
+  }
+  const header = document.getElementById("editor-header");
+  if (header) header.classList.remove("is-compact");
+
   if (progressArea) progressArea.style.display = "none";
   if (resultsArea) resultsArea.classList.remove("is-visible");
   if (fileInput) fileInput.value = "";
