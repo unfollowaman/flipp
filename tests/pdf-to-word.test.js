@@ -19,8 +19,9 @@ const fn = new Function(`
     "pdfjs-dist/build/pdf": {},
     docx: {}
   };
+  const elementsMap = {};
   const document = {
-    getElementById: () => null,
+    getElementById: (id) => elementsMap[id] || null,
     readyState: "complete",
     addEventListener: () => {}
   };
@@ -30,10 +31,16 @@ const fn = new Function(`
     if (barEl) barEl.style.width = value + "%";
     if (labelEl) labelEl.textContent = label;
   }
+  function initDropZone(zone, input, onFiles) {
+    zone._onFiles = onFiles;
+  }
+  function showToast() {}
+  function triggerDownload() {}
 
   return {
     sanitizeFilename,
     formatProgressMessage,
+    formatBytes,
     SmoothProgressController,
     extractPageTextItems,
     sortAndDetectColumns,
@@ -41,13 +48,21 @@ const fn = new Function(`
     groupLinesIntoParagraphs,
     detectTableStructure,
     createDocxElementsFromPageData,
-    generateDocxBlobFromPdfData
+    generateDocxBlobFromPdfData,
+    initPdfToWordUI,
+    elementsMap
   };
 `);
 
 const pdfToWordModule = fn();
 
 describe("pdf-to-word unit and integration tests", () => {
+  it("formatBytes formats byte values into human readable strings", () => {
+    assert.strictEqual(pdfToWordModule.formatBytes(0), "0 Bytes");
+    assert.strictEqual(pdfToWordModule.formatBytes(1024), "1 KB");
+    assert.strictEqual(pdfToWordModule.formatBytes(1048576), "1 MB");
+  });
+
   it("sanitizeFilename cleans and appends .docx extension correctly", () => {
     assert.strictEqual(pdfToWordModule.sanitizeFilename("report.pdf"), "report.docx");
     assert.strictEqual(pdfToWordModule.sanitizeFilename("my_document.PDF"), "my_document.docx");
@@ -206,5 +221,63 @@ describe("pdf-to-word unit and integration tests", () => {
     // Expect PageBreak for page 2 + heading + paragraph = 3 elements
     assert.strictEqual(elements.length, 3);
     assert.ok(elements[0] instanceof DummyParagraph);
+  });
+
+  it("initPdfToWordUI sets up stage 1 file selection without auto conversion", () => {
+    function createMockElement(id) {
+      const listeners = {};
+      return {
+        id,
+        style: {},
+        classList: {
+          contains: () => false,
+          add: () => {},
+          remove: () => {}
+        },
+        disabled: false,
+        textContent: "",
+        value: "",
+        addEventListener: (event, cb) => { listeners[event] = cb; },
+        click: () => { if (listeners["click"]) listeners["click"](); },
+        listeners
+      };
+    }
+
+    const dropZone = createMockElement("pdf-drop-zone");
+    const fileInput = createMockElement("pdf-file-input");
+    const optionsArea = createMockElement("pdf-options");
+    const fileInfo = createMockElement("pdf-file-info");
+    const convertBtn = createMockElement("pdf-convert-btn");
+    const progressArea = createMockElement("pdf-progress");
+    const modeSelect = createMockElement("conversion-mode-select");
+    const languageSelect = createMockElement("ocr-language-select");
+
+    pdfToWordModule.elementsMap["pdf-drop-zone"] = dropZone;
+    pdfToWordModule.elementsMap["pdf-file-input"] = fileInput;
+    pdfToWordModule.elementsMap["pdf-options"] = optionsArea;
+    pdfToWordModule.elementsMap["pdf-file-info"] = fileInfo;
+    pdfToWordModule.elementsMap["pdf-convert-btn"] = convertBtn;
+    pdfToWordModule.elementsMap["pdf-progress"] = progressArea;
+    pdfToWordModule.elementsMap["conversion-mode-select"] = modeSelect;
+    pdfToWordModule.elementsMap["ocr-language-select"] = languageSelect;
+
+    pdfToWordModule.initPdfToWordUI();
+
+    assert.strictEqual(optionsArea.style.display, undefined);
+    assert.strictEqual(progressArea.style.display, undefined);
+
+    // Simulate file drop
+    const mockFile = { name: "sample.pdf", size: 2048, type: "application/pdf" };
+    dropZone._onFiles([mockFile]);
+
+    // Verify stage 1 state transitions:
+    // Dropzone hidden, options shown with file info, progress hidden, controls enabled
+    assert.strictEqual(dropZone.style.display, "none");
+    assert.strictEqual(optionsArea.style.display, "block");
+    assert.strictEqual(fileInfo.textContent, "Selected PDF: sample.pdf (2 KB)");
+    assert.strictEqual(progressArea.style.display, "none");
+    assert.strictEqual(modeSelect.disabled, false);
+    assert.strictEqual(languageSelect.disabled, false);
+    assert.strictEqual(convertBtn.disabled, false);
   });
 });

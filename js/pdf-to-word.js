@@ -20,6 +20,15 @@ export function formatProgressMessage(baseMessage, percent) {
   return `${baseMessage} (${formattedPercent}%)`;
 }
 
+export function formatBytes(bytes, decimals = 2) {
+  if (!bytes || bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+}
+
 export class SmoothProgressController {
   constructor(barEl, labelEl, options = {}) {
     this.barEl = barEl;
@@ -452,6 +461,8 @@ export function initPdfToWordUI() {
   const progressBar = document.getElementById("pdf-progress-bar");
   const progressLabel = document.getElementById("pdf-progress-label");
   const optionsArea = document.getElementById("pdf-options");
+  const fileInfo = document.getElementById("pdf-file-info");
+  const convertBtn = document.getElementById("pdf-convert-btn");
   const resultsArea = document.getElementById("pdf-results");
   const downloadBtn = document.getElementById("pdf-download-btn");
   const resetBtn = document.getElementById("pdf-reset-btn");
@@ -480,18 +491,17 @@ export function initPdfToWordUI() {
     });
   }
 
+  if (convertBtn) {
+    convertBtn.addEventListener("click", () => {
+      if (currentFile) {
+        startConversion();
+      }
+    });
+  }
+
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      if (progressController) {
-        progressController.stop();
-      }
-      currentFile = null;
-      generatedBlob = null;
-      if (fileInput) fileInput.value = "";
-      if (resultsArea) resultsArea.classList.remove("is-visible");
-      if (progressArea) progressArea.style.display = "none";
-      if (optionsArea) optionsArea.style.display = "none";
-      if (dropZone) dropZone.style.display = "block";
+      resetToUpload();
     });
   }
 
@@ -505,16 +515,44 @@ export function initPdfToWordUI() {
     });
   }
 
-  async function handleFileSelected(file) {
+  function setConfigurationControlsDisabled(disabled) {
+    if (modeSelect) modeSelect.disabled = disabled;
+    if (languageSelect) languageSelect.disabled = disabled;
+    if (convertBtn) convertBtn.disabled = disabled;
+  }
+
+  function handleFileSelected(file) {
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       showToast("Please upload a PDF file", "error");
       return;
     }
 
     currentFile = file;
+    generatedBlob = null;
+
+    if (progressController) {
+      progressController.stop();
+    }
+
+    if (resultsArea) resultsArea.classList.remove("is-visible");
+    if (progressArea) progressArea.style.display = "none";
+
     dropZone.style.display = "none";
-    progressArea.style.display = "block";
     if (optionsArea) optionsArea.style.display = "block";
+
+    if (fileInfo) {
+      fileInfo.textContent = `Selected PDF: ${file.name} (${formatBytes(file.size)})`;
+    }
+
+    setConfigurationControlsDisabled(false);
+  }
+
+  async function startConversion() {
+    if (!currentFile) return;
+
+    setConfigurationControlsDisabled(true);
+
+    if (progressArea) progressArea.style.display = "block";
 
     progressController = new SmoothProgressController(progressBar, progressLabel);
     progressController.start(0, "Analyzing PDF...");
@@ -524,18 +562,20 @@ export function initPdfToWordUI() {
 
     if (!pdfjsLib) {
       showToast("PDF processor is initializing. Please try again.", "error");
-      resetToUpload();
+      setConfigurationControlsDisabled(false);
+      progressArea.style.display = "none";
       return;
     }
 
     if (!docxLib) {
       showToast("Word document engine is initializing. Please try again.", "error");
-      resetToUpload();
+      setConfigurationControlsDisabled(false);
+      progressArea.style.display = "none";
       return;
     }
 
     try {
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await currentFile.arrayBuffer();
       let pdfDoc;
 
       try {
@@ -632,6 +672,7 @@ export function initPdfToWordUI() {
         } catch (e) {
           // ignore cleanup errors
         }
+        ocrWorkerPromise = null;
       }
 
       progressController.setTarget(85, "Building Word document (.docx)...");
@@ -645,13 +686,16 @@ export function initPdfToWordUI() {
       setTimeout(() => {
         progressArea.style.display = "none";
         if (optionsArea) optionsArea.style.display = "none";
-        resultsArea.classList.add("is-visible");
+        if (resultsArea) resultsArea.classList.add("is-visible");
+        setConfigurationControlsDisabled(false);
       }, 500);
 
     } catch (err) {
       console.error("Error converting PDF to Word:", err);
       showToast("Couldn't convert this PDF. The file may be damaged or unsupported.", "error");
-      resetToUpload();
+      setConfigurationControlsDisabled(false);
+      if (progressArea) progressArea.style.display = "none";
+      if (optionsArea) optionsArea.style.display = "block";
     }
   }
 
@@ -659,7 +703,8 @@ export function initPdfToWordUI() {
     if (progressController) {
       progressController.stop();
     }
-    progressArea.style.display = "none";
+    setConfigurationControlsDisabled(false);
+    if (progressArea) progressArea.style.display = "none";
     if (optionsArea) optionsArea.style.display = "none";
     dropZone.style.display = "block";
     showToast("This PDF is password protected. Unlock it first, then convert it to Word.", "error");
@@ -669,10 +714,15 @@ export function initPdfToWordUI() {
     if (progressController) {
       progressController.stop();
     }
-    progressArea.style.display = "none";
+    currentFile = null;
+    generatedBlob = null;
+    setConfigurationControlsDisabled(false);
+    if (fileInput) fileInput.value = "";
+    if (resultsArea) resultsArea.classList.remove("is-visible");
+    if (progressArea) progressArea.style.display = "none";
     if (optionsArea) optionsArea.style.display = "none";
-    dropZone.style.display = "block";
-    fileInput.value = "";
+    if (fileInfo) fileInfo.textContent = "";
+    if (dropZone) dropZone.style.display = "block";
   }
 }
 
