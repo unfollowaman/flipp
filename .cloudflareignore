@@ -1,0 +1,4 @@
+# Cloudflare Pages deployment ignore rules
+node_modules/
+tests/
+.git/
