@@ -1,0 +1,7 @@
+node_modules
+tests
+package.json
+package-lock.json
+DELETION_AUDIT.md
+.git
+.github
