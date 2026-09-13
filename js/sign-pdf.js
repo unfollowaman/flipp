@@ -221,7 +221,6 @@ async function handlePdfSelect(files) {
     initSignaturePad();
     renderPage(currentPage);
   } catch (err) {
-    console.error(err);
     showToast("Error loading PDF.", "error");
     resetTool();
   }
