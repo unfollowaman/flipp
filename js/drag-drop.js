@@ -292,7 +292,6 @@ export async function renderPdfFirstPage(file) {
     const viewport = page.getViewport({ scale: 0.3 });
     return await renderPageToDataUrl(page, viewport);
   } catch (err) {
-    console.error("Thumbnail rendering error for", file.name, err);
     return null;
   }
 }
