@@ -6,7 +6,7 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Free Online PDF Editor | flipp</title>
     <meta
       name="description"
@@ -76,102 +76,6 @@
         ]
       }
     </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "HowTo",
-        "name": "How to edit and annotate a PDF file online for free",
-        "step": [
-          {
-            "@type": "HowToStep",
-            "name": "Select your PDF",
-            "text": "Drag and drop your PDF into the upload area or select it from your device."
-          },
-          {
-            "@type": "HowToStep",
-            "name": "Annotate and edit",
-            "text": "Use the editing tools to add text, highlights, drawings, shapes, images, notes, or signatures."
-          },
-          {
-            "@type": "HowToStep",
-            "name": "Export and download",
-            "text": "Click Download PDF to export your edited file instantly without uploading anything."
-          }
-        ]
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Is my PDF file uploaded to a server?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. All PDF editing and rendering happens entirely inside your browser. Your files never leave your device."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Can I add text, drawings, and images to my PDF?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. You can add new text boxes, freehand drawings, highlights, geometric shapes, images, sticky notes, and signatures onto any PDF page."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Can I edit existing text inside the original PDF?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "This editor allows adding new annotations, text, images, and markups on top of your PDF. Modifying underlying embedded text layers in original PDFs is not supported."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is the PDF Editor free to use?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, flipp's PDF Editor is 100% free with no account required and no watermark limits."
-            }
-          }
-        ]
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "PDF Editor",
-        "url": "https://unfollowaman.tech/tools/edit-pdf/",
-        "description": "Edit and annotate PDF files directly in your browser. Add text, highlights, drawings, shapes, images, sticky notes, and signatures without uploading your files.",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Any",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "featureList": [
-          "Add text objects with customizable font size, family, and color",
-          "Highlight text or rectangular regions",
-          "Freehand drawing with customizable pen stroke and color",
-          "Add basic shapes (rectangles, circles, lines, arrows)",
-          "Insert local images (PNG, JPG, WebP)",
-          "Add sticky notes and comments",
-          "Draw, type, or upload custom signatures",
-          "Undo/redo history stack and zoom controls"
-        ],
-        "browserRequirements": "Requires JavaScript",
-        "isPartOf": {
-          "@type": "WebApplication",
-          "name": "Flipp",
-          "url": "https://unfollowaman.tech"
-        }
-      }
-    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -194,29 +98,32 @@
     <link rel="stylesheet" href="../../css/styles.css" />
 
     <style>
-      /* Custom Styles for PDF Editor Workspace */
+      /* Custom Styles for Mobile-First PDF Editor Workspace */
       .editor-workspace-container {
         display: none;
         flex-direction: column;
-        gap: 16px;
-        margin-top: 24px;
+        gap: 8px;
+        margin-top: 8px;
+        position: relative;
+        width: 100%;
       }
+
+      /* Compact Header / Top Bar */
       .editor-top-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
+        gap: 8px;
         background: var(--white);
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 12px 20px;
+        padding: 8px 12px;
         box-shadow: var(--shadow-hard);
       }
       .editor-doc-title {
         font-weight: 800;
-        font-size: 15px;
-        max-width: 240px;
+        font-size: 14px;
+        max-width: 180px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -224,23 +131,26 @@
       .editor-bar-group {
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        gap: 6px;
       }
+
       .editor-btn {
         background: var(--white);
+        color: var(--black);
         border: var(--border-std);
         border-radius: var(--radius-sm);
-        padding: 6px 12px;
+        padding: 6px 10px;
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        transition: transform 0.1s ease, background 0.1s ease;
+        gap: 5px;
+        transition: transform 0.1s ease, background 0.1s ease, color 0.1s ease;
         user-select: none;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
       .editor-btn:hover:not(:disabled) {
         background: var(--cream);
@@ -254,32 +164,47 @@
         cursor: not-allowed;
       }
       .editor-btn.active {
-        background: var(--black);
-        color: var(--white);
+        background: var(--black) !important;
+        color: var(--white) !important;
+        border-color: var(--black) !important;
       }
 
+      /* Horizontally Scrollable Compact Toolbar */
       .editor-toolbar {
         display: flex;
         align-items: center;
-        justify-content: center;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
         background: var(--cream);
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 12px;
+        padding: 8px;
+        box-shadow: var(--shadow-hard);
+        scrollbar-width: thin;
+      }
+      .editor-toolbar::-webkit-scrollbar {
+        height: 4px;
+      }
+      .editor-toolbar::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
       }
 
+      /* Contextual Properties Bar */
       .editor-props-bar {
-        display: flex;
+        display: none;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         flex-wrap: wrap;
         background: var(--white);
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 10px 16px;
-        font-size: 13px;
+        padding: 8px 12px;
+        font-size: 12px;
+        box-shadow: var(--shadow-hard);
       }
       .editor-prop-item {
         display: flex;
@@ -288,15 +213,15 @@
       }
       .editor-prop-item label {
         font-weight: 700;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
         color: #555;
       }
       .editor-prop-item input[type="color"] {
         border: var(--border-std);
         border-radius: 4px;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         cursor: pointer;
         padding: 0;
         background: transparent;
@@ -306,33 +231,35 @@
       .editor-prop-item input[type="range"] {
         border: var(--border-std);
         border-radius: var(--radius-sm);
-        padding: 4px 8px;
+        padding: 4px 6px;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 12px;
         background: var(--white);
       }
 
       /* PDF Pages View Container */
       .editor-pages-scroll {
-        max-height: 75vh;
+        max-height: calc(100vh - 220px);
+        min-height: 380px;
         overflow-y: auto;
         overflow-x: auto;
         background: #e5e7eb;
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 24px;
+        padding: 16px 12px 16px 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
+        gap: 20px;
         position: relative;
+        -webkit-overflow-scrolling: touch;
       }
 
       .pdf-page-wrapper {
         position: relative;
         background: var(--white);
         border: var(--border-std);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         user-select: none;
       }
       .pdf-page-wrapper canvas {
@@ -351,21 +278,76 @@
 
       .pdf-page-badge {
         position: absolute;
-        bottom: -28px;
+        bottom: -24px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         background: var(--white);
         border: var(--border-std);
-        padding: 2px 8px;
-        border-radius: 12px;
+        padding: 1px 6px;
+        border-radius: 10px;
+      }
+
+      /* Persistent Mobile Bottom Action Bar */
+      .editor-bottom-bar {
+        position: sticky;
+        bottom: 8px;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: var(--white);
+        border: var(--border-std);
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+      }
+
+      .editor-bottom-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .editor-nav-btn {
+        background: var(--white);
+        border: var(--border-std);
+        border-radius: var(--radius-sm);
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+      }
+      .editor-nav-btn:hover:not(:disabled) {
+        background: var(--cream);
+      }
+      .editor-nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .editor-indicator-text {
+        font-weight: 700;
+        font-size: 12px;
+        min-width: 48px;
+        text-align: center;
+        user-select: none;
       }
 
       /* Editor Objects on Page */
       .editor-obj {
         position: absolute;
-        box-sizing: border-border;
+        box-sizing: border-box;
         cursor: move;
         touch-action: none;
         user-select: none;
@@ -465,13 +447,13 @@
         box-shadow: var(--shadow-hard);
         width: 100%;
         max-width: 560px;
-        padding: 24px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
       }
       .editor-modal-title {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 900;
       }
       .sig-canvas {
@@ -480,7 +462,31 @@
         background: var(--white);
         touch-action: none;
         width: 100%;
-        height: 180px;
+        height: 160px;
+      }
+
+      @media (max-width: 600px) {
+        .editor-doc-title {
+          max-width: 120px;
+          font-size: 13px;
+        }
+        .editor-bottom-bar {
+          gap: 4px;
+          padding: 6px 8px;
+        }
+        .editor-nav-btn {
+          width: 28px;
+          height: 28px;
+          font-size: 13px;
+        }
+        .editor-indicator-text {
+          font-size: 11px;
+          min-width: 40px;
+        }
+        .editor-bottom-bar .cta-btn {
+          padding: 6px 10px !important;
+          font-size: 12px !important;
+        }
       }
     </style>
   </head>
@@ -508,7 +514,7 @@
 
     <main class="tool-page-main">
       <section class="section-inner" aria-labelledby="tool-title">
-        <div class="converter-header">
+        <div class="converter-header" id="editor-header">
           <div class="converter-badge" style="background: var(--pink)">
             PDF EDITOR
           </div>
@@ -554,9 +560,9 @@
           </div>
         </div>
 
-        <!-- STATE B: PDF Editor Workspace -->
+        <!-- STATE B: Mobile-First PDF Editor Workspace -->
         <div class="editor-workspace-container" id="editor-workspace">
-          <!-- Top Bar -->
+          <!-- Top Bar: Document Info + Undo/Redo -->
           <div class="editor-top-bar" id="editor-top-bar">
             <div class="editor-bar-group">
               <span class="editor-doc-title" id="editor-doc-name">document.pdf</span>
@@ -570,31 +576,15 @@
                 ↪ Redo
               </button>
             </div>
-
-            <div class="editor-bar-group">
-              <button class="editor-btn" id="editor-zoom-out" title="Zoom Out">-</button>
-              <span id="editor-zoom-val" style="font-weight: 700; font-size: 13px;">100%</span>
-              <button class="editor-btn" id="editor-zoom-in" title="Zoom In">+</button>
-            </div>
-
-            <div class="editor-bar-group">
-              <span id="editor-page-indicator" style="font-weight: 600; font-size: 13px;">Page 1 of 1</span>
-            </div>
-
-            <div class="editor-bar-group">
-              <button class="cta-btn cta-mint" id="editor-export-btn" style="padding: 8px 16px; font-size: 14px;">
-                Download PDF
-              </button>
-            </div>
           </div>
 
-          <!-- Tool Selection Bar -->
-          <div class="editor-toolbar" id="editor-toolbar">
+          <!-- Horizontal Scrollable Editing Toolbar -->
+          <div class="editor-toolbar" id="editor-toolbar" role="toolbar" aria-label="PDF Editing Tools">
             <button class="editor-btn active" data-tool="select" title="Select Object">
-              🖐️ Select
+              ↖ Select
             </button>
             <button class="editor-btn" data-tool="text" title="Add Text">
-              🔤 Add Text
+              T Text
             </button>
             <button class="editor-btn" data-tool="highlight" title="Highlight">
               🖍️ Highlight
@@ -603,7 +593,7 @@
               ✏️ Draw
             </button>
             <button class="editor-btn" data-tool="shape" title="Add Shape">
-              📐 Shape
+              □ Shape
             </button>
             <button class="editor-btn" data-tool="image" title="Add Image">
               🖼️ Image
@@ -616,12 +606,12 @@
             </button>
           </div>
 
-          <!-- Property Bar (Dynamic based on selected tool) -->
+          <!-- Contextual Properties Bar (Dynamic based on active tool / selection) -->
           <div class="editor-props-bar" id="editor-props-bar">
             <!-- Text options -->
             <div class="editor-prop-item prop-group-text" style="display: flex;">
               <label>Font Size</label>
-              <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 60px;" />
+              <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 52px;" />
             </div>
             <div class="editor-prop-item prop-group-text" style="display: flex;">
               <label>Font</label>
@@ -632,8 +622,8 @@
               </select>
             </div>
             <div class="editor-prop-item prop-group-text" style="display: flex;">
-              <button class="editor-btn" id="prop-bold"><b>B</b></button>
-              <button class="editor-btn" id="prop-italic"><i>I</i></button>
+              <button class="editor-btn" id="prop-bold" style="padding: 4px 8px;"><b>B</b></button>
+              <button class="editor-btn" id="prop-italic" style="padding: 4px 8px;"><i>I</i></button>
             </div>
 
             <!-- Color options -->
@@ -661,13 +651,13 @@
             <!-- Stroke width options -->
             <div class="editor-prop-item prop-group-stroke" style="display: flex;">
               <label>Stroke Width</label>
-              <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 50px;" />
+              <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 48px;" />
             </div>
 
             <!-- Opacity options -->
             <div class="editor-prop-item prop-group-opacity" style="display: none;">
               <label>Opacity</label>
-              <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" />
+              <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" style="width: 70px;" />
             </div>
 
             <!-- Delete selected object button -->
@@ -681,6 +671,30 @@
           <!-- Document Pages View Area -->
           <div class="editor-pages-scroll" id="editor-pages-scroll">
             <!-- Pages rendered dynamically here -->
+          </div>
+
+          <!-- Persistent Mobile Bottom Action Bar -->
+          <div class="editor-bottom-bar" id="editor-bottom-bar">
+            <!-- Page Navigation -->
+            <div class="editor-bottom-group">
+              <button class="editor-nav-btn" id="editor-prev-page" title="Previous Page">←</button>
+              <span class="editor-indicator-text" id="editor-page-indicator">1 / 1</span>
+              <button class="editor-nav-btn" id="editor-next-page" title="Next Page">→</button>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="editor-bottom-group">
+              <button class="editor-nav-btn" id="editor-zoom-out" title="Zoom Out">−</button>
+              <span class="editor-indicator-text" id="editor-zoom-val">100%</span>
+              <button class="editor-nav-btn" id="editor-zoom-in" title="Zoom In">+</button>
+            </div>
+
+            <!-- Download PDF Action Button -->
+            <div class="editor-bottom-group">
+              <button class="cta-btn cta-mint" id="editor-export-btn" style="padding: 8px 14px; font-size: 13px;">
+                Download PDF
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1047,6 +1061,6 @@
     <script src="../../js/faq.js"></script>
     <script src="../../js/pdf-editor.js" type="module"></script>
     <script src="../../js/scroll-reveal.js" defer></script>
-      <script src="../../js/header-nav.js" defer></script>
+    <script src="../../js/header-nav.js" defer></script>
   </body>
 </html>
