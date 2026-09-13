@@ -84,7 +84,8 @@ function createMockElement(id = '') {
         measureText: () => ({ width: 100 })
       }),
       toDataURL: () => 'data:image/png;base64,fakeData',
-      click: () => {}
+      click: () => {},
+      scrollIntoView: () => {}
     };
   }
   return elementMap[id];
@@ -231,6 +232,9 @@ test('pdf-editor file selection & error handling', async (t) => {
     const doc = editorModule.getPdfjsDocument();
     assert.ok(doc, 'PDF.js document should be loaded');
     assert.strictEqual(doc.numPages, 2);
+
+    const pageIndicator = mockDocument.getElementById('editor-page-indicator');
+    assert.strictEqual(pageIndicator.textContent, '1 / 2');
   });
 });
 

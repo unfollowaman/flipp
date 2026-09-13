@@ -6,7 +6,7 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Free Online PDF Editor | flipp</title>
     <meta
       name="description"
@@ -194,44 +194,45 @@
     <link rel="stylesheet" href="../../css/styles.css" />
 
     <style>
-      /* Custom Styles for PDF Editor Workspace */
+      /* Mobile-First PDF Editor Workspace Styles */
       .editor-workspace-container {
         display: none;
         flex-direction: column;
-        gap: 16px;
-        margin-top: 24px;
+        gap: 8px;
+        margin-top: 8px;
+        width: 100%;
+        position: relative;
       }
-      .editor-top-bar {
+
+      /* Compact Horizontal Scrollable Toolbar */
+      .editor-toolbar {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-        background: var(--white);
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        background: var(--cream);
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 12px 20px;
+        padding: 6px 8px;
         box-shadow: var(--shadow-hard);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
       }
-      .editor-doc-title {
-        font-weight: 800;
-        font-size: 15px;
-        max-width: 240px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .editor-toolbar::-webkit-scrollbar {
+        height: 4px;
       }
-      .editor-bar-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+      .editor-toolbar::-webkit-scrollbar-thumb {
+        background: var(--black);
+        border-radius: 4px;
       }
+
       .editor-btn {
         background: var(--white);
         border: var(--border-std);
         border-radius: var(--radius-sm);
-        padding: 6px 12px;
+        padding: 6px 10px;
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;
@@ -239,11 +240,13 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
+        flex-shrink: 0;
         transition: transform 0.1s ease, background 0.1s ease;
         user-select: none;
+        box-shadow: 1px 1px 0 var(--black);
       }
       .editor-btn:hover:not(:disabled) {
-        background: var(--cream);
+        background: var(--yellow);
         transform: translateY(-1px);
       }
       .editor-btn:active:not(:disabled) {
@@ -256,47 +259,47 @@
       .editor-btn.active {
         background: var(--black);
         color: var(--white);
+        border-color: var(--black);
+      }
+      .editor-btn.active svg {
+        stroke: var(--white);
       }
 
-      .editor-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        background: var(--cream);
-        border: var(--border-std);
-        border-radius: var(--radius-md);
-        padding: 12px;
-      }
-
+      /* Contextual Property Bar */
       .editor-props-bar {
-        display: flex;
+        display: none;
         align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
+        gap: 8px;
+        overflow-x: auto;
+        white-space: nowrap;
         background: var(--white);
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 10px 16px;
-        font-size: 13px;
+        padding: 6px 12px;
+        font-size: 12px;
+        box-shadow: var(--shadow-hard);
+        scrollbar-width: thin;
+      }
+      .editor-props-bar.is-visible {
+        display: flex;
       }
       .editor-prop-item {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
+        flex-shrink: 0;
       }
       .editor-prop-item label {
         font-weight: 700;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
-        color: #555;
+        color: #444;
       }
       .editor-prop-item input[type="color"] {
         border: var(--border-std);
         border-radius: 4px;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         cursor: pointer;
         padding: 0;
         background: transparent;
@@ -306,33 +309,35 @@
       .editor-prop-item input[type="range"] {
         border: var(--border-std);
         border-radius: var(--radius-sm);
-        padding: 4px 8px;
+        padding: 3px 6px;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 12px;
         background: var(--white);
       }
 
-      /* PDF Pages View Container */
+      /* PDF Pages View Scroll Area */
       .editor-pages-scroll {
-        max-height: 75vh;
+        min-height: 55vh;
+        max-height: calc(85vh - 120px);
         overflow-y: auto;
         overflow-x: auto;
         background: #e5e7eb;
         border: var(--border-std);
         border-radius: var(--radius-md);
-        padding: 24px;
+        padding: 16px 12px 90px 12px; /* Bottom padding so controls do not cover content */
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
+        gap: 20px;
         position: relative;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
       }
 
       .pdf-page-wrapper {
         position: relative;
         background: var(--white);
         border: var(--border-std);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         user-select: none;
       }
       .pdf-page-wrapper canvas {
@@ -351,21 +356,21 @@
 
       .pdf-page-badge {
         position: absolute;
-        bottom: -28px;
+        bottom: -24px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         background: var(--white);
         border: var(--border-std);
-        padding: 2px 8px;
-        border-radius: 12px;
+        padding: 1px 6px;
+        border-radius: 10px;
       }
 
       /* Editor Objects on Page */
       .editor-obj {
         position: absolute;
-        box-sizing: border-border;
+        box-sizing: border-box;
         cursor: move;
         touch-action: none;
         user-select: none;
@@ -447,6 +452,70 @@
         font-family: inherit;
       }
 
+      /* Persistent Mobile Bottom Action Bar */
+      .editor-bottom-bar {
+        position: sticky;
+        bottom: 12px;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: var(--white);
+        border: var(--border-std);
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        box-shadow: var(--shadow-hard);
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        flex-wrap: wrap;
+      }
+
+      .editor-bottom-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .editor-doc-title {
+        font-weight: 800;
+        font-size: 13px;
+        max-width: 130px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .editor-nav-group, .editor-zoom-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--cream);
+        border: var(--border-std);
+        border-radius: var(--radius-sm);
+        padding: 2px 6px;
+      }
+
+      .page-indicator-text, .zoom-val-text {
+        font-weight: 800;
+        font-size: 12px;
+        min-width: 44px;
+        text-align: center;
+      }
+
+      .page-nav-btn, .zoom-btn {
+        padding: 3px 8px;
+        font-size: 12px;
+        box-shadow: none;
+      }
+
+      .editor-download-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
       /* Signature Modal */
       .editor-modal-overlay {
         position: fixed;
@@ -482,6 +551,20 @@
         width: 100%;
         height: 180px;
       }
+
+      /* Collapse header when editor workspace is active on mobile */
+      @media (max-width: 768px) {
+        .editor-workspace-container.is-active ~ .tool-content-section,
+        .editor-workspace-container.is-active ~ .related-tools-section {
+          margin-top: 16px;
+        }
+        .converter-header.is-compact p {
+          display: none;
+        }
+        .converter-header.is-compact {
+          margin-bottom: 8px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -508,19 +591,12 @@
 
     <main class="tool-page-main">
       <section class="section-inner" aria-labelledby="tool-title">
-        <div class="converter-header">
+        <div class="converter-header" id="editor-header">
           <div class="converter-badge" style="background: var(--pink)">
             PDF EDITOR
           </div>
           <h1 class="converter-title" id="tool-title">PDF Editor</h1>
-          <p
-            style="
-              font-size: 14px;
-              color: #555;
-              max-width: 600px;
-              margin-top: 4px;
-            "
-          >
+          <p>
             Edit your PDF directly in your browser. Your file stays on your device. Nothing is uploaded.
           </p>
         </div>
@@ -556,72 +632,48 @@
 
         <!-- STATE B: PDF Editor Workspace -->
         <div class="editor-workspace-container" id="editor-workspace">
-          <!-- Top Bar -->
-          <div class="editor-top-bar" id="editor-top-bar">
-            <div class="editor-bar-group">
-              <span class="editor-doc-title" id="editor-doc-name">document.pdf</span>
-            </div>
-
-            <div class="editor-bar-group">
-              <button class="editor-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" disabled>
-                ↩ Undo
-              </button>
-              <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" disabled>
-                ↪ Redo
-              </button>
-            </div>
-
-            <div class="editor-bar-group">
-              <button class="editor-btn" id="editor-zoom-out" title="Zoom Out">-</button>
-              <span id="editor-zoom-val" style="font-weight: 700; font-size: 13px;">100%</span>
-              <button class="editor-btn" id="editor-zoom-in" title="Zoom In">+</button>
-            </div>
-
-            <div class="editor-bar-group">
-              <span id="editor-page-indicator" style="font-weight: 600; font-size: 13px;">Page 1 of 1</span>
-            </div>
-
-            <div class="editor-bar-group">
-              <button class="cta-btn cta-mint" id="editor-export-btn" style="padding: 8px 16px; font-size: 14px;">
-                Download PDF
-              </button>
-            </div>
-          </div>
-
-          <!-- Tool Selection Bar -->
-          <div class="editor-toolbar" id="editor-toolbar">
+          <!-- Horizontal Tool Selection Bar -->
+          <div class="editor-toolbar" id="editor-toolbar" role="toolbar" aria-label="Editing tools">
             <button class="editor-btn active" data-tool="select" title="Select Object">
-              🖐️ Select
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 3 10 21 14 14 21 10 3 3"/></svg>
+              <span>Select</span>
             </button>
             <button class="editor-btn" data-tool="text" title="Add Text">
-              🔤 Add Text
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="9" y1="20" x2="15" y2="20"/></svg>
+              <span>Text</span>
             </button>
             <button class="editor-btn" data-tool="highlight" title="Highlight">
-              🖍️ Highlight
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Highlight</span>
             </button>
             <button class="editor-btn" data-tool="draw" title="Freehand Draw">
-              ✏️ Draw
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+              <span>Draw</span>
             </button>
             <button class="editor-btn" data-tool="shape" title="Add Shape">
-              📐 Shape
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+              <span>Shape</span>
             </button>
             <button class="editor-btn" data-tool="image" title="Add Image">
-              🖼️ Image
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Image</span>
             </button>
             <button class="editor-btn" data-tool="note" title="Sticky Note">
-              📌 Note
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span>Note</span>
             </button>
             <button class="editor-btn" data-tool="signature" title="Signature">
-              ✍️ Signature
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 19.5c-2 0-3-1-3-2 0-2 2-3 2-5 0-3-2.5-5-5.5-5S8 10 8 13c0 2 1.5 3.5 3 4.5"/><path d="M3 19.5c4-2 7-3 11-3"/></svg>
+              <span>Signature</span>
             </button>
           </div>
 
-          <!-- Property Bar (Dynamic based on selected tool) -->
+          <!-- Contextual Property Bar (Dynamic based on selected tool/object) -->
           <div class="editor-props-bar" id="editor-props-bar">
             <!-- Text options -->
             <div class="editor-prop-item prop-group-text" style="display: flex;">
-              <label>Font Size</label>
-              <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 60px;" />
+              <label>Size</label>
+              <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 52px;" />
             </div>
             <div class="editor-prop-item prop-group-text" style="display: flex;">
               <label>Font</label>
@@ -632,8 +684,8 @@
               </select>
             </div>
             <div class="editor-prop-item prop-group-text" style="display: flex;">
-              <button class="editor-btn" id="prop-bold"><b>B</b></button>
-              <button class="editor-btn" id="prop-italic"><i>I</i></button>
+              <button class="editor-btn" id="prop-bold" style="padding: 2px 8px;"><b>B</b></button>
+              <button class="editor-btn" id="prop-italic" style="padding: 2px 8px;"><i>I</i></button>
             </div>
 
             <!-- Color options -->
@@ -644,7 +696,7 @@
 
             <!-- Shape options -->
             <div class="editor-prop-item prop-group-shape" style="display: none;">
-              <label>Type</label>
+              <label>Shape</label>
               <select id="prop-shape-type">
                 <option value="rect">Rectangle</option>
                 <option value="circle">Circle</option>
@@ -660,20 +712,20 @@
 
             <!-- Stroke width options -->
             <div class="editor-prop-item prop-group-stroke" style="display: flex;">
-              <label>Stroke Width</label>
-              <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 50px;" />
+              <label>Stroke</label>
+              <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 48px;" />
             </div>
 
             <!-- Opacity options -->
             <div class="editor-prop-item prop-group-opacity" style="display: none;">
               <label>Opacity</label>
-              <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" />
+              <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" style="width: 70px;" />
             </div>
 
             <!-- Delete selected object button -->
             <div class="editor-prop-item" style="margin-left: auto;">
-              <button class="editor-btn" id="editor-delete-obj" style="background: var(--red); color: white;" title="Delete Selected">
-                🗑️ Delete Selected
+              <button class="editor-btn" id="editor-delete-obj" style="background: var(--red); color: white; border-color: var(--black);" title="Delete Selected">
+                🗑️ Delete
               </button>
             </div>
           </div>
@@ -681,6 +733,35 @@
           <!-- Document Pages View Area -->
           <div class="editor-pages-scroll" id="editor-pages-scroll">
             <!-- Pages rendered dynamically here -->
+          </div>
+
+          <!-- Persistent Mobile Bottom Action Bar -->
+          <div class="editor-bottom-bar" id="editor-bottom-bar">
+            <div class="editor-bottom-section">
+              <span class="editor-doc-title" id="editor-doc-name">document.pdf</span>
+              <button class="editor-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" disabled>↩</button>
+              <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" disabled>↪</button>
+            </div>
+
+            <div class="editor-bottom-section">
+              <div class="editor-nav-group">
+                <button class="editor-btn page-nav-btn" id="editor-prev-page" title="Previous Page">←</button>
+                <span id="editor-page-indicator" class="page-indicator-text">1 / 1</span>
+                <button class="editor-btn page-nav-btn" id="editor-next-page" title="Next Page">→</button>
+              </div>
+
+              <div class="editor-zoom-group">
+                <button class="editor-btn zoom-btn" id="editor-zoom-out" title="Zoom Out">−</button>
+                <span id="editor-zoom-val" class="zoom-val-text">100%</span>
+                <button class="editor-btn zoom-btn" id="editor-zoom-in" title="Zoom In">+</button>
+              </div>
+            </div>
+
+            <div class="editor-bottom-section">
+              <button class="cta-btn cta-mint editor-download-btn" id="editor-export-btn">
+                Download PDF
+              </button>
+            </div>
           </div>
         </div>
 
