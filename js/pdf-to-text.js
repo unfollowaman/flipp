@@ -105,13 +105,14 @@ async function handleFile(file) {
   setProgress(progressBar, progressLabel, 0, "Analyzing PDF...");
 
   let ocrWorkerPromise = null;
+  let pdfDoc = null;
 
   try {
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
     const arrayBuffer = await file.arrayBuffer();
     // Copy the buffer so it's not detached if needed later
     const bufferCopy = arrayBuffer.slice(0);
-    const pdfDoc = await pdfjsLib.getDocument(bufferCopy).promise;
+    pdfDoc = await pdfjsLib.getDocument(bufferCopy).promise;
     const numPages = pdfDoc.numPages;
 
     let ocrTriggered = false;
@@ -136,27 +137,33 @@ async function handleFile(file) {
         batch.push(
           (async () => {
             const page = await pdfDoc.getPage(i);
-            const textContent = await page.getTextContent();
-            const { text: finalPageText, usedOcr } = await extractTextFromPage(
-              page,
-              textContent,
-              getOcrWorker,
-            );
+            try {
+              const textContent = await page.getTextContent();
+              const { text: finalPageText, usedOcr } = await extractTextFromPage(
+                page,
+                textContent,
+                getOcrWorker,
+              );
 
-            if (usedOcr) {
-              ocrTriggered = true;
-              ocrNotice.style.display = "block";
+              if (usedOcr) {
+                ocrTriggered = true;
+                ocrNotice.style.display = "block";
+              }
+
+              pageTexts[i - 1] = finalPageText;
+              completedPages++;
+
+              setProgress(
+                progressBar,
+                progressLabel,
+                (completedPages / numPages) * 100,
+                `Extracting text... (${completedPages} of ${numPages} pages)`,
+              );
+            } finally {
+              if (page && typeof page.cleanup === "function") {
+                page.cleanup();
+              }
             }
-
-            pageTexts[i - 1] = finalPageText;
-            completedPages++;
-
-            setProgress(
-              progressBar,
-              progressLabel,
-              (completedPages / numPages) * 100,
-              `Extracting text... (${completedPages} of ${numPages} pages)`,
-            );
           })(),
         );
       }
@@ -191,6 +198,14 @@ async function handleFile(file) {
     progressArea.style.display = "none";
     resultsArea.classList.remove("is-visible");
     dropZone.style.display = "block";
+  } finally {
+    if (pdfDoc && typeof pdfDoc.destroy === "function") {
+      try {
+        await pdfDoc.destroy();
+      } catch (e) {
+        // Ignore destruction errors
+      }
+    }
   }
 }
 

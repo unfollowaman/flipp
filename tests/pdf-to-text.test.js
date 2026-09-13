@@ -144,4 +144,106 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
     await new Promise((r) => setTimeout(r, 1600));
     assert.strictEqual(boxBtn.classes.has('copied'), false);
   });
+
+  await t.test('handleFile cleans up page and pdfDoc resources', async () => {
+    let pageCleanupCalled = false;
+    let pdfDocDestroyCalled = false;
+
+    const mockPage = {
+      getTextContent: async () => ({
+        items: [{ str: 'Sample page text content' }]
+      }),
+      cleanup: () => {
+        pageCleanupCalled = true;
+      }
+    };
+
+    const mockPdfDoc = {
+      numPages: 1,
+      getPage: async (i) => mockPage,
+      destroy: async () => {
+        pdfDocDestroyCalled = true;
+      }
+    };
+
+    const createMockElement = (id) => ({
+      id,
+      value: '',
+      style: {},
+      classList: {
+        add: () => {},
+        remove: () => {},
+        contains: () => false
+      },
+      innerHTML: '',
+      addEventListener: () => {}
+    });
+
+    const elementMap = {
+      'pdf-drop-zone': createMockElement('pdf-drop-zone'),
+      'pdf-file-input': createMockElement('pdf-file-input'),
+      'pdf-progress': createMockElement('pdf-progress'),
+      'pdf-progress-bar': createMockElement('pdf-progress-bar'),
+      'pdf-progress-label': createMockElement('pdf-progress-label'),
+      'pdf-results': createMockElement('pdf-results'),
+      'pdf-text-output': createMockElement('pdf-text-output'),
+      'ocr-notice': createMockElement('ocr-notice'),
+      'pdf-copy-btn': createMockElement('pdf-copy-btn'),
+      'pdf-box-copy-btn': createMockElement('pdf-box-copy-btn'),
+      'pdf-download-btn': createMockElement('pdf-download-btn'),
+      'pdf-reset-btn': createMockElement('pdf-reset-btn')
+    };
+
+    const mockDocument = {
+      getElementById: (id) => elementMap[id] || createMockElement(id),
+      body: { appendChild: () => {}, removeChild: () => {} }
+    };
+
+    const mockWindow = {
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({
+          promise: Promise.resolve(mockPdfDoc)
+        })
+      }
+    };
+
+    const handleFileFnMatch = src.match(/async function handleFile[\s\S]*?\n\}/);
+    const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
+    assert.ok(handleFileFnMatch, 'handleFile function exists');
+
+    const evalCode = `
+      const document = mockDocument;
+      const window = mockWindow;
+      let currentFile = null;
+      let currentText = "";
+      const dropZone = mockDocument.getElementById("pdf-drop-zone");
+      const progressArea = mockDocument.getElementById("pdf-progress");
+      const progressBar = mockDocument.getElementById("pdf-progress-bar");
+      const progressLabel = mockDocument.getElementById("pdf-progress-label");
+      const resultsArea = mockDocument.getElementById("pdf-results");
+      const textOutput = mockDocument.getElementById("pdf-text-output");
+      const ocrNotice = mockDocument.getElementById("ocr-notice");
+
+      function showToast() {}
+      function setProgress() {}
+
+      ${extractFnMatch[0]}
+      ${handleFileFnMatch[0]}
+
+      return handleFile;
+    `;
+
+    const handleFile = new Function('mockDocument', 'mockWindow', evalCode)(mockDocument, mockWindow);
+
+    const mockFile = {
+      type: 'application/pdf',
+      name: 'test.pdf',
+      arrayBuffer: async () => new ArrayBuffer(10)
+    };
+
+    await handleFile(mockFile);
+
+    assert.strictEqual(pageCleanupCalled, true, 'page.cleanup() should be called');
+    assert.strictEqual(pdfDocDestroyCalled, true, 'pdfDoc.destroy() should be called');
+  });
 });
