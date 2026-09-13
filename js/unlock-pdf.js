@@ -98,7 +98,6 @@ initDropZone(
         throw e;
       }
     } catch (err) {
-      console.error("Error loading PDF:", err);
       showToast("Failed to read PDF. It might be corrupted.");
     }
   },
