@@ -4,6 +4,7 @@ import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload } 
 let pdfjsDocument = null;
 let pdfBytesOriginal = null;
 let numPages = 0;
+let currentPageNum = 1;
 let fileName = "document.pdf";
 
 let zoomLevel = 1.0;
@@ -32,9 +33,13 @@ const pageMetricsCache = new Map();
 const dropZone = document.getElementById("editor-drop-zone");
 const fileInput = document.getElementById("editor-file-input");
 
+const headerSection = document.getElementById("editor-header");
 const workspaceContainer = document.getElementById("editor-workspace");
 const docNameLabel = document.getElementById("editor-doc-name");
 const pageIndicator = document.getElementById("editor-page-indicator");
+const prevPageBtn = document.getElementById("editor-prev-page");
+const nextPageBtn = document.getElementById("editor-next-page");
+
 const zoomValLabel = document.getElementById("editor-zoom-val");
 const zoomInBtn = document.getElementById("editor-zoom-in");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
@@ -141,6 +146,7 @@ export async function handlePdfSelect(files) {
     const arrayBuffer = await file.arrayBuffer();
     pdfBytesOriginal = arrayBuffer;
 
+    if (headerSection) headerSection.style.display = "none";
     if (dropZone) dropZone.style.display = "none";
     if (workspaceContainer) workspaceContainer.style.display = "flex";
 
@@ -167,7 +173,8 @@ export async function loadPdfFromBytes(arrayBuffer) {
   pdfjsDocument = await loadingTask.promise;
 
   numPages = pdfjsDocument.numPages;
-  if (pageIndicator) pageIndicator.textContent = `Page 1 of ${numPages}`;
+  currentPageNum = 1;
+  updatePageNavigationUI();
 
   editorObjects = [];
   historyStack = [];
@@ -247,9 +254,66 @@ export async function renderAllPages() {
   renderAllObjects();
 }
 
+// ── Page Navigation & Scroll Monitoring ─────────────────────────────
+
+function updatePageNavigationUI() {
+  if (pageIndicator) pageIndicator.textContent = `${currentPageNum} / ${numPages || 1}`;
+  if (prevPageBtn) prevPageBtn.disabled = currentPageNum <= 1;
+  if (nextPageBtn) nextPageBtn.disabled = currentPageNum >= numPages;
+}
+
+function scrollToPage(pageNum) {
+  if (pageNum < 1 || pageNum > numPages) return;
+  currentPageNum = pageNum;
+  updatePageNavigationUI();
+
+  const targetWrapper = pagesScrollArea.querySelector(`.pdf-page-wrapper[data-page-num="${pageNum}"]`);
+  if (targetWrapper) {
+    targetWrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+if (prevPageBtn) {
+  prevPageBtn.addEventListener("click", () => {
+    if (currentPageNum > 1) scrollToPage(currentPageNum - 1);
+  });
+}
+
+if (nextPageBtn) {
+  nextPageBtn.addEventListener("click", () => {
+    if (currentPageNum < numPages) scrollToPage(currentPageNum + 1);
+  });
+}
+
+if (pagesScrollArea) {
+  pagesScrollArea.addEventListener("scroll", () => {
+    if (!numPages) return;
+    const scrollContainerTop = pagesScrollArea.getBoundingClientRect().top;
+    const pageWrappers = pagesScrollArea.querySelectorAll(".pdf-page-wrapper");
+
+    let currentVisiblePage = currentPageNum;
+    let minDistance = Infinity;
+
+    pageWrappers.forEach((wrapper) => {
+      const pageNum = parseInt(wrapper.dataset.pageNum, 10);
+      const rect = wrapper.getBoundingClientRect();
+      const distance = Math.abs(rect.top - scrollContainerTop);
+      if (distance < minDistance) {
+        minDistance = distance;
+        currentVisiblePage = pageNum;
+      }
+    });
+
+    if (currentVisiblePage !== currentPageNum) {
+      currentPageNum = currentVisiblePage;
+      updatePageNavigationUI();
+    }
+  });
+}
+
 // ── Zoom Controls ──────────────────────────────────────────────────
 
-function updateZoom(newZoom) {
+export function updateZoom(newZoom) {
   zoomLevel = Math.max(0.25, Math.min(3.0, newZoom));
   if (zoomValLabel) {
     zoomValLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
@@ -294,36 +358,49 @@ function updatePropsBarVisibility() {
   propStrokeGroup.forEach((el) => (el.style.display = "none"));
   propOpacityGroup.forEach((el) => (el.style.display = "none"));
 
+  let hasVisibleProps = false;
+
   if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
     propColorGroup.forEach((el) => (el.style.display = "flex"));
+    hasVisibleProps = true;
   } else if (activeTool === "highlight") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+    hasVisibleProps = true;
   } else if (activeTool === "draw") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    hasVisibleProps = true;
   } else if (activeTool === "shape") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propShapeGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    hasVisibleProps = true;
   } else if (activeTool === "select" && selectedObjId) {
     const obj = editorObjects.find((o) => o.id === selectedObjId);
     if (obj) {
       if (obj.type === "text") {
         propTextGroup.forEach((el) => (el.style.display = "flex"));
         propColorGroup.forEach((el) => (el.style.display = "flex"));
+        hasVisibleProps = true;
       } else if (obj.type === "highlight") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
         propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+        hasVisibleProps = true;
       } else if (obj.type === "draw" || obj.type === "shape") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
         propStrokeGroup.forEach((el) => (el.style.display = "flex"));
         if (obj.type === "shape") {
           propShapeGroup.forEach((el) => (el.style.display = "flex"));
         }
+        hasVisibleProps = true;
       }
     }
+  }
+
+  if (propsBar) {
+    propsBar.style.display = hasVisibleProps ? "flex" : "none";
   }
 }
 
@@ -964,7 +1041,7 @@ if (sigPlaceBtn) {
       const newObj = {
         id: "obj_" + Date.now(),
         type: "signature",
-        pageNum: 1,
+        pageNum: currentPageNum || 1,
         x: 100,
         y: 100,
         width: 180,
@@ -1281,13 +1358,16 @@ export function resetEditor() {
   pdfjsDocument = null;
   pdfBytesOriginal = null;
   numPages = 0;
+  currentPageNum = 1;
   editorObjects = [];
   historyStack = [];
   redoStack = [];
   selectedObjId = null;
   zoomLevel = 1.0;
   if (zoomValLabel) zoomValLabel.textContent = "100%";
+  updatePageNavigationUI();
 
+  if (headerSection) headerSection.style.display = "block";
   if (dropZone) dropZone.style.display = "flex";
   if (workspaceContainer) workspaceContainer.style.display = "none";
   if (progressArea) progressArea.style.display = "none";
