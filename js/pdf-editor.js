@@ -453,6 +453,16 @@ function applyPropChangesToSelected() {
 
 // ── Overlay Events & Object Creation ────────────────────────────────
 
+export function updateSelectedObjectUI() {
+  document.querySelectorAll(".editor-obj").forEach((node) => {
+    if (node.dataset.objId === selectedObjId) {
+      node.classList.add("selected");
+    } else {
+      node.classList.remove("selected");
+    }
+  });
+}
+
 function setupOverlayEvents(overlay, pageNum) {
   let isDrawing = false;
   let currentPath = [];
@@ -467,7 +477,7 @@ function setupOverlayEvents(overlay, pageNum) {
 
     if (activeTool === "select") {
       selectedObjId = null;
-      renderAllObjects();
+      updateSelectedObjectUI();
       updatePropsBarVisibility();
       return;
     }
@@ -630,6 +640,8 @@ function setupOverlayEvents(overlay, pageNum) {
           path: normalizedPath,
           color: propColor.value || "#000000",
           strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
+          initialWidth: w,
+          initialHeight: h,
         },
       };
       editorObjects.push(newObj);
@@ -690,6 +702,88 @@ function triggerImageUploadForPage(pageNum, clickX, clickY) {
   fileInputTemp.click();
 }
 
+// ── Canvas Helper Drawing Functions ───────────────────────────────
+
+function drawCanvasPath(canvas, properties) {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = properties.color || "#000000";
+  ctx.lineWidth = properties.strokeWidth || 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const initW = properties.initialWidth || canvas.width;
+  const initH = properties.initialHeight || canvas.height;
+  const scaleX = initW > 0 ? canvas.width / initW : 1;
+  const scaleY = initH > 0 ? canvas.height / initH : 1;
+
+  ctx.save();
+  ctx.scale(scaleX, scaleY);
+
+  ctx.beginPath();
+  (properties.path || []).forEach((pt, idx) => {
+    if (idx === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
+  });
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCanvasShape(canvas, width, height, properties) {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, width, height);
+  ctx.strokeStyle = properties.strokeColor || "#000000";
+  ctx.lineWidth = properties.strokeWidth || 2;
+
+  if (properties.fillColor && properties.fillColor !== "none") {
+    ctx.fillStyle = properties.fillColor;
+  }
+
+  const st = properties.shapeType;
+  if (st === "rect") {
+    if (properties.fillColor && properties.fillColor !== "none") {
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.strokeRect(0, 0, width, height);
+  } else if (st === "circle") {
+    ctx.beginPath();
+    ctx.ellipse(width / 2, height / 2, Math.max(1, width / 2 - 2), Math.max(1, height / 2 - 2), 0, 0, 2 * Math.PI);
+    if (properties.fillColor && properties.fillColor !== "none") ctx.fill();
+    ctx.stroke();
+  } else if (st === "line" || st === "arrow") {
+    ctx.beginPath();
+    ctx.moveTo(4, height / 2);
+    ctx.lineTo(width - 4, height / 2);
+    ctx.stroke();
+
+    if (st === "arrow") {
+      ctx.beginPath();
+      ctx.moveTo(width - 12, height / 2 - 6);
+      ctx.lineTo(width - 2, height / 2);
+      ctx.lineTo(width - 12, height / 2 + 6);
+      ctx.stroke();
+    }
+  }
+}
+
+function updateObjectInternalDimensions(el, obj) {
+  if (obj.type === "draw") {
+    const canvas = el.querySelector("canvas");
+    if (canvas) {
+      canvas.width = obj.width;
+      canvas.height = obj.height;
+      drawCanvasPath(canvas, obj.properties);
+    }
+  } else if (obj.type === "shape") {
+    const canvas = el.querySelector("canvas");
+    if (canvas) {
+      canvas.width = obj.width;
+      canvas.height = obj.height;
+      drawCanvasShape(canvas, obj.width, obj.height, obj.properties);
+    }
+  }
+}
+
 // ── Render Objects on DOM Overlay ───────────────────────────────────
 
 export function renderAllObjects() {
@@ -702,6 +796,7 @@ export function renderAllObjects() {
 
     const el = document.createElement("div");
     el.className = `editor-obj ${obj.id === selectedObjId ? "selected" : ""}`;
+    el.dataset.objId = obj.id;
     el.style.left = `${obj.x}px`;
     el.style.top = `${obj.y}px`;
     el.style.width = `${obj.width}px`;
@@ -733,19 +828,10 @@ export function renderAllObjects() {
       canvas.style.width = "100%";
       canvas.style.height = "100%";
 
-      const ctx = canvas.getContext("2d");
-      ctx.strokeStyle = obj.properties.color;
-      ctx.lineWidth = obj.properties.strokeWidth;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+      if (!obj.properties.initialWidth) obj.properties.initialWidth = obj.width;
+      if (!obj.properties.initialHeight) obj.properties.initialHeight = obj.height;
 
-      ctx.beginPath();
-      (obj.properties.path || []).forEach((pt, idx) => {
-        if (idx === 0) ctx.moveTo(pt.x, pt.y);
-        else ctx.lineTo(pt.x, pt.y);
-      });
-      ctx.stroke();
-
+      drawCanvasPath(canvas, obj.properties);
       el.appendChild(canvas);
     } else if (obj.type === "shape") {
       const canvas = document.createElement("canvas");
@@ -754,40 +840,7 @@ export function renderAllObjects() {
       canvas.style.width = "100%";
       canvas.style.height = "100%";
 
-      const ctx = canvas.getContext("2d");
-      ctx.strokeStyle = obj.properties.strokeColor;
-      ctx.lineWidth = obj.properties.strokeWidth;
-
-      if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
-        ctx.fillStyle = obj.properties.fillColor;
-      }
-
-      const st = obj.properties.shapeType;
-      if (st === "rect") {
-        if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
-          ctx.fillRect(0, 0, obj.width, obj.height);
-        }
-        ctx.strokeRect(0, 0, obj.width, obj.height);
-      } else if (st === "circle") {
-        ctx.beginPath();
-        ctx.ellipse(obj.width / 2, obj.height / 2, obj.width / 2 - 2, obj.height / 2 - 2, 0, 0, 2 * Math.PI);
-        if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fill();
-        ctx.stroke();
-      } else if (st === "line" || st === "arrow") {
-        ctx.beginPath();
-        ctx.moveTo(4, obj.height / 2);
-        ctx.lineTo(obj.width - 4, obj.height / 2);
-        ctx.stroke();
-
-        if (st === "arrow") {
-          ctx.beginPath();
-          ctx.moveTo(obj.width - 12, obj.height / 2 - 6);
-          ctx.lineTo(obj.width - 2, obj.height / 2);
-          ctx.lineTo(obj.width - 12, obj.height / 2 + 6);
-          ctx.stroke();
-        }
-      }
-
+      drawCanvasShape(canvas, obj.width, obj.height, obj.properties);
       el.appendChild(canvas);
     } else if (obj.type === "image" || obj.type === "signature") {
       const img = document.createElement("img");
@@ -811,6 +864,11 @@ export function renderAllObjects() {
       el.appendChild(noteBox);
     }
 
+    const moveHandle = document.createElement("div");
+    moveHandle.className = "editor-obj-handle move";
+    moveHandle.textContent = "✥";
+    moveHandle.title = "Drag to move";
+
     const resizeHandle = document.createElement("div");
     resizeHandle.className = "editor-obj-handle se";
 
@@ -822,6 +880,7 @@ export function renderAllObjects() {
       deleteObject(obj.id);
     });
 
+    el.appendChild(moveHandle);
     el.appendChild(resizeHandle);
     el.appendChild(deleteHandle);
 
@@ -829,82 +888,120 @@ export function renderAllObjects() {
 
     el.addEventListener("mousedown", (e) => {
       if (e.target === deleteHandle || e.target === resizeHandle) return;
-      selectedObjId = obj.id;
-      renderAllObjects();
-      updatePropsBarVisibility();
+      if (selectedObjId !== obj.id) {
+        selectedObjId = obj.id;
+        updateSelectedObjectUI();
+        updatePropsBarVisibility();
+      }
     });
 
-    makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle);
+    makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle);
   });
 }
 
-function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle) {
+function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle) {
   let isDragging = false;
   let isResizing = false;
   let startX, startY;
   let startLeft, startTop;
   let startWidth, startHeight;
 
-  el.addEventListener("mousedown", (e) => {
-    if (e.target === resizeHandle || e.target === deleteHandle || e.target.tagName === "TEXTAREA") return;
+  const overlay = el.parentElement;
+
+  const startDrag = (e) => {
+    if (e.target === deleteHandle || e.target === resizeHandle) return;
+    if (e.target.tagName === "TEXTAREA" && e.target !== moveHandle) {
+      return;
+    }
 
     isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
+    startX = clientX;
+    startY = clientY;
     startLeft = obj.x;
     startTop = obj.y;
 
     document.addEventListener("mousemove", onMove);
+    document.addEventListener("touchmove", onMove, { passive: false });
     document.addEventListener("mouseup", onEnd);
-  });
+    document.addEventListener("touchend", onEnd);
 
-  function onMove(e) {
+    if (e.type && e.type.includes("touch")) e.preventDefault();
+  };
+
+  if (moveHandle) {
+    moveHandle.addEventListener("mousedown", startDrag);
+    moveHandle.addEventListener("touchstart", startDrag, { passive: false });
+  }
+
+  el.addEventListener("mousedown", startDrag);
+  el.addEventListener("touchstart", startDrag, { passive: false });
+
+  const onMove = (e) => {
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+
     if (isDragging) {
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
+      const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
 
-      obj.x = Math.max(0, startLeft + dx);
-      obj.y = Math.max(0, startTop + dy);
+      obj.x = Math.max(0, Math.min(maxLeft, startLeft + dx));
+      obj.y = Math.max(0, Math.min(maxTop, startTop + dy));
 
       el.style.left = `${obj.x}px`;
       el.style.top = `${obj.y}px`;
-    } else if (isResizing) {
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
 
+      if (e.type && e.type.includes("touch")) e.preventDefault();
+    } else if (isResizing) {
       obj.width = Math.max(20, startWidth + dx);
       obj.height = Math.max(20, startHeight + dy);
 
       el.style.width = `${obj.width}px`;
       el.style.height = `${obj.height}px`;
 
-      if (obj.type === "draw" || obj.type === "shape") {
-        renderAllObjects();
-      }
-    }
-  }
+      updateObjectInternalDimensions(el, obj);
 
-  function onEnd() {
+      if (e.type && e.type.includes("touch")) e.preventDefault();
+    }
+  };
+
+  const onEnd = () => {
     if (isDragging || isResizing) {
       saveState();
     }
     isDragging = false;
     isResizing = false;
     document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("touchmove", onMove);
     document.removeEventListener("mouseup", onEnd);
-  }
+    document.removeEventListener("touchend", onEnd);
+  };
 
-  resizeHandle.addEventListener("mousedown", (e) => {
+  const startResize = (e) => {
     e.stopPropagation();
     isResizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
+    startX = clientX;
+    startY = clientY;
     startWidth = obj.width;
     startHeight = obj.height;
 
     document.addEventListener("mousemove", onMove);
+    document.addEventListener("touchmove", onMove, { passive: false });
     document.addEventListener("mouseup", onEnd);
-  });
+    document.addEventListener("touchend", onEnd);
+
+    if (e.type && e.type.includes("touch")) e.preventDefault();
+  };
+
+  resizeHandle.addEventListener("mousedown", startResize);
+  resizeHandle.addEventListener("touchstart", startResize, { passive: false });
 }
 
 // ── Signature Modal Integration ─────────────────────────────────────

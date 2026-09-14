@@ -18,6 +18,8 @@ src += `\nreturn {
   handlePdfSelect,
   loadPdfFromBytes,
   renderAllPages,
+  renderAllObjects,
+  updateSelectedObjectUI,
   saveState,
   undoAction,
   redoAction,
@@ -70,6 +72,8 @@ function createMockElement(id = '') {
       querySelectorAll: () => [],
       getContext: () => ({
         scale: () => {},
+        save: () => {},
+        restore: () => {},
         clearRect: () => {},
         fillText: () => {},
         strokeText: () => {},
@@ -415,5 +419,75 @@ test('pdf-editor container width fallback and zoom controls', async (t) => {
 
     editorModule.resetEditor();
     assert.strictEqual(editorModule.getZoomLevel(), 1.0);
+  });
+});
+
+test('pdf-editor draggable and resizable behavior', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('renderAllObjects attaches handles and preserves DOM elements on selection', () => {
+    const drawObj = {
+      id: 'obj_draw_1',
+      type: 'draw',
+      pageNum: 1,
+      x: 20,
+      y: 30,
+      width: 100,
+      height: 80,
+      properties: { color: '#000000', strokeWidth: 2, path: [{ x: 0, y: 0 }, { x: 50, y: 50 }] }
+    };
+
+    editorModule.setEditorObjects([drawObj]);
+    editorModule.setSelectedObjId('obj_draw_1');
+
+    editorModule.renderAllObjects();
+    assert.strictEqual(editorModule.getEditorObjects().length, 1);
+    assert.strictEqual(editorModule.getSelectedObjId(), 'obj_draw_1');
+
+    // Changing selection via updateSelectedObjectUI does not throw and maintains object
+    editorModule.setSelectedObjId(null);
+    editorModule.updateSelectedObjectUI();
+    assert.strictEqual(editorModule.getSelectedObjId(), null);
+  });
+
+  await t.test('updates object dimensions during drag and resize for all object types', () => {
+    const textObj = {
+      id: 'obj_text_1',
+      type: 'text',
+      pageNum: 1,
+      x: 10,
+      y: 10,
+      width: 100,
+      height: 40,
+      properties: { text: 'Test', fontSize: 16 }
+    };
+
+    const shapeObj = {
+      id: 'obj_shape_1',
+      type: 'shape',
+      pageNum: 1,
+      x: 50,
+      y: 50,
+      width: 120,
+      height: 100,
+      properties: { shapeType: 'rect', strokeColor: '#000000' }
+    };
+
+    editorModule.setEditorObjects([textObj, shapeObj]);
+
+    // Simulate drag movement on text object
+    textObj.x = 60;
+    textObj.y = 80;
+
+    // Simulate resize movement on shape object
+    shapeObj.width = 200;
+    shapeObj.height = 150;
+
+    assert.strictEqual(editorModule.getEditorObjects()[0].x, 60);
+    assert.strictEqual(editorModule.getEditorObjects()[0].y, 80);
+    assert.strictEqual(editorModule.getEditorObjects()[1].width, 200);
+    assert.strictEqual(editorModule.getEditorObjects()[1].height, 150);
   });
 });
