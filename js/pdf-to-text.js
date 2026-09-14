@@ -110,9 +110,7 @@ async function handleFile(file) {
   try {
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
     const arrayBuffer = await file.arrayBuffer();
-    // Copy the buffer so it's not detached if needed later
-    const bufferCopy = arrayBuffer.slice(0);
-    pdfDoc = await pdfjsLib.getDocument(bufferCopy).promise;
+    pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
     const numPages = pdfDoc.numPages;
 
     let ocrTriggered = false;
