@@ -687,10 +687,10 @@
             </div>
 
             <div class="editor-bar-group">
-              <button class="editor-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" disabled>
+              <button class="editor-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
                 ↩ <span class="btn-text">Undo</span>
               </button>
-              <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" disabled>
+              <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
                 ↪ <span class="btn-text">Redo</span>
               </button>
             </div>
@@ -698,28 +698,28 @@
 
           <!-- Tool Selection Bar -->
           <div class="editor-toolbar" id="editor-toolbar">
-            <button class="editor-btn active" data-tool="select" title="Select Object">
+            <button class="editor-btn active" data-tool="select" title="Select Object" aria-label="Select tool">
               <span class="tool-icon">↖</span> <span class="tool-label">Select</span>
             </button>
-            <button class="editor-btn" data-tool="text" title="Add Text">
+            <button class="editor-btn" data-tool="text" title="Add Text" aria-label="Text tool">
               <span class="tool-icon">T</span> <span class="tool-label">Text</span>
             </button>
-            <button class="editor-btn" data-tool="highlight" title="Highlight">
+            <button class="editor-btn" data-tool="highlight" title="Highlight" aria-label="Highlight tool">
               <span class="tool-icon">🖍️</span> <span class="tool-label">Highlight</span>
             </button>
-            <button class="editor-btn" data-tool="draw" title="Freehand Draw">
+            <button class="editor-btn" data-tool="draw" title="Freehand Draw" aria-label="Draw tool">
               <span class="tool-icon">✏️</span> <span class="tool-label">Draw</span>
             </button>
-            <button class="editor-btn" data-tool="shape" title="Add Shape">
+            <button class="editor-btn" data-tool="shape" title="Add Shape" aria-label="Shape tool">
               <span class="tool-icon">□</span> <span class="tool-label">Shape</span>
             </button>
-            <button class="editor-btn" data-tool="image" title="Add Image">
+            <button class="editor-btn" data-tool="image" title="Add Image" aria-label="Image tool">
               <span class="tool-icon">🖼️</span> <span class="tool-label">Image</span>
             </button>
-            <button class="editor-btn" data-tool="note" title="Sticky Note">
+            <button class="editor-btn" data-tool="note" title="Sticky Note" aria-label="Note tool">
               <span class="tool-icon">📌</span> <span class="tool-label">Note</span>
             </button>
-            <button class="editor-btn" data-tool="signature" title="Signature">
+            <button class="editor-btn" data-tool="signature" title="Signature" aria-label="Signature tool">
               <span class="tool-icon">✍️</span> <span class="tool-label">Signature</span>
             </button>
           </div>
@@ -740,8 +740,8 @@
               </select>
             </div>
             <div class="editor-prop-item prop-group-text" style="display: none;">
-              <button class="editor-btn" id="prop-bold" title="Bold"><b>B</b></button>
-              <button class="editor-btn" id="prop-italic" title="Italic"><i>I</i></button>
+              <button class="editor-btn" id="prop-bold" title="Bold" aria-label="Bold"><b>B</b></button>
+              <button class="editor-btn" id="prop-italic" title="Italic" aria-label="Italic"><i>I</i></button>
             </div>
 
             <!-- Color options -->
@@ -780,7 +780,7 @@
 
             <!-- Delete selected object button -->
             <div class="editor-prop-item" style="margin-left: auto;">
-              <button class="editor-btn" id="editor-delete-obj" style="background: var(--red); color: white;" title="Delete Selected">
+              <button class="editor-btn" id="editor-delete-obj" style="background: var(--red); color: white;" title="Delete Selected" aria-label="Delete selected object">
                 🗑️ <span class="btn-text">Delete</span>
               </button>
             </div>
@@ -794,15 +794,15 @@
           <!-- Sticky Bottom Workspace Control Bar -->
           <div class="editor-bottom-bar" id="editor-bottom-bar">
             <div class="editor-bottom-group page-nav-group">
-              <button class="editor-btn icon-only-btn" id="editor-prev-page" title="Previous Page">←</button>
+              <button class="editor-btn icon-only-btn" id="editor-prev-page" title="Previous Page" aria-label="Previous page">←</button>
               <span id="editor-page-indicator" class="editor-page-badge-text">1 / 1</span>
-              <button class="editor-btn icon-only-btn" id="editor-next-page" title="Next Page">→</button>
+              <button class="editor-btn icon-only-btn" id="editor-next-page" title="Next Page" aria-label="Next page">→</button>
             </div>
 
             <div class="editor-bottom-group zoom-group">
-              <button class="editor-btn icon-only-btn" id="editor-zoom-out" title="Zoom Out">−</button>
+              <button class="editor-btn icon-only-btn" id="editor-zoom-out" title="Zoom Out" aria-label="Zoom out">−</button>
               <span id="editor-zoom-val" class="editor-zoom-text">100%</span>
-              <button class="editor-btn icon-only-btn" id="editor-zoom-in" title="Zoom In">+</button>
+              <button class="editor-btn icon-only-btn" id="editor-zoom-in" title="Zoom In" aria-label="Zoom in">+</button>
             </div>
 
             <div class="editor-bottom-group download-group">
