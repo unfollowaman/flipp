@@ -1164,9 +1164,11 @@ export async function exportEditedPdf() {
     const pages = pdfDoc.getPages();
 
     setProgress(progressBar, progressLabel, 30, "Embedding fonts & images...");
-    const fontHelvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontHelveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const fontHelveticaOblique = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+    const [fontHelvetica, fontHelveticaBold, fontHelveticaOblique] = await Promise.all([
+      pdfDoc.embedFont(StandardFonts.Helvetica),
+      pdfDoc.embedFont(StandardFonts.HelveticaBold),
+      pdfDoc.embedFont(StandardFonts.HelveticaOblique),
+    ]);
 
     const embeddedImages = new Map();
 
