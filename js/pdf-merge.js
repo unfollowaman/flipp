@@ -164,7 +164,6 @@ mergeBtn.addEventListener("click", async () => {
     resultsArea.classList.add("is-visible");
     showToast("Merged PDF is ready!");
   } catch (error) {
-    console.error("Error merging PDFs:", error);
     showToast(
       "Failed to merge PDFs. Ensure files are valid and not password protected.",
       "error",
