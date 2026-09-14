@@ -406,4 +406,44 @@ test('rearrange-pdf functionality', async (t) => {
     await rearrangeBtnClick();
     assert.deepStrictEqual(copyPagesArgs, [0, 2]);
   });
+
+  await t.test('calls page.cleanup() after rendering and pdfDocument.destroy() on reset/reload', async () => {
+    let pageCleanupCount = 0;
+    let docDestroyCount = 0;
+
+    mockWindow['pdfjs-dist/build/pdf'] = {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          numPages: 2,
+          destroy: async () => { docDestroyCount++; },
+          getPage: async () => ({
+            getViewport: () => ({ width: 100, height: 100 }),
+            render: () => ({ promise: Promise.resolve() }),
+            cleanup: () => { pageCleanupCount++; }
+          })
+        })
+      })
+    };
+
+    const fakeFile = {
+      name: 'cleanup-test.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(16)
+    };
+
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+
+    assert.strictEqual(pageCleanupCount, 2, 'page.cleanup should be called for each rendered page');
+
+    // Load another file to trigger destroy on previous doc
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+
+    assert.strictEqual(docDestroyCount, 1, 'pdfDocument.destroy should be called when loading a new PDF');
+
+    // Reset rearrange tool
+    resetBtnClick();
+    assert.strictEqual(docDestroyCount, 2, 'pdfDocument.destroy should be called when resetting');
+  });
 });
