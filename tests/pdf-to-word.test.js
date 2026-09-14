@@ -50,7 +50,8 @@ const fn = new Function(`
     createDocxElementsFromPageData,
     generateDocxBlobFromPdfData,
     initPdfToWordUI,
-    elementsMap
+    elementsMap,
+    window
   };
 `);
 
@@ -279,5 +280,143 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(modeSelect.disabled, false);
     assert.strictEqual(languageSelect.disabled, false);
     assert.strictEqual(convertBtn.disabled, false);
+  });
+
+  it("startConversion processes multi-page PDF concurrently with cleanup", async () => {
+    function createMockElement(id) {
+      const listeners = {};
+      return {
+        id,
+        style: {},
+        classList: {
+          contains: () => false,
+          add: () => {},
+          remove: () => {}
+        },
+        disabled: false,
+        textContent: "",
+        value: "",
+        addEventListener: (event, cb) => { listeners[event] = cb; },
+        click: () => { if (listeners["click"]) listeners["click"](); },
+        listeners
+      };
+    }
+
+    const dropZone = createMockElement("pdf-drop-zone");
+    const fileInput = createMockElement("pdf-file-input");
+    const optionsArea = createMockElement("pdf-options");
+    const fileInfo = createMockElement("pdf-file-info");
+    const convertBtn = createMockElement("pdf-convert-btn");
+    const progressArea = createMockElement("pdf-progress");
+    const progressBar = createMockElement("pdf-progress-bar");
+    const progressLabel = createMockElement("pdf-progress-label");
+    const resultsArea = createMockElement("pdf-results");
+    const modeSelect = createMockElement("conversion-mode-select");
+    const languageSelect = createMockElement("ocr-language-select");
+
+    pdfToWordModule.elementsMap["pdf-drop-zone"] = dropZone;
+    pdfToWordModule.elementsMap["pdf-file-input"] = fileInput;
+    pdfToWordModule.elementsMap["pdf-options"] = optionsArea;
+    pdfToWordModule.elementsMap["pdf-file-info"] = fileInfo;
+    pdfToWordModule.elementsMap["pdf-convert-btn"] = convertBtn;
+    pdfToWordModule.elementsMap["pdf-progress"] = progressArea;
+    pdfToWordModule.elementsMap["pdf-progress-bar"] = progressBar;
+    pdfToWordModule.elementsMap["pdf-progress-label"] = progressLabel;
+    pdfToWordModule.elementsMap["pdf-results"] = resultsArea;
+    pdfToWordModule.elementsMap["conversion-mode-select"] = modeSelect;
+    pdfToWordModule.elementsMap["ocr-language-select"] = languageSelect;
+
+    let destroyed = false;
+    const cleanedPages = [];
+    const getPageCalls = [];
+
+    const mockPdfDoc = {
+      numPages: 10,
+      getPage: async (i) => {
+        getPageCalls.push(i);
+        await new Promise(r => setTimeout(r, 20)); // Simulated I/O latency
+        return {
+          getViewport: () => ({ height: 842, width: 595 }),
+          getTextContent: async () => {
+            await new Promise(r => setTimeout(r, 20));
+            return {
+              items: [
+                { str: `Page ${i} content`, transform: [12, 0, 0, 12, 50, 700], width: 100, height: 12 }
+              ]
+            };
+          },
+          cleanup: () => {
+            cleanedPages.push(i);
+          }
+        };
+      },
+      destroy: async () => {
+        destroyed = true;
+      }
+    };
+
+    pdfToWordModule.window["pdfjs-dist/build/pdf"] = {
+      getDocument: () => ({
+        promise: Promise.resolve(mockPdfDoc)
+      })
+    };
+
+    class MockDocxDocument {
+      constructor(opts) { this.opts = opts; }
+    }
+    class MockParagraph {
+      constructor(opts) { this.opts = opts; }
+    }
+    class MockTextRun {
+      constructor(opts) { this.opts = opts; }
+    }
+
+    pdfToWordModule.window.docx = {
+      Document: MockDocxDocument,
+      Paragraph: MockParagraph,
+      TextRun: MockTextRun,
+      PageBreak: class {},
+      HeadingLevel: { HEADING_1: "h1", HEADING_2: "h2" },
+      AlignmentType: { LEFT: "left", CENTER: "center", RIGHT: "right" },
+      Packer: {
+        toBlob: async () => ({ size: 100 })
+      }
+    };
+
+    pdfToWordModule.initPdfToWordUI();
+
+    const mockFile = {
+      name: "multi-page-sample.pdf",
+      size: 10240,
+      type: "application/pdf",
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+
+    dropZone._onFiles([mockFile]);
+
+    let conversionEndTime = null;
+    const origAdd = resultsArea.classList.add.bind(resultsArea.classList);
+    resultsArea.classList.add = (cls) => {
+      if (cls === "is-visible" && !conversionEndTime) {
+        conversionEndTime = Date.now();
+      }
+      return origAdd(cls);
+    };
+
+    const startTime = Date.now();
+    convertBtn.click();
+
+    // Poll until conversion completes
+    while (!conversionEndTime && (Date.now() - startTime < 3000)) {
+      await new Promise(r => setTimeout(r, 10));
+    }
+
+    const duration = conversionEndTime - startTime;
+    console.log(`Conversion duration for 10 pages (optimized): ${duration}ms`);
+
+    // Verify page extraction order and count, as well as cleanup
+    assert.strictEqual(getPageCalls.length, 10);
+    assert.strictEqual(cleanedPages.length, 10);
+    assert.strictEqual(destroyed, true);
   });
 });

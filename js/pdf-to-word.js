@@ -579,9 +579,9 @@ export function initPdfToWordUI() {
       return;
     }
 
+    let pdfDoc = null;
     try {
       const arrayBuffer = await currentFile.arrayBuffer();
-      let pdfDoc;
 
       try {
         pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer, ignoreEncryption: true }).promise;
@@ -594,7 +594,6 @@ export function initPdfToWordUI() {
       }
 
       const numPages = pdfDoc.numPages;
-      const pagesData = [];
       const userMode = modeSelect ? modeSelect.value : "auto";
       const ocrLang = languageSelect ? languageSelect.value : "eng+hin";
 
@@ -605,70 +604,85 @@ export function initPdfToWordUI() {
         return ocrWorkerPromise;
       };
 
-      for (let i = 1; i <= numPages; i++) {
-        const pagePercent = (i / numPages) * 70;
-        progressController.setTarget(pagePercent, `Analyzing & extracting page ${i} of ${numPages}...`);
+      let completedPagesCount = 0;
 
-        const page = await pdfDoc.getPage(i);
-        const viewport = page.getViewport({ scale: 1.0 });
-        const textContent = await page.getTextContent();
-        const rawItems = extractPageTextItems(textContent, viewport.height);
+      const pagePromises = Array.from({ length: numPages }, async (_, index) => {
+        const i = index + 1;
+        let page = null;
+        try {
+          page = await pdfDoc.getPage(i);
+          const viewport = page.getViewport({ scale: 1.0 });
+          const textContent = await page.getTextContent();
+          const rawItems = extractPageTextItems(textContent, viewport.height);
 
-        const totalChars = rawItems.reduce((acc, item) => acc + item.str.length, 0);
-        const isScanned = totalChars < 10;
+          const totalChars = rawItems.reduce((acc, item) => acc + item.str.length, 0);
+          const isScanned = totalChars < 10;
 
-        let forceOcr = userMode === "ocr" || (userMode === "auto" && isScanned);
+          let forceOcr = userMode === "ocr" || (userMode === "auto" && isScanned);
 
-        if (forceOcr && window.Tesseract) {
-          try {
-            progressController.setTarget(pagePercent, `Running OCR on page ${i} of ${numPages}...`);
-            const worker = await getOcrWorker();
-            const renderViewport = page.getViewport({ scale: 2.0 });
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = renderViewport.width;
-            canvas.height = renderViewport.height;
+          if (forceOcr && window.Tesseract) {
+            try {
+              const worker = await getOcrWorker();
+              const renderViewport = page.getViewport({ scale: 2.0 });
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              canvas.width = renderViewport.width;
+              canvas.height = renderViewport.height;
 
-            await page.render({ canvasContext: ctx, viewport: renderViewport }).promise;
-            const imageData = canvas.toDataURL("image/png");
+              await page.render({ canvasContext: ctx, viewport: renderViewport }).promise;
+              const imageData = canvas.toDataURL("image/png");
 
-            const { data } = await worker.recognize(imageData);
+              const { data } = await worker.recognize(imageData);
 
-            // Clean up canvas
-            canvas.width = 0;
-            canvas.height = 0;
+              // Clean up canvas
+              canvas.width = 0;
+              canvas.height = 0;
 
-            const ocrLines = (data.lines || []).map(line => ({
-              text: line.text.trim(),
-              fontSize: 12,
-              isBold: false,
-              isItalic: false,
-              isHeading: false,
-              alignment: "LEFT"
-            })).filter(l => l.text.length > 0);
+              const ocrLines = (data.lines || []).map(line => ({
+                text: line.text.trim(),
+                fontSize: 12,
+                isBold: false,
+                isItalic: false,
+                isHeading: false,
+                alignment: "LEFT"
+              })).filter(l => l.text.length > 0);
 
-            pagesData.push({
-              pageNum: i,
-              totalPages: numPages,
-              paragraphs: ocrLines
-            });
-            continue;
-          } catch (ocrErr) {
-            console.warn(`OCR failed for page ${i}, falling back to text parsing`, ocrErr);
+              completedPagesCount++;
+              const pagePercent = (completedPagesCount / numPages) * 70;
+              progressController.setTarget(pagePercent, `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`);
+
+              return {
+                pageNum: i,
+                totalPages: numPages,
+                paragraphs: ocrLines
+              };
+            } catch (ocrErr) {
+              console.warn(`OCR failed for page ${i}, falling back to text parsing`, ocrErr);
+            }
+          }
+
+          // Standard PDF parsing path
+          const orderedItems = sortAndDetectColumns(rawItems, viewport.width);
+          const lines = groupItemsIntoLines(orderedItems);
+          const paragraphs = groupLinesIntoParagraphs(lines, viewport.width);
+
+          completedPagesCount++;
+          const pagePercent = (completedPagesCount / numPages) * 70;
+          progressController.setTarget(pagePercent, `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`);
+
+          return {
+            pageNum: i,
+            totalPages: numPages,
+            paragraphs
+          };
+        } finally {
+          if (page && typeof page.cleanup === "function") {
+            page.cleanup();
           }
         }
+      });
 
-        // Standard PDF parsing path
-        const orderedItems = sortAndDetectColumns(rawItems, viewport.width);
-        const lines = groupItemsIntoLines(orderedItems);
-        const paragraphs = groupLinesIntoParagraphs(lines, viewport.width);
-
-        pagesData.push({
-          pageNum: i,
-          totalPages: numPages,
-          paragraphs
-        });
-      }
+      const pagesData = await Promise.all(pagePromises);
 
       if (ocrWorkerPromise) {
         try {
@@ -701,6 +715,14 @@ export function initPdfToWordUI() {
       setConfigurationControlsDisabled(false);
       if (progressArea) progressArea.style.display = "none";
       if (optionsArea) optionsArea.style.display = "block";
+    } finally {
+      if (pdfDoc && typeof pdfDoc.destroy === "function") {
+        try {
+          await pdfDoc.destroy();
+        } catch (e) {
+          // ignore destroy errors
+        }
+      }
     }
   }
 
