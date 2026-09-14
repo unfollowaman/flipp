@@ -324,18 +324,43 @@ if (zoomOutBtn) {
 
 // ── Toolbar & Tool Selection ───────────────────────────────────────
 
+export function setActiveTool(tool) {
+  activeTool = tool;
+  if (toolbar) {
+    toolbar.querySelectorAll(".editor-btn").forEach((btn) => {
+      if (btn.dataset.tool === tool) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  if (activeTool === "signature") {
+    openSignatureModal();
+  } else {
+    updatePropsBarVisibility();
+  }
+}
+
+export function selectObject(id) {
+  selectedObjId = id;
+  if (id) {
+    setActiveTool("select");
+  }
+  updateSelectedObjectUI();
+  updatePropsBarVisibility();
+}
+
 if (toolbar) {
   toolbar.querySelectorAll(".editor-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      toolbar.querySelectorAll(".editor-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeTool = btn.dataset.tool;
-
-      if (activeTool === "signature") {
-        openSignatureModal();
-      } else {
-        updatePropsBarVisibility();
+      const tool = btn.dataset.tool;
+      if (tool !== "select") {
+        selectedObjId = null;
+        updateSelectedObjectUI();
       }
+      setActiveTool(tool);
     });
   });
 }
@@ -348,8 +373,48 @@ function updatePropsBarVisibility() {
   propOpacityGroup.forEach((el) => (el.style.display = "none"));
 
   let hasVisibleProps = false;
+  const selectedObj = selectedObjId ? editorObjects.find((o) => o.id === selectedObjId) : null;
 
-  if (activeTool === "text") {
+  if (selectedObj) {
+    if (selectedObj.type === "text") {
+      propTextGroup.forEach((el) => (el.style.display = "flex"));
+      propColorGroup.forEach((el) => (el.style.display = "flex"));
+      if (propFontSize) propFontSize.value = selectedObj.properties.fontSize || 18;
+      if (propFontFamily) propFontFamily.value = selectedObj.properties.fontFamily || "sans-serif";
+      if (propColor) propColor.value = selectedObj.properties.color || "#000000";
+      if (propBold) {
+        if (selectedObj.properties.bold) propBold.classList.add("active");
+        else propBold.classList.remove("active");
+      }
+      if (propItalic) {
+        if (selectedObj.properties.italic) propItalic.classList.add("active");
+        else propItalic.classList.remove("active");
+      }
+      hasVisibleProps = true;
+    } else if (selectedObj.type === "highlight") {
+      propColorGroup.forEach((el) => (el.style.display = "flex"));
+      propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+      if (propColor) propColor.value = selectedObj.properties.color || "#ffff00";
+      if (propOpacity) propOpacity.value = selectedObj.properties.opacity || 0.5;
+      hasVisibleProps = true;
+    } else if (selectedObj.type === "draw") {
+      propColorGroup.forEach((el) => (el.style.display = "flex"));
+      propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+      if (propColor) propColor.value = selectedObj.properties.color || "#000000";
+      if (propStrokeWidth) propStrokeWidth.value = selectedObj.properties.strokeWidth || 2;
+      hasVisibleProps = true;
+    } else if (selectedObj.type === "shape") {
+      propColorGroup.forEach((el) => (el.style.display = "flex"));
+      propShapeGroup.forEach((el) => (el.style.display = "flex"));
+      propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+      if (propShapeType) propShapeType.value = selectedObj.properties.shapeType || "rect";
+      if (propColor) propColor.value = selectedObj.properties.strokeColor || "#000000";
+      if (propFillColor) propFillColor.value = selectedObj.properties.fillColor === "none" ? "#ffffff" : (selectedObj.properties.fillColor || "#ffffff");
+      if (propTransparentFill) propTransparentFill.dataset.none = selectedObj.properties.fillColor === "none" ? "true" : "false";
+      if (propStrokeWidth) propStrokeWidth.value = selectedObj.properties.strokeWidth || 2;
+      hasVisibleProps = true;
+    }
+  } else if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     hasVisibleProps = true;
@@ -366,26 +431,6 @@ function updatePropsBarVisibility() {
     propShapeGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
     hasVisibleProps = true;
-  } else if (activeTool === "select" && selectedObjId) {
-    const obj = editorObjects.find((o) => o.id === selectedObjId);
-    if (obj) {
-      if (obj.type === "text") {
-        propTextGroup.forEach((el) => (el.style.display = "flex"));
-        propColorGroup.forEach((el) => (el.style.display = "flex"));
-        hasVisibleProps = true;
-      } else if (obj.type === "highlight") {
-        propColorGroup.forEach((el) => (el.style.display = "flex"));
-        propOpacityGroup.forEach((el) => (el.style.display = "flex"));
-        hasVisibleProps = true;
-      } else if (obj.type === "draw" || obj.type === "shape") {
-        propColorGroup.forEach((el) => (el.style.display = "flex"));
-        propStrokeGroup.forEach((el) => (el.style.display = "flex"));
-        if (obj.type === "shape") {
-          propShapeGroup.forEach((el) => (el.style.display = "flex"));
-        }
-        hasVisibleProps = true;
-      }
-    }
   }
 
   if (propsBar) {
@@ -468,17 +513,17 @@ function setupOverlayEvents(overlay, pageNum) {
   let currentPath = [];
   let tempCanvas = null;
 
-  overlay.addEventListener("mousedown", (e) => {
+  const handleOverlayStart = (e) => {
     if (e.target !== overlay) return;
 
     const rect = overlay.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
 
     if (activeTool === "select") {
-      selectedObjId = null;
-      updateSelectedObjectUI();
-      updatePropsBarVisibility();
+      selectObject(null);
       return;
     }
 
@@ -504,7 +549,7 @@ function setupOverlayEvents(overlay, pageNum) {
         },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
     } else if (activeTool === "highlight") {
       const newObj = {
@@ -522,7 +567,7 @@ function setupOverlayEvents(overlay, pageNum) {
         },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
     } else if (activeTool === "shape") {
       const newObj = {
@@ -542,7 +587,7 @@ function setupOverlayEvents(overlay, pageNum) {
         },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
     } else if (activeTool === "note") {
       const newObj = {
@@ -559,7 +604,7 @@ function setupOverlayEvents(overlay, pageNum) {
         },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
     } else if (activeTool === "image") {
       triggerImageUploadForPage(pageNum, clickX, clickY);
@@ -645,7 +690,7 @@ function setupOverlayEvents(overlay, pageNum) {
         },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
     }
   };
@@ -690,7 +735,7 @@ function triggerImageUploadForPage(pageNum, clickX, clickY) {
           properties: { src },
         };
         editorObjects.push(newObj);
-        selectedObjId = newObj.id;
+        selectObject(newObj.id);
         renderAllObjects();
       };
       img.src = src;
@@ -886,14 +931,15 @@ export function renderAllObjects() {
 
     overlay.appendChild(el);
 
-    el.addEventListener("mousedown", (e) => {
+    const handleSelect = (e) => {
       if (e.target === deleteHandle || e.target === resizeHandle) return;
       if (selectedObjId !== obj.id) {
-        selectedObjId = obj.id;
-        updateSelectedObjectUI();
-        updatePropsBarVisibility();
+        selectObject(obj.id);
       }
-    });
+    };
+
+    el.addEventListener("mousedown", handleSelect);
+    el.addEventListener("touchstart", handleSelect, { passive: true });
 
     makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle);
   });
@@ -1136,7 +1182,7 @@ if (sigPlaceBtn) {
         properties: { src: imgSrc },
       };
       editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+      selectObject(newObj.id);
       renderAllObjects();
       closeSignatureModal();
     }

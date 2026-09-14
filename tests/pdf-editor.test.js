@@ -20,6 +20,9 @@ src += `\nreturn {
   renderAllPages,
   renderAllObjects,
   updateSelectedObjectUI,
+  selectObject,
+  setActiveTool,
+  getActiveTool: () => activeTool,
   saveState,
   undoAction,
   redoAction,
@@ -489,5 +492,49 @@ test('pdf-editor draggable and resizable behavior', async (t) => {
     assert.strictEqual(editorModule.getEditorObjects()[0].y, 80);
     assert.strictEqual(editorModule.getEditorObjects()[1].width, 200);
     assert.strictEqual(editorModule.getEditorObjects()[1].height, 150);
+  });
+});
+
+test('pdf-editor object reselection & tool state synchronization', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('selectObject updates selectedObjId and automatically switches activeTool to select', () => {
+    const shapeObj = {
+      id: 'shape_100',
+      type: 'shape',
+      pageNum: 1,
+      x: 30,
+      y: 40,
+      width: 100,
+      height: 80,
+      properties: { shapeType: 'rect', strokeColor: '#000000', fillColor: '#ffffff', strokeWidth: 2 }
+    };
+
+    editorModule.setEditorObjects([shapeObj]);
+    editorModule.setActiveTool('shape');
+    assert.strictEqual(editorModule.getActiveTool(), 'shape');
+
+    // Reselect object
+    editorModule.selectObject('shape_100');
+
+    assert.strictEqual(editorModule.getSelectedObjId(), 'shape_100');
+    assert.strictEqual(editorModule.getActiveTool(), 'select', 'activeTool should automatically switch to select when reselecting an object');
+  });
+
+  await t.test('selectObject(null) deselects object and preserves tool state', () => {
+    editorModule.setSelectedObjId('shape_100');
+    editorModule.selectObject(null);
+
+    assert.strictEqual(editorModule.getSelectedObjId(), null);
+  });
+
+  await t.test('setActiveTool updates activeTool state correctly', () => {
+    editorModule.setActiveTool('text');
+    assert.strictEqual(editorModule.getActiveTool(), 'text');
+
+    editorModule.setActiveTool('draw');
+    assert.strictEqual(editorModule.getActiveTool(), 'draw');
   });
 });
