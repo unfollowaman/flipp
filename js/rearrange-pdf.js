@@ -42,6 +42,15 @@ function handleFiles(files) {
 }
 
 async function loadPdfDocument() {
+  if (pdfDocument && typeof pdfDocument.destroy === "function") {
+    try {
+      await pdfDocument.destroy();
+    } catch (_) {
+      // Ignore destruction errors
+    }
+    pdfDocument = null;
+  }
+
   originalPdfBytes = await originalPdfFile.arrayBuffer();
 
   // Check if pdfjsLib is loaded globally
@@ -116,12 +125,19 @@ async function renderThumbnails(numPages) {
     for (let i = startIdx; i < startIdx + BATCH_SIZE && i <= numPages; i++) {
       batchPromises.push(
         (async () => {
-          const page = await pdfDocument.getPage(i);
-          const scale = 0.3;
-          const viewport = page.getViewport({ scale });
-          const dataUrl = await renderPageToDataUrl(page, viewport);
+          let page = null;
+          try {
+            page = await pdfDocument.getPage(i);
+            const scale = 0.3;
+            const viewport = page.getViewport({ scale });
+            const dataUrl = await renderPageToDataUrl(page, viewport);
 
-          return { dataUrl, i };
+            return { dataUrl, i };
+          } finally {
+            if (page && typeof page.cleanup === "function") {
+              page.cleanup();
+            }
+          }
         })(),
       );
     }
@@ -224,6 +240,14 @@ downloadBtn.addEventListener("click", () => {
 resetBtn.addEventListener("click", resetRearrange);
 
 function resetRearrange() {
+  if (pdfDocument && typeof pdfDocument.destroy === "function") {
+    try {
+      pdfDocument.destroy();
+    } catch (_) {
+      // Ignore destruction errors
+    }
+  }
+
   originalPdfFile = null;
   originalPdfBytes = null;
   pagesOrder = [];
