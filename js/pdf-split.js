@@ -57,7 +57,6 @@ async function renderPagePreview(pageNum, container) {
     container.appendChild(canvas);
     await page.render(renderContext).promise;
   } catch (error) {
-    console.error("Error rendering page:", error);
     container.textContent = "Error rendering page";
   }
 }
