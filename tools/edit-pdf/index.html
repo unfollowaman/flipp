@@ -426,7 +426,172 @@
         font-weight: 800;
       }
 
-      @media (max-width: 600px) {
+      /* Tool Divider */
+      .editor-tool-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--black);
+        opacity: 0.2;
+        margin: 0 4px;
+        flex-shrink: 0;
+      }
+
+      /* Desktop Layout Styles (@media (min-width: 769px)) */
+      @media (min-width: 769px) {
+        .editor-workspace-container {
+          height: calc(100vh - 100px);
+          min-height: 550px;
+          max-height: 900px;
+          gap: 8px;
+        }
+        .editor-top-bar {
+          padding: 6px 16px;
+        }
+        .editor-bottom-bar {
+          display: none !important; /* Hide full-width bottom bar on desktop */
+        }
+        .desktop-top-download {
+          display: inline-flex !important;
+        }
+        .editor-main-workspace {
+          display: flex;
+          flex: 1;
+          gap: 12px;
+          min-height: 0;
+          position: relative;
+        }
+        /* Left Thumbnail Sidebar */
+        .editor-sidebar {
+          width: 180px;
+          flex-shrink: 0;
+          background: var(--white);
+          border: var(--border-std);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-hard);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .editor-sidebar-header {
+          padding: 8px 12px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          border-bottom: var(--border-std);
+          background: var(--cream);
+          color: #555;
+        }
+        .editor-thumbnails-scroll {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: center;
+        }
+        .thumb-item {
+          position: relative;
+          cursor: pointer;
+          border: 2px solid transparent;
+          border-radius: var(--radius-sm);
+          padding: 4px;
+          background: var(--white);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+          transition: transform 0.1s ease, border-color 0.1s ease;
+          user-select: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        }
+        .thumb-item:hover {
+          transform: translateY(-2px);
+          border-color: #cbd5e1;
+        }
+        .thumb-item.active {
+          border-color: var(--black);
+          background: var(--yellow);
+          box-shadow: var(--shadow-hard-sm, 2px 2px 0 #000);
+        }
+        .thumb-canvas-wrapper {
+          position: relative;
+          width: 120px;
+          background: #fff;
+          border: 1px solid #ddd;
+          display: flex;
+          justify-content: center;
+        }
+        .thumb-canvas-wrapper canvas {
+          display: block;
+          max-width: 100%;
+          height: auto;
+        }
+        .thumb-badge {
+          font-size: 11px;
+          font-weight: 800;
+          color: #333;
+        }
+
+        /* Center Canvas & Floating Control Pill */
+        .editor-canvas-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          min-width: 0;
+          height: 100%;
+        }
+        .editor-pages-scroll {
+          flex: 1;
+          max-height: none;
+          height: 100%;
+          border-radius: var(--radius-md);
+        }
+        .editor-floating-controls {
+          position: absolute;
+          bottom: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: var(--white);
+          border: var(--border-std);
+          border-radius: 24px;
+          padding: 6px 14px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15), var(--shadow-hard);
+        }
+        .floating-group {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .floating-divider {
+          width: 1px;
+          height: 20px;
+          background: var(--black);
+          opacity: 0.2;
+        }
+      }
+
+      /* Mobile Layout Styles (@media (max-width: 768px)) */
+      @media (max-width: 768px) {
+        .editor-sidebar,
+        .editor-floating-controls,
+        .desktop-top-download {
+          display: none !important;
+        }
+        .editor-main-workspace {
+          display: block;
+        }
+        .editor-pages-scroll {
+          max-height: 65vh;
+        }
+        .editor-bottom-bar {
+          display: flex !important;
+        }
         .editor-doc-title {
           max-width: 130px;
           font-size: 13px;
@@ -680,7 +845,7 @@
 
         <!-- STATE B: PDF Editor Workspace -->
         <div class="editor-workspace-container" id="editor-workspace">
-          <!-- Top Bar -->
+          <!-- Top Bar / Header -->
           <div class="editor-top-bar" id="editor-top-bar">
             <div class="editor-bar-group">
               <span class="editor-doc-title" id="editor-doc-name">document.pdf</span>
@@ -693,14 +858,21 @@
               <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" disabled>
                 ↪ <span class="btn-text">Redo</span>
               </button>
+              <button class="cta-btn cta-mint editor-download-btn desktop-top-download" id="editor-export-btn-top" title="Download PDF (Ctrl+S)">
+                Download PDF
+              </button>
             </div>
           </div>
 
           <!-- Tool Selection Bar -->
           <div class="editor-toolbar" id="editor-toolbar">
-            <button class="editor-btn active" data-tool="select" title="Select Object">
+            <button class="editor-btn active" data-tool="select" title="Select / Edit Annotations (Esc)">
               <span class="tool-icon">↖</span> <span class="tool-label">Select</span>
             </button>
+            <button class="editor-btn" data-tool="pan" title="Pan / Hand Navigation">
+              <span class="tool-icon">✋</span> <span class="tool-label">Pan</span>
+            </button>
+            <div class="editor-tool-divider"></div>
             <button class="editor-btn" data-tool="text" title="Add Text">
               <span class="tool-icon">T</span> <span class="tool-label">Text</span>
             </button>
@@ -786,23 +958,56 @@
             </div>
           </div>
 
-          <!-- Document Pages View Area -->
-          <div class="editor-pages-scroll" id="editor-pages-scroll">
-            <!-- Pages rendered dynamically here -->
+          <!-- Main Desktop Workspace Container (Sidebar + Canvas) -->
+          <div class="editor-main-workspace" id="editor-main-workspace">
+            <!-- Left Thumbnail Navigation Panel (Desktop Only) -->
+            <aside class="editor-sidebar" id="editor-sidebar" aria-label="Page Thumbnails">
+              <div class="editor-sidebar-header">PAGES</div>
+              <div class="editor-thumbnails-scroll" id="editor-thumbnails-scroll">
+                <!-- Thumbnails rendered dynamically here -->
+              </div>
+            </aside>
+
+            <!-- Document Pages View Container -->
+            <div class="editor-canvas-container">
+              <div class="editor-pages-scroll" id="editor-pages-scroll">
+                <!-- Pages rendered dynamically here -->
+              </div>
+
+              <!-- Floating Control Pill (Desktop Only) -->
+              <div class="editor-floating-controls" id="editor-floating-controls">
+                <div class="floating-group">
+                  <button class="editor-btn icon-only-btn editor-prev-page" id="editor-prev-page" title="Previous Page">←</button>
+                  <span id="editor-page-indicator" class="editor-page-badge-text">1 / 1</span>
+                  <button class="editor-btn icon-only-btn editor-next-page" id="editor-next-page" title="Next Page">→</button>
+                </div>
+                <div class="floating-divider"></div>
+                <div class="floating-group">
+                  <button class="editor-btn icon-only-btn editor-zoom-out" id="editor-zoom-out" title="Zoom Out">−</button>
+                  <span id="editor-zoom-val" class="editor-zoom-text">100%</span>
+                  <button class="editor-btn icon-only-btn editor-zoom-in" id="editor-zoom-in" title="Zoom In">+</button>
+                </div>
+                <div class="floating-divider"></div>
+                <div class="floating-group">
+                  <button class="editor-btn icon-only-btn" id="editor-zoom-fit-width" title="Fit Width">↔</button>
+                  <button class="editor-btn icon-only-btn" id="editor-zoom-fit-page" title="Fit Page">📄</button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Sticky Bottom Workspace Control Bar -->
+          <!-- Sticky Bottom Workspace Control Bar (Mobile Only) -->
           <div class="editor-bottom-bar" id="editor-bottom-bar">
             <div class="editor-bottom-group page-nav-group">
-              <button class="editor-btn icon-only-btn" id="editor-prev-page" title="Previous Page">←</button>
-              <span id="editor-page-indicator" class="editor-page-badge-text">1 / 1</span>
-              <button class="editor-btn icon-only-btn" id="editor-next-page" title="Next Page">→</button>
+              <button class="editor-btn icon-only-btn editor-prev-page-mobile" id="editor-prev-page-mobile" title="Previous Page">←</button>
+              <span id="editor-page-indicator-mobile" class="editor-page-badge-text">1 / 1</span>
+              <button class="editor-btn icon-only-btn editor-next-page-mobile" id="editor-next-page-mobile" title="Next Page">→</button>
             </div>
 
             <div class="editor-bottom-group zoom-group">
-              <button class="editor-btn icon-only-btn" id="editor-zoom-out" title="Zoom Out">−</button>
-              <span id="editor-zoom-val" class="editor-zoom-text">100%</span>
-              <button class="editor-btn icon-only-btn" id="editor-zoom-in" title="Zoom In">+</button>
+              <button class="editor-btn icon-only-btn editor-zoom-out-mobile" id="editor-zoom-out-mobile" title="Zoom Out">−</button>
+              <span id="editor-zoom-val-mobile" class="editor-zoom-text">100%</span>
+              <button class="editor-btn icon-only-btn editor-zoom-in-mobile" id="editor-zoom-in-mobile" title="Zoom In">+</button>
             </div>
 
             <div class="editor-bottom-group download-group">

@@ -37,19 +37,31 @@ const fileInput = document.getElementById("editor-file-input");
 const workspaceContainer = document.getElementById("editor-workspace");
 const docNameLabel = document.getElementById("editor-doc-name");
 const pageIndicator = document.getElementById("editor-page-indicator");
+const pageIndicatorMobile = document.getElementById("editor-page-indicator-mobile");
 const prevPageBtn = document.getElementById("editor-prev-page");
+const prevPageBtnMobile = document.getElementById("editor-prev-page-mobile");
 const nextPageBtn = document.getElementById("editor-next-page");
+const nextPageBtnMobile = document.getElementById("editor-next-page-mobile");
+
 const zoomValLabel = document.getElementById("editor-zoom-val");
+const zoomValLabelMobile = document.getElementById("editor-zoom-val-mobile");
 const zoomInBtn = document.getElementById("editor-zoom-in");
+const zoomInBtnMobile = document.getElementById("editor-zoom-in-mobile");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
+const zoomOutBtnMobile = document.getElementById("editor-zoom-out-mobile");
+const zoomFitWidthBtn = document.getElementById("editor-zoom-fit-width");
+const zoomFitPageBtn = document.getElementById("editor-zoom-fit-page");
+
 const undoBtn = document.getElementById("editor-undo-btn");
 const redoBtn = document.getElementById("editor-redo-btn");
 
 const toolbar = document.getElementById("editor-toolbar");
 const propsBar = document.getElementById("editor-props-bar");
 const pagesScrollArea = document.getElementById("editor-pages-scroll");
+const thumbnailsScrollArea = document.getElementById("editor-thumbnails-scroll");
 
 const exportBtn = document.getElementById("editor-export-btn");
+const exportBtnTop = document.getElementById("editor-export-btn-top");
 const progressArea = document.getElementById("editor-progress");
 const progressBar = document.getElementById("editor-progress-bar");
 const progressLabel = document.getElementById("editor-progress-label");
@@ -173,13 +185,14 @@ export async function loadPdfFromBytes(arrayBuffer) {
 
   numPages = pdfjsDocument.numPages;
   currentPageIndex = 1;
-  if (pageIndicator) pageIndicator.textContent = `1 / ${numPages}`;
+  updatePageIndicatorText();
 
   editorObjects = [];
   historyStack = [];
   redoStack = [];
   updateUndoRedoUI();
 
+  renderThumbnails();
   await renderAllPages();
 }
 
@@ -251,6 +264,113 @@ export async function renderAllPages() {
   await Promise.all(renderPromises);
 
   renderAllObjects();
+  updateActiveThumbnailUI();
+}
+
+// ── Thumbnail Panel Rendering & Lazy Load ──────────────────────────
+
+let thumbnailObserver = null;
+
+function renderThumbnails() {
+  if (!thumbnailsScrollArea) return;
+  thumbnailsScrollArea.innerHTML = "";
+
+  if (thumbnailObserver) {
+    thumbnailObserver.disconnect();
+    thumbnailObserver = null;
+  }
+
+  // Create placeholders for lazy rendering
+  if (typeof IntersectionObserver !== "undefined") {
+    thumbnailObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const item = entry.target;
+            const pageNum = parseInt(item.dataset.pageNum, 10);
+            if (item.dataset.rendered !== "true") {
+              item.dataset.rendered = "true";
+              renderSingleThumbnail(pageNum, item.querySelector(".thumb-canvas-wrapper"));
+            }
+          }
+        });
+      },
+      { root: thumbnailsScrollArea, rootMargin: "100px 0px" }
+    );
+  }
+
+  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+    const item = document.createElement("div");
+    item.className = `thumb-item ${pageNum === currentPageIndex ? "active" : ""}`;
+    item.dataset.pageNum = pageNum;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "thumb-canvas-wrapper";
+
+    const badge = document.createElement("div");
+    badge.className = "thumb-badge";
+    badge.textContent = `Page ${pageNum}`;
+
+    item.appendChild(wrapper);
+    item.appendChild(badge);
+    thumbnailsScrollArea.appendChild(item);
+
+    item.addEventListener("click", () => {
+      scrollToPage(pageNum);
+    });
+
+    if (thumbnailObserver) {
+      thumbnailObserver.observe(item);
+    } else {
+      item.dataset.rendered = "true";
+      renderSingleThumbnail(pageNum, wrapper);
+    }
+  }
+}
+
+async function renderSingleThumbnail(pageNum, container) {
+  if (!pdfjsDocument || !container) return;
+  try {
+    const page = await pdfjsDocument.getPage(pageNum);
+    const unscaledViewport = page.getViewport({ scale: 1 });
+    const targetWidth = 110;
+    const scale = targetWidth / unscaledViewport.width;
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width * (window.devicePixelRatio || 1);
+    canvas.height = viewport.height * (window.devicePixelRatio || 1);
+    canvas.style.width = `${viewport.width}px`;
+    canvas.style.height = `${viewport.height}px`;
+
+    const ctx = canvas.getContext("2d");
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+    container.appendChild(canvas);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  } catch (err) {
+    console.error(`Error rendering thumbnail page ${pageNum}`, err);
+  }
+}
+
+function updateActiveThumbnailUI() {
+  if (!thumbnailsScrollArea) return;
+  const items = thumbnailsScrollArea.querySelectorAll(".thumb-item");
+  items.forEach((item) => {
+    const pNum = parseInt(item.dataset.pageNum, 10);
+    if (pNum === currentPageIndex) {
+      item.classList.add("active");
+      item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else {
+      item.classList.remove("active");
+    }
+  });
+}
+
+function updatePageIndicatorText() {
+  const text = `${currentPageIndex} / ${numPages}`;
+  if (pageIndicator) pageIndicator.textContent = text;
+  if (pageIndicatorMobile) pageIndicatorMobile.textContent = text;
 }
 
 // ── Page Navigation Controls ─────────────────────────────────────
@@ -263,21 +383,23 @@ function scrollToPage(pageNum) {
   }
 }
 
-if (prevPageBtn) {
-  prevPageBtn.addEventListener("click", () => {
-    if (currentPageIndex > 1) {
-      scrollToPage(currentPageIndex - 1);
-    }
-  });
-}
+const handlePrevPage = () => {
+  if (currentPageIndex > 1) {
+    scrollToPage(currentPageIndex - 1);
+  }
+};
 
-if (nextPageBtn) {
-  nextPageBtn.addEventListener("click", () => {
-    if (currentPageIndex < numPages) {
-      scrollToPage(currentPageIndex + 1);
-    }
-  });
-}
+const handleNextPage = () => {
+  if (currentPageIndex < numPages) {
+    scrollToPage(currentPageIndex + 1);
+  }
+};
+
+if (prevPageBtn) prevPageBtn.addEventListener("click", handlePrevPage);
+if (prevPageBtnMobile) prevPageBtnMobile.addEventListener("click", handlePrevPage);
+
+if (nextPageBtn) nextPageBtn.addEventListener("click", handleNextPage);
+if (nextPageBtnMobile) nextPageBtnMobile.addEventListener("click", handleNextPage);
 
 if (pagesScrollArea) {
   pagesScrollArea.addEventListener("scroll", () => {
@@ -295,30 +417,56 @@ if (pagesScrollArea) {
     });
     if (closestPage !== currentPageIndex) {
       currentPageIndex = closestPage;
-      if (pageIndicator) pageIndicator.textContent = `${currentPageIndex} / ${numPages}`;
+      updatePageIndicatorText();
+      updateActiveThumbnailUI();
     }
   });
 }
 
 // ── Zoom Controls ──────────────────────────────────────────────────
 
-function updateZoom(newZoom) {
+export function updateZoom(newZoom) {
   zoomLevel = Math.max(0.25, Math.min(3.0, newZoom));
-  if (zoomValLabel) {
-    zoomValLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
-  }
+  const valText = `${Math.round(zoomLevel * 100)}%`;
+  if (zoomValLabel) zoomValLabel.textContent = valText;
+  if (zoomValLabelMobile) zoomValLabelMobile.textContent = valText;
   renderAllPages();
 }
 
-if (zoomInBtn) {
-  zoomInBtn.addEventListener("click", () => {
-    updateZoom(zoomLevel + 0.15);
+export function getZoomLevel() {
+  return zoomLevel;
+}
+
+const handleZoomIn = () => updateZoom(zoomLevel + 0.15);
+const handleZoomOut = () => updateZoom(zoomLevel - 0.15);
+
+if (zoomInBtn) zoomInBtn.addEventListener("click", handleZoomIn);
+if (zoomInBtnMobile) zoomInBtnMobile.addEventListener("click", handleZoomIn);
+
+if (zoomOutBtn) zoomOutBtn.addEventListener("click", handleZoomOut);
+if (zoomOutBtnMobile) zoomOutBtnMobile.addEventListener("click", handleZoomOut);
+
+if (zoomFitWidthBtn) {
+  zoomFitWidthBtn.addEventListener("click", () => {
+    if (!pagesScrollArea) return;
+    const availW = pagesScrollArea.clientWidth > 48 ? pagesScrollArea.clientWidth - 48 : 800;
+    const pageMetrics = pageMetricsCache.get(1);
+    if (pageMetrics && pageMetrics.pdfWidth > 0) {
+      const targetScale = availW / pageMetrics.pdfWidth;
+      updateZoom(targetScale);
+    }
   });
 }
 
-if (zoomOutBtn) {
-  zoomOutBtn.addEventListener("click", () => {
-    updateZoom(zoomLevel - 0.15);
+if (zoomFitPageBtn) {
+  zoomFitPageBtn.addEventListener("click", () => {
+    if (!pagesScrollArea) return;
+    const availH = pagesScrollArea.clientHeight > 48 ? pagesScrollArea.clientHeight - 48 : 700;
+    const pageMetrics = pageMetricsCache.get(1);
+    if (pageMetrics && pageMetrics.pdfHeight > 0) {
+      const targetScale = availH / pageMetrics.pdfHeight;
+      updateZoom(targetScale);
+    }
   });
 }
 
@@ -479,6 +627,29 @@ function setupOverlayEvents(overlay, pageNum) {
       selectedObjId = null;
       updateSelectedObjectUI();
       updatePropsBarVisibility();
+      return;
+    }
+
+    if (activeTool === "pan") {
+      let startPanX = e.clientX;
+      let startPanY = e.clientY;
+      let scrollLeft = pagesScrollArea.scrollLeft;
+      let scrollTop = pagesScrollArea.scrollTop;
+
+      const onPanMove = (pE) => {
+        const dx = pE.clientX - startPanX;
+        const dy = pE.clientY - startPanY;
+        pagesScrollArea.scrollLeft = scrollLeft - dx;
+        pagesScrollArea.scrollTop = scrollTop - dy;
+      };
+
+      const onPanEnd = () => {
+        document.removeEventListener("mousemove", onPanMove);
+        document.removeEventListener("mouseup", onPanEnd);
+      };
+
+      document.addEventListener("mousemove", onPanMove);
+      document.addEventListener("mouseup", onPanEnd);
       return;
     }
 
@@ -1364,6 +1535,7 @@ export async function exportEditedPdf() {
 }
 
 if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
+if (exportBtnTop) exportBtnTop.addEventListener("click", exportEditedPdf);
 
 // ── State Management & UI Wiring ────────────────────────────────────
 
@@ -1415,6 +1587,23 @@ window.addEventListener("keydown", (e) => {
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
     redoAction();
     e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+    exportEditedPdf();
+    e.preventDefault();
+  } else if (e.key === "Escape") {
+    if (selectedObjId) {
+      selectedObjId = null;
+      updateSelectedObjectUI();
+      updatePropsBarVisibility();
+    } else {
+      activeTool = "select";
+      if (toolbar) {
+        toolbar.querySelectorAll(".editor-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.tool === "select");
+        });
+      }
+      updatePropsBarVisibility();
+    }
   } else if (e.key === "Delete" || e.key === "Backspace") {
     if (selectedObjId) {
       deleteObject(selectedObjId);
