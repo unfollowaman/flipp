@@ -493,6 +493,26 @@
         right: -7px;
         bottom: -7px;
         cursor: se-resize;
+        z-index: 10;
+      }
+      .editor-obj-handle.move {
+        left: -9px;
+        top: -9px;
+        background: var(--mint);
+        border: 1.5px solid var(--black);
+        border-radius: 50%;
+        cursor: move;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        width: 18px;
+        height: 18px;
+        z-index: 10;
+      }
+      .editor-obj.selected .editor-obj-handle.move {
+        display: flex;
       }
       .editor-obj-handle.delete {
         right: -9px;
@@ -508,6 +528,7 @@
         line-height: 1;
         width: 18px;
         height: 18px;
+        z-index: 10;
       }
       .editor-obj.selected .editor-obj-handle.delete {
         display: flex;
