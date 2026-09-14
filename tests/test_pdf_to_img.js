@@ -62,3 +62,17 @@ describe('parsePageRange', () => {
     assert.deepStrictEqual(result, []);
   });
 });
+
+describe('pdf-to-img resource cleanup', () => {
+  test('ensures page.cleanup is invoked in try...finally blocks', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const cleanupCount = (code.match(/page\.cleanup\(\)/g) || []).length;
+    assert.ok(cleanupCount >= 2, 'page.cleanup() should be called in page processing loops');
+  });
+
+  test('ensures pdfDoc.destroy is invoked during reset and reload', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const destroyCount = (code.match(/pdfDoc\.destroy\(\)/g) || []).length;
+    assert.ok(destroyCount >= 2, 'pdfDoc.destroy() should be called when resetting or reloading PDF');
+  });
+});

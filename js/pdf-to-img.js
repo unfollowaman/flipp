@@ -107,6 +107,13 @@ async function loadPDF(file) {
   }
 
   try {
+    if (pdfDoc && typeof pdfDoc.destroy === "function") {
+      try {
+        await pdfDoc.destroy();
+      } catch (e) {}
+      pdfDoc = null;
+    }
+
     const pdfjsLib = await waitForPdfjs();
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.mjs";
@@ -145,12 +152,16 @@ async function showPreview(filename) {
     renderPromises.push(
       pdfDoc
         .getPage(i)
-        .then((page) =>
-          renderPageToCanvas(page, 0.3).then((res) => ({
-            i,
-            canvas: res.canvas,
-          })),
-        ),
+        .then(async (page) => {
+          try {
+            const res = await renderPageToCanvas(page, 0.3);
+            return { i, canvas: res.canvas };
+          } finally {
+            if (page && typeof page.cleanup === "function") {
+              page.cleanup();
+            }
+          }
+        }),
     );
   }
 
@@ -214,9 +225,14 @@ convertBtn.addEventListener("click", async () => {
       const pageNum = pages[idx];
 
       const page = await pdfDoc.getPage(pageNum);
-      const { dataUrl } = await renderPageToCanvas(page, scale);
-
-      renderedPages[idx] = { pageNum, dataUrl };
+      try {
+        const { dataUrl } = await renderPageToCanvas(page, scale);
+        renderedPages[idx] = { pageNum, dataUrl };
+      } finally {
+        if (page && typeof page.cleanup === "function") {
+          page.cleanup();
+        }
+      }
       completedCount++;
 
       setProgress(
@@ -327,7 +343,12 @@ downloadAllBtn.addEventListener("click", async () => {
 // ── Reset ───────────────────────────────────────────────
 resetBtn.addEventListener("click", resetPdfConverter);
 
-function resetPdfConverter() {
+async function resetPdfConverter() {
+  if (pdfDoc && typeof pdfDoc.destroy === "function") {
+    try {
+      await pdfDoc.destroy();
+    } catch (e) {}
+  }
   pdfDoc = null;
   totalPages = 0;
   renderedPages = [];
