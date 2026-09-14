@@ -219,19 +219,24 @@ export function groupItemsIntoLines(items) {
 
   // Construct combined line text with proper spacing
   for (const line of lines) {
-    let text = "";
+    const parts = [];
+    let endsWithSpace = false;
     for (let i = 0; i < line.items.length; i++) {
       const cur = line.items[i];
       if (i > 0) {
         const prev = line.items[i - 1];
         const gap = cur.leftX - (prev.leftX + prev.width);
-        if (gap > prev.fontSize * 0.2 && !text.endsWith(" ") && !cur.str.startsWith(" ")) {
-          text += " ";
+        if (gap > prev.fontSize * 0.2 && !endsWithSpace && !cur.str.startsWith(" ")) {
+          parts.push(" ");
+          endsWithSpace = true;
         }
       }
-      text += cur.str;
+      parts.push(cur.str);
+      if (cur.str.length > 0) {
+        endsWithSpace = cur.str.endsWith(" ");
+      }
     }
-    line.text = text.trim();
+    line.text = parts.join("").trim();
     line.leftX = line.items[0]?.leftX || 0;
   }
 
