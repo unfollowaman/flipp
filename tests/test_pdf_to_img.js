@@ -76,3 +76,63 @@ describe('pdf-to-img resource cleanup', () => {
     assert.ok(destroyCount >= 2, 'pdfDoc.destroy() should be called when resetting or reloading PDF');
   });
 });
+
+describe('pdf-to-img format and resolution handling', () => {
+  test('renderPageToCanvas supports png and jpg formats correctly', async () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const fnMatch = code.match(/async function renderPageToCanvas\([\s\S]*?\n\}/);
+    assert.ok(fnMatch, 'renderPageToCanvas function found');
+
+    let toDataUrlCalls = [];
+    let fillRectCalled = false;
+
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: () => ({
+        fillStyle: '',
+        fillRect: () => { fillRectCalled = true; },
+      }),
+      toDataURL: (mime, quality) => {
+        toDataUrlCalls.push({ mime, quality });
+        return `data:${mime};base64,mockdata`;
+      },
+    };
+
+    const mockDocument = {
+      createElement: (tag) => {
+        if (tag === 'canvas') return mockCanvas;
+        return {};
+      },
+    };
+
+    const mockPage = {
+      getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+      render: () => ({ promise: Promise.resolve() }),
+    };
+
+    const renderPageToCanvas = new Function('document', `
+      ${fnMatch[0]}
+      return renderPageToCanvas;
+    `)(mockDocument);
+
+    // Test PNG render
+    const pngResult = await renderPageToCanvas(mockPage, 2, 'png');
+    assert.strictEqual(pngResult.dataUrl, 'data:image/png;base64,mockdata');
+    assert.strictEqual(toDataUrlCalls[0].mime, 'image/png');
+    assert.strictEqual(toDataUrlCalls[0].quality, undefined);
+
+    // Test JPG render
+    const jpgResult = await renderPageToCanvas(mockPage, 1, 'jpg');
+    assert.strictEqual(jpgResult.dataUrl, 'data:image/jpeg;base64,mockdata');
+    assert.strictEqual(toDataUrlCalls[1].mime, 'image/jpeg');
+    assert.strictEqual(toDataUrlCalls[1].quality, 0.85);
+    assert.strictEqual(fillRectCalled, true, 'JPG canvas should fill white background');
+  });
+
+  test('generates correct file extensions for result cards and zip downloads', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    assert.ok(code.includes('const ext = imageFormat === "jpg" ? "jpg" : "png";'), 'Handles dynamic file extension');
+    assert.ok(code.includes('`page-${String(pageNum).padStart(3, "0")}.${ext}`'), 'Uses dynamic extension for filenames');
+  });
+});
