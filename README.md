@@ -93,6 +93,12 @@ That’s it.
 - Draw, upload, or type your signature
 - Drag and resize on any page freely
 
+### 🗑️ Delete PDF Pages
+
+- Visually select and remove unwanted or blank pages from a PDF
+- Recompile and download a clean PDF instantly
+- 100% private in-browser local processing
+
 ### 🔄 Rearrange PDF
 
 - Visually drag and drop pages to reorder them
@@ -143,6 +149,7 @@ flipp/
 │   ├── text-to-pdf/index.html    # Text → PDF tool page
 │   ├── add-watermark/index.html  # Add Watermark tool page
 │   ├── sign-pdf/index.html       # Sign PDF tool page
+│   ├── delete-pdf-pages/index.html # Delete PDF Pages tool page
 │   └── rearrange-pdf/index.html  # Rearrange PDF tool page
 ├── blog/
 │   ├── index.html                # Blog home
@@ -161,6 +168,7 @@ flipp/
 │   ├── text-to-pdf.js            # Text → PDF utility
 │   ├── add-watermark.js          # Add watermark logic
 │   ├── sign-pdf.js               # Sign PDF logic
+│   ├── delete-pdf-pages.js       # Delete PDF pages logic
 │   └── rearrange-pdf.js          # Rearrange PDF logic
 ├── css/
 │   └── styles.css                # Global design system + component styles
@@ -196,6 +204,7 @@ flipp/
 │   ├── Text → PDF
 │   ├── Add Watermark
 │   ├── Sign PDF
+│   ├── Delete PDF Pages
 │   └── Rearrange PDF
 ├── Privacy & Trust Section
 └── Footer
@@ -213,6 +222,7 @@ flipp/
 ├── /tools/text-to-pdf/
 ├── /tools/add-watermark/
 ├── /tools/sign-pdf/
+├── /tools/delete-pdf-pages/
 └── /tools/rearrange-pdf/
 
 /blog

@@ -10,6 +10,7 @@ const PDF_TOOLS = [
   { id: 'pdf-to-word', label: 'PDF to Word', path: 'tools/pdf-to-word/' },
   { id: 'pdf-to-text', label: 'PDF to Text', path: 'tools/pdf-to-text/' },
   { id: 'add-watermark', label: 'Watermark', path: 'tools/add-watermark/' },
+  { id: 'delete-pdf-pages', label: 'Delete Pages', path: 'tools/delete-pdf-pages/' },
   { id: 'rearrange-pdf', label: 'Rearrange', path: 'tools/rearrange-pdf/' },
   { id: 'add-page-numbers', label: 'Page Numbers', path: 'tools/add-page-numbers/' },
   { id: 'edit-pdf', label: 'Edit PDF', path: 'tools/edit-pdf/' },
