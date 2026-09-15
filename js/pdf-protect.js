@@ -54,7 +54,7 @@ async function encryptPdf(file, password) {
   }
 
   const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdfjsDoc = await loadingTask.promise;
   const numPages = pdfjsDoc.numPages;
 
@@ -70,52 +70,69 @@ async function encryptPdf(file, password) {
   });
 
   const BATCH_SIZE = 4;
-  for (let start = 1; start <= numPages; start += BATCH_SIZE) {
-    const end = Math.min(start + BATCH_SIZE - 1, numPages);
-    const pagePromises = [];
+  try {
+    for (let start = 1; start <= numPages; start += BATCH_SIZE) {
+      const end = Math.min(start + BATCH_SIZE - 1, numPages);
+      const pagePromises = [];
 
-    for (let pageNum = start; pageNum <= end; pageNum++) {
-      pagePromises.push(
-        (async () => {
-          const page = await pdfjsDoc.getPage(pageNum);
-          const unscaledViewport = page.getViewport({ scale: 1.0 });
-          const widthPt = unscaledViewport.width;
-          const heightPt = unscaledViewport.height;
+      for (let pageNum = start; pageNum <= end; pageNum++) {
+        pagePromises.push(
+          (async () => {
+            let page = null;
+            try {
+              page = await pdfjsDoc.getPage(pageNum);
+              const unscaledViewport = page.getViewport({ scale: 1.0 });
+              const widthPt = unscaledViewport.width;
+              const heightPt = unscaledViewport.height;
 
-          const renderViewport = page.getViewport({ scale: 2.0 });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.width = renderViewport.width;
-          canvas.height = renderViewport.height;
+              const renderViewport = page.getViewport({ scale: 2.0 });
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
+              canvas.width = renderViewport.width;
+              canvas.height = renderViewport.height;
 
-          await page.render({ canvasContext: context, viewport: renderViewport }).promise;
+              await page.render({ canvasContext: context, viewport: renderViewport }).promise;
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+              const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-          canvas.width = 0;
-          canvas.height = 0;
+              canvas.width = 0;
+              canvas.height = 0;
 
-          return { pageNum, widthPt, heightPt, imgData };
-        })()
-      );
-    }
-
-    const pages = await Promise.all(pagePromises);
-
-    for (const pageData of pages) {
-      const { pageNum, widthPt, heightPt, imgData } = pageData;
-      if (pageNum > 1) {
-        jsPdfDoc.addPage([widthPt, heightPt], widthPt > heightPt ? "l" : "p");
-      } else {
-        jsPdfDoc.internal.pageSize.setWidth(widthPt);
-        jsPdfDoc.internal.pageSize.setHeight(heightPt);
+              return { pageNum, widthPt, heightPt, imgData };
+            } finally {
+              if (page && typeof page.cleanup === "function") {
+                page.cleanup();
+              }
+            }
+          })()
+        );
       }
 
-      jsPdfDoc.addImage(imgData, "JPEG", 0, 0, widthPt, heightPt);
+      const pages = await Promise.all(pagePromises);
+
+      for (const pageData of pages) {
+        const { pageNum, widthPt, heightPt, imgData } = pageData;
+        if (pageNum > 1) {
+          jsPdfDoc.addPage([widthPt, heightPt], widthPt > heightPt ? "l" : "p");
+        } else {
+          jsPdfDoc.internal.pageSize.setWidth(widthPt);
+          jsPdfDoc.internal.pageSize.setHeight(heightPt);
+        }
+
+        jsPdfDoc.addImage(imgData, "JPEG", 0, 0, widthPt, heightPt);
+      }
+    }
+
+    return jsPdfDoc.output("blob");
+  } finally {
+    if (pdfjsDoc && typeof pdfjsDoc.destroy === "function") {
+      try {
+        await pdfjsDoc.destroy();
+      } catch (e) {
+        // Ignore destruction errors
+      }
     }
   }
-
-  return jsPdfDoc.output("blob");
 }
 
 protectBtn.addEventListener("click", async () => {

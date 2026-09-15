@@ -236,6 +236,8 @@ test('encryptPdf function', async (t) => {
   await t.test('encrypts multi-page PDF in parallel batches maintaining page order', async () => {
     const addedPages = [];
     const addedImages = [];
+    let cleanupCallCount = 0;
+    let destroyCalled = false;
 
     const customJsPDFInstance = {
       internal: {
@@ -260,9 +262,11 @@ test('encryptPdf function', async (t) => {
         getDocument: () => ({
           promise: Promise.resolve({
             numPages: 6,
+            destroy: () => { destroyCalled = true; },
             getPage: (pageNum) => Promise.resolve({
               getViewport: ({ scale }) => ({ width: pageNum * 10 * scale, height: pageNum * 20 * scale }),
-              render: () => ({ promise: Promise.resolve() })
+              render: () => ({ promise: Promise.resolve() }),
+              cleanup: () => { cleanupCallCount++; }
             })
           })
         })
@@ -290,5 +294,8 @@ test('encryptPdf function', async (t) => {
     assert.strictEqual(addedImages[5].w, 60);
     // Ensure 5 additional pages added in order
     assert.strictEqual(addedPages.filter(p => p.type === 'addPage').length, 5);
+    // Verify resource cleanup
+    assert.strictEqual(cleanupCallCount, 6);
+    assert.strictEqual(destroyCalled, true);
   });
 });
