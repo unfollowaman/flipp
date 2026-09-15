@@ -19,11 +19,16 @@ const elementMap = {};
 function createMockElement(id = '') {
   if (!elementMap[id]) {
     const classes = new Set();
+    const attrs = {};
     elementMap[id] = {
       id,
       value: '',
       style: {},
       dataset: {},
+      attributes: attrs,
+      setAttribute: (attr, val) => { attrs[attr] = String(val); },
+      getAttribute: (attr) => attrs[attr] || null,
+      removeAttribute: (attr) => { delete attrs[attr]; },
       classList: {
         add: (cls) => classes.add(cls),
         remove: (cls) => classes.delete(cls),
@@ -277,9 +282,10 @@ test('sign-pdf createSignatureOverlay', async (t) => {
     };
 
     const createdElements = [];
+    let elemIdSeq = 0;
     const origCreateElement = mockDocument.createElement;
     mockDocument.createElement = (tagName) => {
-      const el = origCreateElement(tagName);
+      const el = createMockElement(`temp-el-${elemIdSeq++}`);
       createdElements.push(el);
       return el;
     };
@@ -290,6 +296,36 @@ test('sign-pdf createSignatureOverlay', async (t) => {
     assert.ok(deleteBtn, 'Delete handle should be created');
     assert.strictEqual(deleteBtn.textContent, '✕');
     assert.strictEqual(deleteBtn.innerHTML, '');
+
+    const resizeBtn = createdElements.find((el) => el.className === 'resize-handle');
+    assert.ok(resizeBtn, 'Resize handle should be created');
+
+    mockDocument.createElement = origCreateElement;
+  });
+
+  await t.test('createSignatureOverlay sets accessibility attributes on delete and resize handles', () => {
+    const origCreateElement = mockDocument.createElement;
+    const createdElements = [];
+    let elemIdSeq = 100;
+    mockDocument.createElement = (tagName) => {
+      const el = createMockElement(`temp-el-${elemIdSeq++}`);
+      createdElements.push(el);
+      return el;
+    };
+
+    createSignatureOverlay('data:image/png;base64,sample');
+
+    const deleteBtn = createdElements.find((el) => el.className === 'delete-handle');
+    assert.ok(deleteBtn, 'Delete button element should exist');
+    assert.strictEqual(deleteBtn.getAttribute('role'), 'button');
+    assert.strictEqual(deleteBtn.getAttribute('tabindex'), '0');
+    assert.strictEqual(deleteBtn.getAttribute('aria-label'), 'Remove signature');
+    assert.strictEqual(deleteBtn.getAttribute('title'), 'Remove signature');
+
+    const resizeHandle = createdElements.find((el) => el.className === 'resize-handle');
+    assert.ok(resizeHandle, 'Resize handle element should exist');
+    assert.strictEqual(resizeHandle.getAttribute('aria-label'), 'Resize signature');
+    assert.strictEqual(resizeHandle.getAttribute('title'), 'Resize signature');
 
     mockDocument.createElement = origCreateElement;
   });

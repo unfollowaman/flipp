@@ -317,13 +317,27 @@ function createSignatureOverlay(src) {
 
   const resizeHandle = document.createElement("div");
   resizeHandle.className = "resize-handle";
+  resizeHandle.setAttribute("aria-label", "Resize signature");
+  resizeHandle.setAttribute("title", "Resize signature");
 
   const deleteBtn = document.createElement("div");
   deleteBtn.className = "delete-handle";
+  deleteBtn.setAttribute("role", "button");
+  deleteBtn.setAttribute("tabindex", "0");
+  deleteBtn.setAttribute("aria-label", "Remove signature");
+  deleteBtn.setAttribute("title", "Remove signature");
   deleteBtn.textContent = "✕";
-  deleteBtn.addEventListener("click", (e) => {
+
+  const removeHandler = (e) => {
     e.stopPropagation();
     overlay.remove();
+  };
+  deleteBtn.addEventListener("click", removeHandler);
+  deleteBtn.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      removeHandler(e);
+    }
   });
 
   overlay.appendChild(img);
