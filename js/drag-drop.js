@@ -279,19 +279,31 @@ export async function renderPageToDataUrl(page, viewport, imageType, imageQualit
 }
 
 export async function renderPdfFirstPage(file) {
+  let pdfDoc = null;
+  let page = null;
   try {
     const pdfjs = window["pdfjs-dist/build/pdf"];
     if (!pdfjs) return null;
 
     const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await pdfjs.getDocument({ data: arrayBuffer.slice(0) })
-      .promise;
+    pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     if (pdfDoc.numPages < 1) return null;
 
-    const page = await pdfDoc.getPage(1);
+    page = await pdfDoc.getPage(1);
     const viewport = page.getViewport({ scale: 0.3 });
     return await renderPageToDataUrl(page, viewport);
   } catch (err) {
     return null;
+  } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
+    if (pdfDoc && typeof pdfDoc.destroy === "function") {
+      try {
+        await pdfDoc.destroy();
+      } catch (_) {
+        // Ignore destruction errors
+      }
+    }
   }
 }

@@ -506,17 +506,26 @@ test('renderPdfFirstPage', async (t) => {
     assert.strictEqual(result, null);
   });
 
-  await t.test('returns dataUrl when valid PDF page is rendered', async () => {
+  await t.test('returns dataUrl when valid PDF page is rendered and cleans up resources', async () => {
+    let pageCleanedUp = false;
+    let docDestroyed = false;
+    let passedData = null;
+
     const mockPage = {
       getViewport: () => ({ width: 100, height: 100 }),
-      render: () => ({ promise: Promise.resolve() })
+      render: () => ({ promise: Promise.resolve() }),
+      cleanup: () => { pageCleanedUp = true; }
     };
     const mockDoc = {
       numPages: 1,
-      getPage: async (num) => mockPage
+      getPage: async (num) => mockPage,
+      destroy: async () => { docDestroyed = true; }
     };
     const mockPdfjs = {
-      getDocument: () => ({ promise: Promise.resolve(mockDoc) })
+      getDocument: (params) => {
+        passedData = params.data;
+        return { promise: Promise.resolve(mockDoc) };
+      }
     };
 
     const origWindow = global.window;
@@ -525,16 +534,24 @@ test('renderPdfFirstPage', async (t) => {
     };
 
     try {
-      const file = { name: 'test.pdf', arrayBuffer: async () => new ArrayBuffer(8) };
+      const testBuffer = new ArrayBuffer(8);
+      const file = { name: 'test.pdf', arrayBuffer: async () => testBuffer };
       const result = await renderPdfFirstPage(file);
       assert.strictEqual(result, 'data:image/png;base64,mockdata');
+      assert.strictEqual(passedData, testBuffer); // Verified direct buffer passed without slice
+      assert.strictEqual(pageCleanedUp, true);
+      assert.strictEqual(docDestroyed, true);
     } finally {
       global.window = origWindow;
     }
   });
 
-  await t.test('returns null when pdfDoc has zero pages or on error', async () => {
-    const mockDoc = { numPages: 0 };
+  await t.test('returns null when pdfDoc has zero pages or on error and cleans up doc', async () => {
+    let docDestroyed = false;
+    const mockDoc = {
+      numPages: 0,
+      destroy: async () => { docDestroyed = true; }
+    };
     const mockPdfjs = {
       getDocument: () => ({ promise: Promise.resolve(mockDoc) })
     };
@@ -548,6 +565,7 @@ test('renderPdfFirstPage', async (t) => {
       const file = { name: 'empty.pdf', arrayBuffer: async () => new ArrayBuffer(8) };
       const result = await renderPdfFirstPage(file);
       assert.strictEqual(result, null);
+      assert.strictEqual(docDestroyed, true);
     } finally {
       global.window = origWindow;
     }
