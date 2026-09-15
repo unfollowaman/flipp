@@ -5,12 +5,14 @@ import {
   setupDragReorder,
   renderPageToDataUrl,
 } from "./drag-drop.js";
+import { PageDeleteUndoManager } from "./page-delete-undo.js";
 
 let originalPdfFile = null;
 let originalPdfBytes = null;
 let pagesOrder = [];
 let rearrangedBlob = null;
 let pdfDocument = null;
+let undoManager = null;
 
 const dropZoneEl = document.getElementById("rearrange-drop-zone");
 const fileInputEl = document.getElementById("rearrange-file-input");
@@ -20,10 +22,19 @@ const progressLabel = document.getElementById("rearrange-progress-label");
 const previewArea = document.getElementById("rearrange-preview-area");
 const previewGrid = document.getElementById("rearrange-preview-grid");
 const countEl = document.getElementById("rearrange-file-count");
+const undoBtn = document.getElementById("rearrange-undo-btn");
 const rearrangeBtn = document.getElementById("rearrange-btn");
 const resultsArea = document.getElementById("rearrange-results");
 const downloadBtn = document.getElementById("rearrange-download-btn");
 const resetBtn = document.getElementById("rearrange-reset-btn");
+
+if (previewGrid) {
+  undoManager = new PageDeleteUndoManager({
+    container: previewGrid,
+    undoBtn: undoBtn,
+    onUpdate: updatePagesOrder,
+  });
+}
 
 function handleFiles(files) {
   if (!files || !files.length) return;
@@ -92,10 +103,18 @@ function createThumbnailCard(dataUrl, i) {
   rmBtn.className = "img-thumb-remove";
   rmBtn.textContent = "✕";
   rmBtn.title = "Remove page";
+  rmBtn.setAttribute("aria-label", `Delete page ${i}`);
   rmBtn.onclick = (e) => {
     e.stopPropagation();
-    card.remove();
-    updatePagesOrder();
+    if (undoManager) {
+      const currentCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
+      const currentIdx = currentCards.indexOf(card);
+      const label = currentIdx !== -1 ? `Page ${currentIdx + 1}` : `Page ${i}`;
+      undoManager.deletePage(card, label);
+    } else {
+      card.remove();
+      updatePagesOrder();
+    }
   };
   card.appendChild(rmBtn);
 
@@ -104,6 +123,7 @@ function createThumbnailCard(dataUrl, i) {
 }
 
 async function renderThumbnails(numPages) {
+  if (undoManager) undoManager.reset();
   previewGrid.innerHTML = "";
   countEl.textContent = `${numPages} page${numPages !== 1 ? "s" : ""}`;
 
@@ -253,6 +273,7 @@ function resetRearrange() {
   pagesOrder = [];
   rearrangedBlob = null;
   pdfDocument = null;
+  if (undoManager) undoManager.reset();
 
   dropZoneEl.style.display = "block";
   previewArea.classList.remove("is-visible");

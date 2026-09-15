@@ -970,6 +970,37 @@ textarea {
   color: #555;
   flex: 1;
 }
+.undo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--yellow);
+  color: var(--black);
+  border: var(--border-std);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--black);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+.undo-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--black);
+}
+.undo-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 var(--black);
+}
+.undo-btn:disabled,
+.undo-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

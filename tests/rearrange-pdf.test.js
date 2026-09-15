@@ -6,8 +6,27 @@ const path = require('node:path');
 const srcPath = path.join(__dirname, '../js/rearrange-pdf.js');
 let src = fs.readFileSync(srcPath, 'utf8');
 
+// Mock PageDeleteUndoManager for Node unit test
+const pageDeleteUndoSrc = `
+class PageDeleteUndoManager {
+  constructor(options = {}) {
+    this.container = options.container;
+    this.undoBtn = options.undoBtn;
+    this.onUpdate = options.onUpdate;
+    this.history = [];
+  }
+  deletePage(card) {
+    card.remove();
+    if (typeof this.onUpdate === 'function') this.onUpdate();
+  }
+  undo() {}
+  reset() { this.history = []; }
+}
+`;
+
 // Strip ES module imports
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+src = pageDeleteUndoSrc + '\n' + src;
 
 // Append return statement to access internal functions for testing
 src += '\nreturn { handleFiles, loadPdfAndRenderThumbnails, updatePagesOrder, resetRearrange };\n';

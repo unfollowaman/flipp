@@ -5,12 +5,14 @@ import {
   setupDragReorder,
   renderPageToDataUrl,
 } from "./drag-drop.js";
+import { PageDeleteUndoManager } from "./page-delete-undo.js";
 
 let originalPdfFile = null;
 let originalPdfBytes = null;
 let pagesOrder = [];
 let cleanedBlob = null;
 let pdfDocument = null;
+let undoManager = null;
 
 const dropZoneEl = document.getElementById("delete-drop-zone");
 const fileInputEl = document.getElementById("delete-file-input");
@@ -20,10 +22,19 @@ const progressLabel = document.getElementById("delete-progress-label");
 const previewArea = document.getElementById("delete-preview-area");
 const previewGrid = document.getElementById("delete-preview-grid");
 const countEl = document.getElementById("delete-file-count");
+const undoBtn = document.getElementById("delete-undo-btn");
 const deleteBtn = document.getElementById("delete-btn");
 const resultsArea = document.getElementById("delete-results");
 const downloadBtn = document.getElementById("delete-download-btn");
 const resetBtn = document.getElementById("delete-reset-btn");
+
+if (previewGrid) {
+  undoManager = new PageDeleteUndoManager({
+    container: previewGrid,
+    undoBtn: undoBtn,
+    onUpdate: updatePagesOrder,
+  });
+}
 
 function handleFiles(files) {
   if (!files || !files.length) return;
@@ -93,8 +104,15 @@ function createThumbnailCard(dataUrl, i) {
   rmBtn.setAttribute("aria-label", `Delete page ${i}`);
   rmBtn.onclick = (e) => {
     e.stopPropagation();
-    card.remove();
-    updatePagesOrder();
+    if (undoManager) {
+      const currentCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
+      const currentIdx = currentCards.indexOf(card);
+      const label = currentIdx !== -1 ? `Page ${currentIdx + 1}` : `Page ${i}`;
+      undoManager.deletePage(card, label);
+    } else {
+      card.remove();
+      updatePagesOrder();
+    }
   };
   card.appendChild(rmBtn);
 
@@ -103,6 +121,7 @@ function createThumbnailCard(dataUrl, i) {
 }
 
 async function renderThumbnails(numPages) {
+  if (undoManager) undoManager.reset();
   previewGrid.innerHTML = "";
   countEl.textContent = `${numPages} page${numPages !== 1 ? "s" : ""}`;
 
@@ -263,6 +282,7 @@ function resetDelete() {
   pagesOrder = [];
   cleanedBlob = null;
   pdfDocument = null;
+  if (undoManager) undoManager.reset();
 
   dropZoneEl.style.display = "block";
   previewArea.classList.remove("is-visible");
