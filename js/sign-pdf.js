@@ -209,7 +209,13 @@ async function handlePdfSelect(files) {
   const arrayBuffer = await file.arrayBuffer();
   pdfBytesOriginal = arrayBuffer;
 
-  // Create a copy of the array buffer for pdf.js so it doesn't detach the original
+  if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
+    try {
+      await pdfjsDocument.destroy();
+    } catch (_) {}
+  }
+
+  // Create a copy of array buffer for PDF.js as web worker transfers data buffer
   const pdfjsBuffer = arrayBuffer.slice(0);
 
   try {
@@ -233,8 +239,9 @@ async function renderPage(pageNum) {
   prevPageBtn.disabled = pageNum <= 1;
   nextPageBtn.disabled = pageNum >= numPages;
 
+  let page = null;
   try {
-    const page = await pdfjsDocument.getPage(pageNum);
+    page = await pdfjsDocument.getPage(pageNum);
     const containerWidth = canvasContainer.clientWidth || 800;
 
     const unscaledViewport = page.getViewport({ scale: 1 });
@@ -254,6 +261,9 @@ async function renderPage(pageNum) {
     console.error(err);
     showToast("Error rendering page preview.", "error");
   } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
     loadingOverlay.style.display = "none";
   }
 }
@@ -659,6 +669,11 @@ function resetTool() {
   }
 
   pdfBytesOriginal = null;
+  if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
+    try {
+      pdfjsDocument.destroy();
+    } catch (_) {}
+  }
   pdfjsDocument = null;
   uploadedImageSrc = null;
   if (signaturePad) signaturePad.clear();

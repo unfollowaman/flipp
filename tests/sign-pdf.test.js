@@ -226,14 +226,18 @@ test('sign-pdf renderPage error paths and happy paths', async (t) => {
     assert.strictEqual(elementMap['sign-loading-overlay'].style.display, 'none');
   });
 
-  await t.test('renderPage updates canvas dimensions and page info on success', async () => {
+  await t.test('renderPage updates canvas dimensions and page info on success and calls page.cleanup()', async () => {
     let renderCalled = false;
+    let cleanupCalled = false;
     setPdfjsDocument({
       getPage: async (pageNum) => ({
         getViewport: ({ scale }) => ({ width: 800 * scale, height: 600 * scale }),
         render: (ctx) => {
           renderCalled = true;
           return { promise: Promise.resolve() };
+        },
+        cleanup: () => {
+          cleanupCalled = true;
         }
       })
     });
@@ -241,11 +245,47 @@ test('sign-pdf renderPage error paths and happy paths', async (t) => {
     await renderPage(2);
 
     assert.strictEqual(renderCalled, true);
+    assert.strictEqual(cleanupCalled, true);
     assert.strictEqual(elementMap['sign-page-info'].textContent, 'Page 2 of 3');
     assert.strictEqual(elementMap['sign-preview-canvas'].width, 800);
     assert.strictEqual(elementMap['sign-preview-canvas'].height, 600);
     assert.strictEqual(elementMap['sign-loading-overlay'].style.display, 'none');
     assert.strictEqual(toastMessages.length, 0);
+  });
+});
+
+test('sign-pdf resource cleanup on reset and reload', async (t) => {
+  await t.test('resetTool calls destroy on existing pdfjsDocument', async () => {
+    let destroyCalled = false;
+    setPdfjsDocument({
+      destroy: () => {
+        destroyCalled = true;
+      }
+    });
+
+    resetTool();
+
+    assert.strictEqual(destroyCalled, true);
+    assert.strictEqual(getPdfjsDocument(), null);
+  });
+
+  await t.test('handlePdfSelect destroys existing pdfjsDocument before loading new one', async () => {
+    let destroyCalled = false;
+    setPdfjsDocument({
+      destroy: async () => {
+        destroyCalled = true;
+      }
+    });
+
+    const file = {
+      name: 'test.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+
+    await handlePdfSelect([file]);
+
+    assert.strictEqual(destroyCalled, true);
   });
 });
 
