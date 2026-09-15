@@ -10,7 +10,8 @@ import {
 // ── State ──────────────────────────────────────────────
 let pdfDoc = null;
 let totalPages = 0;
-const scale = 3; // fixed max quality (216dpi equivalent)
+let scale = 1;
+let imageFormat = "png"; // 'png' | 'jpg'
 let pageMode = "all"; // 'all' | 'range'
 let renderedPages = []; // { pageNum, dataUrl }
 
@@ -39,6 +40,8 @@ const dropZoneEl = document.getElementById("pdf-drop-zone");
 const fileInputEl = document.getElementById("pdf-file-input");
 
 const optionsEl = document.getElementById("pdf-options");
+const formatGroup = document.getElementById("pdf-format-pills");
+const scaleGroup = document.getElementById("pdf-scale-pills");
 const pagesGroup = document.getElementById("pdf-pages-pills");
 const rangeGroup = document.getElementById("pdf-range-group");
 const rangeInput = document.getElementById("pdf-range-input");
@@ -58,13 +61,33 @@ const downloadAllBtn = document.getElementById("pdf-download-all-btn");
 const resetBtn = document.getElementById("pdf-reset-btn");
 
 // ── Pill helpers ────────────────────────────────────────
-pagesGroup.addEventListener("click", (e) => {
-  const pill = e.target.closest(".opt-pill");
-  if (!pill) return;
-  pageMode = pill.dataset.value;
-  activatePill(pagesGroup, pill.dataset.value);
-  rangeGroup.style.display = pageMode === "range" ? "flex" : "none";
-});
+if (formatGroup) {
+  formatGroup.addEventListener("click", (e) => {
+    const pill = e.target.closest(".opt-pill");
+    if (!pill) return;
+    imageFormat = pill.dataset.value;
+    activatePill(formatGroup, imageFormat);
+  });
+}
+
+if (scaleGroup) {
+  scaleGroup.addEventListener("click", (e) => {
+    const pill = e.target.closest(".opt-pill");
+    if (!pill) return;
+    scale = Number(pill.dataset.value) || 1;
+    activatePill(scaleGroup, String(scale));
+  });
+}
+
+if (pagesGroup) {
+  pagesGroup.addEventListener("click", (e) => {
+    const pill = e.target.closest(".opt-pill");
+    if (!pill) return;
+    pageMode = pill.dataset.value;
+    activatePill(pagesGroup, pill.dataset.value);
+    rangeGroup.style.display = pageMode === "range" ? "flex" : "none";
+  });
+}
 
 // ── Parse page range string ─────────────────────────────
 function parsePageRange(rangeStr, total) {
@@ -86,14 +109,23 @@ function parsePageRange(rangeStr, total) {
 }
 
 // ── Render single page to canvas → dataUrl ─────────────
-async function renderPageToCanvas(page, renderScale) {
+async function renderPageToCanvas(page, renderScale, format = "png") {
   const viewport = page.getViewport({ scale: renderScale });
   const canvas = document.createElement("canvas");
   canvas.width = viewport.width;
   canvas.height = viewport.height;
   const ctx = canvas.getContext("2d");
+
+  if (format === "jpg" || format === "jpeg") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   await page.render({ canvasContext: ctx, viewport }).promise;
-  return { canvas, dataUrl: canvas.toDataURL("image/png") };
+
+  const mimeType = format === "jpg" || format === "jpeg" ? "image/jpeg" : "image/png";
+  const quality = mimeType === "image/jpeg" ? 0.85 : undefined;
+  return { canvas, dataUrl: canvas.toDataURL(mimeType, quality) };
 }
 
 // ── Load PDF file ───────────────────────────────────────
@@ -226,7 +258,7 @@ convertBtn.addEventListener("click", async () => {
 
       const page = await pdfDoc.getPage(pageNum);
       try {
-        const { dataUrl } = await renderPageToCanvas(page, scale);
+        const { dataUrl } = await renderPageToCanvas(page, scale, imageFormat);
         renderedPages[idx] = { pageNum, dataUrl };
       } finally {
         if (page && typeof page.cleanup === "function") {
@@ -266,9 +298,12 @@ function showResults() {
   resultsArea.classList.add("is-visible");
   resultsGrid.innerHTML = "";
 
+  const ext = imageFormat === "jpg" ? "jpg" : "png";
+  const formatLabel = ext.toUpperCase();
+
   const fragment = document.createDocumentFragment();
   for (const { pageNum, dataUrl } of renderedPages) {
-    const filename = `page-${String(pageNum).padStart(3, "0")}.png`;
+    const filename = `page-${String(pageNum).padStart(3, "0")}.${ext}`;
 
     const card = document.createElement("div");
     card.className = "result-img-card";
@@ -299,7 +334,7 @@ function showResults() {
   resultsGrid.appendChild(fragment);
 
   showToast(
-    `✓ ${renderedPages.length} PNG${renderedPages.length !== 1 ? "s" : ""} ready!`,
+    `✓ ${renderedPages.length} ${formatLabel}${renderedPages.length !== 1 ? "s" : ""} ready!`,
   );
 }
 
@@ -319,10 +354,11 @@ downloadAllBtn.addEventListener("click", async () => {
   downloadAllBtn.textContent = "Zipping…";
   downloadAllBtn.disabled = true;
 
+  const ext = imageFormat === "jpg" ? "jpg" : "png";
   const zip = new window.JSZip();
   for (const { pageNum, dataUrl } of renderedPages) {
     const base64 = dataUrl.split(",")[1];
-    zip.file(`page-${String(pageNum).padStart(3, "0")}.png`, base64, {
+    zip.file(`page-${String(pageNum).padStart(3, "0")}.${ext}`, base64, {
       base64: true,
     });
   }
@@ -353,6 +389,7 @@ async function resetPdfConverter() {
   totalPages = 0;
   renderedPages = [];
   scale = 1;
+  imageFormat = "png";
   pageMode = "all";
 
   optionsEl.classList.remove("is-visible");
@@ -364,6 +401,7 @@ async function resetPdfConverter() {
   rangeGroup.style.display = "none";
   rangeInput.value = "";
   setProgress(progressBar, progressLabel, 0, "");
+  activatePill(formatGroup, "png");
   activatePill(scaleGroup, "1");
   activatePill(pagesGroup, "all");
 }

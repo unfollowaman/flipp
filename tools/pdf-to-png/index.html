@@ -282,16 +282,95 @@
         <!-- PDF Options -->
         <div class="options-bar" id="pdf-options">
           <div class="option-group">
-            <label class="option-label">Pages</label>
-            <div class="option-pills" id="pdf-pages-pills">
-              <button class="opt-pill active" data-value="all">
+            <label class="option-label" id="pdf-format-label">Output format</label>
+            <div
+              class="option-pills"
+              id="pdf-format-pills"
+              role="radiogroup"
+              aria-labelledby="pdf-format-label"
+            >
+              <button
+                class="opt-pill active"
+                data-value="png"
+                role="radio"
+                aria-checked="true"
+                title="Best quality (lossless)"
+              >
+                PNG <span class="pill-subtext">— Best quality</span>
+              </button>
+              <button
+                class="opt-pill"
+                data-value="jpg"
+                role="radio"
+                aria-checked="false"
+                title="Smaller file size"
+              >
+                JPG <span class="pill-subtext">— Smaller size</span>
+              </button>
+            </div>
+          </div>
+          <div class="option-group">
+            <label class="option-label" id="pdf-scale-label">Resolution</label>
+            <div
+              class="option-pills"
+              id="pdf-scale-pills"
+              role="radiogroup"
+              aria-labelledby="pdf-scale-label"
+            >
+              <button
+                class="opt-pill active"
+                data-value="1"
+                role="radio"
+                aria-checked="true"
+              >
+                1×
+              </button>
+              <button
+                class="opt-pill"
+                data-value="2"
+                role="radio"
+                aria-checked="false"
+              >
+                2×
+              </button>
+              <button
+                class="opt-pill"
+                data-value="3"
+                role="radio"
+                aria-checked="false"
+              >
+                3×
+              </button>
+            </div>
+          </div>
+          <div class="option-group">
+            <label class="option-label" id="pdf-pages-label">Pages</label>
+            <div
+              class="option-pills"
+              id="pdf-pages-pills"
+              role="radiogroup"
+              aria-labelledby="pdf-pages-label"
+            >
+              <button
+                class="opt-pill active"
+                data-value="all"
+                role="radio"
+                aria-checked="true"
+              >
                 All pages
               </button>
-              <button class="opt-pill" data-value="range">Custom range</button>
+              <button
+                class="opt-pill"
+                data-value="range"
+                role="radio"
+                aria-checked="false"
+              >
+                Custom range
+              </button>
             </div>
           </div>
           <div class="option-group" id="pdf-range-group" style="display: none">
-            <label class="option-label">Page range (e.g. 1-3, 5)</label>
+            <label class="option-label" for="pdf-range-input">Page range (e.g. 1-3, 5)</label>
             <input
               type="text"
               class="range-input"

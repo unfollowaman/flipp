@@ -1082,6 +1082,11 @@ textarea {
   background: var(--yellow);
   color: var(--black);
 }
+.pill-subtext {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.8;
+}
 .wm-scope-btn-sec {
   background: #e2e8f0;
   color: var(--black);

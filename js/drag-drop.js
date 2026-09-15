@@ -93,8 +93,13 @@ export function setProgress(barEl, labelEl, value, label) {
 }
 
 export function activatePill(group, value) {
+  if (!group) return;
   group.querySelectorAll(".opt-pill").forEach((p) => {
-    p.classList.toggle("active", p.dataset.value === value);
+    const isActive = p.dataset.value === value;
+    p.classList.toggle("active", isActive);
+    if (p.hasAttribute && p.hasAttribute("aria-checked")) {
+      p.setAttribute("aria-checked", isActive ? "true" : "false");
+    }
   });
 }
 
