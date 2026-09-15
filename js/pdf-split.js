@@ -18,6 +18,58 @@ const rangeEndEl = document.getElementById("split-range-end");
 const previewStartEl = document.getElementById("split-preview-start");
 const previewEndEl = document.getElementById("split-preview-end");
 
+const splitNCheckbox = document.getElementById("split-n-checkbox");
+const splitNStepper = document.getElementById("split-n-stepper");
+const splitNDecBtn = document.getElementById("split-n-dec");
+const splitNIncBtn = document.getElementById("split-n-inc");
+const splitNInput = document.getElementById("split-n-input");
+const splitRangeGroup = document.getElementById("split-range-group");
+
+function toggleNModeUI() {
+  const isChecked = splitNCheckbox ? splitNCheckbox.checked : false;
+  if (splitNStepper) {
+    splitNStepper.style.opacity = isChecked ? "1" : "0.5";
+    splitNStepper.style.pointerEvents = isChecked ? "auto" : "none";
+  }
+  if (splitNDecBtn) splitNDecBtn.disabled = !isChecked;
+  if (splitNIncBtn) splitNIncBtn.disabled = !isChecked;
+  if (splitNInput) splitNInput.disabled = !isChecked;
+
+  if (splitRangeGroup) {
+    splitRangeGroup.style.opacity = isChecked ? "0.4" : "1";
+    splitRangeGroup.style.pointerEvents = isChecked ? "none" : "auto";
+  }
+}
+
+if (splitNCheckbox) {
+  splitNCheckbox.addEventListener("change", toggleNModeUI);
+}
+
+if (splitNDecBtn && splitNInput) {
+  splitNDecBtn.addEventListener("click", () => {
+    let val = parseInt(splitNInput.value, 10) || 1;
+    if (val > 1) {
+      splitNInput.value = val - 1;
+    }
+  });
+}
+
+if (splitNIncBtn && splitNInput) {
+  splitNIncBtn.addEventListener("click", () => {
+    let val = parseInt(splitNInput.value, 10) || 1;
+    splitNInput.value = val + 1;
+  });
+}
+
+if (splitNInput) {
+  splitNInput.addEventListener("input", () => {
+    let val = parseInt(splitNInput.value, 10);
+    if (isNaN(val) || val < 1) {
+      splitNInput.value = 1;
+    }
+  });
+}
+
 async function renderPagePreview(pageNum, container) {
   container.innerHTML = ""; // Clear previous content
 
@@ -71,6 +123,9 @@ function resetSplitUIState(file) {
   totalPages = 0;
   rangeStartEl.value = "";
   rangeEndEl.value = "";
+  if (splitNCheckbox) splitNCheckbox.checked = false;
+  if (splitNInput) splitNInput.value = "1";
+  toggleNModeUI();
 }
 
 async function loadPdfMetadataAndPreviews(file) {
@@ -139,80 +194,156 @@ splitBtn.addEventListener("click", async () => {
   try {
     const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
     totalPages = srcPdf.getPageCount();
-    if (totalPages < 2)
-      return showToast("PDF needs at least 2 pages to split.", "error");
-
-    const start = Number(rangeStartEl.value);
-    const end = Number(rangeEndEl.value);
-    if (!Number.isInteger(start) || !Number.isInteger(end)) {
-      return showToast("Enter valid page numbers.", "error");
-    }
-    if (
-      start < 1 ||
-      end < 1 ||
-      start > totalPages ||
-      end > totalPages ||
-      start > end
-    ) {
-      return showToast(
-        `Choose a valid range between 1 and ${totalPages}.`,
-        "error",
-      );
-    }
-    if (end >= totalPages) {
-      return showToast(
-        "End page must be before the last page so second file is not empty.",
-        "error",
-      );
-    }
 
     splitBlobs = [];
     const baseName = pdfFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
 
-    const firstOut = await PDFLib.PDFDocument.create();
-    const firstPageIndexes = Array.from(
-      { length: end - start + 1 },
-      (_, i) => start - 1 + i,
-    );
-    const firstPages = await firstOut.copyPages(srcPdf, firstPageIndexes);
-    firstPages.forEach((page) => firstOut.addPage(page));
-    splitBlobs.push({
-      name: `${baseName} 1.pdf`,
-      blob: new Blob([await firstOut.save()], { type: "application/pdf" }),
-    });
+    const isNMode = splitNCheckbox ? splitNCheckbox.checked : false;
 
-    const secondOut = await PDFLib.PDFDocument.create();
-    const secondPageIndexes = Array.from(
-      { length: totalPages - end },
-      (_, i) => end + i,
-    );
-    const secondPages = await secondOut.copyPages(srcPdf, secondPageIndexes);
-    secondPages.forEach((page) => secondOut.addPage(page));
-    splitBlobs.push({
-      name: `${baseName} 2.pdf`,
-      blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
-    });
+    if (isNMode) {
+      const n = parseInt(splitNInput ? splitNInput.value : "1", 10);
+      const interval = isNaN(n) || n < 1 ? 1 : n;
 
-    previewArea.classList.remove("is-visible");
-    resultsArea.classList.add("is-visible");
-    downloadsEl.innerHTML = "";
-    splitBlobs.forEach((entry) => {
-      const btn = document.createElement("button");
-      btn.className = "cta-btn cta-yellow";
-      btn.textContent = `Download ${entry.name}`;
-      btn.addEventListener("click", () => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(entry.blob);
-        a.download = entry.name;
-        a.click();
-        URL.revokeObjectURL(a.href);
+      let chunkIndex = 1;
+      for (let i = 0; i < totalPages; i += interval) {
+        const pageIndexes = [];
+        for (let j = i; j < Math.min(i + interval, totalPages); j++) {
+          pageIndexes.push(j);
+        }
+
+        const outPdf = await PDFLib.PDFDocument.create();
+        const copiedPages = await outPdf.copyPages(srcPdf, pageIndexes);
+        copiedPages.forEach((page) => outPdf.addPage(page));
+
+        splitBlobs.push({
+          name: `${baseName}-part-${chunkIndex}.pdf`,
+          blob: new Blob([await outPdf.save()], { type: "application/pdf" }),
+        });
+        chunkIndex++;
+      }
+
+      previewArea.classList.remove("is-visible");
+      resultsArea.classList.add("is-visible");
+      downloadsEl.innerHTML = "";
+
+      splitBlobs.forEach((entry) => {
+        const btn = document.createElement("button");
+        btn.className = "cta-btn cta-yellow";
+        btn.textContent = `Download ${entry.name}`;
+        btn.addEventListener("click", () => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(entry.blob);
+          a.download = entry.name;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+        downloadsEl.appendChild(btn);
       });
-      downloadsEl.appendChild(btn);
-    });
 
-    showToast(
-      `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
-    );
+      if (splitBlobs.length > 1 && window.JSZip) {
+        const zipBtn = document.createElement("button");
+        zipBtn.className = "cta-btn cta-mint";
+        zipBtn.textContent = "Download All as ZIP 📦";
+        zipBtn.addEventListener("click", async () => {
+          zipBtn.textContent = "Zipping…";
+          zipBtn.disabled = true;
+          try {
+            const zip = new window.JSZip();
+            splitBlobs.forEach((entry) => {
+              zip.file(entry.name, entry.blob);
+            });
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(zipBlob);
+            a.download = `${baseName}-split.zip`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast("ZIP downloaded!");
+          } catch (err) {
+            console.error(err);
+            showToast("Failed to create ZIP file.", "error");
+          } finally {
+            zipBtn.textContent = "Download All as ZIP 📦";
+            zipBtn.disabled = false;
+          }
+        });
+        downloadsEl.appendChild(zipBtn);
+      }
+
+      showToast(`Split into ${splitBlobs.length} PDF file${splitBlobs.length !== 1 ? "s" : ""}.`);
+    } else {
+      if (totalPages < 2)
+        return showToast("PDF needs at least 2 pages to split.", "error");
+
+      const start = Number(rangeStartEl.value);
+      const end = Number(rangeEndEl.value);
+      if (!Number.isInteger(start) || !Number.isInteger(end)) {
+        return showToast("Enter valid page numbers.", "error");
+      }
+      if (
+        start < 1 ||
+        end < 1 ||
+        start > totalPages ||
+        end > totalPages ||
+        start > end
+      ) {
+        return showToast(
+          `Choose a valid range between 1 and ${totalPages}.`,
+          "error",
+        );
+      }
+      if (end >= totalPages) {
+        return showToast(
+          "End page must be before the last page so second file is not empty.",
+          "error",
+        );
+      }
+
+      const firstOut = await PDFLib.PDFDocument.create();
+      const firstPageIndexes = Array.from(
+        { length: end - start + 1 },
+        (_, i) => start - 1 + i,
+      );
+      const firstPages = await firstOut.copyPages(srcPdf, firstPageIndexes);
+      firstPages.forEach((page) => firstOut.addPage(page));
+      splitBlobs.push({
+        name: `${baseName} 1.pdf`,
+        blob: new Blob([await firstOut.save()], { type: "application/pdf" }),
+      });
+
+      const secondOut = await PDFLib.PDFDocument.create();
+      const secondPageIndexes = Array.from(
+        { length: totalPages - end },
+        (_, i) => end + i,
+      );
+      const secondPages = await secondOut.copyPages(srcPdf, secondPageIndexes);
+      secondPages.forEach((page) => secondOut.addPage(page));
+      splitBlobs.push({
+        name: `${baseName} 2.pdf`,
+        blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
+      });
+
+      previewArea.classList.remove("is-visible");
+      resultsArea.classList.add("is-visible");
+      downloadsEl.innerHTML = "";
+      splitBlobs.forEach((entry) => {
+        const btn = document.createElement("button");
+        btn.className = "cta-btn cta-yellow";
+        btn.textContent = `Download ${entry.name}`;
+        btn.addEventListener("click", () => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(entry.blob);
+          a.download = entry.name;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+        downloadsEl.appendChild(btn);
+      });
+
+      showToast(
+        `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
+      );
+    }
   } catch (error) {
     console.error(error);
     showToast("Error loading PDF.", "error");
@@ -233,6 +364,9 @@ resetBtn.addEventListener("click", () => {
   rangeEndEl.value = "";
   previewStartEl.innerHTML = "";
   previewEndEl.innerHTML = "";
+  if (splitNCheckbox) splitNCheckbox.checked = false;
+  if (splitNInput) splitNInput.value = "1";
+  toggleNModeUI();
 });
 
 initDropZone(dropZoneEl, fileInputEl, addFiles);

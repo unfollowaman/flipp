@@ -281,7 +281,21 @@
               Split Pages →
             </button>
           </div>
-          <div class="option-group" style="margin-top: 12px">
+          <!-- N-page interval split option -->
+          <div class="split-n-option" style="margin-top: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; cursor: pointer; user-select: none;">
+              <input type="checkbox" id="split-n-checkbox" style="width: 18px; height: 18px; accent-color: var(--black); cursor: pointer;" />
+              <span>Split after every</span>
+            </label>
+            <div id="split-n-stepper" style="display: inline-flex; align-items: center; gap: 6px; opacity: 0.5; pointer-events: none; transition: opacity 0.2s ease;">
+              <button type="button" id="split-n-dec" aria-label="Decrease pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: var(--border-std); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">−</button>
+              <input type="number" id="split-n-input" value="1" min="1" disabled aria-label="Pages per PDF chunk" style="width: 56px; height: 32px; text-align: center; font-size: 14px; font-weight: 700; border: var(--border-std); border-radius: var(--radius-sm); outline: none; -moz-appearance: textfield;" />
+              <button type="button" id="split-n-inc" aria-label="Increase pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: var(--border-std); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">+</button>
+              <span style="font-weight: 700; font-size: 14px;">pages</span>
+            </div>
+          </div>
+
+          <div class="option-group" id="split-range-group" style="margin-top: 12px; transition: opacity 0.2s ease;">
             <label class="option-label" for="split-range-start"
               >Split range (first output)</label
             >
