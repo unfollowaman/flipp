@@ -143,89 +143,104 @@ compressBtn.addEventListener("click", async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       const pdfjsLib = window["pdfjs-dist/build/pdf"];
-      // Create a copy of the buffer because pdfjs might detach it
       const bufferCopy = arrayBuffer.slice(0);
       const loadingTask = pdfjsLib.getDocument({ data: bufferCopy });
       const pdfjsDoc = await loadingTask.promise;
-      const totalPages = pdfjsDoc.numPages;
+      try {
+        const totalPages = pdfjsDoc.numPages;
 
-      const jsPdfDoc = new window.jspdf.jsPDF({
-        orientation: "portrait",
-        unit: "pt",
-        format: "a4",
-      });
+        const jsPdfDoc = new window.jspdf.jsPDF({
+          orientation: "portrait",
+          unit: "pt",
+          format: "a4",
+        });
 
-      // Avoid blocking the main thread entirely
-      const concurrencyLimit = 5;
-      for (let i = 1; i <= totalPages; i += concurrencyLimit) {
-        updateProgress(
-          `Compressing pages ${i} to ${Math.min(i + concurrencyLimit - 1, totalPages)} of ${totalPages}...`,
-        );
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        const batch = [];
-        for (let j = i; j < i + concurrencyLimit && j <= totalPages; j++) {
-          batch.push(
-            (async () => {
-              const page = await pdfjsDoc.getPage(j);
-              const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
-
-              const canvas = document.createElement("canvas");
-              const context = canvas.getContext("2d");
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              const renderContext = {
-                canvasContext: context,
-                viewport: viewport,
-              };
-
-              await page.render(renderContext).promise;
-
-              // Compress canvas as jpeg
-              const imgData = canvas.toDataURL("image/jpeg", 0.7);
-
-              // Immediately release canvas
-              canvas.width = 0;
-              canvas.height = 0;
-
-              return {
-                index: j,
-                imgData,
-                width: viewport.width,
-                height: viewport.height,
-              };
-            })(),
+        // Avoid blocking the main thread entirely
+        const concurrencyLimit = 5;
+        for (let i = 1; i <= totalPages; i += concurrencyLimit) {
+          updateProgress(
+            `Compressing pages ${i} to ${Math.min(i + concurrencyLimit - 1, totalPages)} of ${totalPages}...`,
           );
-        }
+          await new Promise((resolve) => setTimeout(resolve, 0));
 
-        const results = await Promise.all(batch);
-        results.sort((a, b) => a.index - b.index);
+          const batch = [];
+          for (let j = i; j < i + concurrencyLimit && j <= totalPages; j++) {
+            batch.push(
+              (async () => {
+                const page = await pdfjsDoc.getPage(j);
+                try {
+                  const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
 
-        for (const res of results) {
-          // Resize jsPDF page to match viewport dimensions
-          if (res.index > 1) {
-            jsPdfDoc.addPage(
-              [res.width, res.height],
-              res.width > res.height ? "l" : "p",
+                  const canvas = document.createElement("canvas");
+                  const context = canvas.getContext("2d");
+                  canvas.height = viewport.height;
+                  canvas.width = viewport.width;
+
+                  const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport,
+                  };
+
+                  await page.render(renderContext).promise;
+
+                  // Compress canvas as jpeg
+                  const imgData = canvas.toDataURL("image/jpeg", 0.7);
+
+                  // Immediately release canvas
+                  canvas.width = 0;
+                  canvas.height = 0;
+
+                  return {
+                    index: j,
+                    imgData,
+                    width: viewport.width,
+                    height: viewport.height,
+                  };
+                } finally {
+                  if (page && typeof page.cleanup === "function") {
+                    page.cleanup();
+                  }
+                }
+              })(),
             );
-          } else {
-            jsPdfDoc.setPage(1);
-            // Not easy to set format of first page after creation in jsPDF, we try to orient it
           }
 
-          jsPdfDoc.internal.pageSize.setWidth(res.width);
-          jsPdfDoc.internal.pageSize.setHeight(res.height);
+          const results = await Promise.all(batch);
+          results.sort((a, b) => a.index - b.index);
 
-          jsPdfDoc.addImage(res.imgData, "JPEG", 0, 0, res.width, res.height);
+          for (const res of results) {
+            // Resize jsPDF page to match viewport dimensions
+            if (res.index > 1) {
+              jsPdfDoc.addPage(
+                [res.width, res.height],
+                res.width > res.height ? "l" : "p",
+              );
+            } else {
+              jsPdfDoc.setPage(1);
+              // Not easy to set format of first page after creation in jsPDF, we try to orient it
+            }
+
+            jsPdfDoc.internal.pageSize.setWidth(res.width);
+            jsPdfDoc.internal.pageSize.setHeight(res.height);
+
+            jsPdfDoc.addImage(res.imgData, "JPEG", 0, 0, res.width, res.height);
+          }
+        }
+
+        updateProgress("Finalizing...");
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const outBlob = jsPdfDoc.output("blob");
+        compressedPdfBytes = await outBlob.arrayBuffer();
+      } finally {
+        if (pdfjsDoc && typeof pdfjsDoc.destroy === "function") {
+          try {
+            await pdfjsDoc.destroy();
+          } catch (e) {
+            // Ignore destruction errors
+          }
         }
       }
-
-      updateProgress("Finalizing...");
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const outBlob = jsPdfDoc.output("blob");
-      compressedPdfBytes = await outBlob.arrayBuffer();
     }
 
     const compressedSize = compressedPdfBytes.byteLength;
