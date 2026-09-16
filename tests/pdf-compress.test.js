@@ -225,4 +225,123 @@ test('pdf-compress error handling', async (t) => {
     assert.strictEqual(capturedToastMessage, 'PDF library not ready yet.');
     assert.strictEqual(capturedToastType, 'error');
   });
+
+  await t.test('calls page.cleanup() and pdfjsDoc.destroy() during maximum compression mode', async () => {
+    let pageCleanupCalled = false;
+    let docDestroyCalled = false;
+
+    const localElementMap = {};
+    const mockDocumentLocal = {
+      getElementById: (id) => {
+        if (!localElementMap[id]) {
+          localElementMap[id] = {
+            listeners: {},
+            addEventListener: function(evt, handler) {
+              this.listeners[evt] = handler;
+            },
+            click: async function() {
+              if (this.listeners['click']) await this.listeners['click']();
+            },
+            style: {},
+            classList: { add: () => {}, remove: () => {} },
+            appendChild: () => {},
+            value: '',
+            textContent: ''
+          };
+        }
+        return localElementMap[id];
+      },
+      getElementsByName: () => [{ addEventListener: () => {} }],
+      querySelector: (selector) => {
+        if (selector.includes('compressionMode')) return { value: 'maximum' };
+        return { value: '' };
+      },
+      createElement: () => ({
+        getContext: () => ({ fillRect: () => {} }),
+        toDataURL: () => 'data:image/jpeg;base64,mock',
+        addEventListener: () => {},
+        appendChild: () => {}
+      }),
+      createTextNode: (text) => ({ textNode: true, textContent: text })
+    };
+
+    let dropZoneCallback;
+    const mockInitDropZoneLocal = (dz, fi, cb) => {
+      dropZoneCallback = cb;
+    };
+
+    const mockPdfjsDoc = {
+      numPages: 1,
+      getPage: async (pageNum) => ({
+        getViewport: () => ({ width: 100, height: 100 }),
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {
+          pageCleanupCalled = true;
+        }
+      }),
+      destroy: async () => {
+        docDestroyCalled = true;
+      }
+    };
+
+    const mockWindowLocal = {
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({ promise: Promise.resolve(mockPdfjsDoc) })
+      },
+      jspdf: {
+        jsPDF: function() {
+          return {
+            internal: { pageSize: { setWidth: () => {}, setHeight: () => {} } },
+            setPage: () => {},
+            addImage: () => {},
+            output: () => new ArrayBuffer(10)
+          };
+        }
+      }
+    };
+
+    let localSrc = fs.readFileSync(srcPath, 'utf8');
+    localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+    localSrc = localSrc.replace(/export\s+function/g, 'function');
+
+    const localWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'Blob',
+      'URL',
+      localSrc
+    );
+
+    localWrapper(
+      mockDocumentLocal,
+      mockWindowLocal,
+      mockInitDropZoneLocal,
+      () => {},
+      class Blob {
+        constructor(content) {
+          this.content = content;
+        }
+        async arrayBuffer() {
+          return new ArrayBuffer(10);
+        }
+      },
+      { createObjectURL: () => 'blob:mock-url', revokeObjectURL: () => '' }
+    );
+
+    const mockFile = {
+      type: 'application/pdf',
+      name: 'test.pdf',
+      size: 1024,
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+    dropZoneCallback([mockFile]);
+
+    const compressBtnLocal = localElementMap['compress-btn'];
+    await compressBtnLocal.click();
+
+    assert.strictEqual(pageCleanupCalled, true, 'page.cleanup() should be called');
+    assert.strictEqual(docDestroyCalled, true, 'pdfjsDoc.destroy() should be called');
+  });
 });
