@@ -11,6 +11,7 @@ function createMockItem(opts = {}) {
 
   let buttonListeners = [];
   const button = opts.hasButton !== false ? {
+    id: opts.buttonId || '',
     attributes: new Map(),
     listeners: buttonListeners,
     setAttribute(name, val) {
@@ -29,7 +30,9 @@ function createMockItem(opts = {}) {
     }
   } : null;
 
-  const answer = opts.hasAnswer !== false ? {} : null;
+  const answer = opts.hasAnswer !== false ? {
+    id: opts.answerId || ''
+  } : null;
 
   const item = {
     classList: {
@@ -51,7 +54,8 @@ function createMockItem(opts = {}) {
       if (sel === '.tcs-faq-a') return answer;
       return null;
     },
-    button
+    button,
+    answer
   };
 
   return item;
@@ -92,6 +96,25 @@ test('FAQ initialization sets aria-expanded to false on DOMContentLoaded', () =>
 
   assert.strictEqual(item1.button.getAttribute('aria-expanded'), 'false');
   assert.strictEqual(item2.button.getAttribute('aria-expanded'), 'false');
+});
+
+test('FAQ initialization assigns IDs and sets aria-controls attribute', () => {
+  const item1 = createMockItem();
+  const item2 = createMockItem({ buttonId: 'custom-q-id', answerId: 'custom-a-id' });
+  const mockDocument = createMockDocument([item1, item2]);
+
+  const fn = new Function('document', src);
+  fn(mockDocument);
+
+  mockDocument.triggerDOMContentLoaded();
+
+  assert.strictEqual(item1.button.id, 'faq-q-1');
+  assert.strictEqual(item1.answer.id, 'faq-a-1');
+  assert.strictEqual(item1.button.getAttribute('aria-controls'), 'faq-a-1');
+
+  assert.strictEqual(item2.button.id, 'custom-q-id');
+  assert.strictEqual(item2.answer.id, 'custom-a-id');
+  assert.strictEqual(item2.button.getAttribute('aria-controls'), 'custom-a-id');
 });
 
 test('FAQ click handler toggles open class and updates aria-expanded', () => {
