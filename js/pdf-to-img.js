@@ -156,7 +156,6 @@ async function loadPDF(file) {
 
     showPreview(file.name);
   } catch (err) {
-    console.error(err);
     showToast(
       "Failed to load PDF. Is it a valid, non-encrypted file?",
       "error",
