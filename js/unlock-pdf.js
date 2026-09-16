@@ -174,7 +174,6 @@ unlockBtn.addEventListener("click", async () => {
     previewAreaEl.classList.remove("is-visible");
     resultsAreaEl.classList.add("is-visible");
   } catch (err) {
-    console.error("Error unlocking PDF:", err);
     showToast("An error occurred while unlocking the PDF.");
     unlockBtn.disabled = false;
     unlockBtn.textContent = "Unlock PDF →";
