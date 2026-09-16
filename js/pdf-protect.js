@@ -156,7 +156,6 @@ protectBtn.addEventListener("click", async () => {
     resultsArea.classList.add("is-visible");
     showToast("Protected PDF is ready!");
   } catch (err) {
-    console.error(err);
     showToast("Failed to protect PDF. Try another file.", "error");
   } finally {
     protectBtn.disabled = false;
