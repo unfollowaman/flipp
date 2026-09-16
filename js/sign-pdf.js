@@ -506,26 +506,6 @@ function makeDraggableAndResizable(overlay, resizeHandle) {
 }
 
 // Ensure overlays are only visible on their respective pages
-const observer = new MutationObserver(() => {
-  const overlays = document.querySelectorAll(".signature-overlay");
-  overlays.forEach((overlay) => {
-    const page = parseInt(overlay.dataset.page, 10);
-    if (page === currentPage) {
-      overlay.style.display = "block";
-    } else {
-      overlay.style.display = "none";
-    }
-  });
-});
-observer.observe(pageInfo, {
-  childList: true,
-  characterData: true,
-  subtree: true,
-});
-// Also trigger on manual change just in case
-prevPageBtn.addEventListener("click", updateOverlayVisibility);
-nextPageBtn.addEventListener("click", updateOverlayVisibility);
-
 function updateOverlayVisibility() {
   const overlays = document.querySelectorAll(".signature-overlay");
   overlays.forEach((overlay) => {
@@ -537,6 +517,16 @@ function updateOverlayVisibility() {
     }
   });
 }
+
+const observer = new MutationObserver(updateOverlayVisibility);
+observer.observe(pageInfo, {
+  childList: true,
+  characterData: true,
+  subtree: true,
+});
+// Also trigger on manual change just in case
+prevPageBtn.addEventListener("click", updateOverlayVisibility);
+nextPageBtn.addEventListener("click", updateOverlayVisibility);
 
 // Download Process
 downloadBtn.addEventListener("click", async () => {
