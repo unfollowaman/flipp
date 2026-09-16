@@ -44,6 +44,12 @@ function createMockDOM(opts = {}) {
       querySelectorAll(sel) {
         if (sel === '.header-tool-shortcut') {
           const links = [];
+          for (const child of children) {
+            if (child.className && child.className.includes('header-tool-shortcut')) {
+              links.push(child);
+            }
+          }
+          if (links.length > 0) return links;
           const regex = /<a href="([^"]+)" class="header-tool-shortcut">([^<]+)<\/a>/g;
           let match;
           while ((match = regex.exec(innerHTMLVal)) !== null) {
@@ -65,9 +71,27 @@ function createMockDOM(opts = {}) {
       }
     };
 
+    let textContentVal = '';
+
     Object.defineProperty(el, 'innerHTML', {
       get() { return innerHTMLVal; },
       set(val) { innerHTMLVal = val; }
+    });
+
+    Object.defineProperty(el, 'textContent', {
+      get() { return textContentVal || innerHTMLVal; },
+      set(val) {
+        textContentVal = val;
+        if (val === '') {
+          children.length = 0;
+          innerHTMLVal = '';
+        }
+      }
+    });
+
+    Object.defineProperty(el, 'href', {
+      get() { return attrs.get('href') || ''; },
+      set(val) { attrs.set('href', val); }
     });
 
     return el;
@@ -114,11 +138,11 @@ function createMockDOM(opts = {}) {
   return { mockDocument, mockWindow, elements };
 }
 
-test('PDF_TOOLS metadata contains 15 PDF tools with concise labels', () => {
+test('PDF_TOOLS metadata contains 16 PDF tools with concise labels', () => {
   const fn = new Function(evaluateCode);
   const { PDF_TOOLS } = fn();
 
-  assert.strictEqual(PDF_TOOLS.length, 15);
+  assert.strictEqual(PDF_TOOLS.length, 16);
   assert.strictEqual(PDF_TOOLS.find(t => t.id === 'merge-pdf').label, 'Merge');
   assert.strictEqual(PDF_TOOLS.find(t => t.id === 'split-pdf').label, 'Split');
   assert.strictEqual(PDF_TOOLS.find(t => t.id === 'compress-pdf').label, 'Compress');
@@ -184,4 +208,33 @@ test('renderHeaderToolsNav creates container and renders 6 shortcuts into DOM', 
   assert.strictEqual(links[0].href, '../../tools/split-pdf/');
   assert.strictEqual(links[1].textContent, 'Compress');
   assert.strictEqual(links[1].href, '../../tools/compress-pdf/');
+});
+
+test('renderHeaderToolsNav safely escapes dynamic text content against XSS', () => {
+  const { mockDocument, mockWindow, elements } = createMockDOM({
+    logoHref: '../../',
+    pathname: '/'
+  });
+
+  const modifiedSrc = src.replace(
+    /PDF_TOOLS = \[[\s\S]*?\];/,
+    `PDF_TOOLS = [{ id: 'malicious', label: '<img src=x onerror=alert(1)>', path: 'tools/malicious/' }];`
+  );
+
+  const evalXssCode = `
+    ${modifiedSrc}
+    return { renderHeaderToolsNav };
+  `;
+
+  const fn = new Function('document', 'window', evalXssCode);
+  const { renderHeaderToolsNav } = fn(mockDocument, mockWindow);
+
+  renderHeaderToolsNav();
+
+  const container = elements.get('header-tools-nav');
+  const links = container.querySelectorAll('.header-tool-shortcut');
+
+  assert.strictEqual(links.length, 1);
+  assert.strictEqual(links[0].textContent, '<img src=x onerror=alert(1)>');
+  assert.strictEqual(links[0].innerHTML, '');
 });

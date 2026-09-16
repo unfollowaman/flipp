@@ -75,10 +75,14 @@ function renderHeaderToolsNav() {
   const rootPrefix = getRootPrefix();
   const toolsToShow = getHeaderTools(currentPath);
 
-  container.innerHTML = toolsToShow.map(tool => {
-    const href = rootPrefix + tool.path;
-    return `<a href="${href}" class="header-tool-shortcut">${tool.label}</a>`;
-  }).join('');
+  container.textContent = '';
+  toolsToShow.forEach(tool => {
+    const a = document.createElement('a');
+    a.href = rootPrefix + tool.path;
+    a.className = 'header-tool-shortcut';
+    a.textContent = tool.label;
+    container.appendChild(a);
+  });
 }
 
 if (typeof window !== 'undefined') {
