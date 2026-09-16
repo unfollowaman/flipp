@@ -196,12 +196,12 @@ export function groupItemsIntoLines(items) {
       const threshold = Math.max(line.fontSize * 0.4, 3);
       if (Math.abs(item.topY - avgY) <= threshold) {
         line.items.push(item);
-        // Recalculate line properties
-        line.items.sort((a, b) => a.leftX - b.leftX);
-        line.topY = line.items.reduce((sum, i) => sum + i.topY, 0) / line.items.length;
-        line.fontSize = Math.max(...line.items.map(i => i.fontSize));
-        line.isBold = line.items.some(i => i.isBold);
-        line.isItalic = line.items.some(i => i.isItalic);
+        // Update line properties incrementally instead of recalculating over all items
+        line.sumTopY += item.topY;
+        line.topY = line.sumTopY / line.items.length;
+        if (item.fontSize > line.fontSize) line.fontSize = item.fontSize;
+        if (item.isBold) line.isBold = true;
+        if (item.isItalic) line.isItalic = true;
         placed = true;
         break;
       }
@@ -209,16 +209,18 @@ export function groupItemsIntoLines(items) {
     if (!placed) {
       lines.push({
         topY: item.topY,
+        sumTopY: item.topY,
         fontSize: item.fontSize,
-        isBold: item.isBold,
-        isItalic: item.isItalic,
+        isBold: !!item.isBold,
+        isItalic: !!item.isItalic,
         items: [item]
       });
     }
   }
 
-  // Construct combined line text with proper spacing
+  // Sort line items horizontally and construct combined line text with proper spacing
   for (const line of lines) {
+    line.items.sort((a, b) => a.leftX - b.leftX);
     const parts = [];
     let endsWithSpace = false;
     for (let i = 0; i < line.items.length; i++) {

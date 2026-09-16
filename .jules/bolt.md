@@ -5,3 +5,7 @@
 ## 2026-09-14 - Avoid redundant ArrayBuffer cloning when passing buffers to PDF.js getDocument
 **Learning:** In Flipp's client-side file processing pipeline, calling `.slice(0)` on an `ArrayBuffer` before passing it to `pdfjsLib.getDocument()` duplicates the entire file's byte array in RAM, doubling peak memory consumption without functional benefit when the buffer is not accessed again.
 **Action:** Pass `arrayBuffer` directly to `pdfjsLib.getDocument(arrayBuffer)` unless the raw array buffer is explicitly mutated or re-used concurrently by another library (e.g., PDF-lib).
+
+## 2026-09-15 - Defer array sorting and compute running stats incrementally in PDF line grouping
+**Learning:** In layout reconstruction for PDF conversion (such as `js/pdf-to-word.js`), sorting line item arrays (`line.items.sort()`) and recalculating average Y coordinates and font styles on every item insertion inside nested matching loops creates O(N^2 log N) performance penalties.
+**Action:** In grouping algorithms, update running totals (`sumTopY`) and boolean/max properties (`fontSize`, `isBold`) incrementally per item addition, and defer item sorting until all items have been assigned to lines.
