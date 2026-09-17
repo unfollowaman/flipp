@@ -258,7 +258,6 @@ async function renderPage(pageNum) {
 
     await page.render(renderContext).promise;
   } catch (err) {
-    console.error(err);
     showToast("Error rendering page preview.", "error");
   } finally {
     if (page && typeof page.cleanup === "function") {

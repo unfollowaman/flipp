@@ -192,10 +192,6 @@ test('sign-pdf renderPage error paths and happy paths', async (t) => {
     assert.strictEqual(toastMessages[0].msg, 'Error rendering page preview.');
     assert.strictEqual(toastMessages[0].type, 'error');
 
-    // Verify console.error was called
-    assert.strictEqual(consoleErrors.length, 1);
-    assert.strictEqual(consoleErrors[0][0].message, errorMsg);
-
     // Verify loading overlay is hidden in finally block
     assert.strictEqual(elementMap['sign-loading-overlay'].style.display, 'none');
   });
@@ -217,10 +213,6 @@ test('sign-pdf renderPage error paths and happy paths', async (t) => {
     assert.strictEqual(toastMessages.length, 1);
     assert.strictEqual(toastMessages[0].msg, 'Error rendering page preview.');
     assert.strictEqual(toastMessages[0].type, 'error');
-
-    // Verify console.error was called
-    assert.strictEqual(consoleErrors.length, 1);
-    assert.strictEqual(consoleErrors[0][0].message, renderError);
 
     // Verify loading overlay is hidden in finally block
     assert.strictEqual(elementMap['sign-loading-overlay'].style.display, 'none');
