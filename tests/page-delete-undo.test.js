@@ -7,7 +7,7 @@ const srcPath = path.join(__dirname, '../js/page-delete-undo.js');
 let src = fs.readFileSync(srcPath, 'utf8');
 
 // Strip ES module imports/exports
-src = src.replace(/export\s+(async\s+)?(function|class)/g, '$2');
+src = src.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
 
 src += '\nreturn { PageDeleteUndoManager, animatePageDisintegration, animatePageRestoration };\n';
 
