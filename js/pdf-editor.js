@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload } from "./drag-drop.js";
+import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload, activatePill } from "./drag-drop.js";
 
 // Module State
 let pdfjsDocument = null;
@@ -1063,8 +1063,7 @@ if (sigCancelBtn) sigCancelBtn.addEventListener("click", closeSignatureModal);
 
 sigModePills.forEach((pill) => {
   pill.addEventListener("click", () => {
-    sigModePills.forEach((p) => p.classList.remove("active"));
-    pill.classList.add("active");
+    activatePill(document.getElementById("sig-mode-pills"), pill.dataset.value);
     currentSigMode = pill.dataset.value;
 
     document.getElementById("sig-draw-box").style.display = currentSigMode === "draw" ? "flex" : "none";
@@ -1075,8 +1074,7 @@ sigModePills.forEach((pill) => {
 
 sigColorPills.forEach((pill) => {
   pill.addEventListener("click", () => {
-    sigColorPills.forEach((p) => p.classList.remove("active"));
-    pill.classList.add("active");
+    activatePill(document.getElementById("sig-color-pills"), pill.dataset.value);
     currentSigColor = pill.dataset.value;
 
     if (signaturePad) signaturePad.penColor = currentSigColor;

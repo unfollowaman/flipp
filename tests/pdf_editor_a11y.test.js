@@ -34,3 +34,33 @@ test("PDF Editor toolbar and control buttons have aria-label attributes", () => 
     assert.ok(match[1] && match[1].trim().length > 0, `Tool button data-tool="${tool}" aria-label should not be empty`);
   });
 });
+
+test("PDF Editor Signature Modal accessibility attributes", () => {
+  const htmlPath = path.join(__dirname, "..", "tools", "edit-pdf", "index.html");
+  const htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+  assert.ok(
+    htmlContent.includes('id="editor-sig-modal"') &&
+    htmlContent.includes('role="dialog"') &&
+    htmlContent.includes('aria-modal="true"') &&
+    htmlContent.includes('aria-labelledby="editor-sig-modal-title"'),
+    "Signature modal overlay must have role='dialog', aria-modal='true', and aria-labelledby"
+  );
+
+  assert.ok(
+    htmlContent.includes('id="editor-sig-modal-title"'),
+    "Signature modal title must have id='editor-sig-modal-title'"
+  );
+
+  assert.ok(
+    htmlContent.includes('id="sig-pad-canvas"') &&
+    htmlContent.includes('aria-label="Signature drawing canvas"'),
+    "Signature canvas must have aria-label"
+  );
+
+  assert.ok(
+    htmlContent.includes('aria-checked="true"') &&
+    htmlContent.includes('aria-checked="false"'),
+    "Signature option pills must have aria-checked attributes"
+  );
+});
