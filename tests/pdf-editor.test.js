@@ -32,6 +32,9 @@ src += `\nreturn {
   applyEditorObjectToPage,
   exportEditedPdf,
   updateZoom,
+  setupOverlayEvents,
+  createObjectForTool,
+  finishDrawingPath,
   getZoomLevel: () => zoomLevel,
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
@@ -484,6 +487,46 @@ test('pdf-editor container width fallback and zoom controls', async (t) => {
 
     editorModule.resetEditor();
     assert.strictEqual(editorModule.getZoomLevel(), 1.0);
+  });
+});
+
+test('pdf-editor overlay event interactions and object creation', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('createObjectForTool generates correct structures for all tool types', () => {
+    const textObj = editorModule.createObjectForTool('text', 1, 100, 150);
+    assert.strictEqual(textObj.type, 'text');
+    assert.strictEqual(textObj.x, 100);
+    assert.strictEqual(textObj.y, 150);
+
+    const highlightObj = editorModule.createObjectForTool('highlight', 1, 50, 50);
+    assert.strictEqual(highlightObj.type, 'highlight');
+
+    const shapeObj = editorModule.createObjectForTool('shape', 1, 200, 200);
+    assert.strictEqual(shapeObj.type, 'shape');
+
+    const noteObj = editorModule.createObjectForTool('note', 1, 300, 300);
+    assert.strictEqual(noteObj.type, 'note');
+
+    const unknown = editorModule.createObjectForTool('unknown', 1, 0, 0);
+    assert.strictEqual(unknown, null);
+  });
+
+  await t.test('finishDrawingPath computes bounds and returns normalized path object', () => {
+    const path = [{ x: 10, y: 10 }, { x: 110, y: 60 }];
+    const drawObj = editorModule.finishDrawingPath(path, 1);
+
+    assert.ok(drawObj);
+    assert.strictEqual(drawObj.type, 'draw');
+    assert.strictEqual(drawObj.x, 10);
+    assert.strictEqual(drawObj.y, 10);
+    assert.strictEqual(drawObj.width, 100);
+    assert.strictEqual(drawObj.height, 50);
+    assert.deepStrictEqual(drawObj.properties.path, [{ x: 0, y: 0 }, { x: 100, y: 50 }]);
+
+    assert.strictEqual(editorModule.finishDrawingPath([{ x: 5, y: 5 }], 1), null);
   });
 });
 
