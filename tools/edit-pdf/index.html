@@ -849,32 +849,32 @@
       </section>
 
       <!-- Signature Modal -->
-      <div class="editor-modal-overlay" id="editor-sig-modal">
+      <div class="editor-modal-overlay" id="editor-sig-modal" role="dialog" aria-modal="true" aria-labelledby="editor-sig-modal-title">
         <div class="editor-modal">
-          <div class="editor-modal-title">Create Signature</div>
+          <div class="editor-modal-title" id="editor-sig-modal-title">Create Signature</div>
 
-          <div class="option-pills" id="sig-mode-pills" style="justify-content: center;">
-            <button class="opt-pill active" data-value="draw">Draw</button>
-            <button class="opt-pill" data-value="type">Type</button>
-            <button class="opt-pill" data-value="upload">Upload</button>
+          <div class="option-pills" id="sig-mode-pills" role="region" aria-label="Signature mode" style="justify-content: center;">
+            <button class="opt-pill active" data-value="draw" aria-checked="true">Draw</button>
+            <button class="opt-pill" data-value="type" aria-checked="false">Type</button>
+            <button class="opt-pill" data-value="upload" aria-checked="false">Upload</button>
           </div>
 
-          <div class="option-pills" id="sig-color-pills" style="justify-content: center;">
-            <button class="opt-pill active color-pill-black" data-value="#000000">Black</button>
-            <button class="opt-pill color-pill-blue" data-value="#0000FF">Blue</button>
-            <button class="opt-pill color-pill-red" data-value="#FF0000">Red</button>
-            <button class="opt-pill color-pill-green" data-value="#008000">Green</button>
+          <div class="option-pills" id="sig-color-pills" role="region" aria-label="Signature color" style="justify-content: center;">
+            <button class="opt-pill active color-pill-black" data-value="#000000" aria-checked="true">Black</button>
+            <button class="opt-pill color-pill-blue" data-value="#0000FF" aria-checked="false">Blue</button>
+            <button class="opt-pill color-pill-red" data-value="#FF0000" aria-checked="false">Red</button>
+            <button class="opt-pill color-pill-green" data-value="#008000" aria-checked="false">Green</button>
           </div>
 
           <!-- Draw Mode -->
           <div id="sig-draw-box" style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
-            <canvas id="sig-pad-canvas" class="sig-canvas"></canvas>
-            <button class="editor-btn" id="sig-clear-btn">Clear</button>
+            <canvas id="sig-pad-canvas" class="sig-canvas" aria-label="Signature drawing canvas" role="img"></canvas>
+            <button class="editor-btn" id="sig-clear-btn" aria-label="Clear signature">Clear</button>
           </div>
 
           <!-- Type Mode -->
           <div id="sig-type-box" style="display: none; flex-direction: column; gap: 12px;">
-            <input type="text" class="range-input" id="sig-type-input" placeholder="Type signature name" style="width: 100%;" />
+            <input type="text" class="range-input" id="sig-type-input" placeholder="Type signature name" aria-label="Type signature name" style="width: 100%;" />
             <div id="sig-type-preview" style="font-family: 'Dancing Script', cursive; font-size: 42px; text-align: center; border: 1.5px solid #000; padding: 12px; border-radius: 6px;">
               Your Signature
             </div>
@@ -887,11 +887,11 @@
             <button class="editor-btn" onclick="document.getElementById('sig-file-input').click()">
               Choose Signature Image
             </button>
-            <img id="sig-upload-preview" src="" style="display: none; max-height: 100px; border: 1px solid #ccc; padding: 4px;" />
+            <img id="sig-upload-preview" src="" style="display: none; max-height: 100px; border: 1px solid #ccc; padding: 4px;" alt="Uploaded signature preview" />
           </div>
 
           <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
-            <button class="editor-btn" id="sig-cancel-btn">Cancel</button>
+            <button class="editor-btn" id="sig-cancel-btn" aria-label="Cancel signature creation">Cancel</button>
             <button class="cta-btn cta-mint" id="sig-place-btn" style="padding: 8px 16px; font-size: 14px;">
               Place Signature
             </button>
