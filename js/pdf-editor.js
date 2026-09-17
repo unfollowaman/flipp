@@ -785,6 +785,121 @@ function updateObjectInternalDimensions(el, obj) {
 
 // ── Render Objects on DOM Overlay ───────────────────────────────────
 
+function renderObjectContent(obj, el) {
+  if (obj.type === "text") {
+    const textarea = document.createElement("textarea");
+    textarea.className = "editor-text-input";
+    textarea.value = obj.properties.text;
+    textarea.style.fontSize = `${obj.properties.fontSize}px`;
+    textarea.style.fontFamily = obj.properties.fontFamily;
+    textarea.style.color = obj.properties.color;
+    textarea.style.fontWeight = obj.properties.bold ? "bold" : "normal";
+    textarea.style.fontStyle = obj.properties.italic ? "italic" : "normal";
+
+    textarea.addEventListener("input", (e) => {
+      obj.properties.text = e.target.value;
+    });
+
+    el.appendChild(textarea);
+  } else if (obj.type === "highlight") {
+    el.style.background = obj.properties.color;
+    el.style.opacity = obj.properties.opacity;
+    el.style.borderRadius = "3px";
+  } else if (obj.type === "draw") {
+    const canvas = document.createElement("canvas");
+    canvas.width = obj.width;
+    canvas.height = obj.height;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+
+    if (!obj.properties.initialWidth) obj.properties.initialWidth = obj.width;
+    if (!obj.properties.initialHeight) obj.properties.initialHeight = obj.height;
+
+    drawCanvasPath(canvas, obj.properties);
+    el.appendChild(canvas);
+  } else if (obj.type === "shape") {
+    const canvas = document.createElement("canvas");
+    canvas.width = obj.width;
+    canvas.height = obj.height;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+
+    drawCanvasShape(canvas, obj.width, obj.height, obj.properties);
+    el.appendChild(canvas);
+  } else if (obj.type === "image" || obj.type === "signature") {
+    const img = document.createElement("img");
+    img.src = obj.properties.src;
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "contain";
+    img.style.pointerEvents = "none";
+    el.appendChild(img);
+  } else if (obj.type === "note") {
+    const noteBox = document.createElement("div");
+    noteBox.className = "editor-sticky-note";
+
+    const noteText = document.createElement("textarea");
+    noteText.value = obj.properties.text;
+    noteText.addEventListener("input", (e) => {
+      obj.properties.text = e.target.value;
+    });
+
+    noteBox.appendChild(noteText);
+    el.appendChild(noteBox);
+  }
+}
+
+function createObjectHandles(objId) {
+  const moveHandle = document.createElement("div");
+  moveHandle.className = "editor-obj-handle move";
+  moveHandle.textContent = "✥";
+  moveHandle.title = "Drag to move";
+
+  const resizeHandle = document.createElement("div");
+  resizeHandle.className = "editor-obj-handle se";
+
+  const deleteHandle = document.createElement("div");
+  deleteHandle.className = "editor-obj-handle delete";
+  deleteHandle.textContent = "✕";
+  deleteHandle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    deleteObject(objId);
+  });
+
+  return { moveHandle, resizeHandle, deleteHandle };
+}
+
+function renderSingleObject(obj, overlay) {
+  const el = document.createElement("div");
+  el.className = `editor-obj ${obj.id === selectedObjId ? "selected" : ""}`;
+  el.dataset.objId = obj.id;
+  el.style.left = `${obj.x}px`;
+  el.style.top = `${obj.y}px`;
+  el.style.width = `${obj.width}px`;
+  el.style.height = `${obj.height}px`;
+
+  renderObjectContent(obj, el);
+
+  const { moveHandle, resizeHandle, deleteHandle } = createObjectHandles(obj.id);
+
+  el.appendChild(moveHandle);
+  el.appendChild(resizeHandle);
+  el.appendChild(deleteHandle);
+
+  overlay.appendChild(el);
+
+  el.addEventListener("mousedown", (e) => {
+    if (e.target === deleteHandle || e.target === resizeHandle) return;
+    if (selectedObjId !== obj.id) {
+      selectedObjId = obj.id;
+      updateSelectedObjectUI();
+      updatePropsBarVisibility();
+    }
+  });
+
+  makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle);
+}
+
 export function renderAllObjects() {
   const overlays = document.querySelectorAll(".pdf-page-overlay");
   overlays.forEach((overlay) => (overlay.innerHTML = ""));
@@ -792,109 +907,7 @@ export function renderAllObjects() {
   editorObjects.forEach((obj) => {
     const overlay = document.querySelector(`.pdf-page-overlay[data-page-num="${obj.pageNum}"]`);
     if (!overlay) return;
-
-    const el = document.createElement("div");
-    el.className = `editor-obj ${obj.id === selectedObjId ? "selected" : ""}`;
-    el.dataset.objId = obj.id;
-    el.style.left = `${obj.x}px`;
-    el.style.top = `${obj.y}px`;
-    el.style.width = `${obj.width}px`;
-    el.style.height = `${obj.height}px`;
-
-    if (obj.type === "text") {
-      const textarea = document.createElement("textarea");
-      textarea.className = "editor-text-input";
-      textarea.value = obj.properties.text;
-      textarea.style.fontSize = `${obj.properties.fontSize}px`;
-      textarea.style.fontFamily = obj.properties.fontFamily;
-      textarea.style.color = obj.properties.color;
-      textarea.style.fontWeight = obj.properties.bold ? "bold" : "normal";
-      textarea.style.fontStyle = obj.properties.italic ? "italic" : "normal";
-
-      textarea.addEventListener("input", (e) => {
-        obj.properties.text = e.target.value;
-      });
-
-      el.appendChild(textarea);
-    } else if (obj.type === "highlight") {
-      el.style.background = obj.properties.color;
-      el.style.opacity = obj.properties.opacity;
-      el.style.borderRadius = "3px";
-    } else if (obj.type === "draw") {
-      const canvas = document.createElement("canvas");
-      canvas.width = obj.width;
-      canvas.height = obj.height;
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-
-      if (!obj.properties.initialWidth) obj.properties.initialWidth = obj.width;
-      if (!obj.properties.initialHeight) obj.properties.initialHeight = obj.height;
-
-      drawCanvasPath(canvas, obj.properties);
-      el.appendChild(canvas);
-    } else if (obj.type === "shape") {
-      const canvas = document.createElement("canvas");
-      canvas.width = obj.width;
-      canvas.height = obj.height;
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-
-      drawCanvasShape(canvas, obj.width, obj.height, obj.properties);
-      el.appendChild(canvas);
-    } else if (obj.type === "image" || obj.type === "signature") {
-      const img = document.createElement("img");
-      img.src = obj.properties.src;
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "contain";
-      img.style.pointerEvents = "none";
-      el.appendChild(img);
-    } else if (obj.type === "note") {
-      const noteBox = document.createElement("div");
-      noteBox.className = "editor-sticky-note";
-
-      const noteText = document.createElement("textarea");
-      noteText.value = obj.properties.text;
-      noteText.addEventListener("input", (e) => {
-        obj.properties.text = e.target.value;
-      });
-
-      noteBox.appendChild(noteText);
-      el.appendChild(noteBox);
-    }
-
-    const moveHandle = document.createElement("div");
-    moveHandle.className = "editor-obj-handle move";
-    moveHandle.textContent = "✥";
-    moveHandle.title = "Drag to move";
-
-    const resizeHandle = document.createElement("div");
-    resizeHandle.className = "editor-obj-handle se";
-
-    const deleteHandle = document.createElement("div");
-    deleteHandle.className = "editor-obj-handle delete";
-    deleteHandle.textContent = "✕";
-    deleteHandle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      deleteObject(obj.id);
-    });
-
-    el.appendChild(moveHandle);
-    el.appendChild(resizeHandle);
-    el.appendChild(deleteHandle);
-
-    overlay.appendChild(el);
-
-    el.addEventListener("mousedown", (e) => {
-      if (e.target === deleteHandle || e.target === resizeHandle) return;
-      if (selectedObjId !== obj.id) {
-        selectedObjId = obj.id;
-        updateSelectedObjectUI();
-        updatePropsBarVisibility();
-      }
-    });
-
-    makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle);
+    renderSingleObject(obj, overlay);
   });
 }
 
