@@ -460,72 +460,150 @@ export async function generateDocxBlobFromPdfData(pagesData, docxLib) {
   return await docxLib.Packer.toBlob(doc);
 }
 
+export function getPdfToWordElements() {
+  return {
+    dropZone: document.getElementById("pdf-drop-zone"),
+    fileInput: document.getElementById("pdf-file-input"),
+    progressArea: document.getElementById("pdf-progress"),
+    progressBar: document.getElementById("pdf-progress-bar"),
+    progressLabel: document.getElementById("pdf-progress-label"),
+    optionsArea: document.getElementById("pdf-options"),
+    fileInfo: document.getElementById("pdf-file-info"),
+    convertBtn: document.getElementById("pdf-convert-btn"),
+    resultsArea: document.getElementById("pdf-results"),
+    downloadBtn: document.getElementById("pdf-download-btn"),
+    resetBtn: document.getElementById("pdf-reset-btn"),
+    modeSelect: document.getElementById("conversion-mode-select"),
+    languageGroup: document.getElementById("ocr-language-group"),
+    languageSelect: document.getElementById("ocr-language-select")
+  };
+}
+
+export function setConfigurationControlsDisabled(controls, disabled) {
+  if (!controls) return;
+  if (controls.modeSelect) controls.modeSelect.disabled = disabled;
+  if (controls.languageSelect) controls.languageSelect.disabled = disabled;
+  if (controls.convertBtn) controls.convertBtn.disabled = disabled;
+}
+
+export async function processPdfPage(pdfDoc, i, numPages, userMode, getOcrWorker, onPageComplete) {
+  let page = null;
+  try {
+    page = await pdfDoc.getPage(i);
+    const viewport = page.getViewport({ scale: 1.0 });
+    const textContent = await page.getTextContent();
+    const rawItems = extractPageTextItems(textContent, viewport.height);
+
+    const totalChars = rawItems.reduce((acc, item) => acc + item.str.length, 0);
+    const isScanned = totalChars < 10;
+
+    let forceOcr = userMode === "ocr" || (userMode === "auto" && isScanned);
+
+    if (forceOcr && window.Tesseract) {
+      try {
+        const worker = await getOcrWorker();
+        const renderViewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = renderViewport.width;
+        canvas.height = renderViewport.height;
+
+        await page.render({ canvasContext: ctx, viewport: renderViewport }).promise;
+        const imageData = canvas.toDataURL("image/png");
+
+        const { data } = await worker.recognize(imageData);
+
+        // Clean up canvas
+        canvas.width = 0;
+        canvas.height = 0;
+
+        const ocrLines = (data.lines || []).map(line => ({
+          text: line.text.trim(),
+          fontSize: 12,
+          isBold: false,
+          isItalic: false,
+          isHeading: false,
+          alignment: "LEFT"
+        })).filter(l => l.text.length > 0);
+
+        if (onPageComplete) onPageComplete();
+
+        return {
+          pageNum: i,
+          totalPages: numPages,
+          paragraphs: ocrLines
+        };
+      } catch (ocrErr) {
+        console.warn(`OCR failed for page ${i}, falling back to text parsing`, ocrErr);
+      }
+    }
+
+    // Standard PDF parsing path
+    const orderedItems = sortAndDetectColumns(rawItems, viewport.width);
+    const lines = groupItemsIntoLines(orderedItems);
+    const paragraphs = groupLinesIntoParagraphs(lines, viewport.width);
+
+    if (onPageComplete) onPageComplete();
+
+    return {
+      pageNum: i,
+      totalPages: numPages,
+      paragraphs
+    };
+  } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
+  }
+}
+
 // UI Event listeners setup function
 export function initPdfToWordUI() {
-  const dropZone = document.getElementById("pdf-drop-zone");
-  const fileInput = document.getElementById("pdf-file-input");
-  const progressArea = document.getElementById("pdf-progress");
-  const progressBar = document.getElementById("pdf-progress-bar");
-  const progressLabel = document.getElementById("pdf-progress-label");
-  const optionsArea = document.getElementById("pdf-options");
-  const fileInfo = document.getElementById("pdf-file-info");
-  const convertBtn = document.getElementById("pdf-convert-btn");
-  const resultsArea = document.getElementById("pdf-results");
-  const downloadBtn = document.getElementById("pdf-download-btn");
-  const resetBtn = document.getElementById("pdf-reset-btn");
-  const modeSelect = document.getElementById("conversion-mode-select");
-  const languageGroup = document.getElementById("ocr-language-group");
-  const languageSelect = document.getElementById("ocr-language-select");
+  const elements = getPdfToWordElements();
 
-  if (!dropZone || !fileInput) return;
+  if (!elements.dropZone || !elements.fileInput) return;
 
   let currentFile = null;
   let generatedBlob = null;
   let ocrWorkerPromise = null;
   let progressController = null;
 
-  initDropZone(dropZone, fileInput, (files) => {
+  initDropZone(elements.dropZone, elements.fileInput, (files) => {
     if (files.length > 0) {
       handleFileSelected(files[0]);
     }
   });
 
-  if (modeSelect) {
-    modeSelect.addEventListener("change", () => {
-      if (languageGroup) {
-        languageGroup.style.display = modeSelect.value === "ocr" ? "block" : "none";
+  if (elements.modeSelect) {
+    elements.modeSelect.addEventListener("change", () => {
+      if (elements.languageGroup) {
+        elements.languageGroup.style.display = elements.modeSelect.value === "ocr" ? "block" : "none";
       }
     });
   }
 
-  if (convertBtn) {
-    convertBtn.addEventListener("click", () => {
+  if (elements.convertBtn) {
+    elements.convertBtn.addEventListener("click", () => {
       if (currentFile) {
         startConversion();
       }
     });
   }
 
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
+  if (elements.resetBtn) {
+    elements.resetBtn.addEventListener("click", () => {
       resetToUpload();
     });
   }
 
-  if (downloadBtn) {
-    downloadBtn.addEventListener("click", () => {
+  if (elements.downloadBtn) {
+    elements.downloadBtn.addEventListener("click", () => {
       if (generatedBlob && currentFile) {
         const outName = sanitizeFilename(currentFile.name);
         const url = URL.createObjectURL(generatedBlob);
         triggerDownload(url, outName, true);
       }
     });
-  }
-
-  function setConfigurationControlsDisabled(disabled) {
-    if (modeSelect) modeSelect.disabled = disabled;
-    if (languageSelect) languageSelect.disabled = disabled;
-    if (convertBtn) convertBtn.disabled = disabled;
   }
 
   function handleFileSelected(file) {
@@ -541,27 +619,27 @@ export function initPdfToWordUI() {
       progressController.stop();
     }
 
-    if (resultsArea) resultsArea.classList.remove("is-visible");
-    if (progressArea) progressArea.style.display = "none";
+    if (elements.resultsArea) elements.resultsArea.classList.remove("is-visible");
+    if (elements.progressArea) elements.progressArea.style.display = "none";
 
-    dropZone.style.display = "none";
-    if (optionsArea) optionsArea.style.display = "block";
+    elements.dropZone.style.display = "none";
+    if (elements.optionsArea) elements.optionsArea.style.display = "block";
 
-    if (fileInfo) {
-      fileInfo.textContent = `Selected PDF: ${file.name} (${formatBytes(file.size)})`;
+    if (elements.fileInfo) {
+      elements.fileInfo.textContent = `Selected PDF: ${file.name} (${formatBytes(file.size)})`;
     }
 
-    setConfigurationControlsDisabled(false);
+    setConfigurationControlsDisabled(elements, false);
   }
 
   async function startConversion() {
     if (!currentFile) return;
 
-    setConfigurationControlsDisabled(true);
+    setConfigurationControlsDisabled(elements, true);
 
-    if (progressArea) progressArea.style.display = "block";
+    if (elements.progressArea) elements.progressArea.style.display = "block";
 
-    progressController = new SmoothProgressController(progressBar, progressLabel);
+    progressController = new SmoothProgressController(elements.progressBar, elements.progressLabel);
     progressController.start(0, "Analyzing PDF...");
 
     const pdfjsLib = getPdfJsLib();
@@ -569,15 +647,15 @@ export function initPdfToWordUI() {
 
     if (!pdfjsLib) {
       showToast("PDF processor is initializing. Please try again.", "error");
-      setConfigurationControlsDisabled(false);
-      progressArea.style.display = "none";
+      setConfigurationControlsDisabled(elements, false);
+      if (elements.progressArea) elements.progressArea.style.display = "none";
       return;
     }
 
     if (!docxLib) {
       showToast("Word document engine is initializing. Please try again.", "error");
-      setConfigurationControlsDisabled(false);
-      progressArea.style.display = "none";
+      setConfigurationControlsDisabled(elements, false);
+      if (elements.progressArea) elements.progressArea.style.display = "none";
       return;
     }
 
@@ -596,8 +674,8 @@ export function initPdfToWordUI() {
       }
 
       const numPages = pdfDoc.numPages;
-      const userMode = modeSelect ? modeSelect.value : "auto";
-      const ocrLang = languageSelect ? languageSelect.value : "eng+hin";
+      const userMode = elements.modeSelect ? elements.modeSelect.value : "auto";
+      const ocrLang = elements.languageSelect ? elements.languageSelect.value : "eng+hin";
 
       const getOcrWorker = () => {
         if (!ocrWorkerPromise && window.Tesseract) {
@@ -607,82 +685,18 @@ export function initPdfToWordUI() {
       };
 
       let completedPagesCount = 0;
+      const onPageComplete = () => {
+        completedPagesCount++;
+        const pagePercent = (completedPagesCount / numPages) * 70;
+        progressController.setTarget(
+          pagePercent,
+          `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`
+        );
+      };
 
-      const pagePromises = Array.from({ length: numPages }, async (_, index) => {
-        const i = index + 1;
-        let page = null;
-        try {
-          page = await pdfDoc.getPage(i);
-          const viewport = page.getViewport({ scale: 1.0 });
-          const textContent = await page.getTextContent();
-          const rawItems = extractPageTextItems(textContent, viewport.height);
-
-          const totalChars = rawItems.reduce((acc, item) => acc + item.str.length, 0);
-          const isScanned = totalChars < 10;
-
-          let forceOcr = userMode === "ocr" || (userMode === "auto" && isScanned);
-
-          if (forceOcr && window.Tesseract) {
-            try {
-              const worker = await getOcrWorker();
-              const renderViewport = page.getViewport({ scale: 2.0 });
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-              canvas.width = renderViewport.width;
-              canvas.height = renderViewport.height;
-
-              await page.render({ canvasContext: ctx, viewport: renderViewport }).promise;
-              const imageData = canvas.toDataURL("image/png");
-
-              const { data } = await worker.recognize(imageData);
-
-              // Clean up canvas
-              canvas.width = 0;
-              canvas.height = 0;
-
-              const ocrLines = (data.lines || []).map(line => ({
-                text: line.text.trim(),
-                fontSize: 12,
-                isBold: false,
-                isItalic: false,
-                isHeading: false,
-                alignment: "LEFT"
-              })).filter(l => l.text.length > 0);
-
-              completedPagesCount++;
-              const pagePercent = (completedPagesCount / numPages) * 70;
-              progressController.setTarget(pagePercent, `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`);
-
-              return {
-                pageNum: i,
-                totalPages: numPages,
-                paragraphs: ocrLines
-              };
-            } catch (ocrErr) {
-              console.warn(`OCR failed for page ${i}, falling back to text parsing`, ocrErr);
-            }
-          }
-
-          // Standard PDF parsing path
-          const orderedItems = sortAndDetectColumns(rawItems, viewport.width);
-          const lines = groupItemsIntoLines(orderedItems);
-          const paragraphs = groupLinesIntoParagraphs(lines, viewport.width);
-
-          completedPagesCount++;
-          const pagePercent = (completedPagesCount / numPages) * 70;
-          progressController.setTarget(pagePercent, `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`);
-
-          return {
-            pageNum: i,
-            totalPages: numPages,
-            paragraphs
-          };
-        } finally {
-          if (page && typeof page.cleanup === "function") {
-            page.cleanup();
-          }
-        }
-      });
+      const pagePromises = Array.from({ length: numPages }, (_, index) =>
+        processPdfPage(pdfDoc, index + 1, numPages, userMode, getOcrWorker, onPageComplete)
+      );
 
       const pagesData = await Promise.all(pagePromises);
 
@@ -705,18 +719,18 @@ export function initPdfToWordUI() {
 
       progressController.finish("Conversion complete!");
       setTimeout(() => {
-        progressArea.style.display = "none";
-        if (optionsArea) optionsArea.style.display = "none";
-        if (resultsArea) resultsArea.classList.add("is-visible");
-        setConfigurationControlsDisabled(false);
+        if (elements.progressArea) elements.progressArea.style.display = "none";
+        if (elements.optionsArea) elements.optionsArea.style.display = "none";
+        if (elements.resultsArea) elements.resultsArea.classList.add("is-visible");
+        setConfigurationControlsDisabled(elements, false);
       }, 500);
 
     } catch (err) {
       console.error("Error converting PDF to Word:", err);
       showToast("Couldn't convert this PDF. The file may be damaged or unsupported.", "error");
-      setConfigurationControlsDisabled(false);
-      if (progressArea) progressArea.style.display = "none";
-      if (optionsArea) optionsArea.style.display = "block";
+      setConfigurationControlsDisabled(elements, false);
+      if (elements.progressArea) elements.progressArea.style.display = "none";
+      if (elements.optionsArea) elements.optionsArea.style.display = "block";
     } finally {
       if (pdfDoc && typeof pdfDoc.destroy === "function") {
         try {
@@ -732,10 +746,10 @@ export function initPdfToWordUI() {
     if (progressController) {
       progressController.stop();
     }
-    setConfigurationControlsDisabled(false);
-    if (progressArea) progressArea.style.display = "none";
-    if (optionsArea) optionsArea.style.display = "none";
-    dropZone.style.display = "block";
+    setConfigurationControlsDisabled(elements, false);
+    if (elements.progressArea) elements.progressArea.style.display = "none";
+    if (elements.optionsArea) elements.optionsArea.style.display = "none";
+    elements.dropZone.style.display = "block";
     showToast("This PDF is password protected. Unlock it first, then convert it to Word.", "error");
   }
 
@@ -745,13 +759,13 @@ export function initPdfToWordUI() {
     }
     currentFile = null;
     generatedBlob = null;
-    setConfigurationControlsDisabled(false);
-    if (fileInput) fileInput.value = "";
-    if (resultsArea) resultsArea.classList.remove("is-visible");
-    if (progressArea) progressArea.style.display = "none";
-    if (optionsArea) optionsArea.style.display = "none";
-    if (fileInfo) fileInfo.textContent = "";
-    if (dropZone) dropZone.style.display = "block";
+    setConfigurationControlsDisabled(elements, false);
+    if (elements.fileInput) elements.fileInput.value = "";
+    if (elements.resultsArea) elements.resultsArea.classList.remove("is-visible");
+    if (elements.progressArea) elements.progressArea.style.display = "none";
+    if (elements.optionsArea) elements.optionsArea.style.display = "none";
+    if (elements.fileInfo) elements.fileInfo.textContent = "";
+    if (elements.dropZone) elements.dropZone.style.display = "block";
   }
 }
 
