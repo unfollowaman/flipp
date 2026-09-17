@@ -644,7 +644,6 @@ downloadBtn.addEventListener("click", async () => {
       };
     }, 500);
   } catch (err) {
-    console.error(err);
     showToast("An error occurred while saving the PDF.", "error");
     progressArea.style.display = "none";
     optionsBar.classList.add("is-visible");
