@@ -1356,7 +1356,6 @@ export async function exportEditedPdf() {
       }
     }, 400);
   } catch (err) {
-    console.error(err);
     showToast("We couldn't create the edited PDF. Your original file has not been changed.", "error");
     if (progressArea) progressArea.style.display = "none";
     if (workspaceContainer) workspaceContainer.style.display = "flex";
