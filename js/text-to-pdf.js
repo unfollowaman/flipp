@@ -169,7 +169,6 @@ buildBtnEl.addEventListener("click", async () => {
     resultsEl.classList.add("is-visible");
     showToast("✓ Text formatted and converted to PDF!");
   } catch (err) {
-    console.error(err);
     showToast("Could not build PDF from text.", "error");
   }
 });
