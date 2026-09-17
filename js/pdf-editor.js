@@ -462,6 +462,148 @@ export function updateSelectedObjectUI() {
   });
 }
 
+function createObjectForTool(tool, pageNum, x, y) {
+  const id = "obj_" + Date.now();
+  if (tool === "text") {
+    return {
+      id,
+      type: "text",
+      pageNum,
+      x,
+      y,
+      width: 180,
+      height: 50,
+      rotation: 0,
+      properties: {
+        text: "Type text here...",
+        fontSize: parseInt(propFontSize.value, 10) || 18,
+        fontFamily: propFontFamily.value || "sans-serif",
+        color: propColor.value || "#000000",
+        bold: propBold ? propBold.classList.contains("active") : false,
+        italic: propItalic ? propItalic.classList.contains("active") : false,
+      },
+    };
+  }
+  if (tool === "highlight") {
+    return {
+      id,
+      type: "highlight",
+      pageNum,
+      x,
+      y,
+      width: 160,
+      height: 24,
+      rotation: 0,
+      properties: {
+        color: propColor.value || "#ffff00",
+        opacity: parseFloat(propOpacity.value) || 0.5,
+      },
+    };
+  }
+  if (tool === "shape") {
+    return {
+      id,
+      type: "shape",
+      pageNum,
+      x,
+      y,
+      width: 120,
+      height: 80,
+      rotation: 0,
+      properties: {
+        shapeType: propShapeType.value || "rect",
+        strokeColor: propColor.value || "#000000",
+        fillColor: propTransparentFill && propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value || "#ffffff",
+        strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
+      },
+    };
+  }
+  if (tool === "note") {
+    return {
+      id,
+      type: "note",
+      pageNum,
+      x,
+      y,
+      width: 160,
+      height: 120,
+      rotation: 0,
+      properties: {
+        text: "Add note here...",
+      },
+    };
+  }
+  return null;
+}
+
+function createTempDrawingCanvas(overlay) {
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = overlay.offsetWidth;
+  tempCanvas.height = overlay.offsetHeight;
+  tempCanvas.style.position = "absolute";
+  tempCanvas.style.top = "0";
+  tempCanvas.style.left = "0";
+  tempCanvas.style.pointerEvents = "none";
+  overlay.appendChild(tempCanvas);
+  return tempCanvas;
+}
+
+function updateDrawingPath(tempCanvas, currentPath, x, y) {
+  currentPath.push({ x, y });
+
+  const ctx = tempCanvas.getContext("2d");
+  ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+  ctx.strokeStyle = propColor.value || "#000000";
+  ctx.lineWidth = parseInt(propStrokeWidth.value, 10) || 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  ctx.beginPath();
+  currentPath.forEach((pt, idx) => {
+    if (idx === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
+  });
+  ctx.stroke();
+}
+
+function finishDrawingPath(currentPath, pageNum) {
+  if (currentPath.length <= 1) return null;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  currentPath.forEach((p) => {
+    if (p.x < minX) minX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  });
+
+  const w = Math.max(20, maxX - minX);
+  const h = Math.max(20, maxY - minY);
+
+  const normalizedPath = currentPath.map((p) => ({
+    x: p.x - minX,
+    y: p.y - minY,
+  }));
+
+  return {
+    id: "obj_" + Date.now(),
+    type: "draw",
+    pageNum: pageNum,
+    x: minX,
+    y: minY,
+    width: w,
+    height: h,
+    rotation: 0,
+    properties: {
+      path: normalizedPath,
+      color: propColor.value || "#000000",
+      strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
+      initialWidth: w,
+      initialHeight: h,
+    },
+  };
+}
+
 function setupOverlayEvents(overlay, pageNum) {
   let isDrawing = false;
   let currentPath = [];
@@ -483,80 +625,8 @@ function setupOverlayEvents(overlay, pageNum) {
 
     saveState();
 
-    if (activeTool === "text") {
-      const newObj = {
-        id: "obj_" + Date.now(),
-        type: "text",
-        pageNum: pageNum,
-        x: clickX,
-        y: clickY,
-        width: 180,
-        height: 50,
-        rotation: 0,
-        properties: {
-          text: "Type text here...",
-          fontSize: parseInt(propFontSize.value, 10) || 18,
-          fontFamily: propFontFamily.value || "sans-serif",
-          color: propColor.value || "#000000",
-          bold: propBold ? propBold.classList.contains("active") : false,
-          italic: propItalic ? propItalic.classList.contains("active") : false,
-        },
-      };
-      editorObjects.push(newObj);
-      selectedObjId = newObj.id;
-      renderAllObjects();
-    } else if (activeTool === "highlight") {
-      const newObj = {
-        id: "obj_" + Date.now(),
-        type: "highlight",
-        pageNum: pageNum,
-        x: clickX,
-        y: clickY,
-        width: 160,
-        height: 24,
-        rotation: 0,
-        properties: {
-          color: propColor.value || "#ffff00",
-          opacity: parseFloat(propOpacity.value) || 0.5,
-        },
-      };
-      editorObjects.push(newObj);
-      selectedObjId = newObj.id;
-      renderAllObjects();
-    } else if (activeTool === "shape") {
-      const newObj = {
-        id: "obj_" + Date.now(),
-        type: "shape",
-        pageNum: pageNum,
-        x: clickX,
-        y: clickY,
-        width: 120,
-        height: 80,
-        rotation: 0,
-        properties: {
-          shapeType: propShapeType.value || "rect",
-          strokeColor: propColor.value || "#000000",
-          fillColor: propTransparentFill && propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value || "#ffffff",
-          strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
-        },
-      };
-      editorObjects.push(newObj);
-      selectedObjId = newObj.id;
-      renderAllObjects();
-    } else if (activeTool === "note") {
-      const newObj = {
-        id: "obj_" + Date.now(),
-        type: "note",
-        pageNum: pageNum,
-        x: clickX,
-        y: clickY,
-        width: 160,
-        height: 120,
-        rotation: 0,
-        properties: {
-          text: "Add note here...",
-        },
-      };
+    const newObj = createObjectForTool(activeTool, pageNum, clickX, clickY);
+    if (newObj) {
       editorObjects.push(newObj);
       selectedObjId = newObj.id;
       renderAllObjects();
@@ -565,15 +635,7 @@ function setupOverlayEvents(overlay, pageNum) {
     } else if (activeTool === "draw") {
       isDrawing = true;
       currentPath = [{ x: clickX, y: clickY }];
-
-      tempCanvas = document.createElement("canvas");
-      tempCanvas.width = overlay.offsetWidth;
-      tempCanvas.height = overlay.offsetHeight;
-      tempCanvas.style.position = "absolute";
-      tempCanvas.style.top = "0";
-      tempCanvas.style.left = "0";
-      tempCanvas.style.pointerEvents = "none";
-      overlay.appendChild(tempCanvas);
+      tempCanvas = createTempDrawingCanvas(overlay);
     }
   });
 
@@ -583,21 +645,7 @@ function setupOverlayEvents(overlay, pageNum) {
     const rect = overlay.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    currentPath.push({ x, y });
-
-    const ctx = tempCanvas.getContext("2d");
-    ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-    ctx.strokeStyle = propColor.value || "#000000";
-    ctx.lineWidth = parseInt(propStrokeWidth.value, 10) || 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.beginPath();
-    currentPath.forEach((pt, idx) => {
-      if (idx === 0) ctx.moveTo(pt.x, pt.y);
-      else ctx.lineTo(pt.x, pt.y);
-    });
-    ctx.stroke();
+    updateDrawingPath(tempCanvas, currentPath, x, y);
   });
 
   const finishDrawing = () => {
@@ -609,42 +657,10 @@ function setupOverlayEvents(overlay, pageNum) {
       tempCanvas = null;
     }
 
-    if (currentPath.length > 1) {
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      currentPath.forEach((p) => {
-        if (p.x < minX) minX = p.x;
-        if (p.y < minY) minY = p.y;
-        if (p.x > maxX) maxX = p.x;
-        if (p.y > maxY) maxY = p.y;
-      });
-
-      const w = Math.max(20, maxX - minX);
-      const h = Math.max(20, maxY - minY);
-
-      const normalizedPath = currentPath.map((p) => ({
-        x: p.x - minX,
-        y: p.y - minY,
-      }));
-
-      const newObj = {
-        id: "obj_" + Date.now(),
-        type: "draw",
-        pageNum: pageNum,
-        x: minX,
-        y: minY,
-        width: w,
-        height: h,
-        rotation: 0,
-        properties: {
-          path: normalizedPath,
-          color: propColor.value || "#000000",
-          strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
-          initialWidth: w,
-          initialHeight: h,
-        },
-      };
-      editorObjects.push(newObj);
-      selectedObjId = newObj.id;
+    const drawObj = finishDrawingPath(currentPath, pageNum);
+    if (drawObj) {
+      editorObjects.push(drawObj);
+      selectedObjId = drawObj.id;
       renderAllObjects();
     }
   };
