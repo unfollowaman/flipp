@@ -261,6 +261,89 @@ test('pdf-split resource cleanup', async (t) => {
     assert.strictEqual(cleanupCalled, true);
   });
 
+  await t.test('discards superseded render requests when a newer render is requested', async () => {
+    let renderedPages = [];
+    const slowPdfDocument = {
+      getPage: async (num) => {
+        if (num === 1) await new Promise((r) => setTimeout(r, 30));
+        return {
+          getViewport: () => ({ width: 100, height: 100 }),
+          render: () => ({
+            promise: Promise.resolve().then(() => {
+              renderedPages.push(num);
+            })
+          }),
+          cleanup: () => {}
+        };
+      },
+      destroy: async () => {}
+    };
+
+    const mockSlowElementMap = {};
+    const createMockSlowElement = (id = '') => {
+      const key = id || Math.random().toString();
+      if (!mockSlowElementMap[key]) {
+        mockSlowElementMap[key] = {
+          id: key,
+          value: '',
+          style: {},
+          classList: { add: () => {}, remove: () => {}, contains: () => false },
+          appendChild: () => {},
+          innerHTML: '',
+          textContent: '',
+          addEventListener: () => {},
+          getContext: () => ({}),
+          querySelector: () => createMockSlowElement(),
+          querySelectorAll: () => [],
+        };
+      }
+      return mockSlowElementMap[key];
+    };
+
+    const mockSlowDoc = {
+      getElementById: createMockSlowElement,
+      createElement: () => createMockSlowElement()
+    };
+
+    const mockSlowWindow = {
+      PDFLib: {
+        PDFDocument: {
+          load: async () => ({
+            getPageCount: () => 5
+          })
+        }
+      },
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({ promise: Promise.resolve(slowPdfDocument) })
+      }
+    };
+
+    const slowWrapper = wrapper(
+      mockSlowDoc,
+      mockSlowWindow,
+      () => {},
+      () => {},
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      { error: () => {}, warn: () => {} }
+    );
+
+    const fakeFile = { name: 'test.pdf', arrayBuffer: async () => new ArrayBuffer(0) };
+    await slowWrapper.loadPdfMetadataAndPreviews(fakeFile);
+
+    const container = createMockSlowElement('preview-container');
+    renderedPages = [];
+
+    // Trigger render for page 1 then immediately page 2
+    const p1 = slowWrapper.renderPagePreview(1, container);
+    const p2 = slowWrapper.renderPagePreview(2, container);
+
+    await Promise.all([p1, p2]);
+
+    // Page 1 should have been superseded and NOT rendered
+    assert.deepStrictEqual(renderedPages, [2]);
+  });
+
   await t.test('calls pdfDocument.destroy() on reload and reset', async () => {
     const resetBtn = mockDocument.getElementById('split-reset-btn');
     if (resetBtn.listeners && resetBtn.listeners['click']) {
