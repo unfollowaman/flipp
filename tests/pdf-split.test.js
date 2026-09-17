@@ -56,16 +56,20 @@ test('pdf-split error handling', async (t) => {
   };
 
   let toastMessage = null;
+  let toastType = null;
   const mockShowToast = (msg, type) => {
     toastMessage = msg;
+    toastType = type;
+  };
+
+  let loggedErrors = [];
+  const mockConsole = {
+    error: (...args) => {
+      loggedErrors.push(args);
+    }
   };
 
   const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'console', src);
-
-  // We need to pass a custom console to ignore the console.error expected during test
-  const mockConsole = {
-    error: () => {}
-  };
 
   const { loadPdfMetadataAndPreviews, renderPagePreview } = wrapper(
     mockDocument,
@@ -90,6 +94,84 @@ test('pdf-split error handling', async (t) => {
     await renderPagePreview(1, container);
 
     assert.strictEqual(container.textContent, 'Error rendering page');
+  });
+
+  await t.test('loadPdfMetadataAndPreviews handles error when PDFLib.PDFDocument.load fails', async () => {
+    toastMessage = null;
+    toastType = null;
+    loggedErrors = [];
+
+    const mockBadWindow = {
+      PDFLib: {
+        PDFDocument: {
+          load: async () => {
+            throw new Error('Malformed PDF file');
+          }
+        }
+      },
+      'pdfjs-dist/build/pdf': mockWindow['pdfjs-dist/build/pdf']
+    };
+
+    const badWrapper = wrapper(
+      mockDocument,
+      mockBadWindow,
+      () => {},
+      mockShowToast,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      mockConsole
+    );
+
+    const fakeFile = {
+      name: 'corrupted.pdf',
+      arrayBuffer: async () => new ArrayBuffer(0)
+    };
+
+    await badWrapper.loadPdfMetadataAndPreviews(fakeFile);
+
+    assert.strictEqual(toastMessage, 'Failed to read PDF page count.');
+    assert.strictEqual(toastType, 'error');
+    assert.strictEqual(mockDocument.getElementById('split-info').textContent, 'Selected: corrupted.pdf');
+    assert.strictEqual(loggedErrors.length, 1);
+    assert.strictEqual(loggedErrors[0][0].message, 'Malformed PDF file');
+  });
+
+  await t.test('loadPdfMetadataAndPreviews handles error when pdfjsLib.getDocument fails', async () => {
+    toastMessage = null;
+    toastType = null;
+    loggedErrors = [];
+
+    const mockBadPdfJsWindow = {
+      PDFLib: mockWindow.PDFLib,
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({
+          promise: Promise.reject(new Error('pdf.js getDocument rejected'))
+        })
+      }
+    };
+
+    const badWrapper = wrapper(
+      mockDocument,
+      mockBadPdfJsWindow,
+      () => {},
+      mockShowToast,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      mockConsole
+    );
+
+    const fakeFile = {
+      name: 'preview-fail.pdf',
+      arrayBuffer: async () => new ArrayBuffer(0)
+    };
+
+    await badWrapper.loadPdfMetadataAndPreviews(fakeFile);
+
+    assert.strictEqual(toastMessage, 'Failed to read PDF page count.');
+    assert.strictEqual(toastType, 'error');
+    assert.strictEqual(mockDocument.getElementById('split-info').textContent, 'Selected: preview-fail.pdf');
+    assert.strictEqual(loggedErrors.length, 1);
+    assert.strictEqual(loggedErrors[0][0].message, 'pdf.js getDocument rejected');
   });
 });
 
