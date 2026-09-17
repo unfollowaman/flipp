@@ -151,7 +151,6 @@ export async function handlePdfSelect(files) {
 
     await loadPdfFromBytes(arrayBuffer);
   } catch (err) {
-    console.error(err);
     if (err && err.name === "PasswordException") {
       showToast("This PDF is password protected. Unlock it first, then open it in the editor.", "error");
     } else {
