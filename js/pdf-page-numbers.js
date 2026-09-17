@@ -101,7 +101,6 @@ addBtn.addEventListener("click", async () => {
     resultsEl.classList.add("is-visible");
     showToast("✓ Page numbers added!");
   } catch (err) {
-    console.error(err);
     showToast("Could not add page numbers. Please try another PDF.", "error");
   }
 });
