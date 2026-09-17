@@ -93,6 +93,118 @@ test('pdf-split error handling', async (t) => {
   });
 });
 
+test('pdf-split resource cleanup', async (t) => {
+  const elementMap = {};
+
+  const createMockElement = (id = '') => {
+    if (!elementMap[id]) {
+      elementMap[id] = {
+        id,
+        value: '',
+        style: { display: '' },
+        classList: { add: () => {}, remove: () => {}, contains: () => false },
+        appendChild: () => {},
+        innerHTML: '',
+        textContent: '',
+        addEventListener: (event, handler) => {
+          if (!elementMap[id].listeners) elementMap[id].listeners = {};
+          elementMap[id].listeners[event] = handler;
+        },
+        querySelector: () => createMockElement(),
+        querySelectorAll: () => [],
+      };
+    }
+    return elementMap[id];
+  };
+
+  const mockDocument = {
+    getElementById: (id) => createMockElement(id),
+    createElement: () => createMockElement()
+  };
+
+  let cleanupCalled = false;
+  let destroyCallCount = 0;
+
+  const mockPdfDocument = {
+    getPage: async (num) => ({
+      getViewport: () => ({ width: 100, height: 100 }),
+      render: () => ({ promise: Promise.resolve() }),
+      cleanup: () => {
+        cleanupCalled = true;
+      }
+    }),
+    destroy: async () => {
+      destroyCallCount++;
+    }
+  };
+
+  const mockWindow = {
+    PDFLib: {
+      PDFDocument: {
+        load: async () => ({
+          getPageCount: () => 3
+        })
+      }
+    },
+    'pdfjs-dist/build/pdf': {
+      getDocument: () => ({
+        promise: Promise.resolve(mockPdfDocument)
+      })
+    }
+  };
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'console', src);
+
+  const { loadPdfMetadataAndPreviews, renderPagePreview } = wrapper(
+    mockDocument,
+    mockWindow,
+    () => {},
+    () => {},
+    class Blob {},
+    { createObjectURL: () => '', revokeObjectURL: () => '' },
+    { error: () => {}, warn: () => {} }
+  );
+
+  await t.test('calls page.cleanup() after page preview render', async () => {
+    cleanupCalled = false;
+    const fakeFile = {
+      name: 'test.pdf',
+      arrayBuffer: async () => new ArrayBuffer(0)
+    };
+    await loadPdfMetadataAndPreviews(fakeFile);
+
+    const container = createMockElement('preview-container');
+    await renderPagePreview(1, container);
+
+    assert.strictEqual(cleanupCalled, true);
+  });
+
+  await t.test('calls pdfDocument.destroy() on reload and reset', async () => {
+    const resetBtn = mockDocument.getElementById('split-reset-btn');
+    if (resetBtn.listeners && resetBtn.listeners['click']) {
+      resetBtn.listeners['click']();
+    }
+
+    destroyCallCount = 0;
+    const fakeFile1 = { name: 'test1.pdf', arrayBuffer: async () => new ArrayBuffer(0) };
+    const fakeFile2 = { name: 'test2.pdf', arrayBuffer: async () => new ArrayBuffer(0) };
+
+    // Initial load sets pdfDocument for the first time (destroyCallCount is 0)
+    await loadPdfMetadataAndPreviews(fakeFile1);
+    assert.strictEqual(destroyCallCount, 0);
+
+    // Re-loading new file should destroy old pdfDocument (destroyCallCount becomes 1)
+    await loadPdfMetadataAndPreviews(fakeFile2);
+    assert.strictEqual(destroyCallCount, 1);
+
+    // Reset button click should destroy active pdfDocument (destroyCallCount becomes 2)
+    if (resetBtn.listeners && resetBtn.listeners['click']) {
+      resetBtn.listeners['click']();
+    }
+    assert.strictEqual(destroyCallCount, 2);
+  });
+});
+
 test('pdf-split N-page splitting logic', async (t) => {
   const elementMap = {};
 
@@ -181,7 +293,7 @@ test('pdf-split N-page splitting logic', async (t) => {
 
   const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'console', src);
 
-  const mockConsole = { error: () => {} };
+  const mockConsole = { error: () => {}, warn: () => {} };
 
   const { loadPdfMetadataAndPreviews, addFiles } = wrapper(
     mockDocument,
