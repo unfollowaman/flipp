@@ -1142,7 +1142,166 @@ if (sigPlaceBtn) {
   });
 }
 
-// ── PDF Export Process ──────────────────────────────────────────────
+// ── PDF Export Process Helpers ─────────────────────────────────────
+
+export function renderObjectToCanvasDataUrl(obj) {
+  const tempCanvas = document.createElement("canvas");
+  const scale = 2; // high-DPI crisp export
+  tempCanvas.width = obj.width * scale;
+  tempCanvas.height = obj.height * scale;
+
+  const ctx = tempCanvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  if (obj.type === "draw") {
+    ctx.strokeStyle = obj.properties.color || "#000000";
+    ctx.lineWidth = obj.properties.strokeWidth || 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    (obj.properties.path || []).forEach((pt, idx) => {
+      if (idx === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+  } else if (obj.type === "shape") {
+    ctx.strokeStyle = obj.properties.strokeColor || "#000000";
+    ctx.lineWidth = obj.properties.strokeWidth || 2;
+
+    if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
+      ctx.fillStyle = obj.properties.fillColor;
+    }
+
+    const st = obj.properties.shapeType;
+    if (st === "rect") {
+      if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fillRect(0, 0, obj.width, obj.height);
+      ctx.strokeRect(0, 0, obj.width, obj.height);
+    } else if (st === "circle") {
+      ctx.beginPath();
+      ctx.ellipse(obj.width / 2, obj.height / 2, obj.width / 2 - 2, obj.height / 2 - 2, 0, 0, 2 * Math.PI);
+      if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fill();
+      ctx.stroke();
+    } else if (st === "line" || st === "arrow") {
+      ctx.beginPath();
+      ctx.moveTo(4, obj.height / 2);
+      ctx.lineTo(obj.width - 4, obj.height / 2);
+      ctx.stroke();
+
+      if (st === "arrow") {
+        ctx.beginPath();
+        ctx.moveTo(obj.width - 12, obj.height / 2 - 6);
+        ctx.lineTo(obj.width - 2, obj.height / 2);
+        ctx.lineTo(obj.width - 12, obj.height / 2 + 6);
+        ctx.stroke();
+      }
+    }
+  } else if (obj.type === "note") {
+    ctx.fillStyle = "#fef08a";
+    ctx.fillRect(0, 0, obj.width, obj.height);
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(0, 0, obj.width, obj.height);
+
+    ctx.fillStyle = "#000000";
+    ctx.font = "12px sans-serif";
+    const lines = (obj.properties.text || "").split("\n");
+    lines.forEach((line, lIdx) => {
+      ctx.fillText(line, 6, 16 + lIdx * 16);
+    });
+  }
+
+  const dataUrl = tempCanvas.toDataURL("image/png");
+  tempCanvas.width = 0;
+  tempCanvas.height = 0;
+  return dataUrl;
+}
+
+export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
+  const text = obj.properties.text || "";
+  const size = (obj.properties.fontSize || 18) * (pageMetrics.pdfWidth / pageMetrics.pageViewport.width);
+  const color = hexToPdfRgb(obj.properties.color || "#000000");
+
+  let font = fonts.fontHelvetica;
+  if (obj.properties.bold) font = fonts.fontHelveticaBold;
+  else if (obj.properties.italic) font = fonts.fontHelveticaOblique;
+
+  const lines = text.split("\n");
+  lines.forEach((line, lIdx) => {
+    page.drawText(line, {
+      x: pdfCoords.x,
+      y: pdfCoords.y + pdfCoords.height - size * 1.1 * (lIdx + 1),
+      size: size,
+      font: font,
+      color: color,
+    });
+  });
+}
+
+export function applyHighlightObject(page, obj, pdfCoords) {
+  const color = hexToPdfRgb(obj.properties.color || "#ffff00");
+  page.drawRectangle({
+    x: pdfCoords.x,
+    y: pdfCoords.y,
+    width: pdfCoords.width,
+    height: pdfCoords.height,
+    color: color,
+    opacity: obj.properties.opacity || 0.5,
+  });
+}
+
+export async function applyImageObject(page, obj, pdfCoords, pdfDoc, embeddedImages) {
+  const src = obj.properties.src;
+  if (!src) return;
+
+  let pdfImage;
+  if (embeddedImages.has(src)) {
+    pdfImage = embeddedImages.get(src);
+  } else {
+    if (src.startsWith("data:image/jpeg") || src.startsWith("data:image/jpg")) {
+      pdfImage = await pdfDoc.embedJpg(src);
+    } else {
+      pdfImage = await pdfDoc.embedPng(src);
+    }
+    embeddedImages.set(src, pdfImage);
+  }
+
+  page.drawImage(pdfImage, {
+    x: pdfCoords.x,
+    y: pdfCoords.y,
+    width: pdfCoords.width,
+    height: pdfCoords.height,
+  });
+}
+
+export async function applyCanvasObject(page, obj, pdfCoords, pdfDoc) {
+  const dataUrl = renderObjectToCanvasDataUrl(obj);
+  const pdfImage = await pdfDoc.embedPng(dataUrl);
+  page.drawImage(pdfImage, {
+    x: pdfCoords.x,
+    y: pdfCoords.y,
+    width: pdfCoords.width,
+    height: pdfCoords.height,
+  });
+}
+
+export async function applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdfDoc, embeddedImages) {
+  const pdfCoords = domToPdfCoords(
+    { x: obj.x, y: obj.y, width: obj.width, height: obj.height },
+    pageMetrics.pageViewport,
+    { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight }
+  );
+
+  if (obj.type === "text") {
+    applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+  } else if (obj.type === "highlight") {
+    applyHighlightObject(page, obj, pdfCoords);
+  } else if (obj.type === "image" || obj.type === "signature") {
+    await applyImageObject(page, obj, pdfCoords, pdfDoc, embeddedImages);
+  } else if (obj.type === "draw" || obj.type === "shape" || obj.type === "note") {
+    await applyCanvasObject(page, obj, pdfCoords, pdfDoc);
+  }
+}
 
 export async function exportEditedPdf() {
   if (!window.PDFLib) {
@@ -1169,6 +1328,7 @@ export async function exportEditedPdf() {
       pdfDoc.embedFont(StandardFonts.HelveticaOblique),
     ]);
 
+    const fonts = { fontHelvetica, fontHelveticaBold, fontHelveticaOblique };
     const embeddedImages = new Map();
 
     setProgress(progressBar, progressLabel, 50, "Applying annotations & edits...");
@@ -1182,145 +1342,7 @@ export async function exportEditedPdf() {
 
       if (!pageMetrics) continue;
 
-      // Coordinate conversion from DOM overlay to PDF point space
-      const pdfCoords = domToPdfCoords(
-        { x: obj.x, y: obj.y, width: obj.width, height: obj.height },
-        pageMetrics.pageViewport,
-        { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight }
-      );
-
-      if (obj.type === "text") {
-        const text = obj.properties.text || "";
-        const size = (obj.properties.fontSize || 18) * (pageMetrics.pdfWidth / pageMetrics.pageViewport.width);
-        const color = hexToPdfRgb(obj.properties.color || "#000000");
-
-        let font = fontHelvetica;
-        if (obj.properties.bold) font = fontHelveticaBold;
-        else if (obj.properties.italic) font = fontHelveticaOblique;
-
-        // Draw text lines
-        const lines = text.split("\n");
-        lines.forEach((line, lIdx) => {
-          page.drawText(line, {
-            x: pdfCoords.x,
-            y: pdfCoords.y + pdfCoords.height - size * 1.1 * (lIdx + 1),
-            size: size,
-            font: font,
-            color: color,
-          });
-        });
-      } else if (obj.type === "highlight") {
-        const color = hexToPdfRgb(obj.properties.color || "#ffff00");
-        page.drawRectangle({
-          x: pdfCoords.x,
-          y: pdfCoords.y,
-          width: pdfCoords.width,
-          height: pdfCoords.height,
-          color: color,
-          opacity: obj.properties.opacity || 0.5,
-        });
-      } else if (obj.type === "image" || obj.type === "signature") {
-        const src = obj.properties.src;
-        if (!src) continue;
-
-        let pdfImage;
-        if (embeddedImages.has(src)) {
-          pdfImage = embeddedImages.get(src);
-        } else {
-          if (src.startsWith("data:image/jpeg") || src.startsWith("data:image/jpg")) {
-            pdfImage = await pdfDoc.embedJpg(src);
-          } else {
-            pdfImage = await pdfDoc.embedPng(src);
-          }
-          embeddedImages.set(src, pdfImage);
-        }
-
-        page.drawImage(pdfImage, {
-          x: pdfCoords.x,
-          y: pdfCoords.y,
-          width: pdfCoords.width,
-          height: pdfCoords.height,
-        });
-      } else if (obj.type === "draw" || obj.type === "shape" || obj.type === "note") {
-        // Render draw / shape / note onto crisp canvas and embed image
-        const tempCanvas = document.createElement("canvas");
-        const scale = 2; // high-DPI crisp export
-        tempCanvas.width = obj.width * scale;
-        tempCanvas.height = obj.height * scale;
-
-        const ctx = tempCanvas.getContext("2d");
-        ctx.scale(scale, scale);
-
-        if (obj.type === "draw") {
-          ctx.strokeStyle = obj.properties.color || "#000000";
-          ctx.lineWidth = obj.properties.strokeWidth || 2;
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-
-          ctx.beginPath();
-          (obj.properties.path || []).forEach((pt, idx) => {
-            if (idx === 0) ctx.moveTo(pt.x, pt.y);
-            else ctx.lineTo(pt.x, pt.y);
-          });
-          ctx.stroke();
-        } else if (obj.type === "shape") {
-          ctx.strokeStyle = obj.properties.strokeColor || "#000000";
-          ctx.lineWidth = obj.properties.strokeWidth || 2;
-
-          if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
-            ctx.fillStyle = obj.properties.fillColor;
-          }
-
-          const st = obj.properties.shapeType;
-          if (st === "rect") {
-            if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fillRect(0, 0, obj.width, obj.height);
-            ctx.strokeRect(0, 0, obj.width, obj.height);
-          } else if (st === "circle") {
-            ctx.beginPath();
-            ctx.ellipse(obj.width / 2, obj.height / 2, obj.width / 2 - 2, obj.height / 2 - 2, 0, 0, 2 * Math.PI);
-            if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fill();
-            ctx.stroke();
-          } else if (st === "line" || st === "arrow") {
-            ctx.beginPath();
-            ctx.moveTo(4, obj.height / 2);
-            ctx.lineTo(obj.width - 4, obj.height / 2);
-            ctx.stroke();
-
-            if (st === "arrow") {
-              ctx.beginPath();
-              ctx.moveTo(obj.width - 12, obj.height / 2 - 6);
-              ctx.lineTo(obj.width - 2, obj.height / 2);
-              ctx.lineTo(obj.width - 12, obj.height / 2 + 6);
-              ctx.stroke();
-            }
-          }
-        } else if (obj.type === "note") {
-          ctx.fillStyle = "#fef08a";
-          ctx.fillRect(0, 0, obj.width, obj.height);
-          ctx.strokeStyle = "#000000";
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(0, 0, obj.width, obj.height);
-
-          ctx.fillStyle = "#000000";
-          ctx.font = "12px sans-serif";
-          const lines = (obj.properties.text || "").split("\n");
-          lines.forEach((line, lIdx) => {
-            ctx.fillText(line, 6, 16 + lIdx * 16);
-          });
-        }
-
-        const dataUrl = tempCanvas.toDataURL("image/png");
-        tempCanvas.width = 0;
-        tempCanvas.height = 0;
-
-        const pdfImage = await pdfDoc.embedPng(dataUrl);
-        page.drawImage(pdfImage, {
-          x: pdfCoords.x,
-          y: pdfCoords.y,
-          width: pdfCoords.width,
-          height: pdfCoords.height,
-        });
-      }
+      await applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdfDoc, embeddedImages);
 
       setProgress(
         progressBar,

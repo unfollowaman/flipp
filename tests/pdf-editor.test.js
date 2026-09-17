@@ -24,6 +24,12 @@ src += `\nreturn {
   undoAction,
   redoAction,
   resetEditor,
+  renderObjectToCanvasDataUrl,
+  applyTextObject,
+  applyHighlightObject,
+  applyImageObject,
+  applyCanvasObject,
+  applyEditorObjectToPage,
   exportEditedPdf,
   updateZoom,
   getZoomLevel: () => zoomLevel,
@@ -280,6 +286,65 @@ test('pdf-editor PDF export process', async (t) => {
   t.beforeEach(() => {
     toastMessages = [];
     editorModule.resetEditor();
+  });
+
+  await t.test('export helper functions (renderObjectToCanvasDataUrl, applyTextObject, etc.)', async () => {
+    const drawObj = {
+      type: 'draw',
+      width: 100,
+      height: 50,
+      properties: { color: '#000000', strokeWidth: 2, path: [{ x: 0, y: 0 }, { x: 10, y: 10 }] }
+    };
+    const dataUrl = editorModule.renderObjectToCanvasDataUrl(drawObj);
+    assert.strictEqual(typeof dataUrl, 'string');
+    assert.ok(dataUrl.startsWith('data:image/png'));
+
+    const mockPage = {
+      drawTextCalls: [],
+      drawRectangleCalls: [],
+      drawImageCalls: [],
+      drawText(line, opts) { this.drawTextCalls.push({ line, opts }); },
+      drawRectangle(opts) { this.drawRectangleCalls.push(opts); },
+      drawImage(img, opts) { this.drawImageCalls.push({ img, opts }); }
+    };
+
+    const textObj = {
+      type: 'text',
+      properties: { text: 'Line 1\nLine 2', fontSize: 18, color: '#ff0000', bold: true }
+    };
+    const pdfCoords = { x: 10, y: 20, width: 100, height: 40 };
+    const pageMetrics = { pdfWidth: 600, pageViewport: { width: 300 } };
+    const fonts = { fontHelveticaBold: 'HelveticaBold' };
+
+    editorModule.applyTextObject(mockPage, textObj, pdfCoords, pageMetrics, fonts);
+    assert.strictEqual(mockPage.drawTextCalls.length, 2);
+    assert.strictEqual(mockPage.drawTextCalls[0].line, 'Line 1');
+
+    const highlightObj = {
+      type: 'highlight',
+      properties: { color: '#ffff00', opacity: 0.5 }
+    };
+    editorModule.applyHighlightObject(mockPage, highlightObj, pdfCoords);
+    assert.strictEqual(mockPage.drawRectangleCalls.length, 1);
+
+    const mockPdfDoc = {
+      embedPng: async () => ({ id: 'png' }),
+      embedJpg: async () => ({ id: 'jpg' })
+    };
+    const embeddedImages = new Map();
+    const imageObj = {
+      type: 'image',
+      properties: { src: 'data:image/png;base64,fake' }
+    };
+    await editorModule.applyImageObject(mockPage, imageObj, pdfCoords, mockPdfDoc, embeddedImages);
+    assert.strictEqual(mockPage.drawImageCalls.length, 1);
+    assert.strictEqual(embeddedImages.size, 1);
+
+    await editorModule.applyCanvasObject(mockPage, drawObj, pdfCoords, mockPdfDoc);
+    assert.strictEqual(mockPage.drawImageCalls.length, 2);
+
+    await editorModule.applyEditorObjectToPage(mockPage, { x: 0, y: 0, width: 50, height: 50, ...textObj }, pageMetrics, fonts, mockPdfDoc, embeddedImages);
+    assert.strictEqual(mockPage.drawTextCalls.length, 4);
   });
 
   await t.test('exportEditedPdf exports valid modified PDF document', async () => {
