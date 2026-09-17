@@ -19,5 +19,5 @@ Allow: /
 User-agent: cohere-ai
 Allow: /
 
-Sitemap: https://unfollowaman.tech/sitemap.xml
-Sitemap: https://unfollowaman.tech/sitemap-blog.xml
+Sitemap: https://tryflipp.pages.dev/sitemap.xml
+Sitemap: https://tryflipp.pages.dev/sitemap-blog.xml
