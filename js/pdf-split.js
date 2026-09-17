@@ -85,8 +85,9 @@ async function renderPagePreview(pageNum, container) {
     return;
   }
 
+  let page = null;
   try {
-    const page = await pdfDocument.getPage(pageNumber);
+    page = await pdfDocument.getPage(pageNumber);
     const scale = 0.5; // Adjust scale as needed to fit the container roughly
     const viewport = page.getViewport({ scale });
 
@@ -110,6 +111,10 @@ async function renderPagePreview(pageNum, container) {
     await page.render(renderContext).promise;
   } catch (error) {
     container.textContent = "Error rendering page";
+  } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
   }
 }
 
@@ -133,6 +138,15 @@ async function loadPdfMetadataAndPreviews(file) {
   if (!PDFLib) {
     showToast("PDF library not ready yet.", "error");
     return;
+  }
+
+  if (pdfDocument) {
+    try {
+      await pdfDocument.destroy();
+    } catch (e) {
+      console.warn("Error destroying PDF document:", e);
+    }
+    pdfDocument = null;
   }
 
   try {
@@ -352,10 +366,17 @@ splitBtn.addEventListener("click", async () => {
 });
 
 resetBtn.addEventListener("click", () => {
+  if (pdfDocument) {
+    try {
+      pdfDocument.destroy();
+    } catch (e) {
+      console.warn("Error destroying PDF document:", e);
+    }
+    pdfDocument = null;
+  }
   pdfFile = null;
   splitBlobs = [];
   totalPages = 0;
-  pdfDocument = null;
   previewArea.classList.remove("is-visible");
   resultsArea.classList.remove("is-visible");
   infoEl.textContent = "";
