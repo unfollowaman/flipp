@@ -70,8 +70,11 @@ if (splitNInput) {
   });
 }
 
+const activeRenderTasks = new Map();
+
 async function renderPagePreview(pageNum, container) {
-  container.innerHTML = ""; // Clear previous content
+  const currentRequestId = (activeRenderTasks.get(container) || 0) + 1;
+  activeRenderTasks.set(container, currentRequestId);
 
   if (!pdfDocument) return;
 
@@ -81,6 +84,7 @@ async function renderPagePreview(pageNum, container) {
     pageNumber < 1 ||
     pageNumber > totalPages
   ) {
+    container.innerHTML = "";
     container.textContent = "No such page 😑";
     return;
   }
@@ -88,6 +92,11 @@ async function renderPagePreview(pageNum, container) {
   let page = null;
   try {
     page = await pdfDocument.getPage(pageNumber);
+
+    if (activeRenderTasks.get(container) !== currentRequestId) {
+      return;
+    }
+
     const scale = 0.5; // Adjust scale as needed to fit the container roughly
     const viewport = page.getViewport({ scale });
 
@@ -107,10 +116,13 @@ async function renderPagePreview(pageNum, container) {
       viewport: viewport,
     };
 
+    container.innerHTML = "";
     container.appendChild(canvas);
     await page.render(renderContext).promise;
   } catch (error) {
-    container.textContent = "Error rendering page";
+    if (activeRenderTasks.get(container) === currentRequestId) {
+      container.textContent = "Error rendering page";
+    }
   } finally {
     if (page && typeof page.cleanup === "function") {
       page.cleanup();
@@ -192,12 +204,21 @@ function addFiles(files) {
   loadPdfMetadataAndPreviews(first);
 }
 
+let startInputTimeout = null;
+let endInputTimeout = null;
+
 rangeStartEl.addEventListener("input", () => {
-  renderPagePreview(rangeStartEl.value, previewStartEl);
+  if (startInputTimeout) clearTimeout(startInputTimeout);
+  startInputTimeout = setTimeout(() => {
+    renderPagePreview(rangeStartEl.value, previewStartEl);
+  }, 120);
 });
 
 rangeEndEl.addEventListener("input", () => {
-  renderPagePreview(rangeEndEl.value, previewEndEl);
+  if (endInputTimeout) clearTimeout(endInputTimeout);
+  endInputTimeout = setTimeout(() => {
+    renderPagePreview(rangeEndEl.value, previewEndEl);
+  }, 120);
 });
 
 splitBtn.addEventListener("click", async () => {

@@ -9,3 +9,7 @@
 ## 2026-09-15 - Defer array sorting and compute running stats incrementally in PDF line grouping
 **Learning:** In layout reconstruction for PDF conversion (such as `js/pdf-to-word.js`), sorting line item arrays (`line.items.sort()`) and recalculating average Y coordinates and font styles on every item insertion inside nested matching loops creates O(N^2 log N) performance penalties.
 **Action:** In grouping algorithms, update running totals (`sumTopY`) and boolean/max properties (`fontSize`, `isBold`) incrementally per item addition, and defer item sorting until all items have been assigned to lines.
+
+## 2026-09-16 - Discard superseded preview renders and debounce range inputs in interactive PDF tools
+**Learning:** In interactive PDF tools (such as PDF Split range inputs), rapid user keystrokes fire consecutive async `pdfDocument.getPage()` and `page.render()` tasks. Without request tracking per container, outdated render promises run in parallel on detached DOM nodes, creating UI race conditions and heavy worker thread contention.
+**Action:** Track active request IDs per target container in a `Map`, debounce user input handlers, and check `activeRenderTasks.get(container) === currentRequestId` after fetching pages before proceeding to canvas creation and `page.render()`.
