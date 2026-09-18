@@ -6,7 +6,6 @@
 - **Last audited areas:**
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
-  - `tests/unlock-pdf.test.js` failure due to missing `pdf-lib` module resolution in standalone Node environment.
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
 - **Known recurring risks:**
   - Standard test suite execution assumes all browser globals or mock dependencies are evaluated via `new Function()` rather than direct `require()` calls to external npm packages that are not pre-installed in `node_modules`.
@@ -35,15 +34,25 @@
 
 ## Known Issues
 
-- **Unresolved Test Runner Failure in `tests/unlock-pdf.test.js`**
-  - **Severity:** Medium
-  - **Affected Area:** Unit test suite / Test runner (`tests/unlock-pdf.test.js`)
-  - **First Discovered Date:** 2026-09-18
-  - **Last Verified Date:** 2026-09-18
-  - **Description:** `tests/unlock-pdf.test.js` includes `const { PDFDocument } = require("pdf-lib");` on line 4. Because `node_modules` is not committed or installed in the sandbox environment, running `node --test tests/*.test.js tests/test_pdf_to_img.js` fails with `Error: Cannot find module 'pdf-lib'`. All other test files mock `PDFLib` on `global.window` rather than requiring the package directly.
-  - **Relevant Files:** `tests/unlock-pdf.test.js`
+None currently active.
 
 ## Audit History
+
+### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
+
+Status: PASSED
+
+Scope:
+- Unit test harness for Unlock PDF tool (`tests/unlock-pdf.test.js`)
+- Integration with client-side script (`js/unlock-pdf.js`)
+- Full native test suite execution (`node --test tests/*.test.js tests/test_pdf_to_img.js`)
+
+Resolution Summary:
+- Investigated confirmed test runner failure caused by direct npm module require `const { PDFDocument } = require("pdf-lib");` in `tests/unlock-pdf.test.js`.
+- Refactored `tests/unlock-pdf.test.js` to eliminate direct external package imports and match the repository's established browser-mock test architecture (`new Function()` evaluation with `global.window.PDFLib` mocking).
+- Expanded assertions to cover non-PDF validation, unprotected PDFs, open-password protected PDFs, owner-restricted PDFs, corrupted PDF input, file download trigger, reset action, and unlock error paths.
+- Verified test execution: `node --test tests/unlock-pdf.test.js` passed 6/6 subtests.
+- Verified full test suite: `node --test tests/*.test.js tests/test_pdf_to_img.js` passed 252/252 tests across 69 test files with 0 failures and 0 regressions.
 
 ### 2026-09-18 — PDF Security & Protection (`Unlock PDF` & `Protect PDF`)
 
@@ -69,7 +78,6 @@ Findings:
 4. **Test Suite Failure:** `tests/unlock-pdf.test.js` fails in environments without installed `node_modules` due to direct `require('pdf-lib')`.
 
 Follow-up:
-- Monitor whether `tests/unlock-pdf.test.js` is updated to mock `PDFLib` on `global.window` (matching `tests/pdf-protect.test.js`).
 - Re-audit `js/pdf-protect.js` if native vector/text preservation is added to encrypted exports.
 
 Relevant files:
