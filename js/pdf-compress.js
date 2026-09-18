@@ -143,8 +143,8 @@ compressBtn.addEventListener("click", async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       const pdfjsLib = window["pdfjs-dist/build/pdf"];
-      const bufferCopy = arrayBuffer.slice(0);
-      const loadingTask = pdfjsLib.getDocument({ data: bufferCopy });
+      // Pass arrayBuffer directly to avoid duplicating RAM usage; selectedFile.arrayBuffer() creates a new buffer per click and arrayBuffer is not reused after loadingTask
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdfjsDoc = await loadingTask.promise;
       try {
         const totalPages = pdfjsDoc.numPages;
