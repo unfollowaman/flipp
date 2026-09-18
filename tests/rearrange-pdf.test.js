@@ -88,9 +88,11 @@ test('rearrange-pdf functionality', async (t) => {
         if (id === 'rearrange-download-btn' && event === 'click') downloadBtnClick = handler;
         if (id === 'rearrange-reset-btn' && event === 'click') resetBtnClick = handler;
       },
+      attributes: {},
       querySelector: (selector) => {
         if (selector === '.img-thumb-num') return children.find(c => c.className === 'img-thumb-num') || createMockElement('', 'div');
         if (selector === '.img-thumb-label') return children.find(c => c.className === 'img-thumb-label') || createMockElement('', 'div');
+        if (selector === '.img-thumb-remove') return children.find(c => c.className === 'img-thumb-remove') || createMockElement('', 'button');
         return createMockElement('', 'div');
       },
       querySelectorAll: (selector) => {
@@ -101,9 +103,9 @@ test('rearrange-pdf functionality', async (t) => {
         if (eventListeners['click']) eventListeners['click']({ stopPropagation: () => {} });
         if (el.onclick) el.onclick({ stopPropagation: () => {} });
       },
-      getAttribute: () => null,
-      setAttribute: () => {},
-      removeAttribute: () => {}
+      getAttribute: (key) => el.attributes[key] || null,
+      setAttribute: (key, val) => { el.attributes[key] = String(val); },
+      removeAttribute: (key) => { delete el.attributes[key]; }
     };
 
     Object.defineProperty(el, 'innerHTML', {
@@ -414,12 +416,21 @@ test('rearrange-pdf functionality', async (t) => {
     const grid = mockDocument.getElementById('rearrange-preview-grid');
     assert.strictEqual(grid.children.length, 3);
 
+    // Check initial aria-label attributes
+    assert.strictEqual(grid.children[0].querySelector('.img-thumb-remove').getAttribute('aria-label'), 'Delete page 1');
+    assert.strictEqual(grid.children[1].querySelector('.img-thumb-remove').getAttribute('aria-label'), 'Delete page 2');
+    assert.strictEqual(grid.children[2].querySelector('.img-thumb-remove').getAttribute('aria-label'), 'Delete page 3');
+
     // Remove middle page (index 1)
     const middleCard = grid.children[1];
     const rmBtn = middleCard.children.find(c => c.className === 'img-thumb-remove');
     rmBtn.click();
 
     assert.strictEqual(grid.children.length, 2);
+
+    // Verify aria-label attributes updated after deletion
+    assert.strictEqual(grid.children[0].querySelector('.img-thumb-remove').getAttribute('aria-label'), 'Delete page 1');
+    assert.strictEqual(grid.children[1].querySelector('.img-thumb-remove').getAttribute('aria-label'), 'Delete page 2');
 
     // Rearrange and verify copyPages receives updated indices [0, 2]
     await rearrangeBtnClick();

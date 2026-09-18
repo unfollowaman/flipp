@@ -204,8 +204,12 @@ function updatePagesOrder() {
   allCards.forEach((card, index) => {
     const num = card.querySelector(".img-thumb-num");
     const lbl = card.querySelector(".img-thumb-label");
+    const rmBtn = card.querySelector(".img-thumb-remove");
     num.textContent = index + 1;
     lbl.textContent = `Page ${index + 1}`;
+    if (rmBtn) {
+      rmBtn.setAttribute("aria-label", `Delete page ${index + 1}`);
+    }
   });
 }
 
