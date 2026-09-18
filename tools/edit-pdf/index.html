@@ -45,11 +45,25 @@
     <meta name="twitter:site" content="@unfollowaman" />
     <link rel="modulepreload" href="../../js/pdf-editor.js" />
     <link rel="modulepreload" href="../../js/drag-drop.js" />
-    <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
-    <link rel="icon" type="image/png" href="../../favicon.png" />
-    <link rel="apple-touch-icon" href="../../apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/icons/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../assets/icons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="../../assets/icons/favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../../assets/icons/apple-touch-icon.png"
+    />
     <meta name="theme-color" content="#F5E642" />
-
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -172,7 +186,6 @@
         }
       }
     </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
@@ -192,7 +205,6 @@
       href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap"
     />
     <link rel="stylesheet" href="../../css/styles.css" />
-
     <style>
       /* Custom Styles for PDF Editor Workspace */
       .editor-workspace-container {
@@ -259,7 +271,6 @@
         color: var(--white);
         box-shadow: 2px 2px 0 #000;
       }
-
       /* Horizontal Single-Row Toolbar */
       .editor-toolbar {
         display: flex;
@@ -287,7 +298,6 @@
         font-size: 13px;
         font-weight: 700;
       }
-
       /* Dynamic Contextual Props Bar */
       .editor-props-bar {
         display: flex;
@@ -331,7 +341,6 @@
         font-size: 12px;
         background: var(--white);
       }
-
       /* PDF Pages View Container */
       .editor-pages-scroll {
         max-height: 70vh;
@@ -350,7 +359,6 @@
         box-shadow: var(--shadow-hard);
         scroll-behavior: smooth;
       }
-
       .pdf-page-wrapper {
         position: relative;
         background: var(--white);
@@ -371,7 +379,6 @@
         height: 100%;
         pointer-events: auto;
       }
-
       .pdf-page-badge {
         position: absolute;
         bottom: -24px;
@@ -384,7 +391,6 @@
         padding: 1px 8px;
         border-radius: 12px;
       }
-
       /* Persistent Mobile Workspace Control Bar */
       .editor-bottom-bar {
         position: sticky;
@@ -425,7 +431,6 @@
         font-size: 13px;
         font-weight: 800;
       }
-
       @media (max-width: 600px) {
         .editor-doc-title {
           max-width: 130px;
@@ -464,7 +469,6 @@
           font-size: 13px;
         }
       }
-
       /* Editor Objects on Page */
       .editor-obj {
         position: absolute;
@@ -533,7 +537,6 @@
       .editor-obj.selected .editor-obj-handle.delete {
         display: flex;
       }
-
       /* Text Object Inside */
       .editor-text-input {
         width: 100%;
@@ -547,7 +550,6 @@
         white-space: pre-wrap;
         word-break: break-word;
       }
-
       /* Sticky Note Object */
       .editor-sticky-note {
         background: #fef08a;
@@ -570,7 +572,6 @@
         font-size: 12px;
         font-family: inherit;
       }
-
       /* Signature Modal */
       .editor-modal-overlay {
         position: fixed;
