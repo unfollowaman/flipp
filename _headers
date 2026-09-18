@@ -5,7 +5,7 @@
 /js/*
   Cache-Control: public, max-age=31536000, immutable
 
-/assets/ogimage/ogimage.png
+/assets/ogimage/ogimage.avif
   Cache-Control: public, max-age=2592000
 
 /favicon.png
