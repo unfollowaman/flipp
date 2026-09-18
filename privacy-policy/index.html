@@ -6,10 +6,10 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Privacy Policy | Privacy-First Online PDF Tools</title>
+    <title>Privacy Policy | Privacy-First Browser-Based PDF Tools</title>
     <meta
       name="description"
-      content="Flipp's Privacy Policy. Learn why your documents are safe with us. We process all files entirely inside your browser and never upload them to any server."
+      content="Flipp's Privacy Policy. Technical details on our zero-server, in-browser PDF processing architecture, document privacy, analytics, and security boundaries."
     />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://tryflipp.pages.dev/privacy-policy/" />
@@ -21,11 +21,11 @@
     <meta property="og:site_name" content="flipp" />
     <meta
       property="og:title"
-      content="Privacy Policy | Privacy-First Online PDF Tools"
+      content="Privacy Policy | Privacy-First Browser-Based PDF Tools"
     />
     <meta
       property="og:description"
-      content="Flipp's Privacy Policy. Learn why your documents are safe with us. We process all files entirely inside your browser and never upload them to any server."
+      content="Flipp's Privacy Policy. Technical details on our zero-server, in-browser PDF processing architecture, document privacy, analytics, and security boundaries."
     />
     <meta
       property="og:image"
@@ -42,11 +42,11 @@
     />
     <meta
       name="twitter:title"
-      content="Privacy Policy | Privacy-First Online PDF Tools"
+      content="Privacy Policy | Privacy-First Browser-Based PDF Tools"
     />
     <meta
       name="twitter:description"
-      content="Flipp's Privacy Policy. Learn why your documents are safe with us. We process all files entirely inside your browser and never upload them to any server."
+      content="Flipp's Privacy Policy. Technical details on our zero-server, in-browser PDF processing architecture, document privacy, analytics, and security boundaries."
     />
     <meta
       name="twitter:image"
@@ -78,214 +78,481 @@
       <div class="section-inner">
         <section class="tool-content-section" style="margin-top: 0">
           <p class="blog-post-date" style="margin-bottom: 8px">
-            Last Updated: October 26, 2024
+            LAST UPDATED: MAY 14, 2026
           </p>
           <h1 class="tcs-headline">Privacy Policy</h1>
 
           <article>
+            <p class="tcs-body" style="font-size: 16px; margin-bottom: 16px">
+              Flipp is a browser-based file and PDF processing platform designed around a simple principle: your documents should not need to leave your device merely because you want to convert, merge, compress, split, protect, unlock, sign, or otherwise modify them.
+            </p>
+            <p class="tcs-body" style="font-size: 16px; margin-bottom: 24px">
+              This Privacy Policy explains what information Flipp handles, what happens to documents when you use our tools, what information may be collected by website infrastructure or analytics services, and the technical limitations you should understand before using the service.
+            </p>
+
+            <!-- Visual Processing Flow Diagram -->
+            <div class="privacy-flow-wrapper">
+              <h2 class="privacy-flow-title">How Your PDF Stays Private</h2>
+              <div class="privacy-flow-steps">
+                <div class="privacy-flow-step">
+                  <div class="privacy-flow-step-num">Step 1</div>
+                  <div class="privacy-flow-step-label">Select File</div>
+                </div>
+                <div class="privacy-flow-arrow" aria-hidden="true">→</div>
+                <div class="privacy-flow-step">
+                  <div class="privacy-flow-step-num">Step 2</div>
+                  <div class="privacy-flow-step-label">Browser Reads File</div>
+                </div>
+                <div class="privacy-flow-arrow" aria-hidden="true">→</div>
+                <div class="privacy-flow-step">
+                  <div class="privacy-flow-step-num">Step 3</div>
+                  <div class="privacy-flow-step-label">Flipp Processes File Locally</div>
+                </div>
+                <div class="privacy-flow-arrow" aria-hidden="true">→</div>
+                <div class="privacy-flow-step">
+                  <div class="privacy-flow-step-num">Step 4</div>
+                  <div class="privacy-flow-step-label">Result Generated Locally</div>
+                </div>
+                <div class="privacy-flow-arrow" aria-hidden="true">→</div>
+                <div class="privacy-flow-step">
+                  <div class="privacy-flow-step-num">Step 5</div>
+                  <div class="privacy-flow-step-label">Download to Your Device</div>
+                </div>
+              </div>
+              <div class="privacy-flow-banner">
+                Your PDF does not need to travel to a Flipp processing server.
+              </div>
+            </div>
+
+            <!-- What Flipp Never Needs to Do -->
+            <div class="privacy-never-card">
+              <h2 class="privacy-never-title">What Flipp Never Needs to Do</h2>
+              <ul class="privacy-never-list">
+                <li>Upload your PDF to a processing backend</li>
+                <li>Maintain a server-side copy of your document</li>
+                <li>Put your PDF into a remote processing queue</li>
+                <li>Download your PDF from a remote processing server after conversion</li>
+                <li>Create an account just to use core PDF tools</li>
+              </ul>
+            </div>
+
+            <!-- Important Security Limitations Callout -->
+            <div class="privacy-warning-box">
+              <div class="privacy-warning-icon" aria-hidden="true">⚠️</div>
+              <div>
+                <h2 class="privacy-warning-title">Important Security Limitations</h2>
+                <p class="privacy-warning-body">
+                  <strong>Local processing improves document privacy, but it is not a substitute for device security.</strong><br />
+                  Flipp cannot protect documents from malware, compromised browsers, malicious browser extensions, insecure devices, screenshots, screen-recording software, or other software that already has access to your computer.
+                </p>
+              </div>
+            </div>
+
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Our Privacy-First Philosophy
+              Our Privacy-First Architecture
             </h2>
             <p class="tcs-body">
-              At Flipp, our core architectural principle is simple:
-              <strong
-                >all document processing happens entirely inside your
-                browser.</strong
-              >
-              Your privacy is not an afterthought; it is built into the
-              fundamental design of our tools.
+              Flipp is designed around <strong>client-side processing</strong>.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              When you use one of Flipp's supported file tools, the intended processing flow is:
+            </p>
+            <p class="tcs-body" style="font-weight: 700; background: var(--cream); padding: 12px 16px; border: var(--border-std); border-radius: var(--radius-sm); margin: 12px 0;">
+              Your file → Your browser → Processing on your device → Generated result → Your device
             </p>
             <p class="tcs-body">
-              Because your documents never leave your device, we cannot see,
-              store, or share them.
+              rather than:
+            </p>
+            <p class="tcs-body" style="font-weight: 700; background: #f0f0f0; padding: 12px 16px; border: 1px solid #ccc; border-radius: var(--radius-sm); margin: 12px 0; color: #666;">
+              Your file → Upload → Remote server → Processing → Download
+            </p>
+            <p class="tcs-body">
+              This distinction is important. Flipp's core file-processing architecture does not require your PDF or other input document to be uploaded to a Flipp application server for processing. The processing logic runs inside your web browser using JavaScript and browser APIs.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              This architecture is also reflected in the way Flipp's tools are implemented: PDF parsing, rendering, manipulation, compression, bundling, OCR, and PDF generation are performed using browser-side code and libraries. Because the document-processing work happens locally, Flipp does not need to maintain a central copy of your documents in order to provide the core conversion functionality.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Local Processing of Files
+              What Happens When You Select a File?
             </h2>
             <p class="tcs-body">
-              When you use Flipp to merge, split, convert, or otherwise
-              manipulate a PDF file, the work is performed by your computer or
-              mobile device.
+              When you select or drag a file into a Flipp tool, your browser gives the webpage access to that file through the browser's local file-handling mechanisms. Flipp can then read the file in your browser and perform the requested operation locally.
             </p>
-            <ul
-              class="tcs-body"
-              style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px"
-            >
-              <li style="margin-bottom: 8px">
-                <strong>PDFs are processed locally:</strong> We use JavaScript
-                running directly in your web browser.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>Documents never leave your device:</strong> Your files
-                are never uploaded to any server or cloud service.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>We cannot view your documents:</strong> Because no file
-                is uploaded, Flipp has absolutely zero access to your document's
-                contents.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>No content is stored:</strong> We do not keep any
-                backups, logs, or copies of the files you process.
-              </li>
+            <p class="tcs-body" style="margin-top: 12px">
+              For example:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 8px"><strong>PDF → PNG</strong> reads and renders PDF pages in your browser.</li>
+              <li style="margin-bottom: 8px"><strong>Images → PDF</strong> reads selected images and constructs a PDF in your browser.</li>
+              <li style="margin-bottom: 8px"><strong>Merge PDF</strong> reads multiple PDFs and combines them locally.</li>
+              <li style="margin-bottom: 8px"><strong>Split PDF</strong> reads the selected document and creates the requested output locally.</li>
+              <li style="margin-bottom: 8px"><strong>Compress PDF</strong> processes the document locally according to the selected compression method.</li>
+              <li style="margin-bottom: 8px"><strong>Add Page Numbers</strong> modifies the document locally.</li>
+              <li style="margin-bottom: 8px"><strong>Protect PDF</strong> applies the supported protection operation locally.</li>
+              <li style="margin-bottom: 8px"><strong>Unlock PDF</strong> processes supported password/restriction removal locally.</li>
+              <li style="margin-bottom: 8px"><strong>PDF → Text</strong> extracts text locally where supported.</li>
+              <li style="margin-bottom: 8px"><strong>Text → PDF</strong> generates a PDF locally.</li>
+              <li style="margin-bottom: 8px"><strong>Watermarking, signing, rearranging, and similar operations</strong> are likewise performed in the browser.</li>
             </ul>
+            <p class="tcs-body">
+              The exact capabilities and limitations can vary by tool and by the PDF itself.
+            </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Information We Collect
+              Your Files Are Not Uploaded for Core Processing
             </h2>
             <p class="tcs-body">
-              Because you do not need an account to use our core PDF tools, we
-              collect very little information.
+              Flipp's core PDF tools are designed so that the files you select remain on your device during processing. Your document is not intentionally transmitted to a Flipp processing server merely because you selected it in one of our tools.
             </p>
-            <ul
-              class="tcs-body"
-              style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px"
-            >
-              <li style="margin-bottom: 8px">
-                <strong>Website Analytics:</strong> We use Google Analytics to
-                understand basic, anonymous usage patterns (such as which tool
-                is most popular or what region our traffic comes from). This
-                helps us improve the website.
-              </li>
+            <p class="tcs-body" style="margin-top: 12px">
+              This means there is no normal Flipp workflow in which:
+            </p>
+            <ol class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 6px">you select a PDF,</li>
+              <li style="margin-bottom: 6px">Flipp uploads that PDF to a backend,</li>
+              <li style="margin-bottom: 6px">a remote server processes it,</li>
+              <li style="margin-bottom: 6px">the server stores the result, and</li>
+              <li style="margin-bottom: 6px">you download the processed document.</li>
+            </ol>
+            <p class="tcs-body">
+              Instead, processing takes place within your browser. This architecture significantly reduces the amount of sensitive document data that needs to leave your device.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              What Flipp Can and Cannot See
+            </h2>
+            <p class="tcs-body">
+              Because core document processing occurs locally, Flipp's application does not normally receive the contents of the files you process through those tools. This means Flipp is not designed to inspect, index, read, or maintain a server-side copy of the text, images, signatures, or other document content contained in your PDF.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              However, this should not be interpreted as a promise that your entire interaction with the website is invisible to every third party. Website hosting, analytics, security infrastructure, your browser, your operating system, and your network provider can operate independently of Flipp's document-processing code. This distinction is why this policy separates <strong>document data</strong> from <strong>website usage data</strong>.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Document Data vs. Website Usage Data
+            </h2>
+            <p class="tcs-body">
+              These are two different categories of information:
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              <strong>Document data</strong> includes information contained inside files you select, such as:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 8px; margin-bottom: 16px">
+              <li style="margin-bottom: 6px">PDF text</li>
+              <li style="margin-bottom: 6px">photographs and scanned pages</li>
+              <li style="margin-bottom: 6px">names appearing inside documents</li>
+              <li style="margin-bottom: 6px">signatures</li>
+              <li style="margin-bottom: 6px">metadata contained in files</li>
+              <li style="margin-bottom: 6px">other information embedded in the document</li>
             </ul>
+            <p class="tcs-body">
+              Flipp's client-side architecture is designed to keep this information on your device during core processing.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              <strong>Website usage data</strong> is information associated with interacting with a website, such as browser/device information, pages visited, approximate geographic information, referral information, or technical request information, depending on the services currently enabled on the website. Website usage data should not be confused with the contents of a PDF.
+            </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Information We Do Not Collect
+              No Flipp Document Storage
             </h2>
             <p class="tcs-body">
-              To be perfectly clear about what we do not have access to:
+              Flipp does not maintain a document-storage system for files processed through its core browser-based tools. There is therefore no Flipp document library where your processed PDFs are retained for later retrieval.
             </p>
-            <ul
-              class="tcs-body"
-              style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px"
-            >
-              <li style="margin-bottom: 8px">
-                <strong>Document contents:</strong> Your PDFs, images, text, and
-                signatures remain on your device.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>Personal Information:</strong> We do not collect your
-                name, email address, physical address, or phone number since
-                there are no accounts.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>Payment Information:</strong> Our core tools are free,
-                and we do not process payments.
-              </li>
+            <p class="tcs-body" style="margin-top: 12px">
+              Generated files are made available to you through your browser so that you can save them to your device. Once you have saved a generated document, that copy is controlled by your device and operating system rather than by Flipp. Flipp cannot retrieve a file from your Downloads folder simply because it was previously generated using the website.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Temporary Browser Memory
+            </h2>
+            <p class="tcs-body">
+              Client-side processing does not mean that a file exists nowhere. Your browser must temporarily hold and process file data in memory while an operation is running. Depending on the tool, a browser may also use temporary browser-managed resources while reading, rendering, generating, or manipulating a document. This is necessary for local processing.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Flipp does not treat this temporary browser memory as permanent document storage. Users should nevertheless understand that browser memory is part of their local computing environment. The operating system, browser, extensions, malware, screen-recording software, or other software already present on a device can potentially access information on that device. Flipp cannot protect a device from threats that exist outside Flipp's application.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Browser Storage
+            </h2>
+            <p class="tcs-body">
+              Some web applications may use browser-managed storage or memory for technical reasons. Where Flipp uses browser storage, that storage is controlled by the browser on your device rather than by a Flipp document-storage server.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Browser storage can generally be cleared through your browser's controls, and its lifetime depends on the specific storage mechanism and browser behavior. Flipp does not use browser storage as a replacement for a remote document-storage system.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Downloaded Files
+            </h2>
+            <p class="tcs-body">
+              When Flipp finishes processing a document, the resulting file is delivered to your browser for you to save. The downloaded copy becomes a file on your device. Flipp does not control what happens to that copy after it has been downloaded.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              If a document contains sensitive information, you are responsible for protecting the resulting file using appropriate device security, filesystem permissions, encryption, password protection, or other measures available on your device.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Network Requests and Website Infrastructure
+            </h2>
+            <p class="tcs-body">
+              "Client-side processing" specifically describes the processing of your files. It does not mean that loading a website requires absolutely no network communication.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Your browser must retrieve the Flipp website and its JavaScript, CSS, fonts, libraries, images, and other resources before the application can run. The website may also communicate with infrastructure used to host, deliver, secure, analyze, or otherwise operate the website. These website-level requests are separate from uploading your PDF for remote processing. Flipp's architecture is intentionally designed so that downloading the application and processing your document are separate operations.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Hosting and Cloudflare
+            </h2>
+            <p class="tcs-body">
+              Flipp is deployed using static web hosting infrastructure (such as Cloudflare Pages).
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Hosting infrastructure is responsible for delivering the website's static files to your browser. It is not used as the processing environment for the PDFs handled by Flipp's core tools. Hosting providers may necessarily process technical request information associated with serving a website, such as IP addresses, timestamps, browser information, requested resources, and security-related information, according to their own infrastructure and privacy practices.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              The hosting provider's ability to deliver Flipp's website should not be interpreted as the hosting provider receiving the contents of every PDF that you process.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Analytics
+            </h2>
+            <p class="tcs-body">
+              Flipp may use website analytics to understand how the website is used and which features are useful.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              When analytics services are enabled, they can provide information such as:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 8px; margin-bottom: 16px">
+              <li style="margin-bottom: 6px">pages visited</li>
+              <li style="margin-bottom: 6px">interactions with the website</li>
+              <li style="margin-bottom: 6px">approximate geographic information</li>
+              <li style="margin-bottom: 6px">browser/device characteristics</li>
+              <li style="margin-bottom: 6px">traffic sources</li>
+              <li style="margin-bottom: 6px">general usage patterns</li>
             </ul>
-
-            <h2 class="tcs-subheadline" style="margin-top: 40px">Cookies</h2>
             <p class="tcs-body">
-              We use cookies to enable website analytics (via Google Analytics).
-              These cookies assign a unique, anonymous identifier to your
-              browser to help us track page views and interactions. We do not
-              use cookies for advertising or selling your data.
+              Analytics are configured so that document contents are not intentionally sent as analytics data. Flipp does not use analytics as a mechanism for uploading PDF contents for processing. In the current implementation of this website, no third-party tracking scripts or web analytics trackers are embedded in the application code. If analytics providers or their configuration change in the future, this section will be updated accordingly.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Local Browser Storage
+              Cookies
             </h2>
             <p class="tcs-body">
-              While you use our tools, some scripts may temporarily utilize your
-              browser's local storage or memory to hold files while they are
-              actively being processed. This storage is completely managed by
-              your browser locally on your device, and is typically cleared when
-              you close the tab or refresh the page.
+              Flipp may use cookies or similar browser technologies where required for website functionality, analytics, security, or other technical purposes.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Cookies or browser storage used for website operations do not contain the contents of the PDFs processed through Flipp's core tools. You can manage or delete cookies through your browser's privacy settings. Disabling certain cookies may affect some website functionality or analytics behavior.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Third-Party Services
+              Third-Party Libraries
             </h2>
             <p class="tcs-body">
-              We rely on a few trusted third-party providers for basic website
-              operations:
+              Flipp uses browser-side open-source libraries to provide PDF functionality. Depending on the tool, these include technologies such as:
             </p>
-            <ul
-              class="tcs-body"
-              style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px"
-            >
-              <li style="margin-bottom: 8px">
-                <strong>Hosting (Cloudflare Pages):</strong> Our website is
-                hosted on Cloudflare Pages. As is standard with almost all web
-                hosting, Cloudflare automatically generates server logs that may
-                capture basic connection data (like IP addresses, browser types,
-                and access times) to ensure the security and reliability of
-                their network.
-              </li>
-              <li style="margin-bottom: 8px">
-                <strong>Analytics (Google Analytics):</strong> Used strictly to
-                monitor anonymous site traffic.
-              </li>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 8px"><strong>PDF.js</strong> for PDF parsing and rendering</li>
+              <li style="margin-bottom: 8px"><strong>jsPDF</strong> for PDF generation</li>
+              <li style="margin-bottom: 8px"><strong>PDF-lib</strong> for PDF manipulation</li>
+              <li style="margin-bottom: 8px"><strong>JSZip</strong> for creating ZIP archives</li>
+              <li style="margin-bottom: 8px"><strong>Tesseract.js</strong> for OCR/text recognition</li>
+              <li style="margin-bottom: 8px"><strong>SignaturePad</strong> for visual signature drawing inputs</li>
             </ul>
+            <p class="tcs-body">
+              These libraries execute as part of the browser application. Using a third-party open-source library does not automatically mean that your PDF is uploaded to that library's developer or organization. In Flipp's client-side architecture, the library code operates locally against the file data supplied to it by your browser.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              PDF Passwords, Protection, and Unlocking
+            </h2>
+            <p class="tcs-body">
+              Some Flipp tools interact with password-protected or restricted PDFs. These operations are particularly sensitive, so the same client-side architecture applies: supported password and PDF-protection operations are performed in your browser rather than by sending the document to a remote processing server.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              When a PDF requires an opening password, that password is supplied by you to the local browser application for the operation. Flipp does not need to receive the password on a backend server in order to perform supported client-side processing.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              We do not describe this security as military-grade, bank-grade, or unbreakable. PDF password protection itself also has technical limitations determined by the PDF format specification and the specific PDF library being used.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Digital Signatures
+            </h2>
+            <p class="tcs-body">
+              Flipp's Sign PDF functionality allows users to place a visual signature into a PDF.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              A visual signature inserted into a PDF should not automatically be described as a legally certified digital signature, cryptographic signature, electronic-signature service, or identity-verification service unless the implementation explicitly provides those capabilities. Users should distinguish between adding a visual signature to a document and using a certified digital-signature system.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Security Model
+            </h2>
+            <p class="tcs-body">
+              Flipp's primary privacy/security advantage comes from minimizing data movement. If a sensitive PDF does not need to leave the device, there is no need for Flipp to maintain a server-side copy of that PDF merely to perform the conversion. This reduces an important category of risk: centralized document collection.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              However, no web application can guarantee absolute security. The security of a locally processed document also depends on:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 8px; margin-bottom: 16px">
+              <li style="margin-bottom: 6px">the security of the user's device</li>
+              <li style="margin-bottom: 6px">the user's operating system</li>
+              <li style="margin-bottom: 6px">browser security</li>
+              <li style="margin-bottom: 6px">installed browser extensions</li>
+              <li style="margin-bottom: 6px">malware or other malicious software</li>
+              <li style="margin-bottom: 6px">network security</li>
+              <li style="margin-bottom: 6px">the integrity of the website code delivered to the browser</li>
+              <li style="margin-bottom: 6px">the security of third-party infrastructure used to deliver the website</li>
+            </ul>
+            <p class="tcs-body">
+              Flipp's client-side architecture reduces unnecessary document transmission, but it does not make a compromised device or browser secure.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Why Local Processing Matters
+            </h2>
+            <p class="tcs-body">
+              Traditional online document converters commonly need to receive a document before they can process it. That creates an additional data-transfer step:
+            </p>
+            <p class="tcs-body" style="font-weight: 700; background: #f0f0f0; padding: 12px 16px; border: 1px solid #ccc; border-radius: var(--radius-sm); margin: 12px 0; color: #666;">
+              Device → Internet → Server → Processing → Internet → Device
+            </p>
+            <p class="tcs-body">
+              Flipp is designed around:
+            </p>
+            <p class="tcs-body" style="font-weight: 700; background: var(--cream); padding: 12px 16px; border: var(--border-std); border-radius: var(--radius-sm); margin: 12px 0;">
+              Device → Browser → Processing → Device
+            </p>
+            <p class="tcs-body">
+              Keeping processing local means sensitive documents such as personal records, academic documents, contracts, scanned IDs, forms, or business files do not need to be routinely transferred to a remote processing backend merely to perform a conversion. This is the core privacy principle behind Flipp.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              What We Do Not Collect Through Core PDF Processing
+            </h2>
+            <p class="tcs-body">
+              Flipp's core browser-based PDF processing is not designed to collect:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 8px">the contents of your PDFs</li>
+              <li style="margin-bottom: 8px">copies of your uploaded documents</li>
+              <li style="margin-bottom: 8px">generated PDF contents</li>
+              <li style="margin-bottom: 8px">document text for server-side processing</li>
+              <li style="margin-bottom: 8px">images contained in your documents</li>
+              <li style="margin-bottom: 8px">signatures contained in your documents</li>
+              <li style="margin-bottom: 8px">PDF passwords for server-side processing</li>
+            </ul>
+            <p class="tcs-body">
+              This list describes the document-processing architecture. It should not be interpreted as a guarantee that no technical information whatsoever is generated when visiting a website.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Information We May Collect
+            </h2>
+            <p class="tcs-body">
+              Depending on the features and services currently enabled on Flipp, we may receive limited website-related information such as:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 6px">technical request information</li>
+              <li style="margin-bottom: 6px">browser and device information</li>
+              <li style="margin-bottom: 6px">approximate geographic information</li>
+              <li style="margin-bottom: 6px">pages or features visited</li>
+              <li style="margin-bottom: 6px">referral/traffic information</li>
+              <li style="margin-bottom: 6px">analytics events</li>
+              <li style="margin-bottom: 6px">information voluntarily provided when contacting us</li>
+            </ul>
+            <p class="tcs-body">
+              We do not require an account for the core PDF-processing tools. If additional account-based or interactive features are introduced in the future, this Privacy Policy should be updated to explain what additional information those features require.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Information We Do Not Need
+            </h2>
+            <p class="tcs-body">
+              The core Flipp tools do not require users to create an account merely to process a PDF. Therefore, core processing does not require us to maintain a profile containing your:
+            </p>
+            <ul class="tcs-body" style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px">
+              <li style="margin-bottom: 6px">name</li>
+              <li style="margin-bottom: 6px">email address</li>
+              <li style="margin-bottom: 6px">phone number</li>
+              <li style="margin-bottom: 6px">home address</li>
+              <li style="margin-bottom: 6px">payment information</li>
+            </ul>
+            <p class="tcs-body">
+              unless you voluntarily provide such information through another part of the website or a future service that explicitly requires it.
+            </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
               Data Retention
             </h2>
             <p class="tcs-body">
-              Since we do not collect personal information or user files, there
-              is no user data for us to retain or delete. Analytics data is
-              aggregated and automatically anonymized or purged over time
-              according to Google's standard retention policies.
+              Flipp does not maintain a document-storage system for the files processed by its core browser tools. Because the core processing is performed locally, there is no normal server-side document-processing queue or document library from which Flipp needs to later delete your PDF.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Website analytics and infrastructure providers may retain technical or usage information according to their own retention policies. Those records are different from the contents of documents processed locally in your browser.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Data Security
+              Your Responsibility
             </h2>
             <p class="tcs-body">
-              The best security is not having the data in the first place. By
-              designing our entire architecture around client-side processing,
-              we eliminate the risk of a data breach exposing your sensitive
-              files. They simply never reach our servers.
+              Privacy is shared between the application and the device on which it runs.
             </p>
-
-            <h2 class="tcs-subheadline" style="margin-top: 40px">
-              International Users
-            </h2>
-            <p class="tcs-body">
-              Flipp can be accessed globally. Since your files never leave your
-              device, processing occurs in whatever jurisdiction you are
-              currently located. Our website hosting infrastructure is
-              distributed globally by Cloudflare.
+            <p class="tcs-body" style="margin-top: 12px">
+              If you process highly sensitive documents, use a trusted and up-to-date browser and operating system, keep your device secure, avoid untrusted browser extensions, and protect downloaded files appropriately. If your device is compromised, local processing cannot prevent malicious software that already has access to your device from reading information available to the browser or filesystem.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
               Children's Privacy
             </h2>
             <p class="tcs-body">
-              Flipp does not knowingly collect any personal information from
-              children under the age of 13. If you are a parent or guardian and
-              believe we have inadvertently collected information from a child,
-              please contact us.
+              Flipp's core tools are general-purpose file-processing tools and are not specifically directed at children. We do not intentionally request personal information from children through the core PDF-processing workflow.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              If you believe a child has provided personal information through Flipp, contact us so the situation can be reviewed.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Your Rights
+              International Users
             </h2>
             <p class="tcs-body">
-              Because we do not collect personal information or store user
-              accounts, the traditional requests to "delete my account" or "send
-              me my data" do not apply. However, you can manage analytics
-              cookies at any time through your browser's privacy settings.
+              Flipp can be accessed from different countries. Because core document processing occurs in your browser, the document-processing operation itself is designed not to require transferring your document to a Flipp processing server in another country.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              Website hosting, security, analytics, and other infrastructure may operate across different locations depending on the providers and services currently used by Flipp. Users should consider the laws and requirements applicable to them when processing particularly sensitive documents.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Policy Updates
+              Your Privacy Rights
             </h2>
             <p class="tcs-body">
-              We may update this Privacy Policy from time to time to reflect
-              changes in our tools or website infrastructure. When we do, we
-              will revise the "Last Updated" date at the top of this page. We
-              encourage you to review this policy periodically.
+              Because Flipp does not maintain user accounts or a server-side library of documents for its core tools, traditional requests such as "delete my stored PDF" may not apply to documents that were processed entirely in your browser.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              You control local copies of documents through your device and browser. Where Flipp or a third-party service does process website-related personal information, applicable privacy rights may depend on the nature of the information, the service involved, and the laws applicable to you.
             </p>
 
             <h2 class="tcs-subheadline" style="margin-top: 40px">
-              Contact Information
+              Changes to This Privacy Policy
             </h2>
             <p class="tcs-body">
-              If you have any questions or concerns about this Privacy Policy or
-              our client-side processing architecture, you can contact us via
-              the Flipp project repository.
+              Flipp may update this Privacy Policy when its tools, infrastructure, analytics configuration, or other relevant practices change. When material changes are made, the "Last Updated" date at the beginning of this page will be updated.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              We encourage users to review this page periodically, particularly before processing highly sensitive documents.
+            </p>
+
+            <h2 class="tcs-subheadline" style="margin-top: 40px">
+              Contact
+            </h2>
+            <p class="tcs-body">
+              If you have questions about this Privacy Policy, Flipp's client-side processing architecture, document handling, or privacy practices, contact us through the contact method provided on the Flipp website or repository.
+            </p>
+            <p class="tcs-body" style="margin-top: 12px">
+              If you believe you have identified a security or privacy issue, please report it responsibly so that it can be investigated.
             </p>
           </article>
         </section>
@@ -370,6 +637,6 @@
         </a>
       </div>
     </footer>
-      <script src="../js/header-nav.js" defer></script>
+    <script src="../js/header-nav.js" defer></script>
   </body>
 </html>
