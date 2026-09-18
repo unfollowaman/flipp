@@ -4,6 +4,7 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-18: PDF Editor Workspace & Annotation Pipeline (`js/pdf-editor.js`, `tools/edit-pdf/index.html`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
@@ -37,6 +38,39 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-18 — PDF Editor Workspace & Annotation Pipeline (`PDF Editor`)
+
+Status: PASS
+
+Scope:
+- In-browser PDF editing workspace (`tools/edit-pdf/index.html` & `js/pdf-editor.js`)
+- Coordinate transformation matrix (`domToPdfCoords`), interactive tool overlay rendering, and Undo/Redo stack management
+- Export pipeline using `pdf-lib` (embedding fonts, text, highlights, images, signatures, and vector drawing/shape overlays)
+- Zero-server privacy compliance, file sanitization, and object URL lifecycle management
+- Test coverage (`tests/pdf-editor.test.js`, `tests/pdf_editor_a11y.test.js`)
+
+Evidence:
+- Executed unit and accessibility tests: `node --test tests/pdf-editor.test.js tests/pdf_editor_a11y.test.js` passed 23/23 subtests cleanly.
+- Inspected source code in `js/pdf-editor.js` and `tools/edit-pdf/index.html`.
+- Verified coordinate mapping (`domToPdfCoords`) converting top-left DOM overlay space to bottom-left native PDF points.
+- Confirmed zero network calls / external API transmissions during editing, rendering, and export.
+- Verified object URL cleanup on reset or regeneration (`URL.revokeObjectURL(currentDownloadUrl)`).
+
+Findings:
+1. **Interactive Workspace & Overlay:** Tool switching, property bar controls, page scroll sync, drag-and-drop file loading, zoom scaling, and drawing path normalization function correctly.
+2. **Export Engine:** Client-side export via `pdf-lib` correctly embeds standard fonts, handles multi-page annotations, scales text/lines relative to page viewport metrics, and flattens draw/shape overlays via temporary high-DPI canvases without modifying original file sources.
+3. **Privacy & Memory:** Files stay 100% local. Object URLs are properly revoked upon resetting or creating new export downloads. Filename downloads sanitize backslashes and slashes.
+4. **Accessibility:** Toolbar buttons, signature modal controls, and page navigation controls include required ARIA labels and roles.
+
+Follow-up:
+- Re-audit PDF Editor if additional annotation types (e.g., freehand eraser, text box rotation) are added to `js/pdf-editor.js`.
+
+Relevant files:
+- `js/pdf-editor.js`
+- `tools/edit-pdf/index.html`
+- `tests/pdf-editor.test.js`
+- `tests/pdf_editor_a11y.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
