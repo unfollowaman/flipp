@@ -5,3 +5,7 @@
 ## 2026-09-16 - FAQ Accordion Aria Controls Association
 **Learning:** Accordion toggle buttons that update `aria-expanded` require an `aria-controls` attribute pointing to the ID of the collapsible panel so screen readers can associate the trigger with the content region.
 **Action:** Automatically generate unique panel IDs and set `aria-controls` during script initialization if explicit IDs are absent on accordion elements.
+
+## 2026-09-19 - Toolbar Toggle Button Aria Pressed Sync
+**Learning:** Stateful tool selection and formatting toggle buttons inside application toolbars require `aria-pressed` attributes ("true"/"false") synchronized dynamically alongside CSS `.active` classes so screen readers announce active tool states.
+**Action:** Include `role="toolbar"` and `aria-label` on toolbar containers, initialize `aria-pressed` on toggle buttons, and update `aria-pressed` in event listeners and reset routines.
