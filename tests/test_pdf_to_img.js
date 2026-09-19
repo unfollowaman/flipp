@@ -130,6 +130,49 @@ describe('pdf-to-img format and resolution handling', () => {
     assert.strictEqual(fillRectCalled, true, 'JPG canvas should fill white background');
   });
 
+  test('renderPageToCanvas skips toDataURL when generateDataUrl is false', async () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const fnMatch = code.match(/async function renderPageToCanvas\([\s\S]*?\n\}/);
+    assert.ok(fnMatch, 'renderPageToCanvas function found');
+
+    let toDataUrlCalled = false;
+
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: () => ({
+        fillStyle: '',
+        fillRect: () => {},
+      }),
+      toDataURL: () => {
+        toDataUrlCalled = true;
+        return 'data:image/png;base64,mockdata';
+      },
+    };
+
+    const mockDocument = {
+      createElement: (tag) => {
+        if (tag === 'canvas') return mockCanvas;
+        return {};
+      },
+    };
+
+    const mockPage = {
+      getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+      render: () => ({ promise: Promise.resolve() }),
+    };
+
+    const renderPageToCanvas = new Function('document', `
+      ${fnMatch[0]}
+      return renderPageToCanvas;
+    `)(mockDocument);
+
+    const result = await renderPageToCanvas(mockPage, 0.3, 'png', false);
+    assert.strictEqual(result.dataUrl, null);
+    assert.strictEqual(result.canvas, mockCanvas);
+    assert.strictEqual(toDataUrlCalled, false, 'toDataURL should not be called when generateDataUrl is false');
+  });
+
   test('generates correct file extensions for result cards and zip downloads', () => {
     const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
     assert.ok(code.includes('const ext = imageFormat === "jpg" ? "jpg" : "png";'), 'Handles dynamic file extension');
