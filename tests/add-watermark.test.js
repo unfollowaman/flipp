@@ -12,7 +12,7 @@ src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 
 // Expose functions for testing
-src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas };\n';
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas, renderPagePreview, handleFile, resetApp };\n';
 
 function createMockDocument() {
   const elements = {};
@@ -42,6 +42,7 @@ function createMockDocument() {
         measureText: () => ({ width: 100 }),
         strokeRect: () => {},
         fillRect: () => {},
+        clearRect: () => {},
         setLineDash: () => {},
       })
     };
@@ -393,5 +394,77 @@ test('drawWatermarkOnCanvas functionality', async (t) => {
     // customX: 0.25 * 800 = 200, customY: 0.75 * 600 = 450
     const textTranslate = translateCoords.find(c => c.x === 200 && c.y === 450);
     assert.ok(textTranslate, 'Expected text to translate to custom coordinates (200, 450)');
+  });
+});
+
+test('add-watermark resource cleanup', async (t) => {
+  const mockDocument = createMockDocument();
+  let cleanupCalled = false;
+  let destroyCount = 0;
+
+  const mockPage = {
+    getViewport: () => ({ width: 800, height: 600 }),
+    render: () => ({ promise: Promise.resolve() }),
+    cleanup: () => { cleanupCalled = true; },
+  };
+
+  const mockPdfDoc = {
+    numPages: 5,
+    getPage: async () => mockPage,
+    destroy: async () => { destroyCount++; },
+  };
+
+  const mockWindow = {
+    'pdfjs-dist/build/pdf': {
+      getDocument: () => ({
+        promise: Promise.resolve(mockPdfDoc),
+      }),
+    },
+  };
+
+  const mockInitDropZone = () => {};
+  const mockShowToast = () => {};
+  const mockSetProgress = () => {};
+  const mockActivatePill = () => {};
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
+  const exports = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+
+  await t.test('renderPagePreview calls page.cleanup', async () => {
+    // Populate currentPdfDoc via handleFile
+    const mockFile = {
+      name: 'test.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    };
+
+    cleanupCalled = false;
+    await exports.handleFile([mockFile]);
+    assert.strictEqual(cleanupCalled, true, 'page.cleanup() should be called during page render');
+  });
+
+  await t.test('handleFile and resetApp destroy existing pdfDoc', async () => {
+    await exports.resetApp();
+    destroyCount = 0;
+
+    const mockFile1 = {
+      name: 'doc1.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    };
+    const mockFile2 = {
+      name: 'doc2.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    };
+
+    await exports.handleFile([mockFile1]);
+    assert.strictEqual(destroyCount, 0, 'First handleFile should not destroy as no prior doc existed');
+
+    await exports.handleFile([mockFile2]);
+    assert.strictEqual(destroyCount, 1, 'Second handleFile should destroy existing pdfDoc');
+
+    await exports.resetApp();
+    assert.strictEqual(destroyCount, 2, 'resetApp should destroy existing pdfDoc');
   });
 });

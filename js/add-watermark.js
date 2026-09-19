@@ -209,6 +209,12 @@ async function handleFile(files) {
   fileInfo.textContent = `Loading ${fileName}...`;
 
   try {
+    if (currentPdfDoc && typeof currentPdfDoc.destroy === "function") {
+      try {
+        await currentPdfDoc.destroy();
+      } catch (_) {}
+      currentPdfDoc = null;
+    }
     currentPdfBuffer = await file.arrayBuffer();
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
     currentPdfDoc = await pdfjsLib.getDocument({
@@ -255,12 +261,18 @@ async function renderPagePreview(pageNum) {
   try {
     loadingOverlay.style.display = "flex";
     const page = await currentPdfDoc.getPage(pageNum);
-    const viewport = page.getViewport({ scale: 1.5 });
+    try {
+      const viewport = page.getViewport({ scale: 1.5 });
 
-    previewCanvas.width = viewport.width;
-    previewCanvas.height = viewport.height;
+      previewCanvas.width = viewport.width;
+      previewCanvas.height = viewport.height;
 
-    await renderPreviewForPage(page, viewport);
+      await renderPreviewForPage(page, viewport);
+    } finally {
+      if (page && typeof page.cleanup === "function") {
+        page.cleanup();
+      }
+    }
   } catch (err) {
     console.error("Error rendering page", err);
   } finally {
@@ -968,7 +980,12 @@ downloadBtn.addEventListener("click", () => {
 
 resetBtn.addEventListener("click", resetApp);
 
-function resetApp() {
+async function resetApp() {
+  if (currentPdfDoc && typeof currentPdfDoc.destroy === "function") {
+    try {
+      await currentPdfDoc.destroy();
+    } catch (_) {}
+  }
   currentPdfBuffer = null;
   currentPdfDoc = null;
   processedPdfBytes = null;
