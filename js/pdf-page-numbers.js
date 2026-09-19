@@ -14,6 +14,24 @@ const positionEl = document.getElementById("number-page-position");
 let sourceFile = null;
 let outputBytes = null;
 let position = "bottom-right";
+let cachedFontBytesPromise = null;
+
+function getFontBytes() {
+  if (!cachedFontBytesPromise) {
+    const fontUrl =
+      "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff";
+    cachedFontBytesPromise = fetch(fontUrl)
+      .then((fontResponse) => {
+        if (!fontResponse.ok) throw new Error("Could not load font");
+        return fontResponse.arrayBuffer();
+      })
+      .catch((err) => {
+        cachedFontBytesPromise = null;
+        throw err;
+      });
+  }
+  return cachedFontBytesPromise;
+}
 
 function onFiles(files) {
   const file = files[0];
@@ -47,13 +65,9 @@ addBtn.addEventListener("click", async () => {
     const pdfDoc = await pdfLib.PDFDocument.load(bytes, { ignoreEncryption: true });
     pdfDoc.registerFontkit(window.fontkit);
 
-    // Fetch IBM Plex Serif font (.woff format since pdf-lib does not support woff2 out of the box)
-    const fontUrl =
-      "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff";
-    const fontResponse = await fetch(fontUrl);
-    if (!fontResponse.ok) throw new Error("Could not load font");
-    const fontBytes = await fontResponse.arrayBuffer();
-    const font = await pdfDoc.embedFont(fontBytes);
+    // Fetch or reuse cached IBM Plex Serif font (.woff format)
+    const fontBytes = await getFontBytes();
+    const font = await pdfDoc.embedFont(fontBytes.slice(0));
 
     const pages = pdfDoc.getPages();
     const start = Math.max(1, parseInt(startPageInput.value, 10) || 1);

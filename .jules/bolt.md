@@ -13,3 +13,7 @@
 ## 2026-09-16 - Discard superseded preview renders and debounce range inputs in interactive PDF tools
 **Learning:** In interactive PDF tools (such as PDF Split range inputs), rapid user keystrokes fire consecutive async `pdfDocument.getPage()` and `page.render()` tasks. Without request tracking per container, outdated render promises run in parallel on detached DOM nodes, creating UI race conditions and heavy worker thread contention.
 **Action:** Track active request IDs per target container in a `Map`, debounce user input handlers, and check `activeRenderTasks.get(container) === currentRequestId` after fetching pages before proceeding to canvas creation and `page.render()`.
+
+## 2026-09-17 - Cache external font ArrayBuffers in memory for client-side PDF document generation
+**Learning:** In client-side PDF document processing (such as `js/pdf-page-numbers.js`), fetching custom font assets (like `.woff` files) over the network on every user action creates unnecessary network latency and bandwidth overhead on repeated operations.
+**Action:** Cache the font fetch `ArrayBuffer` promise in memory across executions (resetting on fetch failure), and pass a cloned `ArrayBuffer` slice (`fontBytes.slice(0)`) to `pdfDoc.embedFont()` to eliminate repeated network fetches while protecting against buffer detachment.
