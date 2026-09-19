@@ -4,6 +4,7 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-19: PDF to Word Converter (`js/pdf-to-word.js`, `tools/pdf-to-word/index.html`, `tests/pdf-to-word.test.js`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
@@ -37,6 +38,35 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-19 — PDF to Word Converter (`pdf-to-word`)
+
+Status: PASS
+
+Scope:
+- In-browser PDF to DOCX layout parsing and conversion (`js/pdf-to-word.js`)
+- HTML tool structure, CDN dependency security, accessibility (`tools/pdf-to-word/index.html`)
+- Unit and integration test suite (`tests/pdf-to-word.test.js`)
+- Zero-server privacy compliance and resource lifecycle management
+
+Evidence:
+- Executed component unit test suite: `node --test tests/pdf-to-word.test.js` (12/12 subtests passed in ~740ms).
+- Direct code inspection of `js/pdf-to-word.js` for text coordinate transformation, column detection, heading detection, table detection, OCR integration, and DOCX generation.
+- Direct code inspection of `tools/pdf-to-word/index.html` for script imports, Subresource Integrity (SRI) hashes, and schema metadata.
+
+Findings:
+1. **Zero-Server Privacy Compliance:** Document parsing and OOXML (`.docx`) file packing take place entirely client-side. No PDF bytes or extracted text items are sent over the network.
+2. **Resource & Memory Lifecycle:** Page objects invoke `page.cleanup()` in `finally` blocks during `processPdfPage`. PDF document objects invoke `pdfDoc.destroy()` in `startConversion`'s `finally` block. OCR workers are terminated after processing, and temporary canvas elements have their dimensions zeroed (`width = 0; height = 0;`).
+3. **Password Protection Handling:** Protected PDFs trigger a graceful password exception check, returning user-friendly error toasts and restoring UI drop zones without unhandled promise rejections.
+4. **Third-Party CDN Security:** External library scripts (`tesseract.js` and `docx`) in `tools/pdf-to-word/index.html` include valid `integrity` (SRI) and `crossorigin="anonymous"` attributes.
+
+Follow-up:
+- Re-audit `js/pdf-to-word.js` when multi-table or complex vector graphic extraction features are enhanced.
+
+Relevant files:
+- `js/pdf-to-word.js`
+- `tools/pdf-to-word/index.html`
+- `tests/pdf-to-word.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
