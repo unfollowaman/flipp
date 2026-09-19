@@ -120,6 +120,7 @@
           can access it, how long it's stored, and whether it's scanned for data
           extraction.
         </p>
+        <div class="pull-quote">"Once your file is on their server, you lose control over who can access it, how long it's stored, and whether it's scanned for data extraction."</div>
         <h2>What Server-Side Processing Actually Means</h2>
         <p>
           When you hit "Upload," your document travels across the internet to a
@@ -130,6 +131,28 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">CODE TRANSPARENCY: CLOSED PROPRIETARY VS. AUDITABLE OPEN SOURCE</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Proprietary Closed Source</div>
+              <div class="fc-step">1. Vendor executes obfuscated code on undisclosed cloud servers</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Hidden logging or data extraction cannot be inspected</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Privacy dependent on unverified marketing assertions</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Transparent Open Source</div>
+              <div class="fc-step">1. Built on peer-reviewed pdf-lib and PDF.js open-source libraries</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Public client code runs verifiably inside your browser sandbox</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Inspect source repository on GitHub at github.com/unfollowaman/flipp</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -226,51 +249,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a
-              class="tool-card"
-              href="../../blog/remove-password-protection-pdf-locally/"
-            >
+            <a class="tool-card blog-card" href="../../blog/remove-password-protection-pdf-locally/">
+              <div class="blog-card-icon" style="background: var(--pink)">🔓</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Remove Password Protection from a PDF Without Uploading
-                  It Anywhere
-                </div>
-                <div class="tool-card-desc">
-                  A practical guide to removing passwords from locked bank
-                  statements and documents directly on your device.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Remove Password Protection from a PDF Without Uploading It Anywhere<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">A practical guide to removing passwords from locked bank statements and documents directly on your device.</div>
               </div>
             </a>
 
-            <a
-              class="tool-card"
-              href="../../blog/merge-confidential-pdf-documents-browser/"
-            >
+            <a class="tool-card blog-card" href="../../blog/merge-confidential-pdf-documents-browser/">
+              <div class="blog-card-icon" style="background: var(--sky-blue)">🔗</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Merge Confidential PDF Documents Without Leaving Your
-                  Browser
-                </div>
-                <div class="tool-card-desc">
-                  Learn how to merge sensitive PDF files securely on your device
-                  without uploading them to remote servers.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--sky-blue)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Merge Confidential PDF Documents Without Leaving Your Browser<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Learn how to merge sensitive PDF files securely on your device without uploading them to remote servers.</div>
               </div>
             </a>
           </div>

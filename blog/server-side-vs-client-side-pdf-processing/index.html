@@ -124,6 +124,29 @@
           document exists on a foreign machine, vulnerable to data breaches or
           silent data mining.
         </p>
+        <div class="pull-quote">"This means your unencrypted document exists on a foreign machine, vulnerable to data breaches or silent data mining."</div>
+        <div class="flowchart">
+          <div class="fc-title">ARCHITECTURE COMPARISON: REMOTE BACKEND VS. BROWSER SANDBOX</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Server-Side Architecture</div>
+              <div class="fc-step">1. Browser acts as client interface; processing runs on cloud servers</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step">2. Requires active high-speed network connection for data transfers</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Third-party infrastructure retains access to document contents</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Client-Side Architecture</div>
+              <div class="fc-step">1. Browser acts as complete execution engine via WebAssembly</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Works entirely offline once web page assets are cached</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Disconnect Wi-Fi after page load and execute full document tasks</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Modern Alternative: Client-Side</h2>
         <p>
           Client-side processing flips this model. Instead of sending your file
@@ -226,48 +249,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a
-              class="tool-card"
-              href="../../blog/remove-password-protection-pdf-locally/"
-            >
+            <a class="tool-card blog-card" href="../../blog/remove-password-protection-pdf-locally/">
+              <div class="blog-card-icon" style="background: var(--pink)">🔓</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Remove Password Protection from a PDF Without Uploading
-                  It Anywhere
-                </div>
-                <div class="tool-card-desc">
-                  A practical guide to removing passwords from locked bank
-                  statements and documents directly on your device.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Remove Password Protection from a PDF Without Uploading It Anywhere<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">A practical guide to removing passwords from locked bank statements and documents directly on your device.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/open-source/">
+            <a class="tool-card blog-card" href="../../blog/open-source/">
+              <div class="blog-card-icon" style="background: var(--sky-blue)">🌐</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Open Source: Built on Transparent Technologies
-                </div>
-                <div class="tool-card-desc">
-                  Flipp is built on the shoulders of open-source giants.
-                  Discover the community-driven libraries that make our secure
-                  PDF tools possible.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--sky-blue)">OPEN SOURCE</div>
+                <div class="tool-card-title blog-card-title">Open Source: Built on Transparent Technologies<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Flipp is built on the shoulders of open-source giants. Discover the community-driven libraries that make our secure PDF tools possible.</div>
               </div>
             </a>
           </div>

@@ -121,6 +121,7 @@
           first place. The latter is known as a client-side tool. It uses your
           web browser to do the processing locally on your computer.
         </p>
+        <div class="pull-quote">"There is a massive difference between a company promising to delete your uploaded file and a tool that never uploads your file in the first place."</div>
         <p>
           Unlike tools like iLovePDF or Smallpdf, Flipp processes everything
           locally in your browser using secure open-source libraries like
@@ -132,6 +133,20 @@
           >
           — your files never leave your device.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">HOW TO VERIFY ANY TOOL YOURSELF, STEP BY STEP</div>
+          <div class="fc-lane client" style="max-width: 540px; margin: 0 auto;">
+            <div class="fc-lane-label">✓ Browser Verification Procedure</div>
+            <div class="fc-step">1. Open your web browser and press F12 to open Developer Tools</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-step">2. Navigate to the Network tab and select the "Fetch/XHR" filter</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-step safe">3. Select and process your document inside the web tool</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-step action">4. Confirm zero outgoing upload requests (POST / PUT) contain your file payload</div>
+          </div>
+        </div>
+
         <h2>How to Verify a Tool is Truly Private</h2>
         <p>
           You don't have to take a website's word for it. You can verify if a
@@ -233,48 +248,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a
-              class="tool-card"
-              href="../../blog/merge-confidential-pdf-documents-browser/"
-            >
+            <a class="tool-card blog-card" href="../../blog/merge-confidential-pdf-documents-browser/">
+              <div class="blog-card-icon" style="background: var(--sky-blue)">🔗</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Merge Confidential PDF Documents Without Leaving Your
-                  Browser
-                </div>
-                <div class="tool-card-desc">
-                  Learn how to merge sensitive PDF files securely on your device
-                  without uploading them to remote servers.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--sky-blue)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Merge Confidential PDF Documents Without Leaving Your Browser<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Learn how to merge sensitive PDF files securely on your device without uploading them to remote servers.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/no-account-needed/">
+            <a class="tool-card blog-card" href="../../blog/no-account-needed/">
+              <div class="blog-card-icon" style="background: var(--pink)">🆓</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  No Account Needed: Frictionless Document Tools
-                </div>
-                <div class="tool-card-desc">
-                  Flipp believes in immediate utility without the barriers of
-                  sign-ups or paywalls. Read why we require no account to use
-                  our tools.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">ACCESS</div>
+                <div class="tool-card-title blog-card-title">No Account Needed: Frictionless Document Tools<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Flipp believes in immediate utility without the barriers of sign-ups or paywalls. Read why we require no account to use our tools.</div>
               </div>
             </a>
           </div>

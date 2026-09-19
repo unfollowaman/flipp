@@ -133,6 +133,28 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">EXECUTION LOCATION: REMOTE QUEUES VS. LOCAL CPU ENGINE</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Cloud Queue Processing</div>
+              <div class="fc-step">1. File uploaded to remote server queue with shared worker threads</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Processing delayed by server load and concurrency caps</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Converted file buffered on remote storage before user download</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Local Browser Engine</div>
+              <div class="fc-step">1. WebAssembly engine allocates dedicated local CPU threads</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Local browser memory executes PDF operations with zero delay</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Performance panel shows 100% local main-thread execution</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -154,6 +176,7 @@
           intercepted or stored. It's the speed and convenience of a web app
           with the security of offline software.
         </p>
+        <div class="pull-quote">"It's the speed and convenience of a web app with the security of offline software."</div>
 
         <div class="blog-tools-cta">
           <div class="blog-tools-cta-title">Try Now!</div>
@@ -229,49 +252,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/free-pdf-converters-privacy-risk/">
+            <a class="tool-card blog-card" href="../../blog/free-pdf-converters-privacy-risk/">
+              <div class="blog-card-icon" style="background: var(--yellow)">⚠️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Why Uploading Your PDFs to Free Converters is a Massive
-                  Privacy Risk
-                </div>
-                <div class="tool-card-desc">
-                  Discover how most online PDF tools store and read your
-                  documents, and why client-side processing is the only way to
-                  guarantee file privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--yellow)">PRIVACY</div>
+                <div class="tool-card-title blog-card-title">Why Uploading Your PDFs to Free Converters is a Massive Privacy Risk<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Discover how most online PDF tools store and read your documents, and why client-side processing is the only way to guarantee file privacy.</div>
               </div>
             </a>
 
-            <a
-              class="tool-card"
-              href="../../blog/remove-password-protection-pdf-locally/"
-            >
+            <a class="tool-card blog-card" href="../../blog/remove-password-protection-pdf-locally/">
+              <div class="blog-card-icon" style="background: var(--pink)">🔓</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Remove Password Protection from a PDF Without Uploading
-                  It Anywhere
-                </div>
-                <div class="tool-card-desc">
-                  A practical guide to removing passwords from locked bank
-                  statements and documents directly on your device.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Remove Password Protection from a PDF Without Uploading It Anywhere<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">A practical guide to removing passwords from locked bank statements and documents directly on your device.</div>
               </div>
             </a>
           </div>

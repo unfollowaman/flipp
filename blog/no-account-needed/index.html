@@ -113,6 +113,7 @@
           screen. It gets uploaded to a remote server owned by a company you
           don't know.
         </p>
+        <div class="pull-quote">"When you drag a bank statement or a signed contract into a free online PDF converter, that file doesn't just magically transform on your screen."</div>
         <h2>The Hidden Cost of "Free" Tools</h2>
         <p>
           Running servers that process millions of PDFs daily costs a
@@ -133,6 +134,30 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">USER ACCESS FLOW: REGISTRATION FUNNEL VS. FRICTIONLESS ACCESS</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Account-Based Tools</div>
+              <div class="fc-step">1. Visit site and encounter sign-up / registration wall</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step">2. Enter personal email and create account credentials</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Wait for verification email link and authenticate session</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">4. User identity and usage activity tracked on remote database</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ No-Account Flipp Flow</div>
+              <div class="fc-step">1. Open Flipp tool directly in your browser</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Drag and drop file to process instantly with zero sign-in</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Application → Local Storage contains zero account identifiers</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -229,45 +254,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/free-pdf-converters-privacy-risk/">
+            <a class="tool-card blog-card" href="../../blog/free-pdf-converters-privacy-risk/">
+              <div class="blog-card-icon" style="background: var(--yellow)">⚠️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Why Uploading Your PDFs to Free Converters is a Massive
-                  Privacy Risk
-                </div>
-                <div class="tool-card-desc">
-                  Discover how most online PDF tools store and read your
-                  documents, and why client-side processing is the only way to
-                  guarantee file privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--yellow)">PRIVACY</div>
+                <div class="tool-card-title blog-card-title">Why Uploading Your PDFs to Free Converters is a Massive Privacy Risk<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Discover how most online PDF tools store and read your documents, and why client-side processing is the only way to guarantee file privacy.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/secure-pdf-handling/">
+            <a class="tool-card blog-card" href="../../blog/secure-pdf-handling/">
+              <div class="blog-card-icon" style="background: var(--mint)">🛡️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Secure PDF Handling: Protecting Your Digital Documents
-                </div>
-                <div class="tool-card-desc">
-                  How Flipp ensures that your PDFs remain completely secure
-                  during splitting, merging, and password protection.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">SECURITY</div>
+                <div class="tool-card-title blog-card-title">Secure PDF Handling: Protecting Your Digital Documents<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">How Flipp ensures that your PDFs remain completely secure during splitting, merging, and password protection.</div>
               </div>
             </a>
           </div>

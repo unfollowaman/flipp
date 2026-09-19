@@ -123,6 +123,7 @@
           can access it, how long it's stored, and whether it's scanned for data
           extraction.
         </p>
+        <div class="pull-quote">"If a tool is offering these server resources for free, you have to ask how they are making that money back."</div>
         <h2>What Server-Side Processing Actually Means</h2>
         <p>
           When you hit "Upload," your document travels across the internet to a
@@ -133,6 +134,32 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">WHAT ACTUALLY HAPPENS TO YOUR FILE, STEP BY STEP</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Server-side (free tools)</div>
+              <div class="fc-step">1. Your browser sends the file as a multipart/form-data POST request</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step">2. It travels across the internet to a server you don't control</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. TLS is decrypted there — your file is now plaintext bytes sitting in server RAM</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">4. A remote library processes it; the upload is already in their access logs</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Client-side (Flipp)</div>
+              <div class="fc-step">1. The File API reads your file locally into an in-memory ArrayBuffer</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step">2. WebAssembly builds of pdf-lib / pdf.js run inside your browser's own sandbox</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">3. Processing runs on your CPU only — zero network requests, ever</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">4. Verify it yourself: DevTools → Network tab shows nothing leaving your machine</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -231,46 +258,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/open-source/">
+            <a class="tool-card blog-card" href="../../blog/open-source/">
+              <div class="blog-card-icon" style="background: var(--sky-blue)">🌐</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Open Source: Built on Transparent Technologies
-                </div>
-                <div class="tool-card-desc">
-                  Flipp is built on the shoulders of open-source giants.
-                  Discover the community-driven libraries that make our secure
-                  PDF tools possible.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--sky-blue)">OPEN SOURCE</div>
+                <div class="tool-card-title blog-card-title">Open Source: Built on Transparent Technologies<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Flipp is built on the shoulders of open-source giants. Discover the community-driven libraries that make our secure PDF tools possible.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/free-pdf-tools-no-storage-verify/">
+            <a class="tool-card blog-card" href="../../blog/free-pdf-tools-no-storage-verify/">
+              <div class="blog-card-icon" style="background: var(--yellow)">🕵️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Free PDF Tools That Don't Store Your Files — And How to Verify
-                  It
-                </div>
-                <div class="tool-card-desc">
-                  Learn how to find truly private PDF tools that don't upload
-                  your data, and how to verify their claims using your browser's
-                  developer tools.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--yellow)">TRUST</div>
+                <div class="tool-card-title blog-card-title">Free PDF Tools That Don't Store Your Files — And How to Verify It<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Learn how to find truly private PDF tools that don't upload your data, and how to verify their claims using your browser's developer tools.</div>
               </div>
             </a>
           </div>

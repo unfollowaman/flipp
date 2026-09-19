@@ -2709,6 +2709,34 @@ for Dynamic UI Sections */
 }
 
 /* ==============================
+   Blog Pull Quote & Flowchart Components
+   ============================== */
+.pull-quote {
+  border-left: 5px solid var(--black);
+  background: var(--cream);
+  padding: 16px 20px;
+  margin: 28px 0;
+  font-size: 17px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.flowchart { margin: 28px 0; border: 2px solid var(--black); border-radius: 14px; padding: 20px; background: #fbfbf6; }
+.flowchart .fc-title { font-size: 13px; font-weight: 800; text-align: center; letter-spacing: .04em; color: #666; margin-bottom: 16px; }
+.fc-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 767px) { .fc-lanes { grid-template-columns: 1fr; } }
+.fc-lane { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fc-lane-label { font-size: 12px; font-weight: 900; padding: 5px 14px; border-radius: 999px; border: 1.5px solid var(--black); margin-bottom: 8px; }
+.fc-lane.server .fc-lane-label { background: var(--pink); }
+.fc-lane.client .fc-lane-label { background: var(--mint); }
+.fc-step { width: 100%; border: 1.5px solid var(--black); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; line-height: 1.4; background: #fff; text-align: center; }
+.fc-lane.server .fc-step.risk { background: #ffe9ef; border-color: var(--red); color: #7a1020; font-weight: 800; }
+.fc-lane.client .fc-step.safe { background: #e8fbf1; border-color: #1d8f57; color: #0e5c37; font-weight: 800; }
+.fc-step.action { border-style: dashed; background: #fff9e0; font-weight: 800; }
+.fc-arrow { font-size: 16px; font-weight: 900; color: #999; text-align: center; }
+
+/* ==============================
    Blog Tools CTA (Try Now!)
    ============================== */
 .blog-tools-cta {

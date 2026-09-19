@@ -127,6 +127,29 @@
           to open it to an unknown third party. This data sits on their servers,
           vulnerable to hacks or misuse.
         </p>
+        <div class="pull-quote">"By doing this, you are handing over both the locked file and the key to open it to an unknown third party."</div>
+        <div class="flowchart">
+          <div class="fc-title">PASSWORD REMOVAL: TRANSMITTING SECRETS VS. LOCAL VERIFICATION</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Remote Unlock Service</div>
+              <div class="fc-step">1. Sensitive PDF and unlock password uploaded to remote web service</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Key and document exposed simultaneously on third-party server</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Unprotected financial statement generated on remote disk</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Local In-Memory Unlock</div>
+              <div class="fc-step">1. Password authenticated locally by browser PDF.js engine</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Password never transmitted; pdf-lib saves unprotected bytes locally</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Network tab shows zero HTTP traffic when unlocking</div>
+            </div>
+          </div>
+        </div>
+
         <h2>Unlocking Safely on Your Device</h2>
         <p>
           The only secure way to remove a password from a sensitive document is
@@ -241,47 +264,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a
-              class="tool-card"
-              href="../../blog/merge-confidential-pdf-documents-browser/"
-            >
+            <a class="tool-card blog-card" href="../../blog/merge-confidential-pdf-documents-browser/">
+              <div class="blog-card-icon" style="background: var(--sky-blue)">🔗</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  How to Merge Confidential PDF Documents Without Leaving Your
-                  Browser
-                </div>
-                <div class="tool-card-desc">
-                  Learn how to merge sensitive PDF files securely on your device
-                  without uploading them to remote servers.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--sky-blue)">GUIDE</div>
+                <div class="tool-card-title blog-card-title">How to Merge Confidential PDF Documents Without Leaving Your Browser<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Learn how to merge sensitive PDF files securely on your device without uploading them to remote servers.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/fast-conversion/">
+            <a class="tool-card blog-card" href="../../blog/fast-conversion/">
+              <div class="blog-card-icon" style="background: var(--pink)">⚡</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Fast Conversion: Zero Uploads, Instant Results
-                </div>
-                <div class="tool-card-desc">
-                  Why local browser-based PDF and image conversion is inherently
-                  faster than traditional server-side applications.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">SPEED</div>
+                <div class="tool-card-title blog-card-title">Fast Conversion: Zero Uploads, Instant Results<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Why local browser-based PDF and image conversion is inherently faster than traditional server-side applications.</div>
               </div>
             </a>
           </div>
