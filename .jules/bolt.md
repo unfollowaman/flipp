@@ -17,3 +17,7 @@
 ## 2026-09-17 - Cache external font ArrayBuffers in memory for client-side PDF document generation
 **Learning:** In client-side PDF document processing (such as `js/pdf-page-numbers.js`), fetching custom font assets (like `.woff` files) over the network on every user action creates unnecessary network latency and bandwidth overhead on repeated operations.
 **Action:** Cache the font fetch `ArrayBuffer` promise in memory across executions (resetting on fetch failure), and pass a cloned `ArrayBuffer` slice (`fontBytes.slice(0)`) to `pdfDoc.embedFont()` to eliminate repeated network fetches while protecting against buffer detachment.
+
+## 2026-09-18 - Cache DOM overlay elements in a Map during object rendering passes
+**Learning:** In interactive canvas/overlay editors (such as `js/pdf-editor.js`), executing `document.querySelector` lookups inside object rendering loops performs O(N * P) DOM tree traversals.
+**Action:** Map DOM container/overlay elements by key (e.g. `pageNum`) into a `Map` during initial clearing, reducing element lookups inside item rendering loops to O(1).
