@@ -122,6 +122,28 @@
           delete files immediately, you're still relying on a stranger's
           promise.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">MULTI-FILE MERGE: MULTIPLE EXPOSURES VS. SINGLE LOCAL COMBINATION</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Multi-File Server Upload</div>
+              <div class="fc-step">1. Multiple confidential PDFs uploaded across separate POST requests</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Cloud backend aggregates sensitive documents into single temporary file</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Multiple exposure points on remote disk and access logs</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Single Local pdf-lib Pass</div>
+              <div class="fc-step">1. Local pdf-lib loads page trees directly in browser memory</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Pages copied sequentially into unified local PDF object</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Network tab confirms zero network requests for all merged files</div>
+            </div>
+          </div>
+        </div>
+
         <h2>How to Merge PDFs Securely</h2>
         <p>
           The only way to guarantee your documents stay private is to process
@@ -129,6 +151,7 @@
           client-side web application. These tools run entirely within your
           browser, using your computer's resources to merge the files.
         </p>
+        <div class="pull-quote">"These tools run entirely within your browser, using your computer's resources to merge the files."</div>
         <p>
           Unlike tools like iLovePDF or Smallpdf, Flipp processes everything
           locally in your browser using secure open-source libraries like
@@ -232,48 +255,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/secure-pdf-handling/">
+            <a class="tool-card blog-card" href="../../blog/secure-pdf-handling/">
+              <div class="blog-card-icon" style="background: var(--mint)">🛡️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Secure PDF Handling: Protecting Your Digital Documents
-                </div>
-                <div class="tool-card-desc">
-                  How Flipp ensures that your PDFs remain completely secure
-                  during splitting, merging, and password protection.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">SECURITY</div>
+                <div class="tool-card-title blog-card-title">Secure PDF Handling: Protecting Your Digital Documents<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">How Flipp ensures that your PDFs remain completely secure during splitting, merging, and password protection.</div>
               </div>
             </a>
 
-            <a
-              class="tool-card"
-              href="../../blog/server-side-vs-client-side-pdf-processing/"
-            >
+            <a class="tool-card blog-card" href="../../blog/server-side-vs-client-side-pdf-processing/">
+              <div class="blog-card-icon" style="background: var(--mint)">⚖️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Server-side vs. Client-side PDF Processing: What It Means for
-                  Your Data
-                </div>
-                <div class="tool-card-desc">
-                  A breakdown of how client-side PDF tools work under the hood
-                  compared to server-side competitors, and why it matters for
-                  your privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">COMPARE</div>
+                <div class="tool-card-title blog-card-title">Server-side vs. Client-side PDF Processing: What It Means for Your Data<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">A breakdown of how client-side PDF tools work under the hood compared to server-side competitors, and why it matters for your privacy.</div>
               </div>
             </a>
           </div>

@@ -133,6 +133,28 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">LATENCY COMPARISON: NETWORK ROUND-TRIP VS. ZERO-HOP EXECUTION</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Server Conversion Round-Trip</div>
+              <div class="fc-step">1. Time spent uploading heavy PDF payload over network</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step">2. Wait time in server processing queue</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Network download delay to pull converted result back</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Zero-Hop Local Conversion</div>
+              <div class="fc-step">1. Instant local array buffer reading via HTML5 File API</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Direct WebAssembly canvas rendering at native CPU speeds</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Performance timeline shows zero network wait duration</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -154,6 +176,7 @@
           intercepted or stored. It's the speed and convenience of a web app
           with the security of offline software.
         </p>
+        <div class="pull-quote">"Because the code runs locally, there are no upload wait times, no file size limits imposed by server costs, and zero risk of your data being intercepted or stored."</div>
 
         <div class="blog-tools-cta">
           <div class="blog-tools-cta-title">Try Now!</div>
@@ -229,44 +252,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/local-processing/">
+            <a class="tool-card blog-card" href="../../blog/local-processing/">
+              <div class="blog-card-icon" style="background: var(--yellow)">⚡</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Local Processing: The Power of Browser-Based Tools
-                </div>
-                <div class="tool-card-desc">
-                  Flipp harnesses the power of modern web browsers to process
-                  heavy PDF files locally on your device.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--yellow)">SPEED</div>
+                <div class="tool-card-title blog-card-title">Local Processing: The Power of Browser-Based Tools<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Flipp harnesses the power of modern web browsers to process heavy PDF files locally on your device.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/no-uploads-to-any-server/">
+            <a class="tool-card blog-card" href="../../blog/no-uploads-to-any-server/">
+              <div class="blog-card-icon" style="background: var(--mint)">🔒</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  No Uploads to Any Server: Why Flipp Prioritizes Your Privacy
-                </div>
-                <div class="tool-card-desc">
-                  Unlike traditional online PDF converters, Flipp processes
-                  everything in your browser. Discover why zero uploads means
-                  absolute privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">PRIVACY</div>
+                <div class="tool-card-title blog-card-title">No Uploads to Any Server: Why Flipp Prioritizes Your Privacy<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Unlike traditional online PDF converters, Flipp processes everything in your browser. Discover why zero uploads means absolute privacy.</div>
               </div>
             </a>
           </div>

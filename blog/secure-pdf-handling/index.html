@@ -133,6 +133,29 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="pull-quote">"Even tools that promise to "delete files after 2 hours" still have full access during that window."</div>
+        <div class="flowchart">
+          <div class="fc-title">DOCUMENT PROTECTION: REMOTE DECRYPTION VS. LOCAL PERMISSION HANDLING</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Server-Side Protection Change</div>
+              <div class="fc-step">1. Encrypted file and password sent across internet to server</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Password and plaintext PDF loaded into foreign server memory</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Unprotected PDF copy stored temporarily on remote backend</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Client-Side pdf-lib Handling</div>
+              <div class="fc-step">1. Browser decrypts PDF locally using in-memory password entry</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. pdf-lib modifies document structure directly in local ArrayBuffer</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: Network tab shows zero HTTP requests during unlock</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -229,46 +252,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/free-pdf-tools-no-storage-verify/">
+            <a class="tool-card blog-card" href="../../blog/free-pdf-tools-no-storage-verify/">
+              <div class="blog-card-icon" style="background: var(--yellow)">🕵️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Free PDF Tools That Don't Store Your Files — And How to Verify
-                  It
-                </div>
-                <div class="tool-card-desc">
-                  Learn how to find truly private PDF tools that don't upload
-                  your data, and how to verify their claims using your browser's
-                  developer tools.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--yellow)">TRUST</div>
+                <div class="tool-card-title blog-card-title">Free PDF Tools That Don't Store Your Files — And How to Verify It<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Learn how to find truly private PDF tools that don't upload your data, and how to verify their claims using your browser's developer tools.</div>
               </div>
             </a>
 
-            <a class="tool-card" href="../../blog/no-uploads-to-any-server/">
+            <a class="tool-card blog-card" href="../../blog/no-uploads-to-any-server/">
+              <div class="blog-card-icon" style="background: var(--mint)">🔒</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  No Uploads to Any Server: Why Flipp Prioritizes Your Privacy
-                </div>
-                <div class="tool-card-desc">
-                  Unlike traditional online PDF converters, Flipp processes
-                  everything in your browser. Discover why zero uploads means
-                  absolute privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">PRIVACY</div>
+                <div class="tool-card-title blog-card-title">No Uploads to Any Server: Why Flipp Prioritizes Your Privacy<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Unlike traditional online PDF converters, Flipp processes everything in your browser. Discover why zero uploads means absolute privacy.</div>
               </div>
             </a>
           </div>

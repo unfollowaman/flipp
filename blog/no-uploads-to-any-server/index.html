@@ -133,6 +133,28 @@
           during that window. If their servers are breached, your documents are
           part of the leak.
         </p>
+        <div class="flowchart">
+          <div class="fc-title">DATA PATH: SERVER TRANSMISSION VS. ZERO UPLOADS</div>
+          <div class="fc-lanes">
+            <div class="fc-lane server">
+              <div class="fc-lane-label">⚠ Remote Server Upload</div>
+              <div class="fc-step">1. Selected document is serialized into POST request packets</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">2. Packets travel through public ISP nodes to a cloud backend</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step risk">3. Backend disk/RAM retains temporary copies during execution</div>
+            </div>
+            <div class="fc-lane client">
+              <div class="fc-lane-label">✓ Zero-Upload Browser Path</div>
+              <div class="fc-step">1. HTML5 File API accesses local file bytes instantly</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step safe">2. Local WebAssembly pdf-lib executes entirely on your hardware</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-step action">3. Verify it yourself: DevTools → Network tab records 0 upload requests</div>
+            </div>
+          </div>
+        </div>
+
         <h2>The Client-Side Solution</h2>
         <p>
           You don't need a remote server to edit a PDF anymore. Modern web
@@ -148,6 +170,7 @@
           >. By running these powerful libraries completely client-side, your
           files never leave your device.
         </p>
+        <div class="pull-quote">"By running these powerful libraries completely client-side, your files never leave your device."</div>
         <p>
           Because the code runs locally, there are no upload wait times, no file
           size limits imposed by server costs, and zero risk of your data being
@@ -229,48 +252,21 @@
         <div class="blog-explore-more">
           <h2>Explore More</h2>
           <div class="tools-grid" style="margin-top: 24px">
-            <a class="tool-card" href="../../blog/fast-conversion/">
+            <a class="tool-card blog-card" href="../../blog/fast-conversion/">
+              <div class="blog-card-icon" style="background: var(--pink)">⚡</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Fast Conversion: Zero Uploads, Instant Results
-                </div>
-                <div class="tool-card-desc">
-                  Why local browser-based PDF and image conversion is inherently
-                  faster than traditional server-side applications.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--pink)">SPEED</div>
+                <div class="tool-card-title blog-card-title">Fast Conversion: Zero Uploads, Instant Results<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">Why local browser-based PDF and image conversion is inherently faster than traditional server-side applications.</div>
               </div>
             </a>
 
-            <a
-              class="tool-card"
-              href="../../blog/server-side-vs-client-side-pdf-processing/"
-            >
+            <a class="tool-card blog-card" href="../../blog/server-side-vs-client-side-pdf-processing/">
+              <div class="blog-card-icon" style="background: var(--mint)">⚖️</div>
               <div class="tool-card-content">
-                <div class="tool-card-title">
-                  Server-side vs. Client-side PDF Processing: What It Means for
-                  Your Data
-                </div>
-                <div class="tool-card-desc">
-                  A breakdown of how client-side PDF tools work under the hood
-                  compared to server-side competitors, and why it matters for
-                  your privacy.
-                </div>
-              </div>
-              <div class="tool-card-arrow">
-                <img
-                  src="../../assets/arrow.png"
-                  alt="arrow"
-                  width="24"
-                  height="24"
-                />
+                <div class="tool-card-badge blog-card-badge" style="background: var(--mint)">COMPARE</div>
+                <div class="tool-card-title blog-card-title">Server-side vs. Client-side PDF Processing: What It Means for Your Data<span class="tool-card-arrow blog-card-arrow">→</span></div>
+                <div class="tool-card-desc blog-card-desc">A breakdown of how client-side PDF tools work under the hood compared to server-side competitors, and why it matters for your privacy.</div>
               </div>
             </a>
           </div>
