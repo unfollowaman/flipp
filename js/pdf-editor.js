@@ -918,10 +918,14 @@ function renderSingleObject(obj, overlay) {
 
 export function renderAllObjects() {
   const overlays = document.querySelectorAll(".pdf-page-overlay");
-  overlays.forEach((overlay) => (overlay.innerHTML = ""));
+  const overlayMap = new Map();
+  overlays.forEach((overlay) => {
+    overlay.innerHTML = "";
+    overlayMap.set(parseInt(overlay.dataset.pageNum, 10), overlay);
+  });
 
   editorObjects.forEach((obj) => {
-    const overlay = document.querySelector(`.pdf-page-overlay[data-page-num="${obj.pageNum}"]`);
+    const overlay = overlayMap.get(obj.pageNum);
     if (!overlay) return;
     renderSingleObject(obj, overlay);
   });
