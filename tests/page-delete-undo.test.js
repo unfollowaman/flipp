@@ -261,4 +261,23 @@ test('PageDeleteUndoManager Unit Tests', async (t) => {
     assert.strictEqual(manager.history.length, 0);
     assert.strictEqual(undoBtn.style.display, 'none');
   });
+
+  await t.test('updateUndoBtnUI uses safe DOM node creation without innerHTML', async () => {
+    const container = createMockElement('grid');
+    const undoBtn = createMockElement('undo-btn', 'button');
+
+    const card1 = createMockElement('card1');
+    card1.classList.add('img-thumb-card');
+    container.appendChild(card1);
+
+    const manager = new PageDeleteUndoManager({ container, undoBtn });
+
+    await manager.deletePage(card1, 'Page 1');
+
+    assert.strictEqual(undoBtn.textContent, '↩ Undo Delete ');
+    assert.strictEqual(undoBtn.children.length, 1);
+    const badge = undoBtn.children[0];
+    assert.strictEqual(badge.className, 'undo-count-badge');
+    assert.strictEqual(badge.textContent, '(1)');
+  });
 });
