@@ -20,63 +20,103 @@ function getHtmlFiles(dir) {
   return results;
 }
 
-test('Open Graph meta tags validation', () => {
+test('Open Graph and Twitter meta tags validation', () => {
   const rootDir = process.cwd();
   const htmlFiles = getHtmlFiles(rootDir);
 
   assert.ok(htmlFiles.length > 0, 'Should find HTML files in repository');
 
   for (const filePath of htmlFiles) {
-    const content = fs.readFileSync(filePath, 'utf8');
     const relativePath = path.relative(rootDir, filePath);
-
-    // Skip 404.html or pages without Open Graph metadata
-    if (!content.includes('property="og:') && !content.includes("property='og:")) {
+    if (relativePath === '404.html') {
       continue;
     }
 
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    // og:site_name
     assert.ok(
       content.includes('property="og:site_name"') || content.includes("property='og:site_name'"),
       `File ${relativePath} should contain og:site_name meta tag`
     );
 
+    // og:title
     assert.ok(
-      content.includes('content="flipp"'),
-      `File ${relativePath} og:site_name should have content="flipp"`
+      content.includes('property="og:title"') || content.includes("property='og:title'"),
+      `File ${relativePath} should contain og:title meta tag`
     );
 
-    if (content.includes('property="og:image"') || content.includes("property='og:image'")) {
-      assert.ok(
-        content.includes('property="og:image:width"'),
-        `File ${relativePath} should contain og:image:width meta tag`
-      );
-      assert.ok(
-        content.includes('property="og:image:height"'),
-        `File ${relativePath} should contain og:image:height meta tag`
-      );
-      assert.ok(
-        content.includes('content="1200"'),
-        `File ${relativePath} og:image:width should be 1200`
-      );
-      assert.ok(
-        content.includes('content="630"'),
-        `File ${relativePath} og:image:height should be 630`
-      );
-    }
+    // og:description
+    assert.ok(
+      content.includes('property="og:description"') || content.includes("property='og:description'"),
+      `File ${relativePath} should contain og:description meta tag`
+    );
+
+    // og:url
+    assert.ok(
+      content.includes('property="og:url"') || content.includes("property='og:url'"),
+      `File ${relativePath} should contain og:url meta tag`
+    );
+
+    // twitter:card
+    assert.ok(
+      content.includes('name="twitter:card"') || content.includes("name='twitter:card'"),
+      `File ${relativePath} should contain twitter:card meta tag`
+    );
+
+    // twitter:title
+    assert.ok(
+      content.includes('name="twitter:title"') || content.includes("name='twitter:title'"),
+      `File ${relativePath} should contain twitter:title meta tag`
+    );
+
+    // twitter:description
+    assert.ok(
+      content.includes('name="twitter:description"') || content.includes("name='twitter:description'"),
+      `File ${relativePath} should contain twitter:description meta tag`
+    );
+
+    // twitter:image
+    assert.ok(
+      content.includes('name="twitter:image"') || content.includes("name='twitter:image'"),
+      `File ${relativePath} should contain twitter:image meta tag`
+    );
+
+    // Must reference ogimage.png (not unsupported ogimage.avif for social cards)
+    assert.ok(
+      content.includes('https://tryflipp.pages.dev/assets/ogimage/ogimage.png'),
+      `File ${relativePath} should reference absolute URL for ogimage.png`
+    );
+
+    assert.ok(
+      !content.includes('ogimage.avif'),
+      `File ${relativePath} should not reference ogimage.avif for Open Graph image`
+    );
+
+    // Width and height
+    assert.ok(
+      content.includes('property="og:image:width"') && content.includes('content="1200"'),
+      `File ${relativePath} should contain og:image:width meta tag set to 1200`
+    );
+    assert.ok(
+      content.includes('property="og:image:height"') && content.includes('content="630"'),
+      `File ${relativePath} should contain og:image:height meta tag set to 630`
+    );
   }
 });
 
-test('OG image dimensions validation', () => {
-  const ogImagePath = path.join(process.cwd(), 'assets', 'ogimage', 'ogimage.avif');
-  assert.ok(fs.existsSync(ogImagePath), 'assets/ogimage/ogimage.avif should exist');
+test('OG PNG image existence and dimensions validation', () => {
+  const ogImagePath = path.join(process.cwd(), 'assets', 'ogimage', 'ogimage.png');
+  assert.ok(fs.existsSync(ogImagePath), 'assets/ogimage/ogimage.png should exist');
 
   const buffer = fs.readFileSync(ogImagePath);
-  // Find ispe box in ISOBMFF AVIF file: 4 bytes length, 'ispe', 4 bytes version/flags, 4 bytes width, 4 bytes height
-  const ispeIndex = buffer.indexOf(Buffer.from('ispe'));
-  assert.notEqual(ispeIndex, -1, 'AVIF should contain an ispe box');
+  assert.ok(
+    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47,
+    'ogimage.png should be a valid PNG file'
+  );
 
-  const width = buffer.readUInt32BE(ispeIndex + 8);
-  const height = buffer.readUInt32BE(ispeIndex + 12);
+  const width = buffer.readUInt32BE(16);
+  const height = buffer.readUInt32BE(20);
 
   assert.equal(width, 1200, 'OG image width should be 1200');
   assert.equal(height, 630, 'OG image height should be 630');
