@@ -25,3 +25,7 @@
 ## 2026-09-19 - Skip canvas.toDataURL() during thumbnail preview rendering when appending canvas directly
 **Learning:** In client-side PDF preview generation (such as `js/pdf-to-img.js`), invoking `canvas.toDataURL()` on rendered PDF pages performs CPU-intensive PNG image encoding and allocates large base64 strings in RAM. When thumbnails are appended directly as DOM `<canvas>` elements, generating data URLs is completely unused and creates unnecessary overhead.
 **Action:** Parameterize page canvas rendering helpers to accept `generateDataUrl = true`, and pass `false` when rendering DOM preview thumbnails to skip `canvas.toDataURL()`.
+
+## 2026-09-20 - Use createImageBitmap for dimensions and defer Base64 encoding in image-to-PDF generation
+**Learning:** In client-side image-to-PDF conversion (such as `js/img-to-pdf.js`), pre-converting all selected image files to Base64 data URLs via `Promise.all` up-front creates massive simultaneous heap allocations (O(N * file_size)) and redundant Base64 conversions merely to inspect image dimensions (`naturalWidth`/`naturalHeight`).
+**Action:** Use `createImageBitmap(blob)` (or existing `blob:` URLs) to read image dimensions without Base64 encoding, and defer `fileToDataUrl(file)` conversion to the sequential PDF page generation loop so Base64 allocations occur per-page on demand (O(1 * file_size)) and can be garbage-collected iteratively.
