@@ -9,10 +9,10 @@ let src = fs.readFileSync(srcPath, 'utf8');
 // Robustly strip all import statements
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 // Strip export keywords
-src = src.replace(/export\s+function/g, 'function');
+src = src.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
 
-// To extract formatBytes function we can append a return statement
-src += '\nreturn { formatBytes, createDownloadButton, updateProgress };\n';
+// To extract formatBytes and mapConcurrent functions we can append a return statement
+src += '\nreturn { formatBytes, createDownloadButton, updateProgress, mapConcurrent };\n';
 
 const elementMap = {};
 
@@ -51,7 +51,7 @@ const mockShowToast = () => {};
 const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', src);
 
 // Evaluate and get functions
-const { formatBytes, createDownloadButton, updateProgress } = wrapper(
+const { formatBytes, createDownloadButton, updateProgress, mapConcurrent } = wrapper(
   mockDocument,
   mockWindow,
   mockInitDropZone,
@@ -140,6 +140,44 @@ test('updateProgress function', async (t) => {
   });
 });
 
+test('mapConcurrent function', async (t) => {
+  await t.test('handles empty input array', async () => {
+    const results = await mapConcurrent([], 5, async (x) => x * 2);
+    assert.deepStrictEqual(results, []);
+  });
+
+  await t.test('preserves input order when completion times differ', async () => {
+    const items = [100, 10, 50, 5, 20];
+    const results = await mapConcurrent(items, 3, async (ms, idx) => {
+      await new Promise((resolve) => setTimeout(resolve, ms));
+      return { idx, val: ms * 2 };
+    });
+
+    assert.deepStrictEqual(results, [
+      { idx: 0, val: 200 },
+      { idx: 1, val: 20 },
+      { idx: 2, val: 100 },
+      { idx: 3, val: 10 },
+      { idx: 4, val: 40 }
+    ]);
+  });
+
+  await t.test('enforces concurrency limit', async () => {
+    let activeCount = 0;
+    let maxActive = 0;
+    const items = Array.from({ length: 10 }, (_, i) => i);
+
+    await mapConcurrent(items, 3, async () => {
+      activeCount++;
+      if (activeCount > maxActive) maxActive = activeCount;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      activeCount--;
+    });
+
+    assert.strictEqual(maxActive, 3, 'Max active concurrent workers should not exceed limit');
+  });
+});
+
 test('pdf-compress error handling', async (t) => {
   await t.test('shows error toast when PDFLib is unavailable on compress click', async () => {
     let capturedToastMessage = '';
@@ -188,7 +226,7 @@ test('pdf-compress error handling', async (t) => {
 
     let localSrc = fs.readFileSync(srcPath, 'utf8');
     localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
-    localSrc = localSrc.replace(/export\s+function/g, 'function');
+    localSrc = localSrc.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
 
     const localWrapper = new Function(
       'document',
@@ -302,7 +340,7 @@ test('pdf-compress error handling', async (t) => {
 
     let localSrc = fs.readFileSync(srcPath, 'utf8');
     localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
-    localSrc = localSrc.replace(/export\s+function/g, 'function');
+    localSrc = localSrc.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
 
     const localWrapper = new Function(
       'document',
