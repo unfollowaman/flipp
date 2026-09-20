@@ -1,9 +1,13 @@
 {
+  "scripts": {
+    "minify:css": "cleancss -O0 css/styles.src.css -o css/styles.css"
+  },
   "dependencies": {
     "pdf-lib": "^1.17.1",
     "puppeteer": "^25.1.0"
   },
   "devDependencies": {
+    "clean-css-cli": "^5.6.3",
     "playwright": "^1.61.1"
   }
 }
