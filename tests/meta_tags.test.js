@@ -82,10 +82,21 @@ test('Open Graph and Twitter meta tags validation', () => {
       `File ${relativePath} should contain twitter:image meta tag`
     );
 
+    // og:image:secure_url and og:image:type
+    assert.ok(
+      content.includes('property="og:image:secure_url"') || content.includes("property='og:image:secure_url'"),
+      `File ${relativePath} should contain og:image:secure_url meta tag`
+    );
+
+    assert.ok(
+      content.includes('property="og:image:type"') || content.includes("property='og:image:type'"),
+      `File ${relativePath} should contain og:image:type meta tag`
+    );
+
     // Must reference ogimage.png (not unsupported ogimage.avif for social cards)
     assert.ok(
-      content.includes('https://tryflipp.pages.dev/assets/ogimage/ogimage.png'),
-      `File ${relativePath} should reference absolute URL for ogimage.png`
+      content.includes('https://tryflipp.pages.dev/assets/ogimage/ogimage.png?v=2'),
+      `File ${relativePath} should reference absolute URL with cache-buster parameter for ogimage.png?v=2`
     );
 
     assert.ok(
