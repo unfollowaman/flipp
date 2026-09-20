@@ -166,6 +166,13 @@ export async function loadPdfFromBytes(arrayBuffer) {
     return;
   }
 
+  if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
+    try {
+      await pdfjsDocument.destroy();
+    } catch (_) {}
+    pdfjsDocument = null;
+  }
+
   const pdfjsBuffer = arrayBuffer.slice(0);
   const loadingTask = pdfjsLib.getDocument({ data: pdfjsBuffer });
   pdfjsDocument = await loadingTask.promise;
@@ -244,7 +251,15 @@ export async function renderAllPages() {
 
     setupOverlayEvents(overlay, pageNum);
 
-    return page.render({ canvasContext: ctx, viewport }).promise;
+    return (async () => {
+      try {
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      } finally {
+        if (page && typeof page.cleanup === "function") {
+          page.cleanup();
+        }
+      }
+    })();
   });
 
   await Promise.all(renderPromises);
@@ -1499,6 +1514,11 @@ export function resetEditor() {
     currentDownloadUrl = null;
   }
 
+  if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
+    try {
+      pdfjsDocument.destroy();
+    } catch (_) {}
+  }
   pdfjsDocument = null;
   pdfBytesOriginal = null;
   numPages = 0;

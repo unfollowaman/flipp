@@ -413,6 +413,58 @@ test('pdf-editor PDF export process', async (t) => {
   });
 });
 
+test('pdf-editor resource cleanup', async (t) => {
+  await t.test('renderAllPages invokes page.cleanup on rendered pages', async () => {
+    let cleanupCalledCount = 0;
+    const mockDocument = {
+      numPages: 2,
+      getPage: async (pageNum) => ({
+        getViewport: ({ scale }) => ({ width: 600 * scale, height: 800 * scale }),
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => { cleanupCalledCount++; }
+      })
+    };
+
+    mockWindow['pdfjs-dist/build/pdf'].getDocument = () => ({
+      promise: Promise.resolve(mockDocument)
+    });
+
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+
+    assert.strictEqual(cleanupCalledCount, 2, 'page.cleanup() should be called for each page');
+  });
+
+  await t.test('loadPdfFromBytes and resetEditor invoke pdfjsDocument.destroy()', async () => {
+    let destroyCalledCount = 0;
+    const mockDocument = {
+      numPages: 1,
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 600 * scale, height: 800 * scale }),
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {}
+      }),
+      destroy: async () => { destroyCalledCount++; }
+    };
+
+    mockWindow['pdfjs-dist/build/pdf'].getDocument = () => ({
+      promise: Promise.resolve(mockDocument)
+    });
+
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+    assert.strictEqual(destroyCalledCount, 0, 'destroy not called on first load');
+
+    // Loading a new file should call destroy on previous doc
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+    assert.strictEqual(destroyCalledCount, 1, 'destroy should be called when reloading new PDF document');
+
+    // resetEditor should call destroy
+    editorModule.resetEditor();
+    assert.strictEqual(destroyCalledCount, 2, 'destroy should be called on resetEditor');
+  });
+});
+
 test('pdf-editor renderAllPages performance', async (t) => {
   await t.test('renders all pages in parallel with correct DOM order', async () => {
     // Create mock pdfjsDocument with 10 pages and 5ms delay per step
