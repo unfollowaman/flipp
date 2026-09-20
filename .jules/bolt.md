@@ -21,3 +21,7 @@
 ## 2026-09-18 - Cache DOM overlay elements in a Map during object rendering passes
 **Learning:** In interactive canvas/overlay editors (such as `js/pdf-editor.js`), executing `document.querySelector` lookups inside object rendering loops performs O(N * P) DOM tree traversals.
 **Action:** Map DOM container/overlay elements by key (e.g. `pageNum`) into a `Map` during initial clearing, reducing element lookups inside item rendering loops to O(1).
+
+## 2026-09-19 - Skip canvas.toDataURL() during thumbnail preview rendering when appending canvas directly
+**Learning:** In client-side PDF preview generation (such as `js/pdf-to-img.js`), invoking `canvas.toDataURL()` on rendered PDF pages performs CPU-intensive PNG image encoding and allocates large base64 strings in RAM. When thumbnails are appended directly as DOM `<canvas>` elements, generating data URLs is completely unused and creates unnecessary overhead.
+**Action:** Parameterize page canvas rendering helpers to accept `generateDataUrl = true`, and pass `false` when rendering DOM preview thumbnails to skip `canvas.toDataURL()`.

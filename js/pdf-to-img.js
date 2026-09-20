@@ -109,7 +109,12 @@ function parsePageRange(rangeStr, total) {
 }
 
 // ── Render single page to canvas → dataUrl ─────────────
-async function renderPageToCanvas(page, renderScale, format = "png") {
+async function renderPageToCanvas(
+  page,
+  renderScale,
+  format = "png",
+  generateDataUrl = true,
+) {
   const viewport = page.getViewport({ scale: renderScale });
   const canvas = document.createElement("canvas");
   canvas.width = viewport.width;
@@ -122,6 +127,10 @@ async function renderPageToCanvas(page, renderScale, format = "png") {
   }
 
   await page.render({ canvasContext: ctx, viewport }).promise;
+
+  if (!generateDataUrl) {
+    return { canvas, dataUrl: null };
+  }
 
   const mimeType = format === "jpg" || format === "jpeg" ? "image/jpeg" : "image/png";
   const quality = mimeType === "image/jpeg" ? 0.85 : undefined;
@@ -185,7 +194,7 @@ async function showPreview(filename) {
         .getPage(i)
         .then(async (page) => {
           try {
-            const res = await renderPageToCanvas(page, 0.3);
+            const res = await renderPageToCanvas(page, 0.3, "png", false);
             return { i, canvas: res.canvas };
           } finally {
             if (page && typeof page.cleanup === "function") {
