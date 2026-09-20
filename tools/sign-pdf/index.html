@@ -378,31 +378,36 @@
             <div
               class="option-pills"
               id="sign-mode-pills"
+              role="region"
+              aria-label="Signature mode"
               style="margin-bottom: 16px; justify-content: center"
             >
-              <button class="opt-pill active" data-value="draw">Draw</button>
-              <button class="opt-pill" data-value="upload">Upload Image</button>
-              <button class="opt-pill" data-value="type">Type</button>
+              <button class="opt-pill active" data-value="draw" aria-checked="true">Draw</button>
+              <button class="opt-pill" data-value="upload" aria-checked="false">Upload Image</button>
+              <button class="opt-pill" data-value="type" aria-checked="false">Type</button>
             </div>
 
             <div
               class="option-pills"
               id="sign-color-pills"
+              role="region"
+              aria-label="Signature color"
               style="margin-bottom: 16px; justify-content: center"
             >
               <button
                 class="opt-pill active color-pill-black"
                 data-value="#000000"
+                aria-checked="true"
               >
                 Black
               </button>
-              <button class="opt-pill color-pill-blue" data-value="#0000FF">
+              <button class="opt-pill color-pill-blue" data-value="#0000FF" aria-checked="false">
                 Blue
               </button>
-              <button class="opt-pill color-pill-red" data-value="#FF0000">
+              <button class="opt-pill color-pill-red" data-value="#FF0000" aria-checked="false">
                 Red
               </button>
-              <button class="opt-pill color-pill-green" data-value="#008000">
+              <button class="opt-pill color-pill-green" data-value="#008000" aria-checked="false">
                 Green
               </button>
             </div>
@@ -427,7 +432,12 @@
                 align-items: center;
               "
             >
-              <canvas id="sign-pad-canvas" class="signature-canvas"></canvas>
+              <canvas
+                id="sign-pad-canvas"
+                class="signature-canvas"
+                role="img"
+                aria-label="Signature drawing canvas"
+              ></canvas>
               <button
                 class="cta-btn"
                 id="sign-clear-btn"
@@ -504,16 +514,17 @@
               "
             >
               <div class="option-group">
-                <label class="option-label">Type your name</label>
+                <label class="option-label" for="sign-type-input">Type your name</label>
                 <input
                   type="text"
                   class="range-input"
                   id="sign-type-input"
                   placeholder="Your Name"
+                  aria-label="Type your signature name"
                 />
               </div>
               <div class="option-group">
-                <label class="option-label"
+                <label class="option-label" for="sign-font-size"
                   >Font Size (<span id="sign-font-size-val">48</span>)</label
                 >
                 <input
@@ -522,6 +533,7 @@
                   min="24"
                   max="96"
                   value="48"
+                  aria-label="Signature font size"
                   style="width: 100%"
                 />
               </div>

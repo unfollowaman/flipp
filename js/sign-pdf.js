@@ -1,4 +1,4 @@
-import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload } from "./drag-drop.js";
+import { initDropZone, showToast, setProgress, activatePill, fileToDataUrl, triggerDownload } from "./drag-drop.js";
 
 let currentDownloadUrl = null;
 
@@ -76,9 +76,8 @@ function initSignaturePad() {
 // Color Switching
 colorPills.forEach((pill) => {
   pill.addEventListener("click", () => {
-    colorPills.forEach((p) => p.classList.remove("active"));
-    pill.classList.add("active");
     currentInkColor = pill.dataset.value;
+    activatePill(pill.parentElement, currentInkColor);
 
     if (signaturePad) {
       signaturePad.penColor = currentInkColor;
@@ -101,9 +100,8 @@ colorPills.forEach((pill) => {
 // Mode Switching
 modePills.forEach((pill) => {
   pill.addEventListener("click", () => {
-    modePills.forEach((p) => p.classList.remove("active"));
-    pill.classList.add("active");
     currentMode = pill.dataset.value;
+    activatePill(pill.parentElement, currentMode);
 
     drawControls.style.display = "none";
     uploadControls.style.display = "none";
@@ -673,6 +671,11 @@ function resetTool() {
   imgDrop.style.display = "flex";
   typeInput.value = "";
   updateTypePreview();
+
+  currentMode = "draw";
+  currentInkColor = "#000000";
+  activatePill(document.getElementById("sign-mode-pills"), "draw");
+  activatePill(document.getElementById("sign-color-pills"), "#000000");
 
   dropZone.style.display = "flex";
   optionsBar.classList.remove("is-visible");

@@ -95,6 +95,10 @@ const mockShowToast = (msg, type) => {
 
 const mockInitDropZone = () => {};
 const mockSetProgress = () => {};
+let activatedPills = [];
+const mockActivatePill = (group, value) => {
+  activatedPills.push({ group, value });
+};
 
 let consoleErrors = [];
 const mockConsole = {
@@ -139,6 +143,7 @@ const wrapper = new Function(
   'initDropZone',
   'showToast',
   'setProgress',
+  'activatePill',
   'Blob',
   'URL',
   'console',
@@ -162,6 +167,7 @@ const {
   mockInitDropZone,
   mockShowToast,
   mockSetProgress,
+  mockActivatePill,
   class Blob {},
   { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
   mockConsole,
