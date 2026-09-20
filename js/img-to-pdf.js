@@ -183,11 +183,37 @@ async function waitForJsPDF() {
 }
 
 // ── Get image dimensions ────────────────────────────────
-function getImageDimensions(dataUrl) {
+function getImageDimensions(srcOrFile) {
+  if (
+    typeof createImageBitmap === "function" &&
+    (srcOrFile instanceof Blob || (typeof File !== "undefined" && srcOrFile instanceof File))
+  ) {
+    return createImageBitmap(srcOrFile)
+      .then((bitmap) => {
+        const dims = { w: bitmap.width, h: bitmap.height };
+        if (typeof bitmap.close === "function") bitmap.close();
+        return dims;
+      })
+      .catch(() => getImageDimensionsFallback(srcOrFile));
+  }
+  return getImageDimensionsFallback(srcOrFile);
+}
+
+function getImageDimensionsFallback(srcOrFile) {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
-    img.src = dataUrl;
+    if (typeof srcOrFile === "string") {
+      img.src = srcOrFile;
+    } else {
+      const url = URL.createObjectURL(srcOrFile);
+      img.onload = () => {
+        const dims = { w: img.naturalWidth, h: img.naturalHeight };
+        URL.revokeObjectURL(url);
+        resolve(dims);
+      };
+      img.src = url;
+    }
   });
 }
 
@@ -195,9 +221,9 @@ function getImageDimensions(dataUrl) {
 async function loadImagesForPdf(files) {
   return Promise.all(
     files.map(async (entry) => {
-      const dataUrl = await fileToDataUrl(entry.file);
-      const { w: imgW, h: imgH } = await getImageDimensions(dataUrl);
-      return { entry, dataUrl, imgW, imgH };
+      const src = entry.objectUrl || entry.file;
+      const { w: imgW, h: imgH } = await getImageDimensions(src);
+      return { entry, imgW, imgH };
     }),
   );
 }
@@ -254,11 +280,13 @@ async function generatePdfFromImages(files, options, onProgress) {
   const loadedImages = await loadImagesForPdf(files);
 
   for (let i = 0; i < loadedImages.length; i++) {
-    const { entry, dataUrl, imgW, imgH } = loadedImages[i];
+    const { entry, imgW, imgH } = loadedImages[i];
     onProgress(
       Math.round((i / files.length) * 100),
       `Processing image ${i + 1} of ${files.length}: ${entry.name}`,
     );
+
+    const dataUrl = await fileToDataUrl(entry.file);
 
     // Determine format string for jsPDF
     const imgFormat = entry.file.type === "image/png" ? "PNG" : "JPEG";
