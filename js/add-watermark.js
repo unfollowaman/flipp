@@ -756,14 +756,21 @@ convertBtn.addEventListener("click", async () => {
     const pdfNumPages = pages.length;
 
     let font, hexColor, defaultPdfColor, wmImage;
+    const colorCache = new Map();
+    const parseColor = (hex) => {
+      if (!colorCache.has(hex)) {
+        const r = parseInt(hex.slice(1, 3), 16) / 255;
+        const g = parseInt(hex.slice(3, 5), 16) / 255;
+        const b = parseInt(hex.slice(5, 7), 16) / 255;
+        colorCache.set(hex, rgb(r, g, b));
+      }
+      return colorCache.get(hex);
+    };
 
     if (currentMode === "text") {
       font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
       hexColor = colorInput.value;
-      const r = parseInt(hexColor.slice(1, 3), 16) / 255;
-      const g = parseInt(hexColor.slice(3, 5), 16) / 255;
-      const b = parseInt(hexColor.slice(5, 7), 16) / 255;
-      defaultPdfColor = rgb(r, g, b);
+      defaultPdfColor = parseColor(hexColor);
     } else {
       if (uploadedImageURL.startsWith("data:image/png")) {
         wmImage = await pdfDoc.embedPng(uploadedImageURL);
@@ -815,10 +822,7 @@ convertBtn.addEventListener("click", async () => {
 
         let pdfColor = defaultPdfColor;
         if (pageConfig.color && pageConfig.color !== colorInput.value) {
-          const r = parseInt(pageConfig.color.slice(1, 3), 16) / 255;
-          const g = parseInt(pageConfig.color.slice(3, 5), 16) / 255;
-          const b = parseInt(pageConfig.color.slice(5, 7), 16) / 255;
-          pdfColor = rgb(r, g, b);
+          pdfColor = parseColor(pageConfig.color);
         }
 
         const getCoords = (pos, w, h, iw, ih) => {

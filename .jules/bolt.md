@@ -25,3 +25,7 @@
 ## 2026-09-19 - Skip canvas.toDataURL() during thumbnail preview rendering when appending canvas directly
 **Learning:** In client-side PDF preview generation (such as `js/pdf-to-img.js`), invoking `canvas.toDataURL()` on rendered PDF pages performs CPU-intensive PNG image encoding and allocates large base64 strings in RAM. When thumbnails are appended directly as DOM `<canvas>` elements, generating data URLs is completely unused and creates unnecessary overhead.
 **Action:** Parameterize page canvas rendering helpers to accept `generateDataUrl = true`, and pass `false` when rendering DOM preview thumbnails to skip `canvas.toDataURL()`.
+
+## 2026-09-20 - Cache parsed PDF-lib RGB color objects across page watermark iterations
+**Learning:** In document generation loops (such as `js/add-watermark.js`), parsing hex color strings (`parseInt` / `slice`) and calling `pdfLib.rgb(r, g, b)` repeatedly for every page creates avoidable CPU parsing overhead and temporary object allocations on multi-page PDFs.
+**Action:** Cache `rgb(r, g, b)` objects in a `Map` keyed by hex string within the conversion task scope to reuse color instances across pages.
