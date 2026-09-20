@@ -307,7 +307,13 @@ export class PageDeleteUndoManager {
       this.undoBtn.style.pointerEvents = "auto";
       this.undoBtn.removeAttribute("aria-disabled");
       this.undoBtn.setAttribute("aria-label", `Undo page deletion (${count} available)`);
-      this.undoBtn.innerHTML = `↩ Undo Delete <span class="undo-count-badge" style="margin-left:4px; opacity:0.85;">(${count})</span>`;
+      this.undoBtn.textContent = "↩ Undo Delete ";
+      const badge = document.createElement("span");
+      badge.className = "undo-count-badge";
+      badge.style.marginLeft = "4px";
+      badge.style.opacity = "0.85";
+      badge.textContent = `(${count})`;
+      this.undoBtn.appendChild(badge);
     } else {
       // STATE C: All deletions undone - visible but disabled/faded
       this.undoBtn.style.display = "inline-flex";
@@ -316,7 +322,7 @@ export class PageDeleteUndoManager {
       this.undoBtn.style.pointerEvents = "none";
       this.undoBtn.setAttribute("aria-disabled", "true");
       this.undoBtn.setAttribute("aria-label", "Undo delete (No deleted pages to restore)");
-      this.undoBtn.innerHTML = `↩ Undo Delete`;
+      this.undoBtn.textContent = "↩ Undo Delete";
     }
   }
 
