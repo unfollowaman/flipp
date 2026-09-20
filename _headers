@@ -11,6 +11,9 @@
 /assets/ogimage/ogimage.avif
   Cache-Control: public, max-age=2592000
 
+/assets/icons/*
+  Cache-Control: public, max-age=2592000
+
 /favicon.png
   Cache-Control: public, max-age=2592000
 
