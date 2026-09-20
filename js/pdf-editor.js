@@ -326,8 +326,11 @@ if (zoomOutBtn) {
 if (toolbar) {
   toolbar.querySelectorAll(".editor-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      toolbar.querySelectorAll(".editor-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      toolbar.querySelectorAll(".editor-btn").forEach((b) => {
+        const isActive = b === btn;
+        b.classList.toggle("active", isActive);
+        if (b.setAttribute) b.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
       activeTool = btn.dataset.tool;
 
       if (activeTool === "signature") {
@@ -401,14 +404,16 @@ function updatePropsBarVisibility() {
 
 if (propBold) {
   propBold.addEventListener("click", () => {
-    propBold.classList.toggle("active");
+    const isActive = propBold.classList.toggle("active");
+    if (propBold.setAttribute) propBold.setAttribute("aria-pressed", isActive ? "true" : "false");
     applyPropChangesToSelected();
   });
 }
 
 if (propItalic) {
   propItalic.addEventListener("click", () => {
-    propItalic.classList.toggle("active");
+    const isActive = propItalic.classList.toggle("active");
+    if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", isActive ? "true" : "false");
     applyPropChangesToSelected();
   });
 }
@@ -1502,6 +1507,22 @@ export function resetEditor() {
   historyStack = [];
   redoStack = [];
   selectedObjId = null;
+  activeTool = "select";
+  if (toolbar) {
+    toolbar.querySelectorAll(".editor-btn").forEach((b) => {
+      const isSelect = b.dataset.tool === "select";
+      b.classList.toggle("active", isSelect);
+      if (b.setAttribute) b.setAttribute("aria-pressed", isSelect ? "true" : "false");
+    });
+  }
+  if (propBold) {
+    propBold.classList.remove("active");
+    if (propBold.setAttribute) propBold.setAttribute("aria-pressed", "false");
+  }
+  if (propItalic) {
+    propItalic.classList.remove("active");
+    if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", "false");
+  }
   zoomLevel = 1.0;
   if (zoomValLabel) zoomValLabel.textContent = "100%";
 

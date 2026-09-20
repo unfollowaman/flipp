@@ -702,29 +702,29 @@
           </div>
 
           <!-- Tool Selection Bar -->
-          <div class="editor-toolbar" id="editor-toolbar">
-            <button class="editor-btn active" data-tool="select" title="Select Object" aria-label="Select tool">
+          <div class="editor-toolbar" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
+            <button class="editor-btn active" data-tool="select" title="Select Object" aria-label="Select tool" aria-pressed="true">
               <span class="tool-icon">↖</span> <span class="tool-label">Select</span>
             </button>
-            <button class="editor-btn" data-tool="text" title="Add Text" aria-label="Text tool">
+            <button class="editor-btn" data-tool="text" title="Add Text" aria-label="Text tool" aria-pressed="false">
               <span class="tool-icon">T</span> <span class="tool-label">Text</span>
             </button>
-            <button class="editor-btn" data-tool="highlight" title="Highlight" aria-label="Highlight tool">
+            <button class="editor-btn" data-tool="highlight" title="Highlight" aria-label="Highlight tool" aria-pressed="false">
               <span class="tool-icon">🖍️</span> <span class="tool-label">Highlight</span>
             </button>
-            <button class="editor-btn" data-tool="draw" title="Freehand Draw" aria-label="Draw tool">
+            <button class="editor-btn" data-tool="draw" title="Freehand Draw" aria-label="Draw tool" aria-pressed="false">
               <span class="tool-icon">✏️</span> <span class="tool-label">Draw</span>
             </button>
-            <button class="editor-btn" data-tool="shape" title="Add Shape" aria-label="Shape tool">
+            <button class="editor-btn" data-tool="shape" title="Add Shape" aria-label="Shape tool" aria-pressed="false">
               <span class="tool-icon">□</span> <span class="tool-label">Shape</span>
             </button>
-            <button class="editor-btn" data-tool="image" title="Add Image" aria-label="Image tool">
+            <button class="editor-btn" data-tool="image" title="Add Image" aria-label="Image tool" aria-pressed="false">
               <span class="tool-icon">🖼️</span> <span class="tool-label">Image</span>
             </button>
-            <button class="editor-btn" data-tool="note" title="Sticky Note" aria-label="Note tool">
+            <button class="editor-btn" data-tool="note" title="Sticky Note" aria-label="Note tool" aria-pressed="false">
               <span class="tool-icon">📌</span> <span class="tool-label">Note</span>
             </button>
-            <button class="editor-btn" data-tool="signature" title="Signature" aria-label="Signature tool">
+            <button class="editor-btn" data-tool="signature" title="Signature" aria-label="Signature tool" aria-pressed="false">
               <span class="tool-icon">✍️</span> <span class="tool-label">Signature</span>
             </button>
           </div>
@@ -745,8 +745,8 @@
               </select>
             </div>
             <div class="editor-prop-item prop-group-text" style="display: none;">
-              <button class="editor-btn" id="prop-bold" title="Bold" aria-label="Bold"><b>B</b></button>
-              <button class="editor-btn" id="prop-italic" title="Italic" aria-label="Italic"><i>I</i></button>
+              <button class="editor-btn" id="prop-bold" title="Bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
+              <button class="editor-btn" id="prop-italic" title="Italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
             </div>
 
             <!-- Color options -->

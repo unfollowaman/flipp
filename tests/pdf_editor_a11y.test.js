@@ -35,6 +35,31 @@ test("PDF Editor toolbar and control buttons have aria-label attributes", () => 
   });
 });
 
+test("PDF Editor toolbar container and toggle buttons have proper ARIA attributes", () => {
+  const htmlPath = path.join(__dirname, "..", "tools", "edit-pdf", "index.html");
+  const htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+  assert.ok(
+    htmlContent.includes('id="editor-toolbar"') &&
+    htmlContent.includes('role="toolbar"') &&
+    htmlContent.includes('aria-label="PDF editing tools"'),
+    "Editor toolbar must have role='toolbar' and aria-label='PDF editing tools'"
+  );
+
+  const tools = ["select", "text", "highlight", "draw", "shape", "image", "note", "signature"];
+  tools.forEach((tool) => {
+    const regex = new RegExp(`<button[^>]*data-tool="${tool}"[^>]*aria-pressed="(true|false)"`, "i");
+    const match = htmlContent.match(regex);
+    assert.ok(match, `Tool button data-tool="${tool}" should have an aria-pressed attribute ("true" or "false")`);
+  });
+
+  ["prop-bold", "prop-italic"].forEach((id) => {
+    const regex = new RegExp(`<button[^>]*id="${id}"[^>]*aria-pressed="(true|false)"`, "i");
+    const match = htmlContent.match(regex);
+    assert.ok(match, `Formatting button #${id} should have an aria-pressed attribute`);
+  });
+});
+
 test("PDF Editor Signature Modal accessibility attributes", () => {
   const htmlPath = path.join(__dirname, "..", "tools", "edit-pdf", "index.html");
   const htmlContent = fs.readFileSync(htmlPath, "utf8");
