@@ -1,30 +1,56 @@
-Name: Flipp
-URL: https://tryflipp.pages.dev
-Description: Flipp is a free, browser-based PDF toolkit. All file processing happens entirely in the user's browser using WebAssembly and browser APIs. No files are uploaded to any server. No account required. Completely free.
+# Flipp
 
-Privacy Guarantee: Flipp never transmits, stores, or logs user files. Processing is 100% client-side.
+> Flipp is a free, privacy-first, browser-based PDF toolkit. All file processing happens 100% locally in the user's browser using WebAssembly and Web APIs. No files are uploaded to any server.
 
-Tools available:
-- PDF to Word: https://tryflipp.pages.dev/tools/pdf-to-word/
-- Merge PDF: https://tryflipp.pages.dev/tools/merge-pdf/
-- Split PDF: https://tryflipp.pages.dev/tools/split-pdf/
-- Compress PDF: https://tryflipp.pages.dev/tools/compress-pdf/
-- PDF to PNG: https://tryflipp.pages.dev/tools/pdf-to-png/
-- Images to PDF: https://tryflipp.pages.dev/tools/images-to-pdf/
-- Protect PDF: https://tryflipp.pages.dev/tools/protect-pdf/
-- Unlock PDF: Remove passwords and restrictions (https://tryflipp.pages.dev/tools/unlock-pdf/)
-- Remove PDF Password: https://tryflipp.pages.dev/tools/protect-pdf/
-- Add Page Numbers: https://tryflipp.pages.dev/tools/add-page-numbers/
-- Add Watermark: https://tryflipp.pages.dev/tools/add-watermark/
-- Sign PDF: https://tryflipp.pages.dev/tools/sign-pdf/
-- Delete PDF Pages: https://tryflipp.pages.dev/tools/delete-pdf-pages/
-- Rearrange PDF Pages: https://tryflipp.pages.dev/tools/rearrange-pdf/
-- PDF to Text: https://tryflipp.pages.dev/tools/pdf-to-text/
-- Text to PDF: https://tryflipp.pages.dev/tools/text-to-pdf/
+## Overview
 
-Comparison: Unlike iLovePDF, Smallpdf, IlovePDF, Adobe Acrobat online, and similar tools, Flipp does not upload files to a server. It is the privacy-first alternative for users handling sensitive, confidential, or personal documents.
+Flipp provides browser-based PDF manipulation tools designed for complete privacy and security. Unlike server-side PDF services, Flipp never transmits, stores, or logs your documents or personal data.
 
-Use cases: merging bank statements, splitting large reports, removing passwords from downloaded PDFs, converting scanned images to PDF, adding watermarks to documents before sharing.
+- **Primary Purpose:** Provide fast, secure, and private PDF editing, conversion, and utility tools directly in the browser.
+- **Privacy Guarantee:** 100% client-side execution—your files never leave your device.
+- **Cost & Access:** Free, no registration or account required, no file size limits or paywalls.
 
-Open source: https://github.com/unfollowaman/flipp
-Contact: unfollowaman@gmail.com
+## Main Website Sections
+
+- [Flipp Homepage](https://tryflipp.pages.dev/) — Main page and quick access to all PDF tools.
+- [Tools Index](https://tryflipp.pages.dev/tools/) — Complete directory of all online PDF utility tools.
+- [Blog](https://tryflipp.pages.dev/blog/) — Articles, technical comparisons, and privacy guides.
+- [About Flipp](https://tryflipp.pages.dev/about/) — Mission, client-side technology stack, and security architecture.
+- [Privacy Policy](https://tryflipp.pages.dev/privacy-policy/) — Privacy details and zero-server file processing guarantee.
+
+## Available PDF Tools
+
+### Conversion Tools
+- [PDF to Word](https://tryflipp.pages.dev/tools/pdf-to-word/) — Convert PDF documents to editable Word (.docx) files.
+- [PDF to PNG](https://tryflipp.pages.dev/tools/pdf-to-png/) — Convert PDF pages into high-resolution PNG or JPG images.
+- [Images to PDF](https://tryflipp.pages.dev/tools/images-to-pdf/) — Convert JPG, PNG, and WebP images into PDF documents.
+- [PDF to Text](https://tryflipp.pages.dev/tools/pdf-to-text/) — Extract plain text content from PDF documents.
+- [Text to PDF](https://tryflipp.pages.dev/tools/text-to-pdf/) — Convert plain text files into clean PDF documents.
+
+### Organization & Page Management
+- [Merge PDF](https://tryflipp.pages.dev/tools/merge-pdf/) — Combine multiple PDF files into a single document.
+- [Split PDF](https://tryflipp.pages.dev/tools/split-pdf/) — Split a PDF document into separate page ranges or individual files.
+- [Delete PDF Pages](https://tryflipp.pages.dev/tools/delete-pdf-pages/) — Delete unwanted pages from a PDF document.
+- [Rearrange PDF](https://tryflipp.pages.dev/tools/rearrange-pdf/) — Reorder, rotate, or organize PDF pages.
+
+### Security & Optimization
+- [Compress PDF](https://tryflipp.pages.dev/tools/compress-pdf/) — Reduce PDF file size while maintaining visual quality.
+- [Protect PDF](https://tryflipp.pages.dev/tools/protect-pdf/) — Encrypt PDF documents with password protection.
+- [Unlock PDF](https://tryflipp.pages.dev/tools/unlock-pdf/) — Remove password protection or restrictions from PDF files.
+
+### Editing & Annotation
+- [Edit PDF](https://tryflipp.pages.dev/tools/edit-pdf/) — Add text, freehand drawings, highlights, and images directly to PDF pages.
+- [Add Watermark](https://tryflipp.pages.dev/tools/add-watermark/) — Add custom text watermarks to PDF pages.
+- [Add Page Numbers](https://tryflipp.pages.dev/tools/add-page-numbers/) — Insert customizable page numbers into PDF documents.
+- [Sign PDF](https://tryflipp.pages.dev/tools/sign-pdf/) — Sign PDF documents with drawn signatures or image signatures.
+
+## Important Capabilities & Privacy Features
+
+- **Client-Side Technology:** Leverages PDF.js, pdf-lib, Tesseract.js, and WebAssembly for in-browser processing.
+- **Sensitive Document Processing:** Ideal for processing bank statements, tax forms, medical records, legal contracts, and personal documents without third-party exposure.
+- **Offline Capability:** Works seamlessly without sending data back to central servers after page load.
+
+## Project & Community Links
+
+- [GitHub Repository](https://github.com/unfollowaman/flipp) — Open-source source code and issue tracker.
+- [AI Plugin Schema](https://tryflipp.pages.dev/ai-plugin.json) — OpenAPI manifest for AI plugin integrations.
