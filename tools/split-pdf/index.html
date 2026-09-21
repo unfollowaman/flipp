@@ -311,9 +311,9 @@
               <span>Split after every</span>
             </label>
             <div id="split-n-stepper" style="display: inline-flex; align-items: center; gap: 6px; opacity: 0.5; pointer-events: none; transition: opacity 0.2s ease;">
-              <button type="button" id="split-n-dec" aria-label="Decrease pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: var(--border-std); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">−</button>
-              <input type="number" id="split-n-input" value="1" min="1" disabled aria-label="Pages per PDF chunk" style="width: 56px; height: 32px; text-align: center; font-size: 14px; font-weight: 700; border: var(--border-std); border-radius: var(--radius-sm); outline: none; -moz-appearance: textfield;" />
-              <button type="button" id="split-n-inc" aria-label="Increase pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: var(--border-std); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">+</button>
+              <button type="button" id="split-n-dec" aria-label="Decrease pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: 1.5px solid var(--black); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">−</button>
+              <input type="number" id="split-n-input" value="1" min="1" disabled aria-label="Pages per PDF chunk" style="width: 56px; height: 32px; text-align: center; font-size: 14px; font-weight: 700; border: 1.5px solid var(--black); border-radius: var(--radius-sm); outline: none; -moz-appearance: textfield;" />
+              <button type="button" id="split-n-inc" aria-label="Increase pages interval" disabled style="width: 32px; height: 32px; font-size: 16px; font-weight: 800; border: 1.5px solid var(--black); border-radius: var(--radius-sm); background: var(--cream); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">+</button>
               <span style="font-weight: 700; font-size: 14px;">pages</span>
             </div>
           </div>
@@ -344,17 +344,21 @@
                   style="
                     width: 160px;
                     min-height: 200px;
-                    border: 1px dashed var(--black);
-                    border-radius: var(--radius-sm);
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+                    background: #fff;
+                    position: relative;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 0.9rem;
                     color: var(--black);
-                    background: #f9f9f9;
                   "
                 >
                   <!-- Canvas or message goes here -->
+                  <span id="split-chip-start" class="split-preview-chip">Page 1</span>
                 </div>
               </div>
               <span style="margin-top: 10px">to</span>
@@ -372,17 +376,21 @@
                   style="
                     width: 160px;
                     min-height: 200px;
-                    border: 1px dashed var(--black);
-                    border-radius: var(--radius-sm);
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+                    background: #fff;
+                    position: relative;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 0.9rem;
                     color: var(--black);
-                    background: #f9f9f9;
                   "
                 >
                   <!-- Canvas or message goes here -->
+                  <span id="split-chip-end" class="split-preview-chip">Page 1</span>
                 </div>
               </div>
             </div>
@@ -456,7 +464,7 @@
         </h2>
         <div class="tcs-use-cases">
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">🔒</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--mint)"><span class="tcs-use-case-icon">🔒</span></div>
             <div class="tcs-use-case-title">Local Processing</div>
             <div class="tcs-use-case-desc">
               Extract pages securely. Your file never leaves your browser,
@@ -464,7 +472,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">✂️</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--pink)"><span class="tcs-use-case-icon">✂️</span></div>
             <div class="tcs-use-case-title">Custom Ranges</div>
             <div class="tcs-use-case-desc">
               Easily extract specific pages or custom ranges (e.g., 1-3, 5,
@@ -472,7 +480,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">✨</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--yellow)"><span class="tcs-use-case-icon">✨</span></div>
             <div class="tcs-use-case-title">Lossless Quality</div>
             <div class="tcs-use-case-desc">
               Extracted pages retain 100% of their original quality, formatting,
@@ -480,7 +488,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">⚡</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--sky-blue)"><span class="tcs-use-case-icon">⚡</span></div>
             <div class="tcs-use-case-title">Lightning Fast</div>
             <div class="tcs-use-case-desc">
               Because there are no server uploads or queues, your split PDF is
@@ -499,7 +507,7 @@
         </h2>
         <div class="tcs-use-cases">
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">✂️</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--mint)"><span class="tcs-use-case-icon">✂️</span></div>
             <div class="tcs-use-case-title">Extract Chapters</div>
             <div class="tcs-use-case-desc">
               Pull a single chapter or section out of a massive PDF textbook or
@@ -507,7 +515,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">📩</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--pink)"><span class="tcs-use-case-icon">📩</span></div>
             <div class="tcs-use-case-title">Reduce File Size</div>
             <div class="tcs-use-case-desc">
               Remove unnecessary cover pages, appendices, or filler content to
@@ -515,7 +523,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">📑</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--yellow)"><span class="tcs-use-case-icon">📑</span></div>
             <div class="tcs-use-case-title">Separate Invoices</div>
             <div class="tcs-use-case-desc">
               Split a bulk PDF export of monthly invoices into individual files
@@ -523,7 +531,7 @@
             </div>
           </div>
           <div class="tcs-use-case-card">
-            <div class="tcs-use-case-icon">⚖️</div>
+            <div class="tcs-use-case-icon-wrap" style="background: var(--sky-blue)"><span class="tcs-use-case-icon">⚖️</span></div>
             <div class="tcs-use-case-title">Legal Exhibits</div>
             <div class="tcs-use-case-desc">
               Extract specific pages from a long contract or court filing to use
