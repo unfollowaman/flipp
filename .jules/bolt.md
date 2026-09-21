@@ -33,3 +33,7 @@
 ## 2026-09-21 - Inspect image dimensions via createImageBitmap and defer Base64 data URL conversion
 **Learning:** In image processing pipelines (such as `js/img-to-pdf.js`), pre-loading all input `File`/`Blob` objects into Base64 data URLs up-front allocates large strings concurrently in memory. Furthermore, assigning Base64 strings to `HTMLImageElement.src` forces main-thread Base64 decoding just to read image dimensions.
 **Action:** Use `createImageBitmap(file)` (or `URL.createObjectURL` fallback) on raw `File`/`Blob` inputs to inspect dimensions without Base64 encoding, and defer `fileToDataUrl` conversion to inside the sequential page loop so Base64 strings are allocated on demand and garbage-collected per page.
+
+## 2026-09-22 - Cache input file ArrayBuffer across preview loading and document splitting
+**Learning:** In client-side PDF document manipulation tools (such as `js/pdf-split.js`), re-reading `await file.arrayBuffer()` upon action execution triggers an asynchronous File read from browser storage/disk when the ArrayBuffer was already read during initial preview generation.
+**Action:** Store the loaded `ArrayBuffer` in a module variable (`originalPdfBytes`) when a file is selected, pass a cloned slice (`originalPdfBytes.slice(0)`) to `pdf.js` worker tasks, reuse `originalPdfBytes` directly in subsequent `PDFLib.PDFDocument.load` operations, and set `originalPdfBytes = null` on UI reset or file reload.
