@@ -35,8 +35,12 @@ function createTestInstance(customWindowOverrides = {}) {
       if (!elementMap[id]) {
         const classes = new Set();
         const listeners = {};
+        const attributes = {};
         elementMap[id] = {
           listeners,
+          attributes,
+          setAttribute: (k, v) => { attributes[k] = v; },
+          getAttribute: (k) => attributes[k],
           addEventListener: (event, handler) => {
             if (!listeners[event]) listeners[event] = [];
             listeners[event].push(handler);
@@ -154,6 +158,28 @@ function createTestInstance(customWindowOverrides = {}) {
 const defaultInstance = createTestInstance();
 const { validatePasswords, addFiles, encryptPdf, getPdfFile, getProtectedBlob } = defaultInstance.exportsObj;
 const { elementMap } = defaultInstance;
+
+test('protect-toggle-pw click toggles password visibility', async (t) => {
+  const inst = createTestInstance();
+  const toggleBtn = inst.elementMap['protect-toggle-pw'];
+  const passwordInput = inst.elementMap['protect-password'];
+  const confirmInput = inst.elementMap['protect-password-confirm'];
+
+  passwordInput.type = 'password';
+  confirmInput.type = 'password';
+
+  // First click toggles to text
+  await toggleBtn.click();
+  assert.strictEqual(passwordInput.type, 'text');
+  assert.strictEqual(confirmInput.type, 'text');
+  assert.strictEqual(toggleBtn.textContent, '🙈');
+
+  // Second click toggles back to password
+  await toggleBtn.click();
+  assert.strictEqual(passwordInput.type, 'password');
+  assert.strictEqual(confirmInput.type, 'password');
+  assert.strictEqual(toggleBtn.textContent, '👁️');
+});
 
 test('validatePasswords function', async (t) => {
   t.beforeEach(() => {

@@ -9,3 +9,7 @@
 ## 2026-09-19 - Toolbar Toggle Button Aria Pressed Sync
 **Learning:** Stateful tool selection and formatting toggle buttons inside application toolbars require `aria-pressed` attributes ("true"/"false") synchronized dynamically alongside CSS `.active` classes so screen readers announce active tool states.
 **Action:** Include `role="toolbar"` and `aria-label` on toolbar containers, initialize `aria-pressed` on toggle buttons, and update `aria-pressed` in event listeners and reset routines.
+
+## 2026-09-20 - Password Input Visibility Toggle Accessibility
+**Learning:** Password inputs benefit from accessible toggle controls (`<button type="button">`) that dynamically update `type` ("password" / "text"), `aria-label`, and `title` ("Show password" / "Hide password") to give visual feedback and screen reader clarity.
+**Action:** Use relative positioning wrappers for password fields and sync `aria-label` and `title` state on toggle clicks.
