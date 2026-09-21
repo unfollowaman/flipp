@@ -29,3 +29,7 @@
 ## 2026-09-20 - Cache parsed PDF-lib RGB color objects across page watermark iterations
 **Learning:** In document generation loops (such as `js/add-watermark.js`), parsing hex color strings (`parseInt` / `slice`) and calling `pdfLib.rgb(r, g, b)` repeatedly for every page creates avoidable CPU parsing overhead and temporary object allocations on multi-page PDFs.
 **Action:** Cache `rgb(r, g, b)` objects in a `Map` keyed by hex string within the conversion task scope to reuse color instances across pages.
+
+## 2026-09-21 - Inspect image dimensions via createImageBitmap and defer Base64 data URL conversion
+**Learning:** In image processing pipelines (such as `js/img-to-pdf.js`), pre-loading all input `File`/`Blob` objects into Base64 data URLs up-front allocates large strings concurrently in memory. Furthermore, assigning Base64 strings to `HTMLImageElement.src` forces main-thread Base64 decoding just to read image dimensions.
+**Action:** Use `createImageBitmap(file)` (or `URL.createObjectURL` fallback) on raw `File`/`Blob` inputs to inspect dimensions without Base64 encoding, and defer `fileToDataUrl` conversion to inside the sequential page loop so Base64 strings are allocated on demand and garbage-collected per page.

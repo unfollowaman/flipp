@@ -311,7 +311,7 @@ test('img-to-pdf error handling', async (t) => {
     );
   });
 
-  await t.test('getImageDimensions resolves image natural dimensions correctly', async () => {
+  await t.test('getImageDimensions resolves image natural dimensions correctly from string, Blob via createImageBitmap, and Blob via ObjectURL fallback', async () => {
     class MockImage {
       constructor() {
         this.naturalWidth = 1920;
@@ -328,6 +328,20 @@ test('img-to-pdf error handling', async (t) => {
       }
     }
 
+    let closedBitmap = false;
+    const mockCreateImageBitmap = async (blob) => {
+      return {
+        width: 1280,
+        height: 720,
+        close: () => { closedBitmap = true; }
+      };
+    };
+
+    const mockWindowWithBitmap = {
+      createImageBitmap: mockCreateImageBitmap
+    };
+
+    // Test 1: string dataUrl input
     const { getImageDimensions } = wrapper(
       { getElementById: createMockElement, createElement: createMockElement },
       mockWindow,
@@ -337,13 +351,75 @@ test('img-to-pdf error handling', async (t) => {
       mockActivatePill,
       mockSetupDragReorder,
       class Blob {},
-      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
       class FileReader {},
       MockImage
     );
 
-    const dimensions = await getImageDimensions('data:image/png;base64,mock');
-    assert.deepStrictEqual(dimensions, { w: 1920, h: 1080 });
+    const dimensionsString = await getImageDimensions('data:image/png;base64,mock');
+    assert.deepStrictEqual(dimensionsString, { w: 1920, h: 1080 });
+
+    // Test 2: Blob input with createImageBitmap available
+    const wrapperWithBitmap = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'setProgress',
+      'activatePill',
+      'setupDragReorder',
+      'Blob',
+      'URL',
+      'FileReader',
+      'Image',
+      'createImageBitmap',
+      src
+    );
+
+    const { getImageDimensions: getImageDimensionsBitmap } = wrapperWithBitmap(
+      { getElementById: createMockElement, createElement: createMockElement },
+      mockWindowWithBitmap,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+      class FileReader {},
+      MockImage,
+      mockCreateImageBitmap
+    );
+
+    const mockBlob = { type: 'image/png' };
+    const dimensionsBitmap = await getImageDimensionsBitmap(mockBlob);
+    assert.deepStrictEqual(dimensionsBitmap, { w: 1280, h: 720 });
+    assert.strictEqual(closedBitmap, true, 'bitmap.close() should be called');
+
+    // Test 3: Blob input with objectURL fallback
+    let revokedUrl = null;
+    const mockURL = {
+      createObjectURL: (b) => 'blob:mock-url',
+      revokeObjectURL: (u) => { revokedUrl = u; }
+    };
+
+    const { getImageDimensions: getImageDimensionsFallback } = wrapper(
+      { getElementById: createMockElement, createElement: createMockElement },
+      {}, // no createImageBitmap in window
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      mockURL,
+      class FileReader {},
+      MockImage
+    );
+
+    const dimensionsFallback = await getImageDimensionsFallback(mockBlob);
+    assert.deepStrictEqual(dimensionsFallback, { w: 1920, h: 1080 });
+    assert.strictEqual(revokedUrl, 'blob:mock-url', 'ObjectURL should be revoked after loading');
   });
 
   await t.test('calculatePageDimensions calculates correct page dimensions for auto, a4, and letter page sizes', () => {
