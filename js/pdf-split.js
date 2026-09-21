@@ -1,6 +1,7 @@
 import { initDropZone, showToast } from "./drag-drop.js";
 
 let pdfFile = null;
+let originalPdfBytes = null;
 let splitBlobs = [];
 let totalPages = 0;
 let pdfDocument = null; // Holds the pdf.js document for rendering previews
@@ -148,6 +149,7 @@ async function renderPagePreview(pageNum, container) {
 
 function resetSplitUIState(file) {
   pdfFile = file;
+  originalPdfBytes = null;
   previewArea.classList.add("is-visible");
   resultsArea.classList.remove("is-visible");
   splitBlobs = [];
@@ -178,8 +180,8 @@ async function loadPdfMetadataAndPreviews(file) {
   }
 
   try {
-    const arrayBuffer = await file.arrayBuffer();
-    const srcPdf = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    originalPdfBytes = await file.arrayBuffer();
+    const srcPdf = await PDFLib.PDFDocument.load(originalPdfBytes, { ignoreEncryption: true });
     totalPages = srcPdf.getPageCount();
     infoEl.textContent = `Selected: ${file.name} (${totalPages} pages)`;
     rangeStartEl.min = "1";
@@ -192,8 +194,8 @@ async function loadPdfMetadataAndPreviews(file) {
     // Load pdfDocument using pdf.js for rendering previews
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
     if (pdfjsLib) {
-      // Create a copy of the buffer because pdfLib might have modified/consumed it
-      const bufferCopy = arrayBuffer.slice(0);
+      // Pass a copy so pdf.js worker doesn't detach originalPdfBytes
+      const bufferCopy = originalPdfBytes.slice(0);
       pdfDocument = await pdfjsLib.getDocument({ data: bufferCopy }).promise;
 
       // Initial render for previews
@@ -248,12 +250,12 @@ rangeEndEl.addEventListener("input", () => {
 });
 
 splitBtn.addEventListener("click", async () => {
-  if (!pdfFile) return;
+  if (!pdfFile || !originalPdfBytes) return;
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");
 
   try {
-    const srcPdf = await PDFLib.PDFDocument.load(await pdfFile.arrayBuffer(), { ignoreEncryption: true });
+    const srcPdf = await PDFLib.PDFDocument.load(originalPdfBytes, { ignoreEncryption: true });
     totalPages = srcPdf.getPageCount();
 
     splitBlobs = [];
@@ -422,6 +424,7 @@ resetBtn.addEventListener("click", () => {
     pdfDocument = null;
   }
   pdfFile = null;
+  originalPdfBytes = null;
   splitBlobs = [];
   totalPages = 0;
   previewArea.classList.remove("is-visible");
