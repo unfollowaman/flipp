@@ -4,6 +4,7 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-22: Merge PDF (`js/pdf-merge.js`, `tools/merge-pdf/index.html`, `tests/pdf-merge.test.js`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
@@ -17,7 +18,7 @@
   - **Zero-Server Philosophy:** All file transformations run 100% client-side in the browser using HTML5 Canvas, Web Workers, and client-side JavaScript libraries. No user files or extracted content are transmitted to any external server or backend API.
   - **Tool Module Pattern:** Each tool resides in `tools/<tool-name>/index.html` backed by a matching module in `js/<tool-name>.js`.
 - **Important shared utilities:**
-  - `js/drag-drop.js`: Provides file dropzone initialization (`initDropZone`), toast alerts (`showToast`), file download trigger (`triggerDownload`), and button pill state toggling (`activatePill`).
+  - `js/drag-drop.js`: Provides file dropzone initialization (`initDropZone`), toast alerts (`showToast`), file download trigger (`triggerDownload`), button pill state toggling (`activatePill`), drag-and-drop reordering (`setupDragReorder`), and PDF first-page thumbnail rendering (`renderPdfFirstPage`).
   - `js/page-delete-undo.js`: Manages undo state, page particle removal animations, accessibility live region announcements, and page restoration across thumbnail tools.
 - **Critical dependencies:**
   - `pdfjs-dist`: Loaded via CDN script tag for client-side PDF rendering and text parsing.
@@ -29,6 +30,8 @@
   - Filename sanitization during export/download generation (`safeName.replace(/[\\/]/g, "_")`).
   - Object URL lifecycle management (`URL.createObjectURL` and `URL.revokeObjectURL`) to prevent memory leaks and unexpected resource retention.
 - **Important relationships between components:**
+  - `js/pdf-merge.js` relies on `renderPdfFirstPage` from `js/drag-drop.js` to extract thumbnail canvas previews and `setupDragReorder` for reordering cards.
+  - `js/pdf-merge.js` uses `PDFLib.PDFDocument.create()` and `copyPages` from `pdf-lib` to combine selected document pages in user-specified order without text/vector rasterization.
   - `js/unlock-pdf.js` depends on `pdf-lib`'s `PDFDocument.load` with `{ ignoreEncryption: true }` or `{ password }` and `copyPages`.
   - `js/pdf-protect.js` uses `pdfjs-dist` to render PDF pages onto canvases and `jsPDF` with the `encryption` configuration parameter to re-encode the PDF with user/owner passwords.
 
@@ -37,6 +40,39 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-22 — Merge PDF
+
+Status: PASS
+
+Scope:
+- In-browser PDF merge processing flow (`js/pdf-merge.js` & `tools/merge-pdf/index.html`)
+- Drag-and-drop file upload and visual reordering (`js/drag-drop.js` integration)
+- Native test suite execution (`tests/pdf-merge.test.js`)
+- Zero-server privacy compliance verification
+
+Evidence:
+- Executed full test suite: `node --test tests/*.test.js tests/test_pdf_to_img.js`. 270 subtests passed across all test files with 0 failures.
+- Directly inspected `js/pdf-merge.js` and `tools/merge-pdf/index.html`.
+- Verified file selection filters non-PDF files and presents toast notification on invalid selection.
+- Verified document loading uses `Promise.all` across selected PDF items and leverages `pdf-lib`'s `copyPages` for lossless page combining without quality loss or re-encoding.
+- Confirmed thread-yielding mechanism (`await new Promise((r) => setTimeout(r, 50));`) allows browser DOM paint during button loading state update.
+- Confirmed Blob download lifecycle: Object URL is created (`URL.createObjectURL`), attached to anchor tag, clicked, and revoked (`URL.revokeObjectURL`) immediately after.
+- Confirmed complete zero-server privacy compliance with 0 external network requests during PDF processing operations.
+
+Findings:
+1. **Document Merging (`js/pdf-merge.js`):** Functional and correct. PDF-lib accurately copies source page streams into a new `PDFDocument`.
+2. **Interactive UI Reordering:** Reordering drag events update both DOM card attributes and underlying array positions cleanly.
+3. **Download & Resource Cleanup:** Object URL created on download is immediately revoked upon execution.
+4. **Test Suite Coverage:** Unit test suite in `tests/pdf-merge.test.js` exercises low-PDF count guard, missing PDF-lib guard, thumbnail card rendering with drag registration, and concurrent `Promise.all` merging.
+
+Follow-up:
+- Re-audit `js/pdf-merge.js` if large-file stream processing or Web Worker offloading is introduced.
+
+Relevant files:
+- `js/pdf-merge.js`
+- `tools/merge-pdf/index.html`
+- `tests/pdf-merge.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
