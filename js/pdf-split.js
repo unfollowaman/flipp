@@ -76,7 +76,21 @@ async function renderPagePreview(pageNum, container) {
   const currentRequestId = (activeRenderTasks.get(container) || 0) + 1;
   activeRenderTasks.set(container, currentRequestId);
 
-  if (!pdfDocument) return;
+  function updateChip(pNum) {
+    let chip = container.querySelector(".split-preview-chip");
+    if (!chip) {
+      chip = document.createElement("span");
+      chip.className = "split-preview-chip";
+      container.appendChild(chip);
+    }
+    const val = pNum !== undefined && pNum !== null ? String(pNum).trim() : "";
+    chip.textContent = val ? `Page ${val}` : "Page 1";
+  }
+
+  if (!pdfDocument) {
+    updateChip(pageNum);
+    return;
+  }
 
   const pageNumber = Number(pageNum);
   if (
@@ -86,6 +100,7 @@ async function renderPagePreview(pageNum, container) {
   ) {
     container.innerHTML = "";
     container.textContent = "No such page 😑";
+    updateChip(pageNum);
     return;
   }
 
@@ -124,6 +139,7 @@ async function renderPagePreview(pageNum, container) {
       container.textContent = "Error rendering page";
     }
   } finally {
+    updateChip(pageNum);
     if (page && typeof page.cleanup === "function") {
       page.cleanup();
     }
@@ -208,6 +224,11 @@ let startInputTimeout = null;
 let endInputTimeout = null;
 
 rangeStartEl.addEventListener("input", () => {
+  const chip = previewStartEl.querySelector(".split-preview-chip");
+  if (chip) {
+    const val = rangeStartEl.value.trim();
+    chip.textContent = val ? `Page ${val}` : "Page 1";
+  }
   if (startInputTimeout) clearTimeout(startInputTimeout);
   startInputTimeout = setTimeout(() => {
     renderPagePreview(rangeStartEl.value, previewStartEl);
@@ -215,6 +236,11 @@ rangeStartEl.addEventListener("input", () => {
 });
 
 rangeEndEl.addEventListener("input", () => {
+  const chip = previewEndEl.querySelector(".split-preview-chip");
+  if (chip) {
+    const val = rangeEndEl.value.trim();
+    chip.textContent = val ? `Page ${val}` : "Page 1";
+  }
   if (endInputTimeout) clearTimeout(endInputTimeout);
   endInputTimeout = setTimeout(() => {
     renderPagePreview(rangeEndEl.value, previewEndEl);
