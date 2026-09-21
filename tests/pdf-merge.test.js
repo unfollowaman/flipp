@@ -164,8 +164,11 @@ test('pdf-merge functionality', async (t) => {
     assert.strictEqual(setupDragReorderCalls.length, 2);
   });
 
-  await t.test('successfully merges multiple PDFs using Promise.all concurrent loading', async () => {
+  await t.test('successfully merges multiple PDFs using cached ArrayBuffer without re-reading file', async () => {
     let loadCount = 0;
+    let arrayBufferReadCount = 0;
+    let loadedBytesList = [];
+
     const mockPDFLib = {
       PDFDocument: {
         create: async () => ({
@@ -175,6 +178,7 @@ test('pdf-merge functionality', async (t) => {
         }),
         load: async (bytes) => {
           loadCount++;
+          loadedBytesList.push(bytes);
           return {
             getPageIndices: () => [0]
           };
@@ -183,15 +187,38 @@ test('pdf-merge functionality', async (t) => {
     };
     mockWindow.PDFLib = mockPDFLib;
 
-    await addFilesCallback([
-      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
-      { type: 'application/pdf', name: '2.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
-      { type: 'application/pdf', name: '3.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
-    ]);
+    const mockBuf1 = new ArrayBuffer(8);
+    const mockBuf2 = new ArrayBuffer(16);
+
+    const mockFile1 = {
+      type: 'application/pdf',
+      name: '1.pdf',
+      arrayBuffer: async () => {
+        arrayBufferReadCount++;
+        return mockBuf1;
+      }
+    };
+    const mockFile2 = {
+      type: 'application/pdf',
+      name: '2.pdf',
+      arrayBuffer: async () => {
+        arrayBufferReadCount++;
+        return mockBuf2;
+      }
+    };
+
+    await addFilesCallback([mockFile1, mockFile2]);
+
+    // Initial addition should read file.arrayBuffer once per file
+    assert.strictEqual(arrayBufferReadCount, 2);
 
     await mockMergeClick();
 
-    assert.strictEqual(loadCount, 3);
+    assert.strictEqual(loadCount, 2);
+    // ArrayBuffer reads should NOT increase on merge because cached buffers were reused!
+    assert.strictEqual(arrayBufferReadCount, 2);
+    assert.strictEqual(loadedBytesList[0], mockBuf1);
+    assert.strictEqual(loadedBytesList[1], mockBuf2);
     assert.strictEqual(toastMessage, 'Merged PDF is ready!');
   });
 });
