@@ -13,6 +13,18 @@ const downloadBtn = document.getElementById("protect-download-btn");
 const resetBtn = document.getElementById("protect-reset-btn");
 const passwordEl = document.getElementById("protect-password");
 const confirmPasswordEl = document.getElementById("protect-password-confirm");
+const togglePwBtn = document.getElementById("protect-toggle-pw");
+
+if (togglePwBtn && passwordEl) {
+  togglePwBtn.addEventListener("click", () => {
+    const show = passwordEl.type === "password";
+    passwordEl.type = show ? "text" : "password";
+    if (confirmPasswordEl) confirmPasswordEl.type = show ? "text" : "password";
+    togglePwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    togglePwBtn.title = show ? "Hide password" : "Show password";
+    togglePwBtn.textContent = show ? "🙈" : "🐵";
+  });
+}
 
 function addFiles(files) {
   const first = files.find(

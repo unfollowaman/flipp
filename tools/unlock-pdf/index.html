@@ -331,13 +331,22 @@
               >This PDF is password-protected. Enter the password to unlock
               it.</label
             >
-            <input
-              type="password"
-              class="range-input"
-              id="unlock-password"
-              placeholder="Enter password"
-              style="max-width: 320px; width: 100%; display: block"
-            />
+            <div style="position: relative; max-width: 320px; width: 100%;">
+              <input
+                type="password"
+                class="range-input"
+                id="unlock-password"
+                placeholder="Enter password"
+                style="width: 100%; display: block; padding-right: 40px;"
+              />
+              <button
+                type="button"
+                id="unlock-toggle-pw"
+                aria-label="Show password"
+                title="Show password"
+                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 4px; line-height: 1;"
+              >🐵</button>
+            </div>
             <span
               id="unlock-error"
               style="

@@ -306,25 +306,36 @@
           </div>
           <div class="option-group" style="margin-top: 12px">
             <label class="option-label" for="protect-password">Password</label>
-            <input
-              type="password"
-              class="range-input"
-              id="protect-password"
-              placeholder="Enter password"
-              style="max-width: 320px"
-            />
+            <div style="position: relative; max-width: 320px;">
+              <input
+                type="password"
+                class="range-input"
+                id="protect-password"
+                placeholder="Enter password"
+                style="width: 100%; padding-right: 40px;"
+              />
+              <button
+                type="button"
+                id="protect-toggle-pw"
+                aria-label="Show password"
+                title="Show password"
+                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 4px; line-height: 1;"
+              >🐵</button>
+            </div>
           </div>
           <div class="option-group" style="margin-top: 12px">
             <label class="option-label" for="protect-password-confirm"
               >Confirm password</label
             >
-            <input
-              type="password"
-              class="range-input"
-              id="protect-password-confirm"
-              placeholder="Re-enter password"
-              style="max-width: 320px"
-            />
+            <div style="position: relative; max-width: 320px;">
+              <input
+                type="password"
+                class="range-input"
+                id="protect-password-confirm"
+                placeholder="Re-enter password"
+                style="width: 100%; padding-right: 40px;"
+              />
+            </div>
           </div>
         </div>
         <div

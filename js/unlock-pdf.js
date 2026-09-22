@@ -11,7 +11,18 @@ const previewAreaEl = document.getElementById("unlock-preview-area");
 const infoEl = document.getElementById("unlock-info");
 const passwordGroupEl = document.getElementById("unlock-password-group");
 const passwordInput = document.getElementById("unlock-password");
+const toggleUnlockPwBtn = document.getElementById("unlock-toggle-pw");
 const errorMsgEl = document.getElementById("unlock-error");
+
+if (toggleUnlockPwBtn && passwordInput) {
+  toggleUnlockPwBtn.addEventListener("click", () => {
+    const show = passwordInput.type === "password";
+    passwordInput.type = show ? "text" : "password";
+    toggleUnlockPwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    toggleUnlockPwBtn.title = show ? "Hide password" : "Show password";
+    toggleUnlockPwBtn.textContent = show ? "🙈" : "🐵";
+  });
+}
 const unlockBtn = document.getElementById("unlock-btn");
 
 const resultsAreaEl = document.getElementById("unlock-results");
