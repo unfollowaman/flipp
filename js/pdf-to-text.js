@@ -113,7 +113,6 @@ async function handleFile(file) {
     pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
     const numPages = pdfDoc.numPages;
 
-    let ocrTriggered = false;
     let completedPages = 0;
 
     // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
@@ -144,7 +143,6 @@ async function handleFile(file) {
               );
 
               if (usedOcr) {
-                ocrTriggered = true;
                 ocrNotice.style.display = "block";
               }
 
