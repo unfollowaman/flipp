@@ -183,3 +183,116 @@ test('pdf-page-numbers font caching behavior', async (t) => {
   await mockAddClick();
   assert.strictEqual(fetchCallCount, 1, 'Second click should use cached font without additional fetch calls');
 });
+
+test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
+  let positionClickCallback;
+  let resetClickCallback;
+
+  const cards = [
+    {
+      dataset: { value: 'bottom-right' },
+      attributes: { 'aria-pressed': 'true' },
+      classList: {
+        contains: (cls) => cls === 'active',
+        toggle: function(cls, state) { if (cls === 'active') this._active = state; }
+      },
+      setAttribute: function(attr, val) { this.attributes[attr] = val; },
+      getAttribute: function(attr) { return this.attributes[attr]; }
+    },
+    {
+      dataset: { value: 'top-right' },
+      attributes: { 'aria-pressed': 'false' },
+      classList: {
+        contains: (cls) => cls === 'active',
+        toggle: function(cls, state) { if (cls === 'active') this._active = state; }
+      },
+      setAttribute: function(attr, val) { this.attributes[attr] = val; },
+      getAttribute: function(attr) { return this.attributes[attr]; }
+    },
+    {
+      dataset: { value: 'bottom-center' },
+      attributes: { 'aria-pressed': 'false' },
+      classList: {
+        contains: (cls) => cls === 'active',
+        toggle: function(cls, state) { if (cls === 'active') this._active = state; }
+      },
+      setAttribute: function(attr, val) { this.attributes[attr] = val; },
+      getAttribute: function(attr) { return this.attributes[attr]; }
+    }
+  ];
+
+  const positionGrid = {
+    id: 'number-page-position',
+    addEventListener: (event, handler) => {
+      if (event === 'click') positionClickCallback = handler;
+    },
+    querySelectorAll: (selector) => {
+      if (selector === '.position-card') return cards;
+      return [];
+    }
+  };
+
+  const createMockElement = (id = '') => {
+    if (id === 'number-page-position') return positionGrid;
+    const el = {
+      id,
+      value: '1',
+      style: { display: '' },
+      dataset: { value: '' },
+      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
+      appendChild: () => {},
+      closest: () => null,
+      innerHTML: '',
+      textContent: '',
+      addEventListener: (event, handler) => {
+        if (id === 'number-reset-btn' && event === 'click') {
+          resetClickCallback = handler;
+        }
+      },
+      querySelector: () => createMockElement(),
+      querySelectorAll: () => [],
+      getAttribute: () => null,
+      setAttribute: () => {},
+      removeAttribute: () => {}
+    };
+    return el;
+  };
+
+  const mockDocument = {
+    getElementById: createMockElement,
+    createElement: () => createMockElement()
+  };
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'fetch', src);
+
+  wrapper(
+    mockDocument,
+    {},
+    () => {},
+    () => {},
+    class Blob {},
+    { createObjectURL: () => '', revokeObjectURL: () => '' },
+    () => {}
+  );
+
+  assert.ok(positionClickCallback, 'Position click handler registered');
+  assert.ok(resetClickCallback, 'Reset click handler registered');
+
+  // Simulate click on top-right card
+  positionClickCallback({
+    target: {
+      closest: (sel) => (sel === '.position-card' ? cards[1] : null)
+    }
+  });
+
+  assert.strictEqual(cards[0].getAttribute('aria-pressed'), 'false');
+  assert.strictEqual(cards[1].getAttribute('aria-pressed'), 'true');
+  assert.strictEqual(cards[2].getAttribute('aria-pressed'), 'false');
+
+  // Simulate reset click
+  resetClickCallback();
+
+  assert.strictEqual(cards[0].getAttribute('aria-pressed'), 'true');
+  assert.strictEqual(cards[1].getAttribute('aria-pressed'), 'false');
+  assert.strictEqual(cards[2].getAttribute('aria-pressed'), 'false');
+});
