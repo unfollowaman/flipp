@@ -269,10 +269,11 @@ splitBtn.addEventListener("click", async () => {
 
       let chunkIndex = 1;
       for (let i = 0; i < totalPages; i += interval) {
-        const pageIndexes = [];
-        for (let j = i; j < Math.min(i + interval, totalPages); j++) {
-          pageIndexes.push(j);
-        }
+        const chunkLength = Math.min(interval, totalPages - i);
+        const pageIndexes = Array.from(
+          { length: chunkLength },
+          (_, idx) => i + idx,
+        );
 
         const outPdf = await PDFLib.PDFDocument.create();
         const copiedPages = await outPdf.copyPages(srcPdf, pageIndexes);
