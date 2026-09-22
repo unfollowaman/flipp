@@ -283,15 +283,19 @@ export async function renderPageToDataUrl(page, viewport, imageType, imageQualit
   return dataUrl;
 }
 
-export async function renderPdfFirstPage(file) {
+export async function renderPdfFirstPage(fileOrBuffer) {
   let pdfDoc = null;
   let page = null;
   try {
     const pdfjs = window["pdfjs-dist/build/pdf"];
     if (!pdfjs) return null;
 
-    const arrayBuffer = await file.arrayBuffer();
-    pdfDoc = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+    const arrayBuffer =
+      fileOrBuffer instanceof ArrayBuffer
+        ? fileOrBuffer
+        : await fileOrBuffer.arrayBuffer();
+    // Slice ArrayBuffer because PDF.js worker transfers and detaches buffers passed to getDocument
+    pdfDoc = await pdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
     if (pdfDoc.numPages < 1) return null;
 
     page = await pdfDoc.getPage(1);

@@ -538,9 +538,13 @@ test('renderPdfFirstPage', async (t) => {
       const file = { name: 'test.pdf', arrayBuffer: async () => testBuffer };
       const result = await renderPdfFirstPage(file);
       assert.strictEqual(result, 'data:image/png;base64,mockdata');
-      assert.strictEqual(passedData, testBuffer); // Verified direct buffer passed without slice
+      assert.strictEqual(passedData.byteLength, testBuffer.byteLength);
       assert.strictEqual(pageCleanedUp, true);
       assert.strictEqual(docDestroyed, true);
+
+      // Verify ArrayBuffer input directly
+      const resultBuffer = await renderPdfFirstPage(testBuffer);
+      assert.strictEqual(resultBuffer, 'data:image/png;base64,mockdata');
     } finally {
       global.window = origWindow;
     }

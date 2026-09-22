@@ -37,3 +37,7 @@
 ## 2026-09-22 - Cache input file ArrayBuffer across preview loading and document splitting
 **Learning:** In client-side PDF document manipulation tools (such as `js/pdf-split.js`), re-reading `await file.arrayBuffer()` upon action execution triggers an asynchronous File read from browser storage/disk when the ArrayBuffer was already read during initial preview generation.
 **Action:** Store the loaded `ArrayBuffer` in a module variable (`originalPdfBytes`) when a file is selected, pass a cloned slice (`originalPdfBytes.slice(0)`) to `pdf.js` worker tasks, reuse `originalPdfBytes` directly in subsequent `PDFLib.PDFDocument.load` operations, and set `originalPdfBytes = null` on UI reset or file reload.
+
+## 2026-09-23 - Cache input ArrayBuffer during multi-file selection to eliminate duplicate disk reads on merge
+**Learning:** In multi-file PDF tools (such as `js/pdf-merge.js`), reading `await file.arrayBuffer()` separately during thumbnail generation and again during document merging forces duplicate async File/disk reads for every selected file.
+**Action:** Read `const arrayBuffer = await file.arrayBuffer()` once during file addition, pass `arrayBuffer.slice(0)` to PDF.js worker tasks for preview rendering, store `arrayBuffer` on item state objects, and reuse `item.arrayBuffer` directly in `PDFLib.PDFDocument.load` operations.

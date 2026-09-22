@@ -27,9 +27,11 @@ async function addFiles(files) {
 
   const newItems = await Promise.all(
     valid.map(async (file) => {
-      const thumbnailDataUrl = await renderPdfFirstPage(file);
+      const arrayBuffer = await file.arrayBuffer();
+      const thumbnailDataUrl = await renderPdfFirstPage(arrayBuffer);
       return {
         file,
+        arrayBuffer,
         id: Math.random().toString(36).substring(2) + Date.now().toString(36),
         thumbnailDataUrl,
       };
@@ -144,7 +146,7 @@ mergeBtn.addEventListener("click", async () => {
 
     const loadedPdfs = await Promise.all(
       pdfItems.map(async (item) => {
-        const srcBytes = await item.file.arrayBuffer();
+        const srcBytes = item.arrayBuffer || (await item.file.arrayBuffer());
         return PDFLib.PDFDocument.load(srcBytes, {
           ignoreEncryption: true,
         });
