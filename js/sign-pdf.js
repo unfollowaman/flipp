@@ -2,7 +2,6 @@ import { initDropZone, showToast, setProgress, activatePill, fileToDataUrl, trig
 
 let currentDownloadUrl = null;
 
-let pdfDoc = null;
 let pdfBytesOriginal = null;
 let numPages = 0;
 let currentPage = 1;
