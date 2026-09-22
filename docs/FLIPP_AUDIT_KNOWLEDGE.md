@@ -4,9 +4,11 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-22: PDF to Text Tool (`js/pdf-to-text.js`, `tools/pdf-to-text/index.html`, `tests/pdf-to-text.test.js`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
+  - Monitor Tesseract.js worker initialization and canvas memory allocations during bulk OCR operations on multi-page scanned PDFs.
 - **Known recurring risks:**
   - Standard test suite execution assumes all browser globals or mock dependencies are evaluated via `new Function()` rather than direct `require()` calls to external npm packages that are not pre-installed in `node_modules`.
   - Memory consumption when rendering high-DPI canvases for multi-page PDFs in browser-side conversion loops.
@@ -37,6 +39,39 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-22 — PDF to Text Tool (`js/pdf-to-text.js`) Audit
+
+Status: PASS
+
+Scope:
+- PDF to Text conversion flow (`js/pdf-to-text.js`, `tools/pdf-to-text/index.html`)
+- Automatic OCR fallback logic (`extractTextFromPage` using Tesseract.js for Hindi/scanned text)
+- Resource cleanup and lifecycle management (`page.cleanup()`, worker termination, `pdfDoc.destroy()`)
+- Clipboard copying (`copyText` and SVG icon state transitions)
+- Unit test suite coverage (`tests/pdf-to-text.test.js`)
+- Zero-server privacy compliance verification
+
+Evidence:
+- Native test suite executed: `node --test tests/*.test.js tests/test_pdf_to_img.js`. 271/271 tests passed (6/6 in `tests/pdf-to-text.test.js`).
+- Inspected recent Git commit `79ad79e` (PR #339) which safely removed unused `ocrTriggered` variable.
+- Code inspection confirmed all PDF parsing runs strictly client-side using `pdfjs-dist` and `Tesseract.js` without any external network transmission.
+- Verified DOM sanitation and event handling in `tools/pdf-to-text/index.html` and `js/pdf-to-text.js`.
+- Verified memory cleanup in `try...finally` blocks for PDF pages and worker instances on both success and error paths.
+
+Findings:
+1. **Zero-Server Compliance:** Text extraction and OCR run completely inside browser memory. User files and extracted text are never sent off-device.
+2. **Resource Management:** `page.cleanup()` is guaranteed in `try...finally` per page, and `ocrWorkerPromise` worker instances are properly terminated after batch processing or on error. `pdfDoc.destroy()` is executed in the top-level `finally` block.
+3. **Download Sanitization:** Export filenames sanitize user-controlled input (`currentFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_") + ".txt"`).
+4. **Recent Changes:** PR #339 (`79ad79e`) cleanly removed the dead variable `ocrTriggered` without causing functional or test regressions.
+
+Follow-up:
+- Re-audit if Tesseract.js dependency or worker initialization configuration is modified.
+
+Relevant files:
+- `js/pdf-to-text.js`
+- `tools/pdf-to-text/index.html`
+- `tests/pdf-to-text.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
