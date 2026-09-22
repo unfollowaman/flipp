@@ -45,3 +45,7 @@
 ## 2026-09-24 - Prefer native String.prototype.trimEnd() over regex replace for line whitespace trimming
 **Learning:** In text normalization pipelines (such as `js/text-to-pdf.js`), calling `.replace(/\s+$/g, "")` inside `.map()` loops on split lines forces JavaScript engines to instantiate regex state machines and execute pattern matching per line. Using native `String.prototype.trimEnd()` performs direct backward string scanning without regex engine overhead.
 **Action:** Use native `.trimEnd()` instead of `.replace(/\s+$/g, "")` when trimming trailing line whitespace in string normalization pipelines.
+
+## 2026-09-25 - Hoist constant PDF-lib RGB color object instantiation outside document page iteration loops
+**Learning:** In multi-page PDF document generation workflows (such as `js/pdf-page-numbers.js`), creating color objects via `pdfLib.rgb(r, g, b)` inside page loops re-allocates identical `RGB` objects on every page iteration.
+**Action:** Instantiate constant `pdfLib.rgb(...)` color objects outside page iteration loops and pass the single color reference to `page.drawText()` or shape drawing commands across all pages.

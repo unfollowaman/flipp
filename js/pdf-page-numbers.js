@@ -76,6 +76,7 @@ addBtn.addEventListener("click", async () => {
     let lastHeight = -1;
     let fontSize = 12;
     let margin = 18;
+    const textColor = pdfLib.rgb(0.25, 0.25, 0.25);
 
     for (let i = start - 1; i < pages.length; i++) {
       const page = pages[i];
@@ -106,7 +107,7 @@ addBtn.addEventListener("click", async () => {
         y,
         size: fontSize,
         font,
-        color: pdfLib.rgb(0.25, 0.25, 0.25),
+        color: textColor,
       });
     }
 
