@@ -41,3 +41,7 @@
 ## 2026-09-23 - Cache input ArrayBuffer during multi-file selection to eliminate duplicate disk reads on merge
 **Learning:** In multi-file PDF tools (such as `js/pdf-merge.js`), reading `await file.arrayBuffer()` separately during thumbnail generation and again during document merging forces duplicate async File/disk reads for every selected file.
 **Action:** Read `const arrayBuffer = await file.arrayBuffer()` once during file addition, pass `arrayBuffer.slice(0)` to PDF.js worker tasks for preview rendering, store `arrayBuffer` on item state objects, and reuse `item.arrayBuffer` directly in `PDFLib.PDFDocument.load` operations.
+
+## 2026-09-24 - Prefer native String.prototype.trimEnd() over regex replace for line whitespace trimming
+**Learning:** In text normalization pipelines (such as `js/text-to-pdf.js`), calling `.replace(/\s+$/g, "")` inside `.map()` loops on split lines forces JavaScript engines to instantiate regex state machines and execute pattern matching per line. Using native `String.prototype.trimEnd()` performs direct backward string scanning without regex engine overhead.
+**Action:** Use native `.trimEnd()` instead of `.replace(/\s+$/g, "")` when trimming trailing line whitespace in string normalization pipelines.

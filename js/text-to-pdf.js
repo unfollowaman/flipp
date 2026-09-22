@@ -18,7 +18,7 @@ function normalizeText(text) {
     .replace(/\r\n?/g, "\n")
     .replace(/\t/g, "    ")
     .split("\n")
-    .map((line) => line.replace(/\s+$/g, ""))
+    .map((line) => line.trimEnd())
     .join("\n")
     .trim();
 }
