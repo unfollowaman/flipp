@@ -37,3 +37,7 @@
 ## 2026-09-22 - Cache input file ArrayBuffer across preview loading and document splitting
 **Learning:** In client-side PDF document manipulation tools (such as `js/pdf-split.js`), re-reading `await file.arrayBuffer()` upon action execution triggers an asynchronous File read from browser storage/disk when the ArrayBuffer was already read during initial preview generation.
 **Action:** Store the loaded `ArrayBuffer` in a module variable (`originalPdfBytes`) when a file is selected, pass a cloned slice (`originalPdfBytes.slice(0)`) to `pdf.js` worker tasks, reuse `originalPdfBytes` directly in subsequent `PDFLib.PDFDocument.load` operations, and set `originalPdfBytes = null` on UI reset or file reload.
+
+## 2026-09-23 - Short-circuit text analysis and use early-exit RegExp counting in PDF page inspection
+**Learning:** In text extraction quality analysis (such as `js/pdf-to-text.js`), invoking `pageText.match()` and `pageText.toLowerCase().match()` across entire multi-page document texts allocates large string copies and match result Arrays in RAM. Furthermore, scanning full pages for word counts when only a small threshold (e.g., 3 words) is required causes unnecessary CPU work on text-heavy pages.
+**Action:** Return early when character count thresholds permit, short-circuit before running regexes, and use `RegExp.exec()` counting loops that break as soon as threshold counts are reached to eliminate string lowercasing and array allocations.
