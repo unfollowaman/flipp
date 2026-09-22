@@ -178,7 +178,7 @@ test('protect-toggle-pw click toggles password visibility', async (t) => {
   await toggleBtn.click();
   assert.strictEqual(passwordInput.type, 'password');
   assert.strictEqual(confirmInput.type, 'password');
-  assert.strictEqual(toggleBtn.textContent, '👁️');
+  assert.strictEqual(toggleBtn.textContent, '🐵');
 });
 
 test('validatePasswords function', async (t) => {

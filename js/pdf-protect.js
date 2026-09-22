@@ -22,7 +22,7 @@ if (togglePwBtn && passwordEl) {
     if (confirmPasswordEl) confirmPasswordEl.type = show ? "text" : "password";
     togglePwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
     togglePwBtn.title = show ? "Hide password" : "Show password";
-    togglePwBtn.textContent = show ? "🙈" : "👁️";
+    togglePwBtn.textContent = show ? "🙈" : "🐵";
   });
 }
 

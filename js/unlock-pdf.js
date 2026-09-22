@@ -20,7 +20,7 @@ if (toggleUnlockPwBtn && passwordInput) {
     passwordInput.type = show ? "text" : "password";
     toggleUnlockPwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
     toggleUnlockPwBtn.title = show ? "Hide password" : "Show password";
-    toggleUnlockPwBtn.textContent = show ? "🙈" : "👁️";
+    toggleUnlockPwBtn.textContent = show ? "🙈" : "🐵";
   });
 }
 const unlockBtn = document.getElementById("unlock-btn");
