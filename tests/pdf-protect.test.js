@@ -70,7 +70,9 @@ function createTestInstance(customWindowOverrides = {}) {
       const el = {
         tagName,
         style: {},
-        getContext: () => ({}),
+        getContext: () => ({
+          fillRect: () => {}
+        }),
         toDataURL: () => 'data:image/jpeg;base64,123',
         clickCount: 0,
         click: function() {

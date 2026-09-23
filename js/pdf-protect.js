@@ -102,6 +102,8 @@ async function encryptPdf(file, password) {
               const context = canvas.getContext("2d");
               canvas.width = renderViewport.width;
               canvas.height = renderViewport.height;
+              context.fillStyle = "#ffffff";
+              context.fillRect(0, 0, canvas.width, canvas.height);
 
               await page.render({ canvasContext: context, viewport: renderViewport }).promise;
 
