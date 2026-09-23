@@ -49,3 +49,7 @@
 ## 2026-09-25 - Hoist constant PDF-lib RGB color object instantiation outside document page iteration loops
 **Learning:** In multi-page PDF document generation workflows (such as `js/pdf-page-numbers.js`), creating color objects via `pdfLib.rgb(r, g, b)` inside page loops re-allocates identical `RGB` objects on every page iteration.
 **Action:** Instantiate constant `pdfLib.rgb(...)` color objects outside page iteration loops and pass the single color reference to `page.drawText()` or shape drawing commands across all pages.
+
+## 2026-09-26 - Pre-fill solid white background on HTML canvas before JPEG conversion in PDF processing
+**Learning:** In HTML canvas rendering pipelines (such as `js/pdf-protect.js`), converting PDF page canvases with default transparent backgrounds directly to JPEG via `canvas.toDataURL("image/jpeg")` causes transparent background pixels to render as solid black in the encoded JPEG output.
+**Action:** Always pre-fill canvas 2D contexts with `context.fillStyle = "#ffffff"` and `context.fillRect(0, 0, canvas.width, canvas.height)` before invoking `page.render()` when exporting canvas contents to JPEG.
