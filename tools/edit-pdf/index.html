@@ -223,29 +223,77 @@
         margin-top: 16px;
         position: relative;
       }
-      .editor-top-bar {
+      .editor-single-toolbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        background: var(--white);
-        border: var(--border-std);
-        border-radius: var(--radius-md);
+        background: #f7f7f5;
+        border-bottom: 1.5px solid var(--black);
         padding: 8px 16px;
-        box-shadow: var(--shadow-hard);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       }
-      .editor-doc-title {
-        font-weight: 800;
-        font-size: 14px;
-        max-width: 200px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .editor-bar-group {
+      .fname-edit {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+        flex-shrink: 0;
+        max-width: 160px;
+        border-bottom: 1.5px dashed var(--line);
+        padding-bottom: 2px;
+      }
+      .fname-edit input {
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 800;
+        border: none;
+        background: none;
+        outline: none;
+        width: 100%;
+        padding: 0;
+        color: var(--black);
+      }
+      .fname-edit .edit-ic {
+        font-size: 12px;
+        opacity: 0.6;
+        flex-shrink: 0;
+      }
+      .tool-group {
+        display: flex;
+        gap: 2px;
+        background: #eceae2;
+        border-radius: 9px;
+        padding: 3px;
+        flex-shrink: 0;
+        overflow-x: auto;
+      }
+      .tool-pill {
+        border: none;
+        background: none;
+        border-radius: 7px;
+        width: 34px;
+        height: 30px;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        color: var(--black);
+      }
+      .tool-pill.active {
+        background: var(--black);
+        color: #fff;
+      }
+      .undo-redo-btn {
+        background: none;
+        border: none;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .undo-redo-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
       }
       .editor-btn {
         background: var(--white);
@@ -279,33 +327,6 @@
         background: var(--black);
         color: var(--white);
         box-shadow: 2px 2px 0 #000;
-      }
-      /* Horizontal Single-Row Toolbar */
-      .editor-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 8px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-        background: var(--cream);
-        border: var(--border-std);
-        border-radius: var(--radius-md);
-        padding: 8px 12px;
-        box-shadow: var(--shadow-hard);
-      }
-      .editor-toolbar::-webkit-scrollbar {
-        display: none; /* Chrome/Safari */
-      }
-      .editor-toolbar .tool-icon {
-        font-size: 14px;
-        font-weight: 800;
-      }
-      .editor-toolbar .tool-label {
-        font-size: 13px;
-        font-weight: 700;
       }
       /* Dynamic Contextual Props Bar */
       .editor-props-bar {
@@ -400,82 +421,70 @@
         padding: 1px 8px;
         border-radius: 12px;
       }
-      /* Persistent Mobile Workspace Control Bar */
-      .editor-bottom-bar {
-        position: sticky;
-        bottom: 0;
-        z-index: 100;
+      /* Stacked Bottom Bar Container */
+      .bottom-bar {
         display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #f7f7f5;
+        border-top: 1.5px solid var(--black);
+      }
+      .pagezoom-pill {
+        align-self: center;
+        display: inline-flex;
         align-items: center;
-        justify-content: space-between;
         gap: 8px;
-        background: var(--white);
-        border: var(--border-std);
-        border-radius: var(--radius-md);
-        padding: 8px 12px;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1), var(--shadow-hard);
-        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        border: 1.5px solid var(--black);
+        border-radius: 999px;
+        padding: 6px 14px;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 700;
       }
-      .editor-bottom-group {
+      .pagezoom-pill button {
+        border: none;
+        background: none;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+        padding: 0 2px;
+      }
+      .pz-divider {
+        width: 1.5px;
+        height: 16px;
+        background: var(--line);
+      }
+      .actions-row {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 10px;
       }
-      .icon-only-btn {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        font-size: 14px;
-        font-weight: 800;
-      }
-      .editor-page-badge-text,
-      .editor-zoom-text {
-        font-weight: 800;
-        font-size: 13px;
-        min-width: 42px;
-        text-align: center;
-      }
-      .editor-download-btn {
-        padding: 6px 14px;
+      .dl-btn {
+        background: var(--mint);
+        border: 1.5px solid var(--black);
+        border-radius: 8px;
+        padding: 10px 22px;
         font-size: 13px;
         font-weight: 800;
+        cursor: pointer;
+      }
+      .share-btn {
+        border: 1.5px solid var(--black);
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 800;
+        background: #fff;
+        cursor: pointer;
       }
       @media (max-width: 600px) {
-        .editor-doc-title {
-          max-width: 130px;
-          font-size: 13px;
-        }
-        .btn-text {
-          display: inline;
-        }
-        .editor-top-bar {
+        .editor-single-toolbar {
           padding: 6px 10px;
         }
-        .editor-toolbar {
-          padding: 6px 8px;
-          gap: 6px;
-        }
-        .editor-btn {
-          padding: 5px 10px;
-          font-size: 12px;
-        }
-        .editor-bottom-bar {
-          padding: 6px 8px;
-          padding-bottom: max(6px, env(safe-area-inset-bottom));
-        }
-        .editor-download-btn {
-          padding: 6px 10px;
-          font-size: 12px;
-        }
-        .editor-page-badge-text,
-        .editor-zoom-text {
-          font-size: 12px;
-          min-width: 36px;
-        }
-        .icon-only-btn {
-          width: 30px;
-          height: 30px;
-          font-size: 13px;
+        .bottom-bar {
+          padding: 10px 12px;
         }
       }
       /* Editor Objects on Page */
@@ -690,48 +699,28 @@
 
         <!-- STATE B: PDF Editor Workspace -->
         <div class="editor-workspace-container" id="editor-workspace">
-          <!-- Top Bar -->
-          <div class="editor-top-bar" id="editor-top-bar">
-            <div class="editor-bar-group">
-              <span class="editor-doc-title" id="editor-doc-name">document.pdf</span>
+          <!-- Top Toolbar (Merged filename bar and tool palette) -->
+          <div class="editor-single-toolbar" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
+            <div class="fname-edit">
+              <input type="text" value="document.pdf" id="editor-filename-input" aria-label="Rename file" />
+              <span class="edit-ic">✏️</span>
             </div>
 
-            <div class="editor-bar-group">
-              <button class="editor-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
-                ↩ <span class="btn-text">Undo</span>
-              </button>
-              <button class="editor-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
-                ↪ <span class="btn-text">Redo</span>
-              </button>
+            <div class="tool-group">
+              <button class="tool-pill active" data-tool="select" title="Select Object" aria-label="Select tool" aria-pressed="true">↖</button>
+              <button class="tool-pill" data-tool="text" title="Add Text" aria-label="Text tool" aria-pressed="false">T</button>
+              <button class="tool-pill" data-tool="highlight" title="Highlight" aria-label="Highlight tool" aria-pressed="false">🖍</button>
+              <button class="tool-pill" data-tool="draw" title="Freehand Draw" aria-label="Draw tool" aria-pressed="false">✏️</button>
+              <button class="tool-pill" data-tool="shape" title="Add Shape" aria-label="Shape tool" aria-pressed="false">▭</button>
+              <button class="tool-pill" data-tool="image" title="Add Image" aria-label="Image tool" aria-pressed="false">🖼</button>
+              <button class="tool-pill" data-tool="note" title="Sticky Note" aria-label="Note tool" aria-pressed="false">📌</button>
+              <button class="tool-pill" data-tool="signature" title="Signature" aria-label="Signature tool" aria-pressed="false">✍️</button>
             </div>
-          </div>
 
-          <!-- Tool Selection Bar -->
-          <div class="editor-toolbar" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
-            <button class="editor-btn active" data-tool="select" title="Select Object" aria-label="Select tool" aria-pressed="true">
-              <span class="tool-icon">↖</span> <span class="tool-label">Select</span>
-            </button>
-            <button class="editor-btn" data-tool="text" title="Add Text" aria-label="Text tool" aria-pressed="false">
-              <span class="tool-icon">T</span> <span class="tool-label">Text</span>
-            </button>
-            <button class="editor-btn" data-tool="highlight" title="Highlight" aria-label="Highlight tool" aria-pressed="false">
-              <span class="tool-icon">🖍️</span> <span class="tool-label">Highlight</span>
-            </button>
-            <button class="editor-btn" data-tool="draw" title="Freehand Draw" aria-label="Draw tool" aria-pressed="false">
-              <span class="tool-icon">✏️</span> <span class="tool-label">Draw</span>
-            </button>
-            <button class="editor-btn" data-tool="shape" title="Add Shape" aria-label="Shape tool" aria-pressed="false">
-              <span class="tool-icon">□</span> <span class="tool-label">Shape</span>
-            </button>
-            <button class="editor-btn" data-tool="image" title="Add Image" aria-label="Image tool" aria-pressed="false">
-              <span class="tool-icon">🖼️</span> <span class="tool-label">Image</span>
-            </button>
-            <button class="editor-btn" data-tool="note" title="Sticky Note" aria-label="Note tool" aria-pressed="false">
-              <span class="tool-icon">📌</span> <span class="tool-label">Note</span>
-            </button>
-            <button class="editor-btn" data-tool="signature" title="Signature" aria-label="Signature tool" aria-pressed="false">
-              <span class="tool-icon">✍️</span> <span class="tool-label">Signature</span>
-            </button>
+            <div style="display: flex; gap: 4px; flex-shrink: 0;">
+              <button class="tool-pill undo-redo-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↩</button>
+              <button class="tool-pill undo-redo-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>↪</button>
+            </div>
           </div>
 
           <!-- Property Bar (Dynamic based on selected tool) -->
@@ -801,24 +790,20 @@
             <!-- Pages rendered dynamically here -->
           </div>
 
-          <!-- Sticky Bottom Workspace Control Bar -->
-          <div class="editor-bottom-bar" id="editor-bottom-bar">
-            <div class="editor-bottom-group page-nav-group">
-              <button class="editor-btn icon-only-btn" id="editor-prev-page" title="Previous Page" aria-label="Previous page">←</button>
-              <span id="editor-page-indicator" class="editor-page-badge-text">1 / 1</span>
-              <button class="editor-btn icon-only-btn" id="editor-next-page" title="Next Page" aria-label="Next page">→</button>
+          <!-- Stacked Bottom Control & Actions Bar -->
+          <div class="bottom-bar" id="editor-bottom-bar">
+            <div class="pagezoom-pill">
+              <button id="editor-prev-page" title="Previous Page" aria-label="Previous page">←</button>
+              <span class="pz-count" id="editor-page-indicator">1 / 1</span>
+              <button id="editor-next-page" title="Next Page" aria-label="Next page">→</button>
+              <span class="pz-divider"></span>
+              <button id="editor-zoom-out" title="Zoom Out" aria-label="Zoom out">−</button>
+              <span class="pz-zoom" id="editor-zoom-val">100%</span>
+              <button id="editor-zoom-in" title="Zoom In" aria-label="Zoom in">+</button>
             </div>
-
-            <div class="editor-bottom-group zoom-group">
-              <button class="editor-btn icon-only-btn" id="editor-zoom-out" title="Zoom Out" aria-label="Zoom out">−</button>
-              <span id="editor-zoom-val" class="editor-zoom-text">100%</span>
-              <button class="editor-btn icon-only-btn" id="editor-zoom-in" title="Zoom In" aria-label="Zoom in">+</button>
-            </div>
-
-            <div class="editor-bottom-group download-group">
-              <button class="cta-btn cta-mint editor-download-btn" id="editor-export-btn">
-                Download PDF
-              </button>
+            <div class="actions-row">
+              <button class="dl-btn" id="editor-export-btn">⬇ Download</button>
+              <button class="share-btn" id="editor-share-btn">🔗 Share</button>
             </div>
           </div>
         </div>
