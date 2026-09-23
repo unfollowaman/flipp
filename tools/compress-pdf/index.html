@@ -292,62 +292,46 @@
         </div>
 
         <div class="preview-area" id="compress-preview-area">
-          <div class="preview-header">
-            <span class="preview-count" id="compress-info"></span>
-            <button class="cta-btn cta-pink" id="compress-btn">
-              Compress PDF →
+          <div class="file-chip">
+            <span class="file-chip-icon">📄</span>
+            <span class="file-chip-name" id="compress-file-chip-name"></span>
+            <span class="file-chip-size" id="compress-file-chip-size"></span>
+          </div>
+          <div class="compress-mode-cards">
+            <button
+              type="button"
+              class="compress-mode-card selected"
+              data-mode="recommended"
+            >
+              <span class="cmc-check">✓</span>
+              <span class="cmc-icon" style="background: var(--mint)">🗜️</span>
+              <span class="cmc-title">Recommended</span>
+              <span class="cmc-desc"
+                >Optimizes structure, strips unused metadata. Perfect quality,
+                modest savings.</span
+              >
+            </button>
+            <button
+              type="button"
+              class="compress-mode-card"
+              data-mode="maximum"
+            >
+              <span class="cmc-check">✓</span>
+              <span class="cmc-icon" style="background: var(--pink)">📉</span>
+              <span class="cmc-title">Maximum</span>
+              <span class="cmc-desc"
+                >Re-renders pages as images. Bigger savings, text becomes
+                unselectable.</span
+              >
             </button>
           </div>
-          <div class="option-group" style="margin-top: 12px">
-            <label
-              class="option-label"
-              style="display: block; margin-bottom: 8px"
-              >Compression Mode</label
-            >
-            <div
-              style="
-                display: flex;
-                gap: 16px;
-                align-items: center;
-                flex-wrap: wrap;
-              "
-            >
-              <label
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  cursor: pointer;
-                "
-              >
-                <input
-                  type="radio"
-                  name="compressionMode"
-                  value="recommended"
-                  checked
-                />
-                <span>Recommended (Lossless)</span>
-              </label>
-              <label
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  cursor: pointer;
-                "
-              >
-                <input type="radio" name="compressionMode" value="maximum" />
-                <span>Maximum (Lossy)</span>
-              </label>
-            </div>
-            <p
-              id="compression-mode-desc"
-              style="font-size: 0.9em; margin-top: 8px; color: #555"
-            >
-              Optimizes PDF structure and strips unused metadata. Perfect
-              quality.
-            </p>
-          </div>
+          <button
+            class="cta-btn cta-pink"
+            id="compress-btn"
+            style="width: 100%; justify-content: center"
+          >
+            Compress PDF →
+          </button>
         </div>
 
         <div
@@ -374,25 +358,25 @@
           aria-label="Compression results"
           id="compress-results"
         >
-          <div style="text-align: center; margin-bottom: 16px">
+          <div class="result-savings" id="compress-result-savings"></div>
+          <div class="size-bar">
             <div
-              style="font-size: 1.2rem; font-weight: 600"
-              id="compress-stats-savings"
-            ></div>
-            <div
-              style="color: #666; margin-top: 4px"
-              id="compress-stats-details"
+              class="size-bar-used"
+              id="compress-size-bar-used"
+              style="width: 0%"
             ></div>
           </div>
+          <div class="size-bar-labels">
+            <span id="compress-size-bar-orig"></span>
+            <span id="compress-size-bar-curr"></span>
+          </div>
           <div class="results-actions">
+            <button class="cta-btn cta-mint" id="compress-download-btn">
+              ⬇ Download Compressed PDF
+            </button>
             <div
-              id="compress-downloads"
-              style="
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                justify-content: center;
-              "
+              class="download-filename"
+              id="compress-download-filename"
             ></div>
             <button class="reset-btn" id="compress-reset-btn">Reset ↺</button>
           </div>

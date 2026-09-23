@@ -383,3 +383,123 @@ test('pdf-compress error handling', async (t) => {
     assert.strictEqual(docDestroyCalled, true, 'pdfjsDoc.destroy() should be called');
   });
 });
+
+test('pdf-compress UI redesign updates', async (t) => {
+  await t.test('populates file chip and updates size bar and savings on successful compression', async () => {
+    const localElementMap = {};
+    const mockDocumentLocal = {
+      getElementById: (id) => {
+        if (!localElementMap[id]) {
+          localElementMap[id] = {
+            listeners: {},
+            addEventListener: function(evt, handler) {
+              this.listeners[evt] = handler;
+            },
+            click: async function() {
+              if (this.listeners['click']) await this.listeners['click']();
+            },
+            style: {},
+            classList: { add: () => {}, remove: () => {} },
+            appendChild: () => {},
+            value: '',
+            textContent: ''
+          };
+        }
+        return localElementMap[id];
+      },
+      querySelectorAll: () => [],
+      querySelector: (selector) => {
+        if (selector.includes('compress-mode-card.selected')) {
+          return { dataset: { mode: 'recommended' } };
+        }
+        return { value: '' };
+      },
+      createElement: (tag) => {
+        const el = {
+          tagName: tag,
+          listeners: {},
+          addEventListener: function(evt, handler) {
+            this.listeners[evt] = handler;
+          },
+          click: function() {
+            if (this.listeners['click']) this.listeners['click']();
+            if (el.clicked !== undefined) el.clicked = true;
+          },
+          style: {},
+          appendChild: () => {},
+          href: '',
+          download: ''
+        };
+        if (tag === 'a') el.clicked = false;
+        return el;
+      },
+      createTextNode: (text) => ({ textNode: true, textContent: text })
+    };
+
+    let dropZoneCallback;
+    const mockInitDropZoneLocal = (dz, fi, cb) => {
+      dropZoneCallback = cb;
+    };
+
+    const mockPdfDoc = {
+      setTitle: () => {},
+      setAuthor: () => {},
+      setSubject: () => {},
+      setKeywords: () => {},
+      setProducer: () => {},
+      setCreator: () => {},
+      save: async () => new ArrayBuffer(50) // Compressed size 50 bytes (original 100 bytes)
+    };
+
+    const mockWindowLocal = {
+      PDFLib: {
+        PDFDocument: {
+          load: async () => mockPdfDoc
+        }
+      }
+    };
+
+    let localSrc = fs.readFileSync(srcPath, 'utf8');
+    localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+    localSrc = localSrc.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
+
+    const localWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'Blob',
+      'URL',
+      localSrc
+    );
+
+    localWrapper(
+      mockDocumentLocal,
+      mockWindowLocal,
+      mockInitDropZoneLocal,
+      () => {},
+      class Blob {},
+      { createObjectURL: () => 'blob:mock-url', revokeObjectURL: () => '' }
+    );
+
+    const mockFile = {
+      type: 'application/pdf',
+      name: 'sample.pdf',
+      size: 100,
+      arrayBuffer: async () => new ArrayBuffer(100)
+    };
+    dropZoneCallback([mockFile]);
+
+    assert.strictEqual(localElementMap['compress-file-chip-name'].textContent, 'sample.pdf');
+    assert.strictEqual(localElementMap['compress-file-chip-size'].textContent, '100 Bytes');
+
+    const compressBtnLocal = localElementMap['compress-btn'];
+    await compressBtnLocal.click();
+
+    assert.strictEqual(localElementMap['compress-result-savings'].textContent, '✓ Saved 50.0%');
+    assert.strictEqual(localElementMap['compress-size-bar-used'].style.width, '50%');
+    assert.strictEqual(localElementMap['compress-size-bar-orig'].textContent, '100 Bytes original');
+    assert.strictEqual(localElementMap['compress-size-bar-curr'].textContent, '50 Bytes now');
+    assert.strictEqual(localElementMap['compress-download-filename'].textContent, 'sample-compressed.pdf');
+  });
+});

@@ -2,6 +2,7 @@ import { initDropZone, showToast } from "./drag-drop.js";
 
 let selectedFile = null;
 let currentDownloadUrl = null;
+let currentOutputFilename = "";
 
 const dropZone = document.getElementById("compress-drop-zone");
 const fileInput = document.getElementById("compress-file-input");
@@ -9,18 +10,26 @@ const previewArea = document.getElementById("compress-preview-area");
 const resultsArea = document.getElementById("compress-results");
 const compressBtn = document.getElementById("compress-btn");
 const resetBtn = document.getElementById("compress-reset-btn");
-const infoText = document.getElementById("compress-info");
 const downloadsDiv = document.getElementById("compress-downloads");
+
+const fileChipName = document.getElementById("compress-file-chip-name");
+const fileChipSize = document.getElementById("compress-file-chip-size");
 
 const progressContainer = document.getElementById(
   "compress-progress-container",
 );
 const progressText = document.getElementById("compress-progress-text");
-const modeDesc = document.getElementById("compression-mode-desc");
-const radios = document.getElementsByName("compressionMode");
 
-const statsSavings = document.getElementById("compress-stats-savings");
-const statsDetails = document.getElementById("compress-stats-details");
+const resultSavings = document.getElementById("compress-result-savings");
+const sizeBarUsed = document.getElementById("compress-size-bar-used");
+const sizeBarOrig = document.getElementById("compress-size-bar-orig");
+const sizeBarCurr = document.getElementById("compress-size-bar-curr");
+const downloadBtn = document.getElementById("compress-download-btn");
+const downloadFilename = document.getElementById("compress-download-filename");
+
+const modeCards = document.querySelectorAll
+  ? document.querySelectorAll(".compress-mode-card")
+  : [];
 
 /**
  * Maps items concurrently with a maximum concurrency limit.
@@ -62,15 +71,10 @@ function formatBytes(bytes, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
-radios.forEach((radio) => {
-  radio.addEventListener("change", (e) => {
-    if (e.target.value === "recommended") {
-      modeDesc.textContent =
-        "Optimizes PDF structure and strips unused metadata. Perfect quality.";
-    } else {
-      modeDesc.textContent =
-        "Warning: Rasterizes pages to compressed images. Drastically reduces size but makes text unselectable and may slightly lower clarity.";
-    }
+modeCards.forEach((card) => {
+  card.addEventListener("click", () => {
+    modeCards.forEach((c) => c.classList.remove("selected"));
+    card.classList.add("selected");
   });
 });
 
@@ -87,7 +91,8 @@ initDropZone(dropZone, fileInput, (files) => {
   selectedFile = file;
   dropZone.style.display = "none";
   previewArea.classList.add("is-visible");
-  infoText.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
+  if (fileChipName) fileChipName.textContent = file.name;
+  if (fileChipSize) fileChipSize.textContent = formatBytes(file.size);
 });
 
 function createDownloadButton(blob, filename, label) {
@@ -129,12 +134,28 @@ function updateProgress(text) {
   progressText.textContent = text;
 }
 
+if (downloadBtn) {
+  downloadBtn.addEventListener("click", () => {
+    if (!currentDownloadUrl) return;
+    const a = document.createElement("a");
+    a.href = currentDownloadUrl;
+    a.download = currentOutputFilename;
+    a.click();
+  });
+}
+
 compressBtn.addEventListener("click", async () => {
   if (!selectedFile) return;
 
-  const mode = document.querySelector(
-    'input[name="compressionMode"]:checked',
-  ).value;
+  let selectedModeCard = document.querySelector(".compress-mode-card.selected");
+  if (!selectedModeCard || (!selectedModeCard.dataset && !selectedModeCard.value)) {
+    selectedModeCard = document.querySelector('input[name="compressionMode"]:checked');
+  }
+  const mode =
+    (selectedModeCard && selectedModeCard.dataset && selectedModeCard.dataset.mode) ||
+    (selectedModeCard && selectedModeCard.value) ||
+    "recommended";
+
   previewArea.classList.remove("is-visible");
   progressContainer.classList.add("is-visible");
 
@@ -281,28 +302,44 @@ compressBtn.addEventListener("click", async () => {
       savingsPct = ((diff / originalSize) * 100).toFixed(1);
     }
 
-    if (compressedSize >= originalSize && mode === "recommended") {
-      statsSavings.textContent = "File is already highly optimized!";
-      statsSavings.style.color = "#333";
-      statsDetails.textContent = `Original: ${formatBytes(originalSize)} | Output: ${formatBytes(compressedSize)}`;
-    } else if (compressedSize >= originalSize && mode === "maximum") {
-      statsSavings.textContent = "Could not compress further.";
-      statsSavings.style.color = "#333";
-      statsDetails.textContent = `Original: ${formatBytes(originalSize)} | Output: ${formatBytes(compressedSize)}`;
-    } else {
-      statsSavings.textContent = `Saved ${savingsPct}%`;
-      statsSavings.style.color = "green";
-      statsDetails.textContent = `Original: ${formatBytes(originalSize)} → Compressed: ${formatBytes(compressedSize)}`;
+    if (resultSavings) {
+      if (compressedSize >= originalSize && mode === "recommended") {
+        resultSavings.textContent = "File is already highly optimized!";
+        resultSavings.style.color = "#333";
+      } else if (compressedSize >= originalSize && mode === "maximum") {
+        resultSavings.textContent = "Could not compress further.";
+        resultSavings.style.color = "#333";
+      } else {
+        resultSavings.textContent = `✓ Saved ${savingsPct}%`;
+        resultSavings.style.color = "#0e5c37";
+      }
     }
 
-    downloadsDiv.innerHTML = "";
+    const pctUsed = Math.min(
+      100,
+      Math.max(0, (compressedSize / originalSize) * 100),
+    );
+    if (sizeBarUsed) sizeBarUsed.style.width = `${pctUsed}%`;
+    if (sizeBarOrig) sizeBarOrig.textContent = `${formatBytes(originalSize)} original`;
+    if (sizeBarCurr) sizeBarCurr.textContent = `${formatBytes(compressedSize)} now`;
 
     const safeName = selectedFile.name.replace(/[\\/]/g, "_");
     const baseName =
       safeName.substring(0, safeName.lastIndexOf(".")) || safeName;
     const outName = `${baseName}-compressed.pdf`;
 
-    downloadsDiv.appendChild(createDownloadButton(blob, outName, outName));
+    if (currentDownloadUrl) {
+      URL.revokeObjectURL(currentDownloadUrl);
+    }
+    currentDownloadUrl = URL.createObjectURL(blob);
+    currentOutputFilename = outName;
+
+    if (downloadFilename) downloadFilename.textContent = outName;
+
+    if (downloadsDiv) {
+      downloadsDiv.innerHTML = "";
+      downloadsDiv.appendChild(createDownloadButton(blob, outName, outName));
+    }
 
     progressContainer.classList.remove("is-visible");
     resultsArea.classList.add("is-visible");
@@ -319,10 +356,24 @@ resetBtn.addEventListener("click", () => {
     currentDownloadUrl = null;
   }
   selectedFile = null;
+  currentOutputFilename = "";
   document.getElementById("compress-file-input").value = "";
   resultsArea.classList.remove("is-visible");
   dropZone.style.display = "block";
-  downloadsDiv.innerHTML = "";
-  statsSavings.textContent = "";
-  statsDetails.textContent = "";
+
+  if (resultSavings) {
+    resultSavings.textContent = "";
+    resultSavings.style.color = "";
+  }
+  if (sizeBarUsed) sizeBarUsed.style.width = "0%";
+  if (sizeBarOrig) sizeBarOrig.textContent = "";
+  if (sizeBarCurr) sizeBarCurr.textContent = "";
+  if (downloadFilename) downloadFilename.textContent = "";
+  if (downloadsDiv) downloadsDiv.innerHTML = "";
+
+  modeCards.forEach((c) => c.classList.remove("selected"));
+  const defaultCard = document.querySelector(
+    '.compress-mode-card[data-mode="recommended"]',
+  );
+  if (defaultCard) defaultCard.classList.add("selected");
 });
