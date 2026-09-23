@@ -71,3 +71,13 @@ test('normalizeText', async (t) => {
     assert.strictEqual(normalizeText('col1\t\tcol2'), 'col1        col2');
   });
 });
+
+test('text-to-pdf HTML accessibility attributes', async (t) => {
+  await t.test('textarea input has an aria-label', () => {
+    const htmlPath = path.join(__dirname, '../tools/text-to-pdf/index.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const textareaMatch = html.match(/<textarea\s+id="text-pdf-raw-input"[\s\S]*?>/);
+    assert.ok(textareaMatch, 'Found #text-pdf-raw-input textarea in HTML');
+    assert.match(textareaMatch[0], /aria-label=["'][^"']+["']/, '#text-pdf-raw-input should have non-empty aria-label');
+  });
+});
