@@ -50,59 +50,83 @@ src += `\nreturn {
 
 const elementMap = {};
 
+let lastCreatedCanvas = null;
+
 function createMockElement(id = '') {
-  if (!elementMap[id]) {
-    const classes = new Set();
-    elementMap[id] = {
-      id,
-      value: '',
-      style: {},
-      dataset: {},
-      classList: {
-        add: (cls) => classes.add(cls),
-        remove: (cls) => classes.delete(cls),
-        contains: (cls) => classes.has(cls),
-        toggle: (cls) => {
-          if (classes.has(cls)) classes.delete(cls);
-          else classes.add(cls);
-        }
-      },
-      appendChild: () => {},
-      removeChild: () => {},
-      remove: () => {},
-      innerHTML: '',
-      textContent: '',
-      disabled: false,
-      clientWidth: 800,
-      clientHeight: 600,
-      offsetWidth: 800,
-      offsetHeight: 600,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      querySelector: () => createMockElement(),
-      querySelectorAll: () => [],
-      getContext: () => ({
-        scale: () => {},
-        save: () => {},
-        restore: () => {},
-        clearRect: () => {},
-        fillText: () => {},
-        strokeText: () => {},
-        fillRect: () => {},
-        strokeRect: () => {},
-        beginPath: () => {},
-        moveTo: () => {},
-        lineTo: () => {},
-        stroke: () => {},
-        fill: () => {},
-        ellipse: () => {},
-        measureText: () => ({ width: 100 })
-      }),
-      toDataURL: () => 'data:image/png;base64,fakeData',
-      click: () => {}
-    };
+  if (id && !id.startsWith('el-') && elementMap[id]) {
+    return elementMap[id];
   }
-  return elementMap[id];
+
+  const classes = new Set();
+  const contextCalls = [];
+  const mockCtx = {
+    calls: contextCalls,
+    strokeStyle: '',
+    fillStyle: '',
+    lineWidth: 1,
+    lineCap: '',
+    lineJoin: '',
+    font: '',
+    scale: (sx, sy) => contextCalls.push({ method: 'scale', args: [sx, sy] }),
+    save: () => contextCalls.push({ method: 'save' }),
+    restore: () => contextCalls.push({ method: 'restore' }),
+    clearRect: (x, y, w, h) => contextCalls.push({ method: 'clearRect', args: [x, y, w, h] }),
+    fillText: (text, x, y) => contextCalls.push({ method: 'fillText', args: [text, x, y] }),
+    strokeText: (text, x, y) => contextCalls.push({ method: 'strokeText', args: [text, x, y] }),
+    fillRect: (x, y, w, h) => contextCalls.push({ method: 'fillRect', args: [x, y, w, h] }),
+    strokeRect: (x, y, w, h) => contextCalls.push({ method: 'strokeRect', args: [x, y, w, h] }),
+    beginPath: () => contextCalls.push({ method: 'beginPath' }),
+    moveTo: (x, y) => contextCalls.push({ method: 'moveTo', args: [x, y] }),
+    lineTo: (x, y) => contextCalls.push({ method: 'lineTo', args: [x, y] }),
+    stroke: () => contextCalls.push({ method: 'stroke' }),
+    fill: () => contextCalls.push({ method: 'fill' }),
+    ellipse: (x, y, rx, ry, rot, sa, ea) => contextCalls.push({ method: 'ellipse', args: [x, y, rx, ry, rot, sa, ea] }),
+    measureText: (txt) => ({ width: txt ? txt.length * 10 : 100 })
+  };
+
+  const el = {
+    id,
+    value: '',
+    style: {},
+    dataset: {},
+    width: 0,
+    height: 0,
+    classList: {
+      add: (cls) => classes.add(cls),
+      remove: (cls) => classes.delete(cls),
+      contains: (cls) => classes.has(cls),
+      toggle: (cls) => {
+        if (classes.has(cls)) classes.delete(cls);
+        else classes.add(cls);
+      }
+    },
+    appendChild: () => {},
+    removeChild: () => {},
+    remove: () => {},
+    innerHTML: '',
+    textContent: '',
+    disabled: false,
+    clientWidth: 800,
+    clientHeight: 600,
+    offsetWidth: 800,
+    offsetHeight: 600,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    querySelector: () => createMockElement(),
+    querySelectorAll: () => [],
+    getContext: () => mockCtx,
+    toDataURL: (fmt) => `data:${fmt || 'image/png'};base64,fakeData`,
+    click: () => {}
+  };
+
+  if (id === 'el-canvas') {
+    lastCreatedCanvas = el;
+  }
+
+  if (id && !id.startsWith('el-')) {
+    elementMap[id] = el;
+  }
+  return el;
 }
 
 const mockDocument = {
@@ -418,6 +442,125 @@ test('pdf-editor PDF export process', async (t) => {
     editorModule.resetEditor();
   });
 
+  await t.test('renderObjectToCanvasDataUrl renders draw, shape, and note objects correctly', async () => {
+    // 1. Freehand draw object
+    const drawObj = {
+      type: 'draw',
+      width: 100,
+      height: 50,
+      properties: { color: '#123456', strokeWidth: 3, path: [{ x: 0, y: 0 }, { x: 10, y: 10 }, { x: 20, y: 50 }] }
+    };
+    const drawDataUrl = editorModule.renderObjectToCanvasDataUrl(drawObj);
+    assert.strictEqual(typeof drawDataUrl, 'string');
+    assert.ok(drawDataUrl.startsWith('data:image/png'));
+    // Note: renderObjectToCanvasDataUrl resets canvas width/height to 0 after rendering for memory cleanup
+    const drawCtx = lastCreatedCanvas.getContext('2d');
+    assert.strictEqual(drawCtx.strokeStyle, '#123456');
+    assert.strictEqual(drawCtx.lineWidth, 3);
+    assert.ok(drawCtx.calls.some((c) => c.method === 'moveTo' && c.args[0] === 0 && c.args[1] === 0));
+    assert.ok(drawCtx.calls.some((c) => c.method === 'lineTo' && c.args[0] === 10 && c.args[1] === 10));
+
+    // Freehand draw object with default property fallbacks
+    const drawObjFallback = {
+      type: 'draw',
+      width: 50,
+      height: 50,
+      properties: {}
+    };
+    editorModule.renderObjectToCanvasDataUrl(drawObjFallback);
+    const drawFallbackCtx = lastCreatedCanvas.getContext('2d');
+    assert.strictEqual(drawFallbackCtx.strokeStyle, '#000000');
+    assert.strictEqual(drawFallbackCtx.lineWidth, 2);
+
+    // 2. Shape object: rect (filled)
+    const rectShapeObj = {
+      type: 'shape',
+      width: 80,
+      height: 40,
+      properties: { shapeType: 'rect', strokeColor: '#ff0000', fillColor: '#00ff00', strokeWidth: 4 }
+    };
+    editorModule.renderObjectToCanvasDataUrl(rectShapeObj);
+    const rectCtx = lastCreatedCanvas.getContext('2d');
+    assert.strictEqual(rectCtx.strokeStyle, '#ff0000');
+    assert.strictEqual(rectCtx.fillStyle, '#00ff00');
+    assert.strictEqual(rectCtx.lineWidth, 4);
+    assert.ok(rectCtx.calls.some((c) => c.method === 'fillRect' && c.args[2] === 80 && c.args[3] === 40));
+    assert.ok(rectCtx.calls.some((c) => c.method === 'strokeRect' && c.args[2] === 80 && c.args[3] === 40));
+
+    // Shape object: rect (transparent/none fill)
+    const rectTransparentObj = {
+      type: 'shape',
+      width: 80,
+      height: 40,
+      properties: { shapeType: 'rect', strokeColor: '#000000', fillColor: 'none', strokeWidth: 2 }
+    };
+    editorModule.renderObjectToCanvasDataUrl(rectTransparentObj);
+    const rectTransCtx = lastCreatedCanvas.getContext('2d');
+    assert.strictEqual(rectTransCtx.calls.some((c) => c.method === 'fillRect'), false);
+    assert.ok(rectTransCtx.calls.some((c) => c.method === 'strokeRect'));
+
+    // 3. Shape object: circle (filled and transparent)
+    const circleShapeObj = {
+      type: 'shape',
+      width: 60,
+      height: 60,
+      properties: { shapeType: 'circle', strokeColor: '#0000ff', fillColor: '#ffff00', strokeWidth: 2 }
+    };
+    editorModule.renderObjectToCanvasDataUrl(circleShapeObj);
+    const circleCtx = lastCreatedCanvas.getContext('2d');
+    assert.ok(circleCtx.calls.some((c) => c.method === 'ellipse' && c.args[0] === 30 && c.args[1] === 30));
+    assert.ok(circleCtx.calls.some((c) => c.method === 'fill'));
+    assert.ok(circleCtx.calls.some((c) => c.method === 'stroke'));
+
+    // 4. Shape object: line & arrow
+    const lineShapeObj = {
+      type: 'shape',
+      width: 100,
+      height: 20,
+      properties: { shapeType: 'line', strokeColor: '#333333', strokeWidth: 1 }
+    };
+    editorModule.renderObjectToCanvasDataUrl(lineShapeObj);
+    const lineCtx = lastCreatedCanvas.getContext('2d');
+    assert.ok(lineCtx.calls.some((c) => c.method === 'moveTo' && c.args[0] === 4 && c.args[1] === 10));
+    assert.ok(lineCtx.calls.some((c) => c.method === 'lineTo' && c.args[0] === 96 && c.args[1] === 10));
+
+    const arrowShapeObj = {
+      type: 'shape',
+      width: 100,
+      height: 20,
+      properties: { shapeType: 'arrow', strokeColor: '#333333', strokeWidth: 1 }
+    };
+    editorModule.renderObjectToCanvasDataUrl(arrowShapeObj);
+    const arrowCtx = lastCreatedCanvas.getContext('2d');
+    assert.ok(arrowCtx.calls.some((c) => c.method === 'moveTo' && c.args[0] === 88 && c.args[1] === 4));
+
+    // 5. Sticky note object (single & multi-line)
+    const noteObj = {
+      type: 'note',
+      width: 150,
+      height: 100,
+      properties: { text: 'Note line 1\nNote line 2' }
+    };
+    const noteDataUrl = editorModule.renderObjectToCanvasDataUrl(noteObj);
+    assert.strictEqual(typeof noteDataUrl, 'string');
+    assert.ok(noteDataUrl.startsWith('data:image/png'));
+    const noteCtx = lastCreatedCanvas.getContext('2d');
+    assert.strictEqual(noteCtx.fillStyle, '#000000');
+    assert.ok(noteCtx.calls.some((c) => c.method === 'fillText' && c.args[0] === 'Note line 1' && c.args[2] === 16));
+    assert.ok(noteCtx.calls.some((c) => c.method === 'fillText' && c.args[0] === 'Note line 2' && c.args[2] === 32));
+
+    // 6. Unknown object type
+    const unknownObj = {
+      type: 'unsupported',
+      width: 100,
+      height: 100,
+      properties: {}
+    };
+    const unknownDataUrl = editorModule.renderObjectToCanvasDataUrl(unknownObj);
+    assert.strictEqual(typeof unknownDataUrl, 'string');
+    assert.ok(unknownDataUrl.startsWith('data:image/png'));
+  });
+
   await t.test('export helper functions (renderObjectToCanvasDataUrl, applyTextObject, etc.)', async () => {
     const drawObj = {
       type: 'draw',
@@ -425,9 +568,6 @@ test('pdf-editor PDF export process', async (t) => {
       height: 50,
       properties: { color: '#000000', strokeWidth: 2, path: [{ x: 0, y: 0 }, { x: 10, y: 10 }] }
     };
-    const dataUrl = editorModule.renderObjectToCanvasDataUrl(drawObj);
-    assert.strictEqual(typeof dataUrl, 'string');
-    assert.ok(dataUrl.startsWith('data:image/png'));
 
     const mockPage = {
       drawTextCalls: [],
