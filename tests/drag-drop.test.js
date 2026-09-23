@@ -21,13 +21,15 @@ src += `
     initDropZone,
     setupDragReorder,
     fileToDataUrl,
+    triggerDownload,
     renderPageToDataUrl,
     renderPdfFirstPage,
-    getDOMState: () => ({ bodyChildren, allElements, timeouts }),
+    getDOMState: () => ({ bodyChildren, allElements, timeouts, revokedUrls }),
     resetDOM: () => {
       bodyChildren = [];
       allElements = [];
       timeouts = [];
+      revokedUrls = [];
     }
   };
 `;
@@ -36,6 +38,13 @@ const evaluateCode = `
   let bodyChildren = [];
   let allElements = [];
   let timeouts = [];
+  let revokedUrls = [];
+
+  const URL = {
+    revokeObjectURL: (url) => {
+      revokedUrls.push(url);
+    }
+  };
 
   class FileReader {
     readAsDataURL(file) {
@@ -67,6 +76,9 @@ const evaluateCode = `
     body: {
       appendChild: (el) => {
         bodyChildren.push(el);
+      },
+      removeChild: (el) => {
+        bodyChildren = bodyChildren.filter(child => child !== el);
       }
     },
     querySelector: (selector) => {
@@ -83,6 +95,10 @@ const evaluateCode = `
         style: {},
         children: [],
         removed: false,
+        clicked: false,
+        click: function() {
+          this.clicked = true;
+        },
         appendChild: function(child) {
           child.parentElement = this;
           this.children.push(child);
@@ -114,7 +130,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, triggerDownload, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -475,6 +491,64 @@ test('fileToDataUrl', async (t) => {
       },
       { message: 'Failed to read file' }
     );
+  });
+});
+
+test('triggerDownload', async (t) => {
+  t.beforeEach(() => {
+    resetDOM();
+  });
+
+  await t.test('creates <a> element, sets href/download, appends, clicks, and removes element', () => {
+    const testUrl = 'blob:https://tryflipp.pages.dev/12345';
+    const filename = 'sample.pdf';
+
+    triggerDownload(testUrl, filename);
+
+    const { allElements, bodyChildren, timeouts } = getDOMState();
+
+    // Check created anchor element
+    const linkEl = allElements.find(el => el.tag === 'a');
+    assert.ok(linkEl, 'An <a> element should be created');
+    assert.strictEqual(linkEl.href, testUrl);
+    assert.strictEqual(linkEl.download, filename);
+    assert.strictEqual(linkEl.clicked, true, 'click() should have been called on <a> element');
+
+    // Verify element was appended and then removed from body
+    assert.strictEqual(bodyChildren.includes(linkEl), false, 'Element should no longer be in document.body');
+
+    // Default revokeUrl is false -> no revoke timeout scheduled
+    assert.strictEqual(timeouts.length, 0);
+  });
+
+  await t.test('schedules URL revocation when revokeUrl parameter is true', () => {
+    const testUrl = 'blob:https://tryflipp.pages.dev/67890';
+
+    triggerDownload(testUrl, 'document.pdf', true);
+
+    const { timeouts, revokedUrls } = getDOMState();
+
+    assert.strictEqual(timeouts.length, 1);
+    assert.strictEqual(timeouts[0].delay, 100);
+    assert.strictEqual(revokedUrls.length, 0);
+
+    // Execute scheduled timeout callback
+    timeouts[0].cb();
+
+    assert.strictEqual(revokedUrls.length, 1);
+    assert.strictEqual(revokedUrls[0], testUrl);
+  });
+
+  await t.test('handles falsy URL gracefully when revokeUrl is true', () => {
+    triggerDownload('', 'empty.pdf', true);
+
+    const { timeouts, revokedUrls } = getDOMState();
+
+    assert.strictEqual(timeouts.length, 1);
+    timeouts[0].cb();
+
+    // Falsy URL should not trigger URL.revokeObjectURL
+    assert.strictEqual(revokedUrls.length, 0);
   });
 });
 
