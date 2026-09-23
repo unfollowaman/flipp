@@ -53,3 +53,7 @@
 ## 2026-09-26 - Pre-fill solid white background on HTML canvas before JPEG conversion in PDF processing
 **Learning:** In HTML canvas rendering pipelines (such as `js/pdf-protect.js`), converting PDF page canvases with default transparent backgrounds directly to JPEG via `canvas.toDataURL("image/jpeg")` causes transparent background pixels to render as solid black in the encoded JPEG output.
 **Action:** Always pre-fill canvas 2D contexts with `context.fillStyle = "#ffffff"` and `context.fillRect(0, 0, canvas.width, canvas.height)` before invoking `page.render()` when exporting canvas contents to JPEG.
+
+## 2026-09-27 - Defer File ArrayBuffer reading until action execution in single-stage processing tools
+**Learning:** In single-stage file processing tools (such as Protect PDF), reading and storing `file.arrayBuffer()` in RAM during file drop/selection increases memory retention time while the user fills out parameters (e.g. passwords). Since the file is processed only once on execution and not needed for initial thumbnail preview or metadata analysis, reading the buffer up-front adds RAM pressure without reducing file reads.
+**Action:** In single-stage file workflows that do not render previews or inspect metadata up-front, defer `file.arrayBuffer()` until the user explicitly executes the action.
