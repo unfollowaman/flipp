@@ -45,7 +45,18 @@ src += `\nreturn {
   getHistoryStack: () => historyStack,
   getRedoStack: () => redoStack,
   getPdfjsDocument: () => pdfjsDocument,
-  setPdfBytesOriginal: (bytes) => { pdfBytesOriginal = bytes; }
+  setPdfjsDocument: (doc) => { pdfjsDocument = doc; },
+  getPdfBytesOriginal: () => pdfBytesOriginal,
+  setPdfBytesOriginal: (bytes) => { pdfBytesOriginal = bytes; },
+  getActiveTool: () => activeTool,
+  setActiveTool: (tool) => { activeTool = tool; },
+  getCurrentDownloadUrl: () => currentDownloadUrl,
+  setCurrentDownloadUrl: (url) => { currentDownloadUrl = url; },
+  getNumPages: () => numPages,
+  setNumPages: (n) => { numPages = n; },
+  getCurrentPageIndex: () => currentPageIndex,
+  setCurrentPageIndex: (idx) => { currentPageIndex = idx; },
+  getRevokedUrls: () => revokedUrls
 };\n`;
 
 const elementMap = {};
@@ -58,6 +69,7 @@ function createMockElement(id = '') {
   }
 
   const classes = new Set();
+  const attributes = {};
   const contextCalls = [];
   const mockCtx = {
     calls: contextCalls,
@@ -100,6 +112,8 @@ function createMockElement(id = '') {
         else classes.add(cls);
       }
     },
+    setAttribute: (attr, val) => { attributes[attr] = String(val); },
+    getAttribute: (attr) => attributes[attr] || null,
     appendChild: () => {},
     removeChild: () => {},
     remove: () => {},
@@ -203,6 +217,8 @@ const mockWindow = {
   }
 };
 
+let revokedUrls = [];
+
 const wrapper = new Function(
   'document',
   'window',
@@ -214,6 +230,7 @@ const wrapper = new Function(
   'Blob',
   'URL',
   'console',
+  'revokedUrls',
   src
 );
 
@@ -226,8 +243,12 @@ const editorModule = wrapper(
   async () => 'data:image/png;base64,mock',
   () => {},
   class Blob {},
-  { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
-  mockConsole
+  {
+    createObjectURL: () => 'blob:mock',
+    revokeObjectURL: (url) => { revokedUrls.push(url); }
+  },
+  mockConsole,
+  revokedUrls
 );
 
 test('pdf-editor centralized coordinate conversion', async (t) => {
@@ -931,5 +952,120 @@ test('pdf-editor sanitizeFilename and Web Share API feature detection', async (t
   await t.test('checkShareSupport returns false in test environment when navigator.canShare is missing', () => {
     const isSupported = editorModule.checkShareSupport();
     assert.strictEqual(isSupported, false);
+  });
+});
+
+test('pdf-editor resetEditor cleanup and state nullification', async (t) => {
+  await t.test('resetEditor revokes object URL and destroys pdfjsDocument instance', () => {
+    let destroyCalled = false;
+    const mockDoc = {
+      destroy: () => { destroyCalled = true; }
+    };
+
+    editorModule.setCurrentDownloadUrl('blob:mock-download-123');
+    editorModule.setPdfjsDocument(mockDoc);
+    editorModule.setPdfBytesOriginal(new Uint8Array([1, 2, 3]).buffer);
+
+    editorModule.resetEditor();
+
+    assert.ok(editorModule.getRevokedUrls().includes('blob:mock-download-123'), 'URL should be revoked');
+    assert.strictEqual(editorModule.getCurrentDownloadUrl(), null, 'currentDownloadUrl should be nullified');
+    assert.strictEqual(destroyCalled, true, 'pdfjsDocument.destroy() should be called');
+    assert.strictEqual(editorModule.getPdfjsDocument(), null, 'pdfjsDocument should be set to null');
+    assert.strictEqual(editorModule.getPdfBytesOriginal(), null, 'pdfBytesOriginal should be set to null');
+  });
+
+  await t.test('resetEditor resets all internal state variables and history stacks', () => {
+    editorModule.resetEditor(); // Start with clean state
+    editorModule.setNumPages(10);
+    editorModule.setCurrentPageIndex(5);
+    editorModule.setEditorObjects([]);
+    editorModule.saveState(); // historyStack: ['[]']
+    editorModule.setEditorObjects([{ id: 'obj1' }]);
+    editorModule.saveState(); // historyStack: ['[]', '[{"id":"obj1"}]']
+    editorModule.setEditorObjects([{ id: 'obj1' }, { id: 'obj2' }]);
+    editorModule.undoAction(); // editorObjects: [{id:'obj1'}], historyStack: ['[]'] (len 1), redoStack: ['[{"id":"obj1"},{"id":"obj2"}]'] (len 1)
+    editorModule.setSelectedObjId('obj1');
+    editorModule.setActiveTool('draw');
+
+    assert.strictEqual(editorModule.getNumPages(), 10);
+    assert.strictEqual(editorModule.getCurrentPageIndex(), 5);
+    assert.strictEqual(editorModule.getEditorObjects().length, 1);
+    assert.strictEqual(editorModule.getHistoryStack().length, 1);
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+    assert.strictEqual(editorModule.getSelectedObjId(), 'obj1');
+
+    editorModule.resetEditor();
+
+    assert.strictEqual(editorModule.getNumPages(), 0);
+    assert.strictEqual(editorModule.getCurrentPageIndex(), 1);
+    assert.strictEqual(editorModule.getEditorObjects().length, 0);
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+    assert.strictEqual(editorModule.getSelectedObjId(), null);
+    assert.strictEqual(editorModule.getActiveTool(), 'select');
+    assert.strictEqual(editorModule.getZoomLevel(), 1.0);
+  });
+
+  await t.test('resetEditor resets DOM UI elements and section visibilities', () => {
+    const filenameInput = mockDocument.getElementById('editor-filename-input');
+    const propBold = mockDocument.getElementById('prop-bold');
+    const propItalic = mockDocument.getElementById('prop-italic');
+    const zoomValLabel = mockDocument.getElementById('editor-zoom-val');
+    const editorHeader = mockDocument.getElementById('editor-header');
+    const dropZone = mockDocument.getElementById('editor-drop-zone');
+    const workspaceContainer = mockDocument.getElementById('editor-workspace');
+    const progressArea = mockDocument.getElementById('editor-progress');
+    const resultsArea = mockDocument.getElementById('editor-results');
+    const fileInput = mockDocument.getElementById('editor-file-input');
+
+    // Mutate mock DOM state to non-default values
+    filenameInput.value = 'custom_edited_doc.pdf';
+    propBold.classList.add('active');
+    propBold.setAttribute('aria-pressed', 'true');
+    propItalic.classList.add('active');
+    propItalic.setAttribute('aria-pressed', 'true');
+    zoomValLabel.textContent = '200%';
+    editorHeader.style.display = 'none';
+    dropZone.style.display = 'none';
+    workspaceContainer.style.display = 'flex';
+    progressArea.style.display = 'block';
+    resultsArea.classList.add('is-visible');
+    fileInput.value = 'C:\\fakepath\\file.pdf';
+
+    // Mock tool buttons in toolbar
+    const selectBtn = createMockElement();
+    selectBtn.dataset = { tool: 'select' };
+
+    const drawBtn = createMockElement();
+    drawBtn.dataset = { tool: 'draw' };
+    drawBtn.classList.add('active');
+
+    const toolbar = mockDocument.getElementById('editor-toolbar');
+    toolbar.querySelectorAll = (selector) => {
+      if (selector === '[data-tool]') return [selectBtn, drawBtn];
+      return [];
+    };
+
+    editorModule.resetEditor();
+
+    assert.strictEqual(filenameInput.value, 'document.pdf');
+    assert.strictEqual(propBold.classList.contains('active'), false);
+    assert.strictEqual(propBold.getAttribute('aria-pressed'), 'false');
+    assert.strictEqual(propItalic.classList.contains('active'), false);
+    assert.strictEqual(propItalic.getAttribute('aria-pressed'), 'false');
+    assert.strictEqual(zoomValLabel.textContent, '100%');
+
+    assert.strictEqual(editorHeader.style.display, 'block');
+    assert.strictEqual(dropZone.style.display, 'flex');
+    assert.strictEqual(workspaceContainer.style.display, 'none');
+    assert.strictEqual(progressArea.style.display, 'none');
+    assert.strictEqual(resultsArea.classList.contains('is-visible'), false);
+    assert.strictEqual(fileInput.value, '');
+
+    assert.strictEqual(selectBtn.classList.contains('active'), true);
+    assert.strictEqual(selectBtn.getAttribute('aria-pressed'), 'true');
+    assert.strictEqual(drawBtn.classList.contains('active'), false);
+    assert.strictEqual(drawBtn.getAttribute('aria-pressed'), 'false');
   });
 });
