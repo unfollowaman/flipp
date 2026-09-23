@@ -330,12 +330,18 @@
               />
             </div>
             <div class="option-group option-group-page-numbering">
-              <label class="option-label">Page number position</label>
-              <div class="page-number-position-grid" id="number-page-position">
+              <label class="option-label" id="number-position-label">Page number position</label>
+              <div
+                class="page-number-position-grid"
+                id="number-page-position"
+                role="group"
+                aria-labelledby="number-position-label"
+              >
                 <button
                   class="position-card active"
                   type="button"
                   data-value="bottom-right"
+                  aria-pressed="true"
                 >
                   <span class="position-preview position-bottom-right"></span
                   ><span class="position-label">Bottom right</span>
@@ -344,6 +350,7 @@
                   class="position-card"
                   type="button"
                   data-value="top-right"
+                  aria-pressed="false"
                 >
                   <span class="position-preview position-top-right"></span
                   ><span class="position-label">Top right</span>
@@ -352,6 +359,7 @@
                   class="position-card"
                   type="button"
                   data-value="bottom-center"
+                  aria-pressed="false"
                 >
                   <span class="position-preview position-bottom-center"></span
                   ><span class="position-label">Bottom center</span>

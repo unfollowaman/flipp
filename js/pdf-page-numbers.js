@@ -51,7 +51,11 @@ positionEl.addEventListener("click", (e) => {
   position = card.dataset.value;
   positionEl
     .querySelectorAll(".position-card")
-    .forEach((b) => b.classList.toggle("active", b.dataset.value === position));
+    .forEach((b) => {
+      const isActive = b.dataset.value === position;
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
 });
 
 addBtn.addEventListener("click", async () => {
@@ -143,9 +147,11 @@ resetBtn.addEventListener("click", () => {
   infoEl.textContent = "";
   positionEl
     .querySelectorAll(".position-card")
-    .forEach((b) =>
-      b.classList.toggle("active", b.dataset.value === "bottom-right"),
-    );
+    .forEach((b) => {
+      const isActive = b.dataset.value === "bottom-right";
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
 });
 
 initDropZone(dropZoneEl, fileInputEl, onFiles);
