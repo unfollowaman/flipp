@@ -283,6 +283,131 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     editorModule.redoAction();
     assert.strictEqual(editorModule.getEditorObjects()[0].x, 200);
   });
+
+  await t.test('undoAction does nothing when historyStack is empty', () => {
+    editorModule.resetEditor();
+
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+    assert.strictEqual(editorModule.getEditorObjects().length, 0);
+
+    editorModule.undoAction();
+
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+    assert.strictEqual(editorModule.getEditorObjects().length, 0);
+  });
+
+  await t.test('undoAction updates UI button disabled states and populates redoStack', () => {
+    editorModule.resetEditor();
+    const undoBtn = mockDocument.getElementById('editor-undo-btn');
+    const redoBtn = mockDocument.getElementById('editor-redo-btn');
+
+    const obj1 = { id: 'obj_1', type: 'text', pageNum: 1, x: 10, y: 10, properties: { text: 'Initial' } };
+    const obj2 = { id: 'obj_1', type: 'text', pageNum: 1, x: 50, y: 50, properties: { text: 'Modified' } };
+
+    // Initially no history/redo
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+
+    // Save state before modification
+    editorModule.setEditorObjects([obj1]);
+    editorModule.saveState();
+
+    // Make modification
+    editorModule.setEditorObjects([obj2]);
+
+    assert.strictEqual(editorModule.getHistoryStack().length, 1);
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+
+    // Undo action should push current state [obj2] to redoStack, pop [obj1] from historyStack
+    editorModule.undoAction();
+
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+    assert.deepStrictEqual(editorModule.getEditorObjects(), [obj1]);
+    assert.strictEqual(undoBtn.disabled, true);
+    assert.strictEqual(redoBtn.disabled, false);
+  });
+
+  await t.test('handles sequential multi-step undo and redo operations accurately', () => {
+    editorModule.resetEditor();
+    const state0 = [];
+    const state1 = [{ id: '1', type: 'text', x: 0, y: 0 }];
+    const state2 = [{ id: '1', type: 'text', x: 100, y: 0 }];
+    const state3 = [{ id: '1', type: 'text', x: 100, y: 0 }, { id: '2', type: 'highlight', x: 10, y: 10 }];
+
+    // Step 0 -> Step 1
+    editorModule.setEditorObjects(state0);
+    editorModule.saveState(); // history: [state0]
+    editorModule.setEditorObjects(state1);
+
+    // Step 1 -> Step 2
+    editorModule.saveState(); // history: [state0, state1]
+    editorModule.setEditorObjects(state2);
+
+    // Step 2 -> Step 3
+    editorModule.saveState(); // history: [state0, state1, state2]
+    editorModule.setEditorObjects(state3);
+
+    assert.strictEqual(editorModule.getHistoryStack().length, 3);
+    assert.strictEqual(editorModule.getEditorObjects().length, 2);
+
+    // Undo step 1: back to state2
+    editorModule.undoAction();
+    assert.deepStrictEqual(editorModule.getEditorObjects(), state2);
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+
+    // Undo step 2: back to state1
+    editorModule.undoAction();
+    assert.deepStrictEqual(editorModule.getEditorObjects(), state1);
+    assert.strictEqual(editorModule.getRedoStack().length, 2);
+
+    // Undo step 3: back to state0
+    editorModule.undoAction();
+    assert.deepStrictEqual(editorModule.getEditorObjects(), state0);
+    assert.strictEqual(editorModule.getRedoStack().length, 3);
+
+    // Redo step 1: forward to state1
+    editorModule.redoAction();
+    assert.deepStrictEqual(editorModule.getEditorObjects(), state1);
+    assert.strictEqual(editorModule.getRedoStack().length, 2);
+
+    // Redo step 2: forward to state2
+    editorModule.redoAction();
+    assert.deepStrictEqual(editorModule.getEditorObjects(), state2);
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+  });
+
+  await t.test('redoAction does nothing when redoStack is empty', () => {
+    editorModule.setEditorObjects([{ id: 'obj_1' }]);
+    editorModule.saveState();
+
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+    editorModule.redoAction();
+
+    assert.strictEqual(editorModule.getEditorObjects().length, 1);
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+  });
+
+  await t.test('saveState clears redoStack when new modification occurs after undo', () => {
+    const obj1 = { id: '1', x: 0 };
+    const obj2 = { id: '1', x: 50 };
+    const obj3 = { id: '1', x: 100 };
+
+    editorModule.setEditorObjects([obj1]);
+    editorModule.saveState();
+    editorModule.setEditorObjects([obj2]);
+
+    // Undo back to obj1
+    editorModule.undoAction();
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+
+    // New edit: saveState should purge redoStack
+    editorModule.saveState();
+    editorModule.setEditorObjects([obj3]);
+
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+  });
 });
 
 test('pdf-editor PDF export process', async (t) => {
