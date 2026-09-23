@@ -468,3 +468,72 @@ test('add-watermark resource cleanup', async (t) => {
     assert.strictEqual(destroyCount, 2, 'resetApp should destroy existing pdfDoc');
   });
 });
+
+test('add-watermark error handling', async (t) => {
+  const mockDocument = createMockDocument();
+  let toastCall = null;
+
+  const mockWindow = {
+    'pdfjs-dist/build/pdf': {
+      getDocument: () => ({
+        promise: Promise.reject(new Error('Corrupt or invalid PDF')),
+      }),
+    },
+  };
+
+  const mockInitDropZone = () => {};
+  const mockShowToast = (msg, type) => {
+    toastCall = { msg, type };
+  };
+  const mockSetProgress = () => {};
+  const mockActivatePill = () => {};
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
+  const exports = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+
+  await t.test('handleFile handles getDocument rejection and triggers error toast and reset', async () => {
+    toastCall = null;
+    const dropZone = mockDocument.getElementById('wm-drop-zone');
+    dropZone.style.display = 'none';
+
+    const origConsoleError = console.error;
+    console.error = () => {};
+    try {
+      const mockFile = {
+        name: 'corrupt.pdf',
+        type: 'application/pdf',
+        arrayBuffer: async () => new ArrayBuffer(8),
+      };
+
+      await exports.handleFile([mockFile]);
+
+      assert.deepStrictEqual(toastCall, { msg: 'Error loading PDF.', type: 'error' });
+      assert.strictEqual(dropZone.style.display, 'block', 'dropZone display should be reset to block after failure');
+    } finally {
+      console.error = origConsoleError;
+    }
+  });
+
+  await t.test('handleFile handles file.arrayBuffer failure and triggers error toast and reset', async () => {
+    toastCall = null;
+    const dropZone = mockDocument.getElementById('wm-drop-zone');
+    dropZone.style.display = 'none';
+
+    const origConsoleError = console.error;
+    console.error = () => {};
+    try {
+      const mockFile = {
+        name: 'unreadable.pdf',
+        type: 'application/pdf',
+        arrayBuffer: async () => { throw new Error('File read error'); },
+      };
+
+      await exports.handleFile([mockFile]);
+
+      assert.deepStrictEqual(toastCall, { msg: 'Error loading PDF.', type: 'error' });
+      assert.strictEqual(dropZone.style.display, 'block', 'dropZone display should be reset to block after failure');
+    } finally {
+      console.error = origConsoleError;
+    }
+  });
+});
