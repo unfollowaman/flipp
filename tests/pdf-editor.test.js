@@ -35,6 +35,8 @@ src += `\nreturn {
   setupOverlayEvents,
   createObjectForTool,
   finishDrawingPath,
+  sanitizeFilename,
+  checkShareSupport,
   getZoomLevel: () => zoomLevel,
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
@@ -774,5 +776,20 @@ test('pdf-editor draggable and resizable behavior', async (t) => {
     assert.strictEqual(editorModule.getEditorObjects()[0].y, 80);
     assert.strictEqual(editorModule.getEditorObjects()[1].width, 200);
     assert.strictEqual(editorModule.getEditorObjects()[1].height, 150);
+  });
+});
+
+test('pdf-editor sanitizeFilename and Web Share API feature detection', async (t) => {
+  await t.test('sanitizeFilename strips slashes and appends .pdf extension when missing', () => {
+    assert.strictEqual(editorModule.sanitizeFilename('my_document.pdf'), 'my_document.pdf');
+    assert.strictEqual(editorModule.sanitizeFilename('my/doc\\folder/test.pdf'), 'my_doc_folder_test.pdf');
+    assert.strictEqual(editorModule.sanitizeFilename('report'), 'report.pdf');
+    assert.strictEqual(editorModule.sanitizeFilename('   '), 'document.pdf');
+    assert.strictEqual(editorModule.sanitizeFilename(null), 'document.pdf');
+  });
+
+  await t.test('checkShareSupport returns false in test environment when navigator.canShare is missing', () => {
+    const isSupported = editorModule.checkShareSupport();
+    assert.strictEqual(isSupported, false);
   });
 });

@@ -35,7 +35,8 @@ const dropZone = document.getElementById("editor-drop-zone");
 const fileInput = document.getElementById("editor-file-input");
 
 const workspaceContainer = document.getElementById("editor-workspace");
-const docNameLabel = document.getElementById("editor-doc-name");
+const filenameInput = document.getElementById("editor-filename-input");
+const shareBtn = document.getElementById("editor-share-btn");
 const pageIndicator = document.getElementById("editor-page-indicator");
 const prevPageBtn = document.getElementById("editor-prev-page");
 const nextPageBtn = document.getElementById("editor-next-page");
@@ -139,7 +140,7 @@ export async function handlePdfSelect(files) {
   }
 
   fileName = file.name;
-  if (docNameLabel) docNameLabel.textContent = fileName;
+  if (filenameInput) filenameInput.value = fileName;
 
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -339,9 +340,9 @@ if (zoomOutBtn) {
 // ── Toolbar & Tool Selection ───────────────────────────────────────
 
 if (toolbar) {
-  toolbar.querySelectorAll(".editor-btn").forEach((btn) => {
+  toolbar.querySelectorAll("[data-tool]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      toolbar.querySelectorAll(".editor-btn").forEach((b) => {
+      toolbar.querySelectorAll("[data-tool]").forEach((b) => {
         const isActive = b === btn;
         b.classList.toggle("active", isActive);
         if (b.setAttribute) b.setAttribute("aria-pressed", isActive ? "true" : "false");
@@ -1354,10 +1355,19 @@ export async function applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdf
   }
 }
 
-export async function exportEditedPdf() {
+export function sanitizeFilename(filename) {
+  let name = (filename || "document.pdf").trim().replace(/[\/\\]/g, "_");
+  if (!name) name = "document.pdf";
+  if (!name.toLowerCase().endsWith(".pdf")) {
+    name += ".pdf";
+  }
+  return name;
+}
+
+export async function generateEditedPdfBlob() {
   if (!window.PDFLib) {
     showToast("PDF library not ready yet. Please wait a moment.", "error");
-    return;
+    return null;
   }
 
   workspaceContainer.style.display = "none";
@@ -1407,34 +1417,92 @@ export async function exportEditedPdf() {
     const modifiedPdfBytes = await pdfDoc.save();
 
     setProgress(progressBar, progressLabel, 100, "Done!");
-
-    setTimeout(() => {
-      if (progressArea) progressArea.style.display = "none";
-      if (resultsArea) resultsArea.classList.add("is-visible");
-
-      const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
-
-      if (currentDownloadUrl) {
-        URL.revokeObjectURL(currentDownloadUrl);
-      }
-      currentDownloadUrl = URL.createObjectURL(blob);
-
-      if (downloadFinalBtn) {
-        downloadFinalBtn.onclick = () => {
-          const safeName = fileName.replace(".pdf", "").replace(/[\/\\]/g, "_");
-          triggerDownload(currentDownloadUrl, `${safeName}_edited.pdf`, true);
-          currentDownloadUrl = null;
-        };
-      }
-    }, 400);
+    return new Blob([modifiedPdfBytes], { type: "application/pdf" });
   } catch (err) {
     showToast("We couldn't create the edited PDF. Your original file has not been changed.", "error");
     if (progressArea) progressArea.style.display = "none";
     if (workspaceContainer) workspaceContainer.style.display = "flex";
+    return null;
   }
 }
 
+export async function exportEditedPdf() {
+  const blob = await generateEditedPdfBlob();
+  if (!blob) return;
+
+  const userFileName = filenameInput ? filenameInput.value : fileName;
+  const safeName = sanitizeFilename(userFileName);
+
+  setTimeout(() => {
+    if (progressArea) progressArea.style.display = "none";
+    if (resultsArea) resultsArea.classList.add("is-visible");
+
+    if (currentDownloadUrl) {
+      URL.revokeObjectURL(currentDownloadUrl);
+    }
+    currentDownloadUrl = URL.createObjectURL(blob);
+
+    if (downloadFinalBtn) {
+      downloadFinalBtn.onclick = () => {
+        triggerDownload(currentDownloadUrl, safeName, true);
+        currentDownloadUrl = null;
+      };
+    }
+  }, 400);
+}
+
 if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
+
+export function checkShareSupport() {
+  if (
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function" &&
+    typeof navigator.canShare === "function"
+  ) {
+    try {
+      const testFile = new File(["test"], "test.pdf", { type: "application/pdf" });
+      if (navigator.canShare({ files: [testFile] })) {
+        return true;
+      }
+    } catch (_) {}
+  }
+  return false;
+}
+
+export async function shareEditedPdf() {
+  const blob = await generateEditedPdfBlob();
+  if (!blob) return;
+
+  const userFileName = filenameInput ? filenameInput.value : fileName;
+  const safeName = sanitizeFilename(userFileName);
+
+  if (progressArea) progressArea.style.display = "none";
+  if (workspaceContainer) workspaceContainer.style.display = "flex";
+
+  try {
+    const file = new File([blob], safeName, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: safeName,
+      });
+    } else {
+      showToast("Sharing is not supported on this browser.", "error");
+    }
+  } catch (err) {
+    if (err && err.name !== "AbortError") {
+      showToast("Could not share file.", "error");
+    }
+  }
+}
+
+if (shareBtn) {
+  if (!checkShareSupport()) {
+    shareBtn.style.display = "none";
+  } else {
+    shareBtn.addEventListener("click", shareEditedPdf);
+  }
+}
 
 // ── State Management & UI Wiring ────────────────────────────────────
 
@@ -1529,11 +1597,14 @@ export function resetEditor() {
   selectedObjId = null;
   activeTool = "select";
   if (toolbar) {
-    toolbar.querySelectorAll(".editor-btn").forEach((b) => {
+    toolbar.querySelectorAll("[data-tool]").forEach((b) => {
       const isSelect = b.dataset.tool === "select";
       b.classList.toggle("active", isSelect);
       if (b.setAttribute) b.setAttribute("aria-pressed", isSelect ? "true" : "false");
     });
+  }
+  if (filenameInput) {
+    filenameInput.value = "document.pdf";
   }
   if (propBold) {
     propBold.classList.remove("active");
