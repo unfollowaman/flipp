@@ -4,9 +4,11 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-24: Add Watermark Tool (`js/add-watermark.js`, `tools/add-watermark/index.html`, `tests/add-watermark.test.js`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
+  - Re-audit Add Watermark (`js/add-watermark.js`) if multi-layer (combined text + image) watermark support is added in a single pass.
 - **Known recurring risks:**
   - Standard test suite execution assumes all browser globals or mock dependencies are evaluated via `new Function()` rather than direct `require()` calls to external npm packages that are not pre-installed in `node_modules`.
   - Memory consumption when rendering high-DPI canvases for multi-page PDFs in browser-side conversion loops.
@@ -37,6 +39,39 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-24 — Add Watermark Tool (`js/add-watermark.js` & `tools/add-watermark/index.html`)
+
+Status: PASS
+
+Scope:
+- In-browser watermark addition flow (`js/add-watermark.js` & `tools/add-watermark/index.html`)
+- Interactive canvas rendering, rotation, position calculation, tiling, and drag/drop custom overrides
+- Text and image watermark embedding with `pdf-lib`
+- Test coverage (`tests/add-watermark.test.js`)
+- Zero-server privacy compliance and security boundaries
+
+Evidence:
+- Executed unit test suite: `node --test tests/add-watermark.test.js`. Passed 31/31 subtests across 7 test suites.
+- Inspected `js/add-watermark.js` and `tools/add-watermark/index.html` source code directly.
+- Verified offset math in `getPdfPositionOffset` and coordinate calculations in `getPdfCoordinates`.
+- Verified efficient hex color caching (`colorCache` Map) and text dimension caching (`textDimensionCache` Map) in `convertBtn` handler.
+- Verified resource lifecycle management: explicit `page.cleanup()` in `renderPagePreview`, `pdfjsDoc.destroy()` during resets/re-loads, and `URL.revokeObjectURL(url)` on download.
+- Confirmed zero network calls / external API transmissions during watermark processing operations.
+
+Findings:
+1. **Watermark Embedding (`js/add-watermark.js`):** Properly supports text and PNG/JPG image watermarks across standard positions (`center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`, `tile`) and custom canvas drag coordinates (`customX`, `customY`).
+2. **Page Scope Management:** Handles page-specific configuration overrides (`pageConfigs`) and bulk scope promotions (`applyWatermarkScope("all")`).
+3. **Resource Handling & Memory Cleanup:** Consistently destroys prior PDF.js document instances and cleans up rendered PDF.js pages in `finally` blocks.
+4. **Filename & Input Safety:** Input file names are sanitized (`fileName.replace(".pdf", "").replace(/[\/\\]/g, "_")`) before download link creation. Text content is rendered securely via HTML5 canvas and `pdf-lib` text drawing APIs with no `innerHTML` injection.
+
+Follow-up:
+- Re-audit `js/add-watermark.js` if multi-layer combined (text + image) watermarking is implemented in a single processing pass.
+
+Relevant files:
+- `js/add-watermark.js`
+- `tools/add-watermark/index.html`
+- `tests/add-watermark.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
