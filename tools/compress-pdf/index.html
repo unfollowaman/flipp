@@ -259,127 +259,136 @@
 
     <main class="tool-page-main">
       <section class="section-inner" aria-labelledby="tool-title">
-        <div class="converter-header">
-          <div class="converter-badge" style="background: var(--pink)">
-            COMPRESS PDF
-          </div>
-          <h1 class="converter-title" id="tool-title">Compress PDF Online</h1>
-        </div>
-        <div
-          class="drop-zone"
-          role="region"
-          aria-label="PDF file upload area"
-          id="compress-drop-zone"
-        >
-          <input
-            type="file"
-            id="compress-file-input"
-            accept=".pdf,application/pdf"
-            hidden
-          />
-          <div class="dz-content">
-            <div class="dz-headline">Drop one PDF file here</div>
-            <div class="dz-subtext">
-              or
+        <div class="compress-outer-card">
+          <div class="compress-card-body">
+            <div class="converter-header">
+              <div class="converter-badge" style="background: var(--pink)">
+                COMPRESS PDF
+              </div>
+              <h1 class="converter-title" id="tool-title">Compress PDF Online</h1>
+            </div>
+
+            <div
+              class="drop-zone compress-dz"
+              role="region"
+              aria-label="PDF file upload area"
+              id="compress-drop-zone"
+            >
+              <input
+                type="file"
+                id="compress-file-input"
+                accept=".pdf,application/pdf"
+                hidden
+              />
+              <div class="dz-content">
+                <div class="dz-headline">
+                  Drop one PDF file here <span class="dz-dot">·</span> or
+                  <button
+                    class="dz-browse-btn"
+                    onclick="document.getElementById('compress-file-input').click()"
+                  >
+                    browse file
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="compress-divider">— AFTER UPLOADING —</div>
+
+            <div class="preview-area compress-preview-area" id="compress-preview-area">
+              <div class="file-chip compress-file-chip">
+                <span class="file-chip-icon">📄</span>
+                <span class="file-chip-name" id="compress-file-chip-name"></span>
+                <span class="file-chip-size" id="compress-file-chip-size"></span>
+              </div>
+
               <button
-                class="dz-browse-btn"
-                onclick="document.getElementById('compress-file-input').click()"
+                type="button"
+                class="cta-btn cta-pink compress-action-btn"
+                id="compress-btn"
               >
-                browse file
+                Compress PDF →
               </button>
+
+              <div class="compress-mode-cards">
+                <button
+                  type="button"
+                  class="compress-mode-card selected"
+                  data-mode="recommended"
+                >
+                  <span class="cmc-check">✓</span>
+                  <span class="cmc-icon" style="background: var(--mint)">🗜️</span>
+                  <span class="cmc-title">Recommended</span>
+                  <span class="cmc-desc"
+                    >Optimizes structure, strips unused metadata. Perfect quality,
+                    modest savings.</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  class="compress-mode-card"
+                  data-mode="maximum"
+                >
+                  <span class="cmc-check">✓</span>
+                  <span class="cmc-icon" style="background: var(--pink)">📉</span>
+                  <span class="cmc-title">Maximum</span>
+                  <span class="cmc-desc"
+                    >Re-renders pages as images. Bigger savings, text becomes
+                    unselectable.</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <div
+              id="compress-progress-container"
+              class="preview-area compress-progress-area"
+            >
+              <div class="loading-spinner"></div>
+              <p
+                id="compress-progress-text"
+                style="margin-top: 12px; font-weight: 500"
+              >
+                Compressing...
+              </p>
+            </div>
+
+            <div class="compress-divider">— AFTER COMPRESSING —</div>
+
+            <div
+              class="results-area compress-results-area"
+              aria-live="polite"
+              aria-label="Compression results"
+              id="compress-results"
+            >
+              <div class="result-savings" id="compress-result-savings"></div>
+              <div class="size-bar">
+                <div
+                  class="size-bar-used"
+                  id="compress-size-bar-used"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="size-bar-labels">
+                <span id="compress-size-bar-orig"></span>
+                <span id="compress-size-bar-curr"></span>
+              </div>
+              <div class="results-actions">
+                <button class="cta-btn cta-mint compress-download-btn" id="compress-download-btn">
+                  ↓ Download Compressed PDF
+                </button>
+                <div
+                  class="download-filename"
+                  id="compress-download-filename"
+                ></div>
+                <button class="reset-btn compress-reset-btn" id="compress-reset-btn">Reset ↺</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="preview-area" id="compress-preview-area">
-          <div class="file-chip">
-            <span class="file-chip-icon">📄</span>
-            <span class="file-chip-name" id="compress-file-chip-name"></span>
-            <span class="file-chip-size" id="compress-file-chip-size"></span>
-          </div>
-          <div class="compress-mode-cards">
-            <button
-              type="button"
-              class="compress-mode-card selected"
-              data-mode="recommended"
-            >
-              <span class="cmc-check">✓</span>
-              <span class="cmc-icon" style="background: var(--mint)">🗜️</span>
-              <span class="cmc-title">Recommended</span>
-              <span class="cmc-desc"
-                >Optimizes structure, strips unused metadata. Perfect quality,
-                modest savings.</span
-              >
-            </button>
-            <button
-              type="button"
-              class="compress-mode-card"
-              data-mode="maximum"
-            >
-              <span class="cmc-check">✓</span>
-              <span class="cmc-icon" style="background: var(--pink)">📉</span>
-              <span class="cmc-title">Maximum</span>
-              <span class="cmc-desc"
-                >Re-renders pages as images. Bigger savings, text becomes
-                unselectable.</span
-              >
-            </button>
-          </div>
-          <button
-            class="cta-btn cta-pink"
-            id="compress-btn"
-            style="width: 100%; justify-content: center"
-          >
-            Compress PDF →
-          </button>
-        </div>
-
-        <div
-          id="compress-progress-container"
-          class="preview-area"
-          style="
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-          "
-        >
-          <div class="loading-spinner"></div>
-          <p
-            id="compress-progress-text"
-            style="margin-top: 12px; font-weight: 500"
-          >
-            Compressing...
-          </p>
-        </div>
-
-        <div
-          class="results-area"
-          aria-live="polite"
-          aria-label="Compression results"
-          id="compress-results"
-        >
-          <div class="result-savings" id="compress-result-savings"></div>
-          <div class="size-bar">
-            <div
-              class="size-bar-used"
-              id="compress-size-bar-used"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="size-bar-labels">
-            <span id="compress-size-bar-orig"></span>
-            <span id="compress-size-bar-curr"></span>
-          </div>
-          <div class="results-actions">
-            <button class="cta-btn cta-mint" id="compress-download-btn">
-              ⬇ Download Compressed PDF
-            </button>
-            <div
-              class="download-filename"
-              id="compress-download-filename"
-            ></div>
-            <button class="reset-btn" id="compress-reset-btn">Reset ↺</button>
-          </div>
+          <a href="#how-to-compress-pdf-heading" class="compress-how-it-works-bar">
+            ↓ How to compress a PDF file ↓
+          </a>
         </div>
       </section>
 
