@@ -16,7 +16,6 @@ const confirmPasswordEl = document.getElementById("protect-password-confirm");
 const togglePwBtn = document.getElementById("protect-toggle-pw");
 
 const imgClearEl = document.getElementById("protect-img-clear");
-const imgLockedEl = document.getElementById("protect-img-locked");
 const imgResultLockedEl = document.getElementById("protect-result-img-locked");
 
 if (togglePwBtn && passwordEl) {
@@ -46,14 +45,12 @@ async function addFiles(files) {
   infoEl.textContent = `Selected: ${first.name}`;
 
   if (imgClearEl) imgClearEl.src = "";
-  if (imgLockedEl) imgLockedEl.src = "";
   if (imgResultLockedEl) imgResultLockedEl.src = "";
 
   try {
     const dataUrl = await renderPdfFirstPage(first);
     if (dataUrl) {
       if (imgClearEl) imgClearEl.src = dataUrl;
-      if (imgLockedEl) imgLockedEl.src = dataUrl;
       if (imgResultLockedEl) imgResultLockedEl.src = dataUrl;
     }
   } catch (err) {
@@ -215,7 +212,6 @@ resetBtn.addEventListener("click", () => {
   passwordEl.value = "";
   confirmPasswordEl.value = "";
   if (imgClearEl) imgClearEl.src = "";
-  if (imgLockedEl) imgLockedEl.src = "";
   if (imgResultLockedEl) imgResultLockedEl.src = "";
 });
 

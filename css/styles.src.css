@@ -2963,6 +2963,96 @@ for Dynamic UI Sections */
 }
 
 /* ==============================
+   Protect PDF Preview Styles
+   ============================== */
+.protect-preview-container,
+.protect-result-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.protect-preview-card {
+  width: 100%;
+  max-width: 280px;
+  background: var(--card-bg, #fff);
+  border: var(--border-std, 2px solid #000);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 12px;
+  box-shadow: var(--shadow-std, 4px 4px 0 #000);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.protect-card-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #000;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.protect-badge-original {
+  background: var(--mint, #88f0d0);
+  color: #000;
+}
+
+.protect-badge-locked {
+  background: var(--pink, #ff90e8);
+  color: #000;
+}
+
+.protect-card-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.35;
+  background: #f0f0f0;
+  border: 1.5px solid #000;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.protect-card-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.protect-img-blur {
+  filter: blur(8px);
+  transform: scale(1.05);
+}
+
+.protect-lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.protect-lock-emoji {
+  font-size: 48px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  user-select: none;
+}
+
+/* ==============================
    Compress PDF Tool Premium Redesign
    ============================== */
 .compress-outer-card {
