@@ -1238,6 +1238,173 @@ textarea {
   width: 0%;
 } /* ==============================
 Results ============================== */
+/* ============================== Merged PDF Final Stage ============================== */
+.merged-stage-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 24px auto;
+  position: relative;
+}
+
+.merged-sources-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 12px;
+}
+
+.merged-source-card {
+  position: relative;
+  width: 130px;
+  background: var(--white);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 0 16px rgba(61, 214, 140, 0.55), 0 0 32px rgba(61, 214, 140, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.merged-source-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(61, 214, 140, 0.75), 0 0 40px rgba(61, 214, 140, 0.35);
+}
+
+.merged-source-num {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 22px;
+  height: 22px;
+  background: var(--mint);
+  border: 1.5px solid var(--black);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black);
+  z-index: 2;
+}
+
+.merged-source-img {
+  width: 100%;
+  height: 100px;
+  object-fit: contain;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.merged-source-icon {
+  width: 100%;
+  height: 100px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.merged-source-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--black);
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.merge-connector-wrapper {
+  width: 100%;
+  height: 70px;
+  position: relative;
+  overflow: visible;
+  margin: 4px 0;
+}
+
+.merge-connector-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.merged-master-card {
+  width: 180px;
+  background: var(--cream);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-lg);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-hard), 0 0 20px rgba(61, 214, 140, 0.35);
+  position: relative;
+  z-index: 2;
+}
+
+.merged-master-badge {
+  background: var(--mint);
+  color: var(--black);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1.5px solid var(--black);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.merged-master-preview {
+  width: 90px;
+  height: 110px;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.merged-master-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.merged-master-icon {
+  font-size: 36px;
+}
+
+.merged-master-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--black);
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .results-area {
   margin-top: 24px;
 }
