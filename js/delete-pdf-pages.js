@@ -98,6 +98,7 @@ function createThumbnailCard(dataUrl, i) {
   card.appendChild(lbl);
 
   const rmBtn = document.createElement("button");
+  rmBtn.type = "button";
   rmBtn.className = "img-thumb-remove";
   rmBtn.textContent = "✕";
   rmBtn.title = "Delete page";
