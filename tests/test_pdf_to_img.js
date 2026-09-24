@@ -179,3 +179,143 @@ describe('pdf-to-img format and resolution handling', () => {
     assert.ok(code.includes('`page-${String(pageNum).padStart(3, "0")}.${ext}`'), 'Uses dynamic extension for filenames');
   });
 });
+
+describe('loadPDF error handling and validation', () => {
+  function extractFunctionByBraceMatching(sourceCode, signature) {
+    const startIdx = sourceCode.indexOf(signature);
+    if (startIdx === -1) throw new Error(`Signature "${signature}" not found`);
+    const braceStart = sourceCode.indexOf('{', startIdx);
+    if (braceStart === -1) throw new Error(`Opening brace not found after "${signature}"`);
+
+    let depth = 0;
+    for (let i = braceStart; i < sourceCode.length; i++) {
+      if (sourceCode[i] === '{') depth++;
+      else if (sourceCode[i] === '}') {
+        depth--;
+        if (depth === 0) {
+          return sourceCode.slice(startIdx, i + 1);
+        }
+      }
+    }
+    throw new Error(`Unmatched braces for "${signature}"`);
+  }
+
+  function createLoadPDFContext(options = {}) {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const getPdfjsLibCode = extractFunctionByBraceMatching(code, 'function getPdfjsLib()');
+    const waitForPdfjsCode = extractFunctionByBraceMatching(code, 'async function waitForPdfjs()');
+    const loadPDFCode = extractFunctionByBraceMatching(code, 'async function loadPDF(file)');
+
+    let toastMsg = null;
+    let toastType = null;
+    const mockShowToast = (msg, type) => {
+      toastMsg = msg;
+      toastType = type;
+    };
+
+    const mockShowPreview = options.showPreview || (() => {});
+    const mockSetProgress = options.setProgress || (() => {});
+    const mockResetTool = options.resetTool || (() => {});
+    const mockWindow = options.window || {};
+
+    const loadPDF = new Function(
+      'window',
+      'showToast',
+      'showPreview',
+      'setProgress',
+      'resetTool',
+      'progressBar',
+      'progressLabel',
+      'initialPdfDoc',
+      `
+      let pdfDoc = initialPdfDoc || null;
+      let totalPages = 0;
+      ${getPdfjsLibCode}
+      ${waitForPdfjsCode}
+      ${loadPDFCode}
+      return loadPDF;
+    `
+    )(
+      mockWindow,
+      mockShowToast,
+      mockShowPreview,
+      mockSetProgress,
+      mockResetTool,
+      {},
+      {},
+      options.initialPdfDoc || null
+    );
+
+    return {
+      loadPDF,
+      getToastMsg: () => toastMsg,
+      getToastType: () => toastType,
+    };
+  }
+
+  test('shows error toast when non-PDF file is supplied', async () => {
+    const ctx = createLoadPDFContext();
+    await ctx.loadPDF({ name: 'notes.txt', type: 'text/plain' });
+    assert.strictEqual(ctx.getToastMsg(), 'Please upload a PDF file.');
+    assert.strictEqual(ctx.getToastType(), 'error');
+  });
+
+  test('handles getDocument rejection when loading empty/corrupted PDF', async () => {
+    const mockWindow = {
+      'pdfjs-dist/build/pdf': {
+        GlobalWorkerOptions: {},
+        getDocument: () => ({
+          promise: Promise.reject(new Error('Invalid or corrupted PDF')),
+        }),
+      },
+    };
+
+    const ctx = createLoadPDFContext({ window: mockWindow });
+    const emptyFile = {
+      name: 'corrupted.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(0),
+    };
+
+    await ctx.loadPDF(emptyFile);
+    assert.strictEqual(
+      ctx.getToastMsg(),
+      'Failed to load PDF. Is it a valid, non-encrypted file?'
+    );
+    assert.strictEqual(ctx.getToastType(), 'error');
+  });
+
+  test('destroys existing pdfDoc on reload and catches destroy errors', async () => {
+    let destroyCalled = false;
+    const mockWindow = {
+      'pdfjs-dist/build/pdf': {
+        GlobalWorkerOptions: {},
+        getDocument: () => ({
+          promise: Promise.reject(new Error('Load failed')),
+        }),
+      },
+    };
+
+    const ctx = createLoadPDFContext({
+      window: mockWindow,
+      initialPdfDoc: {
+        destroy: async () => {
+          destroyCalled = true;
+          throw new Error('Destroy error');
+        },
+      },
+    });
+
+    await ctx.loadPDF({
+      name: 'test.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    });
+
+    assert.strictEqual(destroyCalled, true, 'destroy should be called on existing pdfDoc');
+    assert.strictEqual(
+      ctx.getToastMsg(),
+      'Failed to load PDF. Is it a valid, non-encrypted file?'
+    );
+  });
+});
