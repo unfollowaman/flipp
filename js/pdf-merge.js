@@ -162,8 +162,7 @@ mergeBtn.addEventListener("click", async () => {
 
     const bytes = await outPdf.save();
     mergedBlob = new Blob([bytes], { type: "application/pdf" });
-    previewArea.classList.remove("is-visible");
-    resultsArea.classList.add("is-visible");
+    renderFinalStageUI();
     showToast("Merged PDF is ready!");
   } catch (error) {
     console.error("Error merging PDFs:", error);
@@ -186,13 +185,119 @@ downloadBtn.addEventListener("click", () => {
   URL.revokeObjectURL(a.href);
 });
 
+function renderFinalStageUI() {
+  if (dropZoneEl) dropZoneEl.style.display = "none";
+  if (previewArea) previewArea.classList.remove("is-visible");
+  if (resultsArea) resultsArea.classList.add("is-visible");
+
+  const sourcesGridEl = document.getElementById("merged-sources-grid");
+  const masterPreviewEl = document.getElementById("merged-master-preview");
+
+  if (sourcesGridEl) {
+    sourcesGridEl.innerHTML = "";
+    pdfItems.forEach((item, idx) => {
+      const card = document.createElement("div");
+      card.className = "merged-source-card";
+
+      const numBadge = document.createElement("div");
+      numBadge.className = "merged-source-num";
+      numBadge.textContent = idx + 1;
+      card.appendChild(numBadge);
+
+      if (item.thumbnailDataUrl) {
+        const img = document.createElement("img");
+        img.src = item.thumbnailDataUrl;
+        img.alt = item.file.name;
+        img.className = "merged-source-img";
+        card.appendChild(img);
+      } else {
+        const icon = document.createElement("div");
+        icon.className = "merged-source-icon";
+        icon.textContent = "📄";
+        card.appendChild(icon);
+      }
+
+      const label = document.createElement("div");
+      label.className = "merged-source-label";
+      label.textContent = item.file.name;
+      label.title = item.file.name;
+      card.appendChild(label);
+
+      sourcesGridEl.appendChild(card);
+    });
+  }
+
+  if (masterPreviewEl && pdfItems.length > 0 && pdfItems[0].thumbnailDataUrl) {
+    masterPreviewEl.innerHTML = `<img src="${pdfItems[0].thumbnailDataUrl}" alt="Merged PDF preview" class="merged-master-img" />`;
+  }
+
+  setTimeout(updateConnectorLines, 50);
+  setTimeout(updateConnectorLines, 300);
+}
+
+function updateConnectorLines() {
+  const container = document.getElementById("merged-stage-container");
+  const svg = document.getElementById("merge-connector-svg");
+  const masterCard = document.getElementById("merged-master-card");
+  const wrapper = document.getElementById("merge-connector-wrapper");
+  if (!container || !svg || !masterCard || !wrapper) return;
+
+  const sourceCards = Array.from(container.querySelectorAll(".merged-source-card"));
+  if (!sourceCards.length) return;
+
+  if (
+    typeof container.getBoundingClientRect !== "function" ||
+    typeof wrapper.getBoundingClientRect !== "function" ||
+    typeof masterCard.getBoundingClientRect !== "function"
+  ) {
+    return;
+  }
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const masterRect = masterCard.getBoundingClientRect();
+
+  if (wrapperRect.width === 0 || wrapperRect.height === 0) {
+    return;
+  }
+
+  svg.setAttribute("width", wrapperRect.width);
+  svg.setAttribute("height", wrapperRect.height);
+  svg.setAttribute("viewBox", `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
+
+  const targetX = masterRect.left + masterRect.width / 2 - wrapperRect.left;
+  const targetY = masterRect.top - wrapperRect.top;
+
+  let pathsHtml = "";
+  sourceCards.forEach((card) => {
+    const cardRect = card.getBoundingClientRect();
+    const startX = cardRect.left + cardRect.width / 2 - wrapperRect.left;
+    const startY = cardRect.top + cardRect.height - wrapperRect.top;
+
+    const midY = (startY + targetY) / 2;
+    const pathData = `M ${startX} ${startY} C ${startX} ${midY}, ${targetX} ${midY}, ${targetX} ${targetY}`;
+    pathsHtml += `<path d="${pathData}" stroke="#3dd68c" stroke-width="3" stroke-dasharray="6,6" fill="none" stroke-linecap="round" />`;
+  });
+
+  svg.innerHTML = pathsHtml;
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("resize", updateConnectorLines);
+}
+
 function resetMerge() {
   pdfItems = [];
   mergedBlob = null;
-  previewArea.classList.remove("is-visible");
-  resultsArea.classList.remove("is-visible");
+  if (dropZoneEl) dropZoneEl.style.display = "";
+  if (previewArea) previewArea.classList.remove("is-visible");
+  if (resultsArea) resultsArea.classList.remove("is-visible");
   if (gridEl) gridEl.innerHTML = "";
-  countEl.textContent = "";
+  if (countEl) countEl.textContent = "";
+
+  const sourcesGridEl = document.getElementById("merged-sources-grid");
+  const connectorSvgEl = document.getElementById("merge-connector-svg");
+  if (sourcesGridEl) sourcesGridEl.innerHTML = "";
+  if (connectorSvgEl) connectorSvgEl.innerHTML = "";
 }
 
 resetBtn.addEventListener("click", resetMerge);
