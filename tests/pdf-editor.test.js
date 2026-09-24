@@ -436,6 +436,36 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     assert.strictEqual(editorModule.getRedoStack().length, 0);
   });
 
+  await t.test('redoAction updates UI button disabled states, pops redoStack, and pushes historyStack', () => {
+    editorModule.resetEditor();
+    const undoBtn = mockDocument.getElementById('editor-undo-btn');
+    const redoBtn = mockDocument.getElementById('editor-redo-btn');
+
+    const stateInitial = [{ id: '1', type: 'text', properties: { text: 'v1' } }];
+    const stateUpdated = [{ id: '1', type: 'text', properties: { text: 'v2' } }];
+
+    editorModule.setEditorObjects(stateInitial);
+    editorModule.saveState();
+    editorModule.setEditorObjects(stateUpdated);
+
+    // Perform undo -> redoStack has stateUpdated, historyStack has stateInitial
+    editorModule.undoAction();
+    assert.strictEqual(editorModule.getHistoryStack().length, 0);
+    assert.strictEqual(editorModule.getRedoStack().length, 1);
+    assert.strictEqual(undoBtn.disabled, true);
+    assert.strictEqual(redoBtn.disabled, false);
+
+    // Perform redo -> restores stateUpdated, historyStack gets stateInitial, redoStack becomes empty
+    editorModule.redoAction();
+
+    assert.deepStrictEqual(editorModule.getEditorObjects(), stateUpdated);
+    assert.strictEqual(editorModule.getHistoryStack().length, 1);
+    assert.strictEqual(editorModule.getHistoryStack()[0], JSON.stringify(stateInitial));
+    assert.strictEqual(editorModule.getRedoStack().length, 0);
+    assert.strictEqual(undoBtn.disabled, false);
+    assert.strictEqual(redoBtn.disabled, true);
+  });
+
   await t.test('saveState pushes current state to historyStack, resets redoStack, and updates UI', () => {
     editorModule.resetEditor();
     const undoBtn = mockDocument.getElementById('editor-undo-btn');
