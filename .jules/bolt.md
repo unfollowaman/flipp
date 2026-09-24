@@ -53,3 +53,7 @@
 ## 2026-09-26 - Pre-fill solid white background on HTML canvas before JPEG conversion in PDF processing
 **Learning:** In HTML canvas rendering pipelines (such as `js/pdf-protect.js`), converting PDF page canvases with default transparent backgrounds directly to JPEG via `canvas.toDataURL("image/jpeg")` causes transparent background pixels to render as solid black in the encoded JPEG output.
 **Action:** Always pre-fill canvas 2D contexts with `context.fillStyle = "#ffffff"` and `context.fillRect(0, 0, canvas.width, canvas.height)` before invoking `page.render()` when exporting canvas contents to JPEG.
+
+## 2026-09-27 - Pass HTMLCanvasElement directly to Tesseract worker.recognize to skip Base64 encoding
+**Learning:** In client-side OCR extraction pipelines (such as `js/pdf-to-text.js`), converting rendered page `<canvas>` elements to Base64 PNG data URLs (`canvas.toDataURL("image/png")`) forces main-thread PNG image encoding and multi-megabyte string allocations. Tesseract.js accepts `HTMLCanvasElement` directly as an image source.
+**Action:** Pass `canvas` directly to `worker.recognize(canvas)` instead of creating an intermediate `canvas.toDataURL("image/png")` string during OCR recognition tasks.

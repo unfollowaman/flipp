@@ -248,11 +248,11 @@ async function extractTextFromPage(page, textContent, getOcrWorker) {
     };
 
     await page.render(renderContext).promise;
-    const imageData = canvas.toDataURL("image/png");
 
+    // Pass canvas directly to Tesseract to avoid Base64 PNG encoding CPU and memory overhead
     const {
       data: { text },
-    } = await worker.recognize(imageData);
+    } = await worker.recognize(canvas);
     finalPageText = text;
 
     // Free canvas memory immediately
