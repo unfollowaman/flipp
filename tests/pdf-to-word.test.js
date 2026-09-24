@@ -38,6 +38,8 @@ const fn = new Function(`
   function triggerDownload() {}
 
   return {
+    getPdfJsLib,
+    getDocxLib,
     sanitizeFilename,
     formatProgressMessage,
     formatBytes,
@@ -58,6 +60,24 @@ const fn = new Function(`
 const pdfToWordModule = fn();
 
 describe("pdf-to-word unit and integration tests", () => {
+  it("getPdfJsLib returns window['pdfjs-dist/build/pdf'] or window.pdfjsLib fallback", () => {
+    const mockPdfJs = { version: "2.10" };
+    pdfToWordModule.window["pdfjs-dist/build/pdf"] = mockPdfJs;
+    assert.strictEqual(pdfToWordModule.getPdfJsLib(), mockPdfJs);
+
+    pdfToWordModule.window["pdfjs-dist/build/pdf"] = undefined;
+    pdfToWordModule.window.pdfjsLib = mockPdfJs;
+    assert.strictEqual(pdfToWordModule.getPdfJsLib(), mockPdfJs);
+
+    delete pdfToWordModule.window.pdfjsLib;
+  });
+
+  it("getDocxLib returns window.docx", () => {
+    const mockDocx = { Document: class {} };
+    pdfToWordModule.window.docx = mockDocx;
+    assert.strictEqual(pdfToWordModule.getDocxLib(), mockDocx);
+  });
+
   it("formatBytes formats byte values into human readable strings", () => {
     assert.strictEqual(pdfToWordModule.formatBytes(0), "0 Bytes");
     assert.strictEqual(pdfToWordModule.formatBytes(1024), "1 KB");
