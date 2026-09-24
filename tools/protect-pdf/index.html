@@ -298,7 +298,26 @@
           </div>
         </div>
         <div class="preview-area" id="protect-preview-area">
-          <div class="preview-header">
+          <div class="protect-preview-container">
+            <div class="protect-preview-card">
+              <div class="protect-card-badge protect-badge-original">Original PDF</div>
+              <div class="protect-card-frame">
+                <img id="protect-img-clear" src="" alt="PDF page preview" />
+              </div>
+            </div>
+            <div class="protect-preview-arrow" aria-hidden="true">➜</div>
+            <div class="protect-preview-card">
+              <div class="protect-card-badge protect-badge-locked">Protected PDF</div>
+              <div class="protect-card-frame protect-frame-blurred">
+                <img id="protect-img-locked" src="" alt="Protected PDF preview" class="protect-img-blur" />
+                <div class="protect-lock-overlay">
+                  <span class="protect-lock-emoji" role="img" aria-label="Locked">🔒</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-header" style="margin-top: 20px;">
             <span class="preview-count" id="protect-info"></span
             ><button class="cta-btn cta-pink" id="protect-btn">
               Protect PDF →
@@ -344,7 +363,19 @@
           aria-label="Conversion results"
           id="protect-results"
         >
-          <div class="results-header">
+          <div class="protect-result-preview-container">
+            <div class="protect-preview-card protect-result-card">
+              <div class="protect-card-badge protect-badge-locked">Protected PDF</div>
+              <div class="protect-card-frame protect-frame-blurred">
+                <img id="protect-result-img-locked" src="" alt="Protected PDF preview" class="protect-img-blur" />
+                <div class="protect-lock-overlay">
+                  <span class="protect-lock-emoji" role="img" aria-label="Locked">🔒</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-header" style="margin-top: 20px;">
             <span class="results-title">✓ Protected PDF ready!</span>
             <button class="cta-btn cta-mint" id="protect-download-btn">
               Download protected PDF 🔐

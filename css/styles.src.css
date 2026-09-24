@@ -2839,6 +2839,7 @@ for Dynamic UI Sections */
   padding-bottom: 0;
   border-width: 0;
   pointer-events: none;
+  scroll-margin-top: 80px;
   transition:
     max-height 0.35s cubic-bezier(0.2, 0, 0, 1),
     opacity 0.25s ease-out,
