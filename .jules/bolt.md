@@ -53,3 +53,7 @@
 ## 2026-09-26 - Pre-fill solid white background on HTML canvas before JPEG conversion in PDF processing
 **Learning:** In HTML canvas rendering pipelines (such as `js/pdf-protect.js`), converting PDF page canvases with default transparent backgrounds directly to JPEG via `canvas.toDataURL("image/jpeg")` causes transparent background pixels to render as solid black in the encoded JPEG output.
 **Action:** Always pre-fill canvas 2D contexts with `context.fillStyle = "#ffffff"` and `context.fillRect(0, 0, canvas.width, canvas.height)` before invoking `page.render()` when exporting canvas contents to JPEG.
+
+## 2026-09-27 - Use zero-allocation RegExp.exec() loops and early exit thresholds for text quality analysis
+**Learning:** In PDF text quality analysis (such as `js/pdf-to-text.js`), calling `pageText.toLowerCase()` creates full-string copies in memory, while `pageText.match(...)` allocates temporary arrays of all matching character and word strings across the page. Counting occurrences via `RegExp.exec()` loops with `g`/`gi` flags operates directly on the original string with zero match array allocations, and checking `while (count < threshold && regex.exec(pageText))` short-circuits evaluation immediately once threshold counts are met.
+**Action:** Replace `string.toLowerCase().match(...)` pattern counting with zero-allocation `RegExp.exec()` loops and early loop termination once required threshold counts are reached.

@@ -207,28 +207,33 @@ async function handleFile(file) {
 
 async function extractTextFromPage(page, textContent, getOcrWorker) {
   const pageText = textContent.items.map((item) => item.str).join(" ");
-
-  const cleaned = pageText.replace(/\s/g, "");
-  const devanagariCount = (pageText.match(/[\u0900-\u097F]/g) || []).length;
-  const devanagariRatio =
-    cleaned.length > 0 ? devanagariCount / cleaned.length : 0;
-  const englishWordCount = (
-    pageText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []
-  ).length;
+  const cleanedLen = pageText.replace(/\s/g, "").length;
 
   let needsOCR = false;
 
   // Condition 1: Scanned / Empty
-  if (cleaned.length < 5) {
+  if (cleanedLen < 5) {
     needsOCR = true;
   }
   // Condition 2: Garbled / Legacy-Encoded
-  else if (
-    cleaned.length >= 20 &&
-    devanagariRatio < 0.1 &&
-    englishWordCount < 3
-  ) {
-    needsOCR = true;
+  else if (cleanedLen >= 20) {
+    let devanagariCount = 0;
+    const devanagariRegex = /[\u0900-\u097F]/g;
+    while (devanagariRegex.exec(pageText) !== null) {
+      devanagariCount++;
+    }
+    const devanagariRatio = devanagariCount / cleanedLen;
+
+    if (devanagariRatio < 0.1) {
+      let englishWordCount = 0;
+      const englishWordRegex = /\b[a-z]{3,}\b/gi;
+      while (englishWordCount < 3 && englishWordRegex.exec(pageText) !== null) {
+        englishWordCount++;
+      }
+      if (englishWordCount < 3) {
+        needsOCR = true;
+      }
+    }
   }
 
   let finalPageText = "";
