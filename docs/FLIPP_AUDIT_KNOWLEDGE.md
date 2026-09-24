@@ -4,6 +4,7 @@
 
 - **Audit rotation:** Rotating through PDF processing tools, shared file utilities, security boundaries, privacy compliance, and test suite execution.
 - **Last audited areas:**
+  - 2026-09-24: PDF Compression (`js/pdf-compress.js`, `tools/compress-pdf/index.html`, `tests/pdf-compress.test.js`)
   - 2026-09-18: PDF Security & Protection (`js/unlock-pdf.js`, `js/pdf-protect.js`, test harness)
 - **Areas requiring follow-up:**
   - Re-audit PDF protection (`js/pdf-protect.js`) when vector/text preservation support is implemented for encrypted exports.
@@ -29,6 +30,7 @@
   - Filename sanitization during export/download generation (`safeName.replace(/[\\/]/g, "_")`).
   - Object URL lifecycle management (`URL.createObjectURL` and `URL.revokeObjectURL`) to prevent memory leaks and unexpected resource retention.
 - **Important relationships between components:**
+  - `js/pdf-compress.js` provides worker-pool map concurrency (`mapConcurrent`) and supports two distinct compression paths: structural metadata cleanup via `pdf-lib` ("recommended") vs. canvas image rasterization via `pdfjs-dist` and `jsPDF` ("maximum").
   - `js/unlock-pdf.js` depends on `pdf-lib`'s `PDFDocument.load` with `{ ignoreEncryption: true }` or `{ password }` and `copyPages`.
   - `js/pdf-protect.js` uses `pdfjs-dist` to render PDF pages onto canvases and `jsPDF` with the `encryption` configuration parameter to re-encode the PDF with user/owner passwords.
 
@@ -37,6 +39,39 @@
 None currently active.
 
 ## Audit History
+
+### 2026-09-24 — PDF Compression (`js/pdf-compress.js`)
+
+Status: PASS
+
+Scope:
+- Client-side PDF compression flows ("recommended" lossless structure optimization vs "maximum" image rasterization).
+- Concurrency control utility `mapConcurrent` worker pool.
+- Memory/resource management (`canvas.width = 0; canvas.height = 0`, `page.cleanup()`, `pdfjsDoc.destroy()`, and `URL.revokeObjectURL`).
+- Filename sanitization, UI progress updates, and zero-server privacy compliance.
+- Unit test suite execution (`tests/pdf-compress.test.js`).
+
+Evidence:
+- Executed unit tests (`node --test tests/pdf-compress.test.js`): 22/22 subtests passed across 6 test suites.
+- Executed complete test suite (`node --test tests/*.test.js tests/test_pdf_to_img.js`): 309/309 tests passed with 0 failures.
+- Inspected `js/pdf-compress.js` and `tools/compress-pdf/index.html` source directly.
+- Traced `mapConcurrent(items, limit, fn)` execution and verified bounded concurrency (limit = 5) and input index result ordering.
+- Verified DOM & resource cleanup: object URLs revoked on reset and re-compression; canvas dimensions zeroed out; PDF.js pages and documents cleaned up in `finally` blocks.
+- Confirmed zero network calls / external API transmissions during file processing.
+
+Findings:
+1. **Compression Modes:** "Recommended" mode uses `pdf-lib` to strip metadata (title, author, subject, keywords, producer, creator) and re-saves with `{ useObjectStreams: true }`. "Maximum" mode uses `pdfjs-dist` to render pages to JPEG canvases (scale 1.5, quality 0.7) and builds a compressed document using `jsPDF`.
+2. **Concurrency & Memory Safety:** `mapConcurrent` properly limits active page renders to 5 workers concurrently without head-of-line batch blocking. Canvases are zero-sized (`width = 0; height = 0`) immediately after `toDataURL()` conversion, and `page.cleanup()` / `pdfjsDoc.destroy()` are invoked in `finally` blocks.
+3. **Privacy Compliance:** All compression happens strictly client-side on the user's device in compliance with Flipp's zero-server architecture.
+4. **Filename Handling:** Input filenames are sanitized with `.replace(/[\\/]/g, "_")` before appending `-compressed.pdf`.
+
+Follow-up:
+- Monitor memory usage when compressing ultra-large multi-page documents (100+ pages) in "maximum" mode on mobile viewports.
+
+Relevant files:
+- `js/pdf-compress.js`
+- `tools/compress-pdf/index.html`
+- `tests/pdf-compress.test.js`
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
