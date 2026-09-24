@@ -363,7 +363,7 @@ export function createDocxElementsFromPageData(pageData, docxLib) {
   if (!docxLib) return [];
 
   const elements = [];
-  const { paragraphs, pageNum, totalPages } = pageData;
+  const { paragraphs, pageNum } = pageData;
 
   if (pageNum > 1) {
     elements.push(new docxLib.Paragraph({ children: [new docxLib.PageBreak()] }));
