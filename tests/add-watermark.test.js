@@ -12,7 +12,7 @@ src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 
 // Expose functions for testing
-src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas, renderPagePreview, handleFile, resetApp };\n';
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas, renderPagePreview, handleFile, resetApp, getPageConfigs: () => pageConfigs, setPageConfig: (p, c) => { pageConfigs[p] = c; }, getGlobalWatermarkConfig: () => globalWatermarkConfig };\n';
 
 function createMockDocument() {
   const elements = {};
@@ -168,7 +168,7 @@ test('getPageConfig and applyWatermarkScope functionality', async (t) => {
   const mockActivatePill = () => {};
 
   const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', src);
-  const { getPageConfig, applyWatermarkScope } = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
+  const { getPageConfig, applyWatermarkScope, setPageConfig, getPageConfigs, getGlobalWatermarkConfig } = wrapper(mockDocument, mockWindow, mockInitDropZone, mockShowToast, mockSetProgress, mockActivatePill, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => '' });
 
   await t.test('returns default page config', () => {
     const config = getPageConfig(1);
@@ -177,12 +177,88 @@ test('getPageConfig and applyWatermarkScope functionality', async (t) => {
     assert.strictEqual(config.scale, 1);
   });
 
-  await t.test('applies scope to page or all pages', () => {
+  await t.test('applies scope to single page only', () => {
+    setPageConfig(2, { fontSize: 32, scale: 0.8 });
     applyWatermarkScope('page', 2);
-    assert.strictEqual(toastMessage, 'Applied change to page 2 only');
 
-    applyWatermarkScope('all', 1);
+    assert.strictEqual(toastMessage, 'Applied change to page 2 only');
+    assert.deepStrictEqual(getPageConfigs()[2], { fontSize: 32, scale: 0.8 });
+
+    const page1Config = getPageConfig(1);
+    const page2Config = getPageConfig(2);
+    assert.strictEqual(page1Config.fontSize, 48);
+    assert.strictEqual(page2Config.fontSize, 32);
+    assert.strictEqual(page2Config.scale, 0.8);
+  });
+
+  await t.test('propagates full page overrides to all pages when scope is all', () => {
+    setPageConfig(2, {
+      position: 'custom',
+      customX: 0.35,
+      customY: 0.65,
+      fontSize: 64,
+      scale: 2.5
+    });
+
+    applyWatermarkScope('all', 2);
+
     assert.strictEqual(toastMessage, 'Applied change to all pages');
+
+    const globalConfig = getGlobalWatermarkConfig();
+    assert.strictEqual(globalConfig.position, 'custom');
+    assert.strictEqual(globalConfig.customX, 0.35);
+    assert.strictEqual(globalConfig.customY, 0.65);
+
+    const fontSizeInputEl = mockDocument.getElementById('wm-font-size');
+    const fontSizeValEl = mockDocument.getElementById('wm-font-size-val');
+    const scaleInputEl = mockDocument.getElementById('wm-scale');
+    const scaleValEl = mockDocument.getElementById('wm-scale-val');
+
+    assert.strictEqual(fontSizeInputEl.value, 64);
+    assert.strictEqual(fontSizeValEl.textContent, 64);
+    assert.strictEqual(scaleInputEl.value, 2.5);
+    assert.strictEqual(scaleValEl.textContent, '2.5');
+
+    assert.deepStrictEqual(getPageConfigs(), {});
+
+    const page1Config = getPageConfig(1);
+    const page2Config = getPageConfig(2);
+    const page3Config = getPageConfig(3);
+
+    assert.strictEqual(page1Config.fontSize, 64);
+    assert.strictEqual(page1Config.scale, 2.5);
+    assert.strictEqual(page1Config.position, 'custom');
+    assert.strictEqual(page1Config.customX, 0.35);
+    assert.strictEqual(page1Config.customY, 0.65);
+
+    assert.strictEqual(page2Config.fontSize, 64);
+    assert.strictEqual(page3Config.fontSize, 64);
+  });
+
+  await t.test('handles partial page config overrides when applying scope to all', () => {
+    setPageConfig(3, { fontSize: 72 });
+
+    applyWatermarkScope('all', 3);
+
+    assert.strictEqual(toastMessage, 'Applied change to all pages');
+
+    const fontSizeInputEl = mockDocument.getElementById('wm-font-size');
+    const fontSizeValEl = mockDocument.getElementById('wm-font-size-val');
+
+    assert.strictEqual(fontSizeInputEl.value, 72);
+    assert.strictEqual(fontSizeValEl.textContent, 72);
+
+    assert.deepStrictEqual(getPageConfigs(), {});
+
+    assert.strictEqual(getPageConfig(1).fontSize, 72);
+    assert.strictEqual(getPageConfig(3).fontSize, 72);
+  });
+
+  await t.test('handles non-existent target page config gracefully when applying scope to all', () => {
+    applyWatermarkScope('all', 99);
+
+    assert.strictEqual(toastMessage, 'Applied change to all pages');
+    assert.deepStrictEqual(getPageConfigs(), {});
   });
 });
 
