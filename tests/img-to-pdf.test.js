@@ -10,7 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
 // Expose internal functions
-src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions };\n';
+src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions, createImageCard };\n';
 
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
@@ -462,6 +462,55 @@ test('img-to-pdf error handling', async (t) => {
     // Letter landscape
     const letterLandscape = calculatePageDimensions(800, 600, 'letter', 'landscape');
     assert.deepStrictEqual(letterLandscape, { docW: 279.4, docH: 215.9 });
+  });
+
+  await t.test('createImageCard sets proper accessibility attributes on remove button', () => {
+    const createdElements = [];
+    const localMockDocument = {
+      getElementById: (id) => createMockElement(id),
+      createElement: (tag) => {
+        const attributes = {};
+        const el = {
+          tagName: tag.toUpperCase(),
+          className: '',
+          draggable: false,
+          dataset: {},
+          type: '',
+          textContent: '',
+          title: '',
+          alt: '',
+          src: '',
+          appendChild: (child) => { el.children = el.children || []; el.children.push(child); },
+          setAttribute: (name, val) => { attributes[name] = val; },
+          getAttribute: (name) => attributes[name] || null,
+          addEventListener: () => {}
+        };
+        createdElements.push(el);
+        return el;
+      }
+    };
+
+    const { createImageCard } = wrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      class Image {}
+    );
+
+    const entry = { name: 'sample-image.png', objectUrl: 'blob:mock-url' };
+    const card = createImageCard(entry, 0);
+
+    const rmBtn = createdElements.find(el => el.className === 'img-thumb-remove');
+    assert.ok(rmBtn, 'Remove button element should be created');
+    assert.strictEqual(rmBtn.type, 'button', 'Remove button should have type="button"');
+    assert.strictEqual(rmBtn.getAttribute('aria-label'), 'Remove sample-image.png', 'Remove button should have proper aria-label');
   });
 
   await t.test('calculateImageDrawDimensions calculates correct draw coordinates and scaling for auto and fixed page sizes', () => {

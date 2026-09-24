@@ -709,7 +709,8 @@ test('setupDragReorder', async (t) => {
     const card1 = createCardMock();
     const card2 = createCardMock();
     const parent = {
-      querySelectorAll: (sel) => sel === '.img-thumb-card' ? [card1, card2] : []
+      querySelectorAll: (sel) => sel === '.img-thumb-card' ? [card1, card2] : [],
+      querySelector: (sel) => sel === '.drag-target' ? [card1, card2].find(c => c.classList.contains('drag-target')) || null : null
     };
     card1.parentElement = parent;
     card2.parentElement = parent;

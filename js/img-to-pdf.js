@@ -110,9 +110,11 @@ function createImageCard(entry, idx) {
   card.appendChild(lbl);
 
   const rmBtn = document.createElement("button");
+  rmBtn.type = "button";
   rmBtn.className = "img-thumb-remove";
   rmBtn.textContent = "×";
   rmBtn.title = `Remove ${entry.name}`;
+  rmBtn.setAttribute("aria-label", `Remove ${entry.name}`);
   rmBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     URL.revokeObjectURL(entry.objectUrl);
