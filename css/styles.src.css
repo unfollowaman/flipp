@@ -2254,14 +2254,55 @@ Results ============================== */
   background: transparent;
 }
 
+.split-range-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.split-range-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0px;
+  min-width: 100px;
+  max-width: 160px;
+}
+
+.split-range-col .range-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.split-range-sep {
+  align-self: flex-start;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
 #split-preview-start,
 #split-preview-end {
+  width: 100%;
+  aspect-ratio: 1 / 1.35;
+  min-height: 140px;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   background: #fff;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--black);
 }
 
 .split-preview-chip {

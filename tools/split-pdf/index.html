@@ -322,73 +322,30 @@
             <label class="option-label" for="split-range-start"
               >Split range (first output)</label
             >
-            <div
-              style="
-                display: flex;
-                gap: 20px;
-                align-items: flex-start;
-                flex-wrap: wrap;
-              "
-            >
-              <div style="display: flex; flex-direction: column; gap: 8px">
+            <div class="split-range-row">
+              <div class="split-range-col">
                 <input
                   type="number"
                   min="1"
                   class="range-input"
                   id="split-range-start"
                   placeholder="From page"
-                  style="max-width: 160px"
                 />
-                <div
-                  id="split-preview-start"
-                  style="
-                    width: 160px;
-                    min-height: 200px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-                    background: #fff;
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.9rem;
-                    color: var(--black);
-                  "
-                >
+                <div id="split-preview-start">
                   <!-- Canvas or message goes here -->
                   <span id="split-chip-start" class="split-preview-chip">Page 1</span>
                 </div>
               </div>
-              <span style="margin-top: 10px">to</span>
-              <div style="display: flex; flex-direction: column; gap: 8px">
+              <span class="split-range-sep">to</span>
+              <div class="split-range-col">
                 <input
                   type="number"
                   min="1"
                   class="range-input"
                   id="split-range-end"
                   placeholder="To page"
-                  style="max-width: 160px"
                 />
-                <div
-                  id="split-preview-end"
-                  style="
-                    width: 160px;
-                    min-height: 200px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-                    background: #fff;
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.9rem;
-                    color: var(--black);
-                  "
-                >
+                <div id="split-preview-end">
                   <!-- Canvas or message goes here -->
                   <span id="split-chip-end" class="split-preview-chip">Page 1</span>
                 </div>
