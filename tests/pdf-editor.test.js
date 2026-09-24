@@ -897,6 +897,47 @@ test('pdf-editor overlay event interactions and object creation', async (t) => {
   });
 });
 
+test('pdf-editor updateSelectedObjectUI selection toggling', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+    mockDocument.querySelectorAll = (selector) => [];
+  });
+
+  await t.test('updates selected class on DOM nodes matching selectedObjId', () => {
+    const el1 = createMockElement();
+    el1.dataset.objId = 'obj_1';
+
+    const el2 = createMockElement();
+    el2.dataset.objId = 'obj_2';
+
+    mockDocument.querySelectorAll = (selector) => {
+      if (selector === '.editor-obj') return [el1, el2];
+      return [];
+    };
+
+    // 1. Select obj_1
+    editorModule.setSelectedObjId('obj_1');
+    editorModule.updateSelectedObjectUI();
+
+    assert.strictEqual(el1.classList.contains('selected'), true);
+    assert.strictEqual(el2.classList.contains('selected'), false);
+
+    // 2. Select obj_2
+    editorModule.setSelectedObjId('obj_2');
+    editorModule.updateSelectedObjectUI();
+
+    assert.strictEqual(el1.classList.contains('selected'), false);
+    assert.strictEqual(el2.classList.contains('selected'), true);
+
+    // 3. Clear selection (null)
+    editorModule.setSelectedObjId(null);
+    editorModule.updateSelectedObjectUI();
+
+    assert.strictEqual(el1.classList.contains('selected'), false);
+    assert.strictEqual(el2.classList.contains('selected'), false);
+  });
+});
+
 test('pdf-editor draggable and resizable behavior', async (t) => {
   t.beforeEach(() => {
     editorModule.resetEditor();
