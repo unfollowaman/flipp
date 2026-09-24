@@ -2631,6 +2631,7 @@ for Dynamic UI Sections */
   padding-bottom: 0;
   border-width: 0;
   pointer-events: none;
+  scroll-margin-top: 80px;
   transition:
     max-height 0.35s cubic-bezier(0.2, 0, 0, 1),
     opacity 0.25s ease-out,
@@ -2751,6 +2752,133 @@ for Dynamic UI Sections */
   font-size: 24px;
   font-weight: 800;
   margin-bottom: 24px;
+}
+
+/* ==============================
+   Protect PDF Preview Redesign
+   ============================== */
+.protect-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 600px) {
+  .protect-preview-container {
+    gap: 10px;
+  }
+}
+
+.protect-preview-card {
+  flex: 0 1 200px;
+  max-width: 220px;
+  background: var(--white);
+  border: var(--border-std);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-hard);
+}
+
+.protect-result-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.protect-result-card {
+  flex: 0 1 220px;
+  max-width: 240px;
+}
+
+.protect-card-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.protect-badge-original {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.protect-badge-locked {
+  background: var(--pink);
+  color: var(--black);
+}
+
+.protect-card-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.35;
+  background: var(--cream);
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.protect-card-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.protect-frame-blurred {
+  position: relative;
+}
+
+.protect-img-blur {
+  filter: blur(6px);
+  transform: scale(1.05);
+}
+
+.protect-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.protect-lock-emoji {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1;
+  filter: drop-shadow(2px 2px 0px var(--black));
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+.protect-preview-card:hover .protect-lock-emoji {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+.protect-preview-arrow {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900;
+  color: var(--black);
+  user-select: none;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ==============================

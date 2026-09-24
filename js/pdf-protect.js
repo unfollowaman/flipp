@@ -1,4 +1,4 @@
-import { initDropZone, showToast } from "./drag-drop.js";
+import { initDropZone, showToast, renderPdfFirstPage } from "./drag-drop.js";
 
 let pdfFile = null;
 let protectedBlob = null;
@@ -15,6 +15,10 @@ const passwordEl = document.getElementById("protect-password");
 const confirmPasswordEl = document.getElementById("protect-password-confirm");
 const togglePwBtn = document.getElementById("protect-toggle-pw");
 
+const imgClearEl = document.getElementById("protect-img-clear");
+const imgLockedEl = document.getElementById("protect-img-locked");
+const imgResultLockedEl = document.getElementById("protect-result-img-locked");
+
 if (togglePwBtn && passwordEl) {
   togglePwBtn.addEventListener("click", () => {
     const show = passwordEl.type === "password";
@@ -26,7 +30,7 @@ if (togglePwBtn && passwordEl) {
   });
 }
 
-function addFiles(files) {
+async function addFiles(files) {
   const first = files.find(
     (f) =>
       f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"),
@@ -40,6 +44,21 @@ function addFiles(files) {
   passwordEl.value = "";
   confirmPasswordEl.value = "";
   infoEl.textContent = `Selected: ${first.name}`;
+
+  if (imgClearEl) imgClearEl.src = "";
+  if (imgLockedEl) imgLockedEl.src = "";
+  if (imgResultLockedEl) imgResultLockedEl.src = "";
+
+  try {
+    const dataUrl = await renderPdfFirstPage(first);
+    if (dataUrl) {
+      if (imgClearEl) imgClearEl.src = dataUrl;
+      if (imgLockedEl) imgLockedEl.src = dataUrl;
+      if (imgResultLockedEl) imgResultLockedEl.src = dataUrl;
+    }
+  } catch (err) {
+    // Non-critical render fallback
+  }
 }
 
 function validatePasswords() {
@@ -195,6 +214,9 @@ resetBtn.addEventListener("click", () => {
   infoEl.textContent = "";
   passwordEl.value = "";
   confirmPasswordEl.value = "";
+  if (imgClearEl) imgClearEl.src = "";
+  if (imgLockedEl) imgLockedEl.src = "";
+  if (imgResultLockedEl) imgResultLockedEl.src = "";
 });
 
 if (dropZoneEl && fileInputEl) {

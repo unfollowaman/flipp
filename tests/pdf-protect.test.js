@@ -134,12 +134,15 @@ function createTestInstance(customWindowOverrides = {}) {
     }
   };
 
-  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'URL', 'Blob', src);
+  const mockRenderPdfFirstPage = async (file) => 'data:image/png;base64,mockpreviewdata';
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'renderPdfFirstPage', 'URL', 'Blob', src);
   const exportsObj = wrapper(
     mockDocument,
     mockWindow,
     mockInitDropZone,
     mockShowToast,
+    mockRenderPdfFirstPage,
     mockURL,
     global.Blob
   );
@@ -254,9 +257,9 @@ test('addFiles function', async (t) => {
     assert.strictEqual(defaultInstance.toastMessages[0].type, 'error');
   });
 
-  await t.test('accepts valid PDF files and updates UI', () => {
+  await t.test('accepts valid PDF files and updates UI and preview image sources', async () => {
     const files = [{ name: 'test.pdf', type: 'application/pdf' }];
-    addFiles(files);
+    await addFiles(files);
 
     assert.strictEqual(defaultInstance.toastMessages.length, 0);
     assert.strictEqual(getPdfFile(), files[0]);
@@ -266,6 +269,9 @@ test('addFiles function', async (t) => {
     assert.strictEqual(elementMap['protect-password'].value, '');
     assert.strictEqual(elementMap['protect-password-confirm'].value, '');
     assert.strictEqual(elementMap['protect-info'].textContent, 'Selected: test.pdf');
+    assert.strictEqual(elementMap['protect-img-clear'].src, 'data:image/png;base64,mockpreviewdata');
+    assert.strictEqual(elementMap['protect-img-locked'].src, 'data:image/png;base64,mockpreviewdata');
+    assert.strictEqual(elementMap['protect-result-img-locked'].src, 'data:image/png;base64,mockpreviewdata');
   });
 });
 
@@ -501,10 +507,10 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.getRevokedUrl(), 'blob:mock-protected-pdf');
   });
 
-  await t.test('resetBtn click resets UI state and selection', async () => {
+  await t.test('resetBtn click resets UI state, selection, and preview images', async () => {
     const inst = createTestInstance();
     const mockFile = { name: 'sample.pdf', type: 'application/pdf', arrayBuffer: async () => new ArrayBuffer(8) };
-    inst.exportsObj.addFiles([mockFile]);
+    await inst.exportsObj.addFiles([mockFile]);
     inst.elementMap['protect-password'].value = 'password123';
     inst.elementMap['protect-password-confirm'].value = 'password123';
 
@@ -519,5 +525,8 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.elementMap['protect-info'].textContent, '');
     assert.strictEqual(inst.elementMap['protect-password'].value, '');
     assert.strictEqual(inst.elementMap['protect-password-confirm'].value, '');
+    assert.strictEqual(inst.elementMap['protect-img-clear'].src, '');
+    assert.strictEqual(inst.elementMap['protect-img-locked'].src, '');
+    assert.strictEqual(inst.elementMap['protect-result-img-locked'].src, '');
   });
 });
