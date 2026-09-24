@@ -2421,14 +2421,55 @@ Results ============================== */
   background: transparent;
 }
 
+.split-range-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.split-range-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0px;
+  min-width: 100px;
+  max-width: 160px;
+}
+
+.split-range-col .range-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.split-range-sep {
+  align-self: flex-start;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
 #split-preview-start,
 #split-preview-end {
+  width: 100%;
+  aspect-ratio: 1 / 1.35;
+  min-height: 140px;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   background: #fff;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--black);
 }
 
 .split-preview-chip {
@@ -2921,28 +2962,268 @@ for Dynamic UI Sections */
 }
 
 /* ==============================
-   Compress PDF Tool Custom Redesign
+   Compress PDF Tool Premium Redesign
    ============================== */
-.compress-mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-@media (max-width: 767px) { .compress-mode-cards { grid-template-columns: 1fr; } }
-.compress-mode-card { border: 1.5px solid var(--black); border-radius: var(--radius-md); padding: 16px; position: relative; background: #fff; text-align: left; cursor: pointer; font-family: inherit; }
-.compress-mode-card.selected { border-width: 2.5px; background: var(--cream); }
-.cmc-check { display: none; position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--mint); border: 1.5px solid var(--black); font-size: 12px; align-items: center; justify-content: center; }
-.compress-mode-card.selected .cmc-check { display: flex; }
-.cmc-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 10px; }
-.cmc-title { display: block; font-size: 15px; font-weight: 800; margin-bottom: 5px; }
-.cmc-desc { display: block; font-size: 12.5px; color: #555; line-height: 1.5; }
+.compress-outer-card {
+  max-width: 540px;
+  margin: 0 auto;
+  border: var(--border-std);
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.compress-card-body {
+  padding: 32px 28px 24px;
+}
+@media (max-width: 767px) {
+  .compress-card-body {
+    padding: 24px 18px 20px;
+  }
+}
+.compress-dz {
+  border: 2px dashed var(--black);
+  border-radius: 14px;
+  padding: 22px 16px;
+  background: var(--white);
+  text-align: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.compress-dz .dz-headline {
+  font-size: 14px;
+  font-weight: 700;
+  color: #777;
+  margin-bottom: 0;
+}
+.compress-dz .dz-dot {
+  margin: 0 4px;
+  color: #aaa;
+}
+.compress-dz .dz-browse-btn {
+  font-size: 14px;
+  font-weight: 700;
+  color: #777;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
-.result-savings { font-size: 18px; font-weight: 900; color: #0e5c37; text-align: center; margin-bottom: 12px; }
-.size-bar { height: 16px; border-radius: 999px; background: #eee; border: 1.5px solid var(--black); overflow: hidden; margin-bottom: 6px; }
-.size-bar-used { height: 100%; background: var(--mint); }
-.size-bar-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #777; margin-bottom: 18px; }
-.download-filename { text-align: center; font-size: 11px; color: #888; margin: 6px 0 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compress-divider {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #a0a0ab;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 24px 0 20px;
+  position: relative;
+}
 
-.file-chip { display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--black); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 700; }
-.file-chip-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--black); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-.file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-.file-chip-size { flex-shrink: 0; border: 1px solid var(--black); border-radius: 999px; padding: 3px 10px; font-size: 11px; font-weight: 800; background: var(--cream); }
+.compress-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: var(--border-std);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: var(--white);
+}
+.compress-file-chip .file-chip-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  color: var(--white);
+}
+.compress-file-chip .file-chip-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.compress-file-chip .file-chip-size {
+  flex-shrink: 0;
+  border: var(--border-std);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--cream);
+  color: var(--black);
+}
+
+.compress-action-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 16px 24px;
+  font-size: 17px;
+  font-weight: 800;
+  border: var(--border-std);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: none;
+}
+
+.compress-mode-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.compress-mode-card {
+  border: var(--border-std);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  background: var(--white);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, border-width 0.15s ease;
+}
+.compress-mode-card.selected {
+  background: var(--cream);
+}
+.cmc-check {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mint);
+  border: var(--border-std);
+  font-size: 13px;
+  font-weight: 900;
+  align-items: center;
+  justify-content: center;
+  color: var(--black);
+}
+.compress-mode-card.selected .cmc-check {
+  display: flex;
+}
+.cmc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+  border: var(--border-std);
+}
+.cmc-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+.cmc-desc {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.compress-results-area {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.compress-results-area .result-savings {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0e5c37;
+  text-align: center;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.compress-results-area .size-bar {
+  height: 18px;
+  border-radius: 999px;
+  background: var(--white);
+  border: var(--border-std);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.compress-results-area .size-bar-used {
+  height: 100%;
+  background: var(--mint);
+}
+.compress-results-area .size-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: #777;
+  margin-bottom: 20px;
+}
+.compress-download-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 16px 24px;
+  font-size: 17px;
+  font-weight: 800;
+  border: var(--border-std);
+  border-radius: 12px;
+  box-shadow: none;
+}
+.compress-results-area .download-filename {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  margin: 8px 0 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.compress-reset-btn {
+  border: var(--border-std);
+  border-radius: 10px;
+  padding: 10px 24px;
+  background: var(--white);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--black);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.compress-reset-btn:hover {
+  background: var(--cream);
+}
+
+.compress-how-it-works-bar {
+  display: block;
+  width: 100%;
+  background: var(--cream);
+  border-top: var(--border-std);
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--black);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.compress-how-it-works-bar:hover {
+  background: var(--yellow);
+}
 
 /* ==============================
    About Page Styles
