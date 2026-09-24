@@ -195,9 +195,8 @@ function setupMouseDragReorder(card, onReorder) {
   card.addEventListener("dragend", () => {
     card.classList.remove("dragging");
     if (card.parentElement) {
-      card.parentElement.querySelectorAll(".img-thumb-card").forEach((c) => {
-        c.classList.remove("drag-target");
-      });
+      const active = card.parentElement.querySelector(".drag-target");
+      if (active) active.classList.remove("drag-target");
     }
   });
 
