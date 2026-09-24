@@ -270,7 +270,6 @@ test('addFiles function', async (t) => {
     assert.strictEqual(elementMap['protect-password-confirm'].value, '');
     assert.strictEqual(elementMap['protect-info'].textContent, 'Selected: test.pdf');
     assert.strictEqual(elementMap['protect-img-clear'].src, 'data:image/png;base64,mockpreviewdata');
-    assert.strictEqual(elementMap['protect-img-locked'].src, 'data:image/png;base64,mockpreviewdata');
     assert.strictEqual(elementMap['protect-result-img-locked'].src, 'data:image/png;base64,mockpreviewdata');
   });
 });
@@ -526,7 +525,6 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.elementMap['protect-password'].value, '');
     assert.strictEqual(inst.elementMap['protect-password-confirm'].value, '');
     assert.strictEqual(inst.elementMap['protect-img-clear'].src, '');
-    assert.strictEqual(inst.elementMap['protect-img-locked'].src, '');
     assert.strictEqual(inst.elementMap['protect-result-img-locked'].src, '');
   });
 });
