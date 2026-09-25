@@ -133,6 +133,10 @@ async function generatePdfFromText(content) {
   // Push the last page
   pages.push(canvas.toDataURL("image/jpeg", 0.95));
 
+  // Release canvas memory allocation
+  canvas.width = 0;
+  canvas.height = 0;
+
   for (let i = 0; i < pages.length; i++) {
     if (i > 0) doc.addPage();
     doc.addImage(pages[i], "JPEG", 0, 0, pageWidth, pageHeight);

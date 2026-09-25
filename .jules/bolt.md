@@ -53,3 +53,7 @@
 ## 2026-09-26 - Pre-fill solid white background on HTML canvas before JPEG conversion in PDF processing
 **Learning:** In HTML canvas rendering pipelines (such as `js/pdf-protect.js`), converting PDF page canvases with default transparent backgrounds directly to JPEG via `canvas.toDataURL("image/jpeg")` causes transparent background pixels to render as solid black in the encoded JPEG output.
 **Action:** Always pre-fill canvas 2D contexts with `context.fillStyle = "#ffffff"` and `context.fillRect(0, 0, canvas.width, canvas.height)` before invoking `page.render()` when exporting canvas contents to JPEG.
+
+## 2026-09-27 - Retain ArrayBuffer copies when PDF.js worker transfers and detaches buffers
+**Learning:** PDF.js worker tasks transfer and detach `ArrayBuffer` objects passed to `pdfjsLib.getDocument({ data })`. Attempting to omit `.slice(0)` when passing an `ArrayBuffer` that must subsequently be read by `PDFLib.PDFDocument.load()` causes `TypeError: Cannot perform operations on a detached ArrayBuffer` during PDF generation/export.
+**Action:** Always pass a cloned slice (`arrayBuffer.slice(0)`) to `pdfjs.getDocument({ data })` whenever the source `ArrayBuffer` needs to be read or processed by another library later in the tool workflow.
