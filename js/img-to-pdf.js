@@ -71,7 +71,9 @@ function addImageFiles(files) {
       file,
       objectUrl: URL.createObjectURL(file),
       name: file.name,
-      id: Date.now() + Math.random(),
+      id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random()}`,
     });
   }
 
