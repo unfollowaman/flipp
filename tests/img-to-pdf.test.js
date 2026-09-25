@@ -10,7 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
 // Expose internal functions
-src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions, createImageCard };\n';
+src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions, createImageCard, getImageFiles: () => imageFiles };\n';
 
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
@@ -549,5 +549,61 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(fixedDrawTall.drawH, 277);
     assert.strictEqual(fixedDrawTall.imgX, 80);
     assert.strictEqual(fixedDrawTall.imgY, 10);
+  });
+
+  await t.test('addImageFiles assigns secure random UUIDs for image item IDs', async () => {
+    let mockUUIDCount = 0;
+    const mockCrypto = {
+      randomUUID: () => `10000000-8000-4000-8000-${String(++mockUUIDCount).padStart(12, '0')}`
+    };
+
+    const mockWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'setProgress',
+      'activatePill',
+      'setupDragReorder',
+      'Blob',
+      'URL',
+      'FileReader',
+      'Image',
+      'crypto',
+      src
+    );
+
+    const { addImageFiles, getImageFiles, resetImgConverter } = mockWrapper(
+      {
+        getElementById: createMockElement,
+        createElement: createMockElement,
+        createDocumentFragment: () => createMockElement(),
+      },
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => 'blob:mock-url', revokeObjectURL: () => {} },
+      class FileReader {},
+      class Image {},
+      mockCrypto
+    );
+
+    resetImgConverter();
+
+    const testFiles = [
+      { name: 'photo1.jpg', type: 'image/jpeg' },
+      { name: 'photo2.png', type: 'image/png' }
+    ];
+
+    addImageFiles(testFiles);
+
+    const files = getImageFiles();
+    assert.strictEqual(files.length, 2);
+    assert.strictEqual(files[0].id, '10000000-8000-4000-8000-000000000001');
+    assert.strictEqual(files[1].id, '10000000-8000-4000-8000-000000000002');
   });
 });
