@@ -57,3 +57,7 @@
 ## 2026-09-27 - Retain ArrayBuffer copies when PDF.js worker transfers and detaches buffers
 **Learning:** PDF.js worker tasks transfer and detach `ArrayBuffer` objects passed to `pdfjsLib.getDocument({ data })`. Attempting to omit `.slice(0)` when passing an `ArrayBuffer` that must subsequently be read by `PDFLib.PDFDocument.load()` causes `TypeError: Cannot perform operations on a detached ArrayBuffer` during PDF generation/export.
 **Action:** Always pass a cloned slice (`arrayBuffer.slice(0)`) to `pdfjs.getDocument({ data })` whenever the source `ArrayBuffer` needs to be read or processed by another library later in the tool workflow.
+
+## 2026-09-28 - Early exit word scanning in PDF page text analysis
+**Learning:** In client-side PDF text extraction (such as `js/pdf-to-text.js`), converting entire page strings to lowercase (`.toLowerCase()`) and running global regex matches (`.match(/\b[a-z]{3,}\b/g)`) allocates large temporary arrays of matching word strings. On standard text-based PDF pages, exiting the word search as soon as 3 English words are encountered avoids full-page string scanning and array allocations.
+**Action:** Use a `RegExp.exec()` loop with an early break condition (`while (count < 3 && regex.exec(text))`) when checking minimum word count thresholds during page text analysis.
