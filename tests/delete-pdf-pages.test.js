@@ -260,6 +260,24 @@ test('delete-pdf-pages functionality', async (t) => {
     assert.strictEqual(toastType, 'error');
   });
 
+  await t.test('shows error toast and resets state if getDocument rejects when loading PDF', async () => {
+    mockWindow['pdfjs-dist/build/pdf'] = {
+      getDocument: () => ({
+        promise: Promise.reject(new Error('Corrupt or invalid PDF file'))
+      })
+    };
+    const fakeFile = {
+      name: 'corrupt.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(16)
+    };
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+    assert.strictEqual(toastMessage, 'Error loading PDF.');
+    assert.strictEqual(toastType, 'error');
+    assert.strictEqual(mockDocument.getElementById('delete-drop-zone').style.display, 'block');
+  });
+
   await t.test('loads PDF and renders page thumbnail cards with accessible delete controls', async () => {
     mockWindow['pdfjs-dist/build/pdf'] = {
       getDocument: () => ({
