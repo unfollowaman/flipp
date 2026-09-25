@@ -32,7 +32,10 @@ async function addFiles(files) {
       return {
         file,
         arrayBuffer,
-        id: Math.random().toString(36).substring(2) + Date.now().toString(36),
+        id:
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random()}`,
         thumbnailDataUrl,
       };
     }),
