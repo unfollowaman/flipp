@@ -301,12 +301,24 @@
             <div
               class="option-pills"
               id="wm-mode-pills"
+              role="radiogroup"
+              aria-label="Watermark mode"
               style="margin-bottom: 12px"
             >
-              <button class="opt-pill active" data-value="text">
+              <button
+                class="opt-pill active"
+                role="radio"
+                aria-checked="true"
+                data-value="text"
+              >
                 Text Watermark
               </button>
-              <button class="opt-pill" data-value="image">
+              <button
+                class="opt-pill"
+                role="radio"
+                aria-checked="false"
+                data-value="image"
+              >
                 Image Watermark
               </button>
             </div>

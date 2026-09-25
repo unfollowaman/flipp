@@ -13,3 +13,7 @@
 ## 2026-09-20 - Password Input Visibility Toggle Accessibility
 **Learning:** Password inputs benefit from accessible toggle controls (`<button type="button">`) that dynamically update `type` ("password" / "text"), `aria-label`, and `title` ("Show password" / "Hide password") to give visual feedback and screen reader clarity.
 **Action:** Use relative positioning wrappers for password fields and sync `aria-label` and `title` state on toggle clicks.
+
+## 2026-09-25 - Mode Pill Radiogroup Accessibility Sync
+**Learning:** Option pill button groups used as mode selectors require `role="radiogroup"` on the parent element and `role="radio"` with `aria-checked` ("true"/"false") on the pill buttons so screen reader users hear active mode states.
+**Action:** Use `role="radiogroup"` and `aria-label` on pill group containers, and update `aria-checked` attributes using `activatePill` when mode selection changes or resets.

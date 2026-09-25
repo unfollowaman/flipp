@@ -545,6 +545,21 @@ test('add-watermark resource cleanup', async (t) => {
   });
 });
 
+test('add-watermark mode pills accessibility attributes', async (t) => {
+  const htmlPath = path.join(__dirname, '../tools/add-watermark/index.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+
+  await t.test('has role="radiogroup" and aria-label on mode pills container', () => {
+    assert.match(html, /id="wm-mode-pills"[^>]*role="radiogroup"/);
+    assert.match(html, /id="wm-mode-pills"[^>]*aria-label="Watermark mode"/);
+  });
+
+  await t.test('mode pill buttons have role="radio" and aria-checked attributes', () => {
+    assert.match(html, /role="radio"[\s\S]*?aria-checked="true"[\s\S]*?data-value="text"/);
+    assert.match(html, /role="radio"[\s\S]*?aria-checked="false"[\s\S]*?data-value="image"/);
+  });
+});
+
 test('add-watermark error handling', async (t) => {
   const mockDocument = createMockDocument();
   let toastCall = null;
