@@ -156,8 +156,10 @@ if (applyAllPagesBtn) {
 // Mode Switching
 modePills.forEach((pill) => {
   pill.addEventListener("click", (e) => {
-    activatePill(e.target.parentElement, e.target.dataset.value);
-    currentMode = e.target.dataset.value;
+    const btn = e.currentTarget;
+    const val = btn.dataset.value;
+    activatePill(btn.parentElement, val);
+    currentMode = val;
     if (currentMode === "text") {
       textControls.style.display = "flex";
       imageControls.style.display = "none";
@@ -998,6 +1000,14 @@ async function resetApp() {
   numPages = 1;
   pageConfigs = {};
   globalWatermarkConfig = { position: "center", customX: null, customY: null };
+
+  currentMode = "text";
+  const wmModePillsContainer = document.getElementById("wm-mode-pills");
+  if (wmModePillsContainer) {
+    activatePill(wmModePillsContainer, "text");
+  }
+  if (textControls) textControls.style.display = "flex";
+  if (imageControls) imageControls.style.display = "none";
 
   if (applyScopePrompt) applyScopePrompt.style.display = "none";
   ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
