@@ -479,7 +479,6 @@ function makeDraggableAndResizable(overlay, resizeHandle) {
     const clientY = e.type.includes("mouse") ? e.clientY : e.touches[0].clientY;
 
     const dx = clientX - startX;
-    const dy = clientY - startY;
 
     // Maintain aspect ratio based on width change
     const ratio = startHeight / startWidth;
