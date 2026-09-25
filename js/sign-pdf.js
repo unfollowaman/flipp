@@ -180,7 +180,13 @@ function getTypedSignatureAsBase64() {
   ctx.textAlign = "center";
   ctx.fillText(text, width / 2, height / 2);
 
-  return typeCanvas.toDataURL("image/png");
+  const dataUrl = typeCanvas.toDataURL("image/png");
+
+  // Free canvas backing store memory immediately after rendering to data URL
+  typeCanvas.width = 0;
+  typeCanvas.height = 0;
+
+  return dataUrl;
 }
 
 // PDF Upload & Rendering
