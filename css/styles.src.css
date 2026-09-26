@@ -1238,8 +1238,9 @@ textarea {
   width: 0%;
 } /* ==============================
 Results ============================== */
-/* ============================== Merged PDF Final Stage ============================== */
-.merged-stage-container {
+/* ============================== Merged & Protect PDF Final Stage ============================== */
+.merged-stage-container,
+.protect-stage-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1345,7 +1346,8 @@ Results ============================== */
   overflow: visible;
 }
 
-.merged-master-card {
+.merged-master-card,
+.protect-master-card {
   width: 180px;
   background: var(--cream);
   border: 2px solid var(--black);
@@ -1360,7 +1362,8 @@ Results ============================== */
   z-index: 2;
 }
 
-.merged-master-badge {
+.merged-master-badge,
+.protect-master-badge {
   background: var(--mint);
   color: var(--black);
   font-size: 10px;
@@ -1372,7 +1375,8 @@ Results ============================== */
   letter-spacing: 0.5px;
 }
 
-.merged-master-preview {
+.merged-master-preview,
+.protect-master-preview {
   width: 90px;
   height: 110px;
   background: var(--white);
@@ -1391,11 +1395,13 @@ Results ============================== */
   object-fit: contain;
 }
 
-.merged-master-icon {
+.merged-master-icon,
+.protect-master-icon {
   font-size: 36px;
 }
 
-.merged-master-title {
+.merged-master-title,
+.protect-master-title {
   font-size: 14px;
   font-weight: 800;
   color: var(--black);

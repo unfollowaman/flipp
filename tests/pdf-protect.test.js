@@ -464,7 +464,7 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.elementMap['protect-results'].classList.contains('is-visible'), false);
   });
 
-  await t.test('handles successful protection on protectBtn click', async () => {
+  await t.test('handles successful protection on protectBtn click and updates master card', async () => {
     const inst = createTestInstance();
     const mockFile = { name: 'sample.pdf', type: 'application/pdf', arrayBuffer: async () => new ArrayBuffer(8) };
     inst.exportsObj.addFiles([mockFile]);
@@ -479,8 +479,12 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.toastMessages.length, 1);
     assert.strictEqual(inst.toastMessages[0].msg, 'Protected PDF is ready!');
 
+    assert.strictEqual(inst.elementMap['protect-drop-zone'].style.display, 'none');
     assert.strictEqual(inst.elementMap['protect-preview-area'].classList.contains('is-visible'), false);
     assert.strictEqual(inst.elementMap['protect-results'].classList.contains('is-visible'), true);
+
+    assert.strictEqual(inst.elementMap['protect-master-title'].textContent, 'sample.pdf');
+    assert.strictEqual(inst.elementMap['protect-download-btn'].textContent, 'Download sample-protected.pdf');
 
     assert.strictEqual(protectBtn.disabled, false);
     assert.strictEqual(protectBtn.textContent, 'Protect PDF →');
@@ -506,7 +510,7 @@ test('protectBtn click handling and error paths', async (t) => {
     assert.strictEqual(inst.getRevokedUrl(), 'blob:mock-protected-pdf');
   });
 
-  await t.test('resetBtn click resets UI state, selection, and preview images', async () => {
+  await t.test('resetBtn click resets UI state, selection, dropzone visibility, and preview elements', async () => {
     const inst = createTestInstance();
     const mockFile = { name: 'sample.pdf', type: 'application/pdf', arrayBuffer: async () => new ArrayBuffer(8) };
     await inst.exportsObj.addFiles([mockFile]);
@@ -519,11 +523,14 @@ test('protectBtn click handling and error paths', async (t) => {
 
     assert.strictEqual(inst.exportsObj.getPdfFile(), null);
     assert.strictEqual(inst.exportsObj.getProtectedBlob(), null);
+    assert.strictEqual(inst.elementMap['protect-drop-zone'].style.display, '');
     assert.strictEqual(inst.elementMap['protect-preview-area'].classList.contains('is-visible'), false);
     assert.strictEqual(inst.elementMap['protect-results'].classList.contains('is-visible'), false);
     assert.strictEqual(inst.elementMap['protect-info'].textContent, '');
     assert.strictEqual(inst.elementMap['protect-password'].value, '');
     assert.strictEqual(inst.elementMap['protect-password-confirm'].value, '');
+    assert.strictEqual(inst.elementMap['protect-download-btn'].textContent, 'Download Protected PDF');
+    assert.strictEqual(inst.elementMap['protect-master-title'].textContent, '');
     assert.strictEqual(inst.elementMap['protect-img-clear'].src, '');
     assert.strictEqual(inst.elementMap['protect-result-img-locked'].src, '');
   });
