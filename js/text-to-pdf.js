@@ -143,14 +143,14 @@ async function generatePdfFromText(content) {
   }
 
   const pageCount = doc.getNumberOfPages();
+  doc.setFontSize(10);
+  doc.setTextColor(80, 80, 80);
   for (let p = 1; p <= pageCount; p += 1) {
     doc.setPage(p);
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
     doc.text(String(p), pageWidth / 2, pageHeight - 32, { align: "center" });
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
   }
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(12);
 
   return doc.output("blob");
 }
