@@ -12,7 +12,7 @@ src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 src = src.replace(/export\s+function/g, 'function');
 
 // Append return statement exposing internal variables and functions for testing
-src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, createSignatureOverlay, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; } };\n';
+src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, createSignatureOverlay, makeDraggableAndResizable, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; } };\n';
 
 const elementMap = {};
 
@@ -366,5 +366,177 @@ test('sign-pdf createSignatureOverlay', async (t) => {
     assert.strictEqual(resizeHandle.getAttribute('title'), 'Resize signature');
 
     mockDocument.createElement = origCreateElement;
+  });
+});
+
+test('sign-pdf makeDraggableAndResizable interactions', async (t) => {
+  let docListeners = {};
+  const mockDoc = {
+    addEventListener: (type, fn) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(fn);
+    },
+    removeEventListener: (type, fn) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== fn);
+      }
+    }
+  };
+
+  const localWrapper = new Function(
+    'document',
+    'window',
+    'initDropZone',
+    'showToast',
+    'setProgress',
+    'activatePill',
+    'Blob',
+    'URL',
+    'console',
+    'MutationObserver',
+    src
+  );
+
+  const localSignPdf = localWrapper(
+    mockDocument,
+    mockWindow,
+    mockInitDropZone,
+    mockShowToast,
+    mockSetProgress,
+    mockActivatePill,
+    class Blob {},
+    { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+    mockConsole,
+    MockMutationObserver
+  );
+
+  await t.test('makeDraggableAndResizable attaches drag event listeners and moves overlay correctly', () => {
+    docListeners = {};
+    const overlayListeners = {};
+    const overlay = {
+      style: { left: '10px', top: '20px', width: '100px', height: '50px' },
+      offsetWidth: 100,
+      offsetHeight: 50,
+      classList: { contains: () => false },
+      addEventListener: (type, fn) => {
+        overlayListeners[type] = fn;
+      }
+    };
+    const resizeHandle = {
+      addEventListener: () => {}
+    };
+
+    localSignPdf.makeDraggableAndResizable(overlay, resizeHandle);
+
+    assert.ok(overlayListeners['mousedown'], 'Overlay should have mousedown listener');
+
+    // Simulate start drag
+    const startEvent = {
+      type: 'mousedown',
+      clientX: 100,
+      clientY: 100,
+      target: overlay
+    };
+
+    // Replace global document in wrapper execution context context via node standard global mock or docListeners inspection
+    // Note that drag uses global `document` in sign-pdf.js, which maps to mockDocument in wrapper scope.
+    // Let's attach addEventListener on mockDocument.
+    const origDocAddListener = mockDocument.addEventListener;
+    const origDocRemoveListener = mockDocument.removeEventListener;
+    mockDocument.addEventListener = (type, fn) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(fn);
+    };
+    mockDocument.removeEventListener = (type, fn) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== fn);
+      }
+    };
+
+    overlayListeners['mousedown'](startEvent);
+
+    assert.ok(docListeners['mousemove'] && docListeners['mousemove'].length > 0, 'mousemove listener registered');
+    assert.ok(docListeners['mouseup'] && docListeners['mouseup'].length > 0, 'mouseup listener registered');
+
+    // Simulate drag mousemove
+    const moveEvent = {
+      type: 'mousemove',
+      clientX: 150,
+      clientY: 130
+    };
+    docListeners['mousemove'][0](moveEvent);
+
+    assert.strictEqual(overlay.style.left, '60px'); // 10 + (150 - 100) = 60
+    assert.strictEqual(overlay.style.top, '50px');  // 20 + (130 - 100) = 50
+
+    // Simulate end drag
+    docListeners['mouseup'][0]({ type: 'mouseup' });
+
+    assert.strictEqual(docListeners['mousemove'].length, 0);
+    assert.strictEqual(docListeners['mouseup'].length, 0);
+
+    mockDocument.addEventListener = origDocAddListener;
+    mockDocument.removeEventListener = origDocRemoveListener;
+  });
+
+  await t.test('makeDraggableAndResizable attaches resize event listeners and resizes overlay proportionally', () => {
+    docListeners = {};
+    const resizeListeners = {};
+    const overlay = {
+      style: { left: '10px', top: '20px', width: '100px', height: '50px' },
+      offsetWidth: 100,
+      offsetHeight: 50,
+      addEventListener: () => {}
+    };
+    const resizeHandle = {
+      addEventListener: (type, fn) => {
+        resizeListeners[type] = fn;
+      }
+    };
+
+    localSignPdf.makeDraggableAndResizable(overlay, resizeHandle);
+
+    assert.ok(resizeListeners['mousedown'], 'Resize handle should have mousedown listener');
+
+    const origDocAddListener = mockDocument.addEventListener;
+    const origDocRemoveListener = mockDocument.removeEventListener;
+    mockDocument.addEventListener = (type, fn) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(fn);
+    };
+    mockDocument.removeEventListener = (type, fn) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== fn);
+      }
+    };
+
+    const startEvent = {
+      type: 'mousedown',
+      clientX: 200,
+      clientY: 200,
+      stopPropagation: () => {}
+    };
+
+    resizeListeners['mousedown'](startEvent);
+
+    assert.ok(docListeners['mousemove'] && docListeners['mousemove'].length > 0, 'mousemove listener registered for resize');
+
+    // Simulate resize mousemove (dx = +50, ratio = 50/100 = 0.5)
+    const moveEvent = {
+      type: 'mousemove',
+      clientX: 250,
+      clientY: 200
+    };
+    docListeners['mousemove'][0](moveEvent);
+
+    assert.strictEqual(overlay.style.width, '150px');
+    assert.strictEqual(overlay.style.height, '75px');
+
+    docListeners['mouseup'][0]({ type: 'mouseup' });
+
+    assert.strictEqual(docListeners['mousemove'].length, 0);
+
+    mockDocument.addEventListener = origDocAddListener;
+    mockDocument.removeEventListener = origDocRemoveListener;
   });
 });

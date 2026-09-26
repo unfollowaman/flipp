@@ -379,13 +379,15 @@ function createSignatureOverlay(src) {
 }
 
 function makeDraggableAndResizable(overlay, resizeHandle) {
+  makeDraggable(overlay, resizeHandle);
+  makeResizable(overlay, resizeHandle);
+}
+
+function makeDraggable(overlay, resizeHandle) {
   let isDragging = false;
-  let isResizing = false;
   let startX, startY;
   let startLeft, startTop;
-  let startWidth, startHeight;
 
-  // Dragging
   overlay.addEventListener("mousedown", startDrag);
   overlay.addEventListener("touchstart", startDrag, { passive: false });
 
@@ -448,8 +450,13 @@ function makeDraggableAndResizable(overlay, resizeHandle) {
     document.removeEventListener("mouseup", endDrag);
     document.removeEventListener("touchend", endDrag);
   }
+}
 
-  // Resizing
+function makeResizable(overlay, resizeHandle) {
+  let isResizing = false;
+  let startX, startY;
+  let startWidth, startHeight;
+
   resizeHandle.addEventListener("mousedown", startResize);
   resizeHandle.addEventListener("touchstart", startResize, { passive: false });
 
