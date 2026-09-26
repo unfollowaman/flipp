@@ -615,6 +615,11 @@ export function resetToUpload(elements, state) {
   if (elements.optionsArea) elements.optionsArea.style.display = "none";
   if (elements.fileInfo) elements.fileInfo.textContent = "";
   if (elements.dropZone) elements.dropZone.style.display = "block";
+
+  const sourcesGridEl = document.getElementById("p2w-sources-grid");
+  const connectorSvgEl = document.getElementById("p2w-connector-svg");
+  if (sourcesGridEl) sourcesGridEl.innerHTML = "";
+  if (connectorSvgEl) connectorSvgEl.innerHTML = "";
 }
 
 export async function loadPdfDocument(pdfjsLib, file, elements, state) {
@@ -675,13 +680,98 @@ export async function extractPdfPagesData(pdfDoc, elements, state) {
   return pagesData;
 }
 
+export function updateConnectorLines() {
+  const container = document.getElementById("p2w-stage-container");
+  const svg = document.getElementById("p2w-connector-svg");
+  const masterCard = document.getElementById("p2w-master-card");
+  const wrapper = document.getElementById("p2w-connector-wrapper");
+  if (!container || !svg || !masterCard || !wrapper) return;
+
+  const sourceCards = Array.from(container.querySelectorAll(".merged-source-card"));
+  if (!sourceCards.length) return;
+
+  if (
+    typeof container.getBoundingClientRect !== "function" ||
+    typeof wrapper.getBoundingClientRect !== "function" ||
+    typeof masterCard.getBoundingClientRect !== "function"
+  ) {
+    return;
+  }
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const masterRect = masterCard.getBoundingClientRect();
+
+  if (wrapperRect.width === 0 || wrapperRect.height === 0) {
+    return;
+  }
+
+  svg.setAttribute("width", wrapperRect.width);
+  svg.setAttribute("height", wrapperRect.height);
+  svg.setAttribute("viewBox", `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
+
+  const targetX = masterRect.left + masterRect.width / 2 - wrapperRect.left;
+  const targetY = masterRect.top - wrapperRect.top;
+
+  let pathsHtml = "";
+  sourceCards.forEach((card) => {
+    const cardRect = card.getBoundingClientRect();
+    const startX = cardRect.left + cardRect.width / 2 - wrapperRect.left;
+    const startY = cardRect.top + cardRect.height - wrapperRect.top;
+
+    const midY = (startY + targetY) / 2;
+    const pathData = `M ${startX} ${startY} C ${startX} ${midY}, ${targetX} ${midY}, ${targetX} ${targetY}`;
+    pathsHtml += `<path d="${pathData}" stroke="#3dd68c" stroke-width="3" stroke-dasharray="6,6" fill="none" stroke-linecap="round" />`;
+  });
+
+  svg.innerHTML = pathsHtml;
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("resize", updateConnectorLines);
+}
+
 export function showConversionSuccessUI(elements, state) {
   state.progressController.finish("Conversion complete!");
+
+  const sourcesGridEl = document.getElementById("p2w-sources-grid");
+  const masterTitleEl = document.getElementById("p2w-master-title");
+
+  if (sourcesGridEl && state.currentFile) {
+    sourcesGridEl.innerHTML = "";
+    const card = document.createElement("div");
+    card.className = "merged-source-card";
+
+    const numBadge = document.createElement("div");
+    numBadge.className = "merged-source-num";
+    numBadge.textContent = "1";
+    card.appendChild(numBadge);
+
+    const icon = document.createElement("div");
+    icon.className = "merged-source-icon";
+    icon.textContent = "📄";
+    card.appendChild(icon);
+
+    const label = document.createElement("div");
+    label.className = "merged-source-label";
+    label.textContent = state.currentFile.name;
+    label.title = state.currentFile.name;
+    card.appendChild(label);
+
+    sourcesGridEl.appendChild(card);
+  }
+
+  if (masterTitleEl && state.currentFile) {
+    masterTitleEl.textContent = sanitizeFilename(state.currentFile.name);
+  }
+
   setTimeout(() => {
     if (elements.progressArea) elements.progressArea.style.display = "none";
     if (elements.optionsArea) elements.optionsArea.style.display = "none";
     if (elements.resultsArea) elements.resultsArea.classList.add("is-visible");
     setConfigurationControlsDisabled(elements, false);
+
+    setTimeout(updateConnectorLines, 50);
+    setTimeout(updateConnectorLines, 300);
   }, 500);
 }
 

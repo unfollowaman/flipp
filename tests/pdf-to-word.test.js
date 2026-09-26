@@ -22,6 +22,15 @@ const fn = new Function(`
   const elementsMap = {};
   const document = {
     getElementById: (id) => elementsMap[id] || null,
+    createElement: (tag) => {
+      return {
+        tagName: tag.toUpperCase(),
+        className: "",
+        textContent: "",
+        title: "",
+        appendChild: () => {}
+      };
+    },
     readyState: "complete",
     addEventListener: () => {}
   };
@@ -486,5 +495,31 @@ describe("pdf-to-word unit and integration tests", () => {
     await pdfToWordModule.cleanupOcrWorker(state);
     assert.strictEqual(terminated, true);
     assert.strictEqual(state.ocrWorkerPromise, null);
+  });
+
+  it("showConversionSuccessUI populates source card and word master title", async () => {
+    const sourcesGrid = {
+      innerHTML: "",
+      appendChild: function(child) { this.children = this.children || []; this.children.push(child); }
+    };
+    const masterTitle = { textContent: "" };
+
+    pdfToWordModule.elementsMap["p2w-sources-grid"] = sourcesGrid;
+    pdfToWordModule.elementsMap["p2w-master-title"] = masterTitle;
+
+    const mockElements = {
+      progressArea: { style: {} },
+      optionsArea: { style: {} },
+      resultsArea: { classList: { add: () => {} } }
+    };
+    const mockState = {
+      currentFile: { name: "my_report.pdf" },
+      progressController: { finish: () => {} }
+    };
+
+    pdfToWordModule.showConversionSuccessUI(mockElements, mockState);
+
+    assert.strictEqual(masterTitle.textContent, "my_report.docx");
+    assert.notStrictEqual(sourcesGrid.innerHTML, undefined);
   });
 });
