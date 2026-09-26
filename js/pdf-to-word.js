@@ -618,6 +618,82 @@ export function resetToUpload(elements, state) {
   if (elements.dropZone) elements.dropZone.style.display = "block";
 }
 
+export async function loadPdfDocument(pdfjsLib, file, elements, state) {
+  const arrayBuffer = await file.arrayBuffer();
+  try {
+    return await pdfjsLib.getDocument({ data: arrayBuffer, ignoreEncryption: true }).promise;
+  } catch (err) {
+    if (err.name === "PasswordException" || err.message?.includes("password")) {
+      showPasswordError(elements, state);
+      return null;
+    }
+    throw err;
+  }
+}
+
+export async function cleanupOcrWorker(state) {
+  if (state.ocrWorkerPromise) {
+    try {
+      const worker = await state.ocrWorkerPromise;
+      await worker.terminate();
+    } catch (e) {
+      // ignore cleanup errors
+    }
+    state.ocrWorkerPromise = null;
+  }
+}
+
+export async function extractPdfPagesData(pdfDoc, elements, state) {
+  const numPages = pdfDoc.numPages;
+  const userMode = elements.modeSelect ? elements.modeSelect.value : "auto";
+  const ocrLang = elements.languageSelect ? elements.languageSelect.value : "eng+hin";
+
+  const getOcrWorker = () => {
+    if (!state.ocrWorkerPromise && window.Tesseract) {
+      state.ocrWorkerPromise = window.Tesseract.createWorker(ocrLang);
+    }
+    return state.ocrWorkerPromise;
+  };
+
+  let completedPagesCount = 0;
+  const onPageComplete = () => {
+    completedPagesCount++;
+    const pagePercent = (completedPagesCount / numPages) * 70;
+    state.progressController.setTarget(
+      pagePercent,
+      `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`
+    );
+  };
+
+  const pagePromises = Array.from({ length: numPages }, (_, index) =>
+    processPdfPage(pdfDoc, index + 1, numPages, userMode, getOcrWorker, onPageComplete)
+  );
+
+  const pagesData = await Promise.all(pagePromises);
+
+  await cleanupOcrWorker(state);
+
+  return pagesData;
+}
+
+export function showConversionSuccessUI(elements, state) {
+  state.progressController.finish("Conversion complete!");
+  setTimeout(() => {
+    if (elements.progressArea) elements.progressArea.style.display = "none";
+    if (elements.optionsArea) elements.optionsArea.style.display = "none";
+    if (elements.resultsArea) elements.resultsArea.classList.add("is-visible");
+    setConfigurationControlsDisabled(elements, false);
+  }, 500);
+}
+
+export function handleConversionError(err, elements, state) {
+  console.error("Error converting PDF to Word:", err);
+  showToast("Couldn't convert this PDF. The file may be damaged or unsupported.", "error");
+  setConfigurationControlsDisabled(elements, false);
+  if (elements.progressArea) elements.progressArea.style.display = "none";
+  if (elements.optionsArea) elements.optionsArea.style.display = "block";
+}
+
 export async function startConversion(elements, state) {
   if (!state.currentFile) return;
 
@@ -647,54 +723,10 @@ export async function startConversion(elements, state) {
 
   let pdfDoc = null;
   try {
-    const arrayBuffer = await state.currentFile.arrayBuffer();
+    pdfDoc = await loadPdfDocument(pdfjsLib, state.currentFile, elements, state);
+    if (!pdfDoc) return;
 
-    try {
-      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer, ignoreEncryption: true }).promise;
-    } catch (err) {
-      if (err.name === "PasswordException" || err.message?.includes("password")) {
-        showPasswordError(elements, state);
-        return;
-      }
-      throw err;
-    }
-
-    const numPages = pdfDoc.numPages;
-    const userMode = elements.modeSelect ? elements.modeSelect.value : "auto";
-    const ocrLang = elements.languageSelect ? elements.languageSelect.value : "eng+hin";
-
-    const getOcrWorker = () => {
-      if (!state.ocrWorkerPromise && window.Tesseract) {
-        state.ocrWorkerPromise = window.Tesseract.createWorker(ocrLang);
-      }
-      return state.ocrWorkerPromise;
-    };
-
-    let completedPagesCount = 0;
-    const onPageComplete = () => {
-      completedPagesCount++;
-      const pagePercent = (completedPagesCount / numPages) * 70;
-      state.progressController.setTarget(
-        pagePercent,
-        `Analyzing & extracting page ${completedPagesCount} of ${numPages}...`
-      );
-    };
-
-    const pagePromises = Array.from({ length: numPages }, (_, index) =>
-      processPdfPage(pdfDoc, index + 1, numPages, userMode, getOcrWorker, onPageComplete)
-    );
-
-    const pagesData = await Promise.all(pagePromises);
-
-    if (state.ocrWorkerPromise) {
-      try {
-        const worker = await state.ocrWorkerPromise;
-        await worker.terminate();
-      } catch (e) {
-        // ignore cleanup errors
-      }
-      state.ocrWorkerPromise = null;
-    }
+    const pagesData = await extractPdfPagesData(pdfDoc, elements, state);
 
     state.progressController.setTarget(85, "Building Word document (.docx)...");
 
@@ -703,20 +735,9 @@ export async function startConversion(elements, state) {
 
     state.generatedBlob = await generateDocxBlobFromPdfData(pagesData, docxLib);
 
-    state.progressController.finish("Conversion complete!");
-    setTimeout(() => {
-      if (elements.progressArea) elements.progressArea.style.display = "none";
-      if (elements.optionsArea) elements.optionsArea.style.display = "none";
-      if (elements.resultsArea) elements.resultsArea.classList.add("is-visible");
-      setConfigurationControlsDisabled(elements, false);
-    }, 500);
-
+    showConversionSuccessUI(elements, state);
   } catch (err) {
-    console.error("Error converting PDF to Word:", err);
-    showToast("Couldn't convert this PDF. The file may be damaged or unsupported.", "error");
-    setConfigurationControlsDisabled(elements, false);
-    if (elements.progressArea) elements.progressArea.style.display = "none";
-    if (elements.optionsArea) elements.optionsArea.style.display = "block";
+    handleConversionError(err, elements, state);
   } finally {
     if (pdfDoc && typeof pdfDoc.destroy === "function") {
       try {
