@@ -1196,6 +1196,68 @@ if (sigPlaceBtn) {
 
 // ── PDF Export Process Helpers ─────────────────────────────────────
 
+function renderDrawObject(ctx, obj) {
+  ctx.strokeStyle = obj.properties.color || "#000000";
+  ctx.lineWidth = obj.properties.strokeWidth || 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  ctx.beginPath();
+  (obj.properties.path || []).forEach((pt, idx) => {
+    if (idx === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
+  });
+  ctx.stroke();
+}
+
+function renderShapeObject(ctx, obj) {
+  ctx.strokeStyle = obj.properties.strokeColor || "#000000";
+  ctx.lineWidth = obj.properties.strokeWidth || 2;
+
+  if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
+    ctx.fillStyle = obj.properties.fillColor;
+  }
+
+  const st = obj.properties.shapeType;
+  if (st === "rect") {
+    if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fillRect(0, 0, obj.width, obj.height);
+    ctx.strokeRect(0, 0, obj.width, obj.height);
+  } else if (st === "circle") {
+    ctx.beginPath();
+    ctx.ellipse(obj.width / 2, obj.height / 2, obj.width / 2 - 2, obj.height / 2 - 2, 0, 0, 2 * Math.PI);
+    if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fill();
+    ctx.stroke();
+  } else if (st === "line" || st === "arrow") {
+    ctx.beginPath();
+    ctx.moveTo(4, obj.height / 2);
+    ctx.lineTo(obj.width - 4, obj.height / 2);
+    ctx.stroke();
+
+    if (st === "arrow") {
+      ctx.beginPath();
+      ctx.moveTo(obj.width - 12, obj.height / 2 - 6);
+      ctx.lineTo(obj.width - 2, obj.height / 2);
+      ctx.lineTo(obj.width - 12, obj.height / 2 + 6);
+      ctx.stroke();
+    }
+  }
+}
+
+function renderNoteObject(ctx, obj) {
+  ctx.fillStyle = "#fef08a";
+  ctx.fillRect(0, 0, obj.width, obj.height);
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(0, 0, obj.width, obj.height);
+
+  ctx.fillStyle = "#000000";
+  ctx.font = "12px sans-serif";
+  const lines = (obj.properties.text || "").split("\n");
+  lines.forEach((line, lIdx) => {
+    ctx.fillText(line, 6, 16 + lIdx * 16);
+  });
+}
+
 export function renderObjectToCanvasDataUrl(obj) {
   const tempCanvas = document.createElement("canvas");
   const scale = 2; // high-DPI crisp export
@@ -1206,61 +1268,11 @@ export function renderObjectToCanvasDataUrl(obj) {
   ctx.scale(scale, scale);
 
   if (obj.type === "draw") {
-    ctx.strokeStyle = obj.properties.color || "#000000";
-    ctx.lineWidth = obj.properties.strokeWidth || 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.beginPath();
-    (obj.properties.path || []).forEach((pt, idx) => {
-      if (idx === 0) ctx.moveTo(pt.x, pt.y);
-      else ctx.lineTo(pt.x, pt.y);
-    });
-    ctx.stroke();
+    renderDrawObject(ctx, obj);
   } else if (obj.type === "shape") {
-    ctx.strokeStyle = obj.properties.strokeColor || "#000000";
-    ctx.lineWidth = obj.properties.strokeWidth || 2;
-
-    if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
-      ctx.fillStyle = obj.properties.fillColor;
-    }
-
-    const st = obj.properties.shapeType;
-    if (st === "rect") {
-      if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fillRect(0, 0, obj.width, obj.height);
-      ctx.strokeRect(0, 0, obj.width, obj.height);
-    } else if (st === "circle") {
-      ctx.beginPath();
-      ctx.ellipse(obj.width / 2, obj.height / 2, obj.width / 2 - 2, obj.height / 2 - 2, 0, 0, 2 * Math.PI);
-      if (obj.properties.fillColor && obj.properties.fillColor !== "none") ctx.fill();
-      ctx.stroke();
-    } else if (st === "line" || st === "arrow") {
-      ctx.beginPath();
-      ctx.moveTo(4, obj.height / 2);
-      ctx.lineTo(obj.width - 4, obj.height / 2);
-      ctx.stroke();
-
-      if (st === "arrow") {
-        ctx.beginPath();
-        ctx.moveTo(obj.width - 12, obj.height / 2 - 6);
-        ctx.lineTo(obj.width - 2, obj.height / 2);
-        ctx.lineTo(obj.width - 12, obj.height / 2 + 6);
-        ctx.stroke();
-      }
-    }
+    renderShapeObject(ctx, obj);
   } else if (obj.type === "note") {
-    ctx.fillStyle = "#fef08a";
-    ctx.fillRect(0, 0, obj.width, obj.height);
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(0, 0, obj.width, obj.height);
-
-    ctx.fillStyle = "#000000";
-    ctx.font = "12px sans-serif";
-    const lines = (obj.properties.text || "").split("\n");
-    lines.forEach((line, lIdx) => {
-      ctx.fillText(line, 6, 16 + lIdx * 16);
-    });
+    renderNoteObject(ctx, obj);
   }
 
   const dataUrl = tempCanvas.toDataURL("image/png");
