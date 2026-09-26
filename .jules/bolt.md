@@ -61,3 +61,7 @@
 ## 2026-09-28 - Hoist jsPDF document state mutations outside page iteration loops
 **Learning:** In multi-page PDF generation loops (such as adding footer page numbers in `js/text-to-pdf.js`), repeatedly invoking `doc.setFontSize()` and `doc.setTextColor()` inside `for` loops updates internal jsPDF graphics state dictionaries on every page iteration.
 **Action:** Hoist constant font size and color setters outside page numbering loops and reset document state only once after loop completion.
+
+## 2026-09-29 - Pass HTMLCanvasElement directly to Tesseract worker.recognize to avoid Base64 PNG encoding
+**Learning:** In OCR processing pipelines (such as `js/pdf-to-text.js` and `js/pdf-to-word.js`), converting rendered page `<canvas>` elements to Base64 data URLs via `canvas.toDataURL("image/png")` before calling `worker.recognize(imageData)` causes CPU-intensive main-thread PNG image encoding and multi-megabyte Base64 string memory allocations. Tesseract.js natively accepts `HTMLCanvasElement` directly.
+**Action:** Pass `canvas` directly to `worker.recognize(canvas)` instead of creating intermediate Base64 PNG strings with `canvas.toDataURL("image/png")`.

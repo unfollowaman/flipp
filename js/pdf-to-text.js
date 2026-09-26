@@ -264,11 +264,10 @@ async function extractTextFromPage(page, textContent, getOcrWorker) {
     };
 
     await page.render(renderContext).promise;
-    const imageData = canvas.toDataURL("image/png");
 
     const {
       data: { text },
-    } = await worker.recognize(imageData);
+    } = await worker.recognize(canvas);
     finalPageText = text;
 
     // Free canvas memory immediately
