@@ -509,9 +509,8 @@ export async function processPdfPage(pdfDoc, i, numPages, userMode, getOcrWorker
         canvas.height = renderViewport.height;
 
         await page.render({ canvasContext: ctx, viewport: renderViewport }).promise;
-        const imageData = canvas.toDataURL("image/png");
 
-        const { data } = await worker.recognize(imageData);
+        const { data } = await worker.recognize(canvas);
 
         // Clean up canvas
         canvas.width = 0;
