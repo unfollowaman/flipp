@@ -57,3 +57,7 @@
 ## 2026-09-27 - Retain ArrayBuffer copies when PDF.js worker transfers and detaches buffers
 **Learning:** PDF.js worker tasks transfer and detach `ArrayBuffer` objects passed to `pdfjsLib.getDocument({ data })`. Attempting to omit `.slice(0)` when passing an `ArrayBuffer` that must subsequently be read by `PDFLib.PDFDocument.load()` causes `TypeError: Cannot perform operations on a detached ArrayBuffer` during PDF generation/export.
 **Action:** Always pass a cloned slice (`arrayBuffer.slice(0)`) to `pdfjs.getDocument({ data })` whenever the source `ArrayBuffer` needs to be read or processed by another library later in the tool workflow.
+
+## 2026-09-28 - Hoist jsPDF document state mutations outside page iteration loops
+**Learning:** In multi-page PDF generation loops (such as adding footer page numbers in `js/text-to-pdf.js`), repeatedly invoking `doc.setFontSize()` and `doc.setTextColor()` inside `for` loops updates internal jsPDF graphics state dictionaries on every page iteration.
+**Action:** Hoist constant font size and color setters outside page numbering loops and reset document state only once after loop completion.
