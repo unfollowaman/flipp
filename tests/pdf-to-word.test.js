@@ -51,6 +51,11 @@ const fn = new Function(`
     detectTableStructure,
     createDocxElementsFromPageData,
     generateDocxBlobFromPdfData,
+    loadPdfDocument,
+    cleanupOcrWorker,
+    extractPdfPagesData,
+    showConversionSuccessUI,
+    handleConversionError,
     initPdfToWordUI,
     elementsMap,
     window
@@ -438,5 +443,48 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(getPageCalls.length, 10);
     assert.strictEqual(cleanedPages.length, 10);
     assert.strictEqual(destroyed, true);
+  });
+
+  it("loadPdfDocument loads PDF document or handles password exception", async () => {
+    const mockPdfDoc = { numPages: 3 };
+    const mockPdfJs = {
+      getDocument: ({ data }) => ({
+        promise: Promise.resolve(mockPdfDoc)
+      })
+    };
+    const mockFile = {
+      arrayBuffer: async () => new ArrayBuffer(4)
+    };
+
+    const doc = await pdfToWordModule.loadPdfDocument(mockPdfJs, mockFile, {}, {});
+    assert.strictEqual(doc, mockPdfDoc);
+
+    const mockPwPdfJs = {
+      getDocument: () => ({
+        promise: Promise.reject({ name: "PasswordException" })
+      })
+    };
+    let toastShown = false;
+    const mockElements = {
+      dropZone: { style: {} },
+      optionsArea: { style: {} },
+      progressArea: { style: {} }
+    };
+    const result = await pdfToWordModule.loadPdfDocument(mockPwPdfJs, mockFile, mockElements, {});
+    assert.strictEqual(result, null);
+    assert.strictEqual(mockElements.dropZone.style.display, "block");
+  });
+
+  it("cleanupOcrWorker terminates worker and resets promise", async () => {
+    let terminated = false;
+    const state = {
+      ocrWorkerPromise: Promise.resolve({
+        terminate: async () => { terminated = true; }
+      })
+    };
+
+    await pdfToWordModule.cleanupOcrWorker(state);
+    assert.strictEqual(terminated, true);
+    assert.strictEqual(state.ocrWorkerPromise, null);
   });
 });
