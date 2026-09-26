@@ -318,21 +318,62 @@
         <div class="options-bar" id="img-options">
           <div class="option-group">
             <label class="option-label">Page size</label>
-            <div class="option-pills" id="img-size-pills">
-              <button class="opt-pill active" data-value="auto">
+            <div
+              class="option-pills"
+              id="img-size-pills"
+              role="radiogroup"
+              aria-label="Page size"
+            >
+              <button
+                class="opt-pill active"
+                data-value="auto"
+                role="radio"
+                aria-checked="true"
+              >
                 Auto (fit image)
               </button>
-              <button class="opt-pill" data-value="a4">A4</button>
-              <button class="opt-pill" data-value="letter">US Letter</button>
+              <button
+                class="opt-pill"
+                data-value="a4"
+                role="radio"
+                aria-checked="false"
+              >
+                A4
+              </button>
+              <button
+                class="opt-pill"
+                data-value="letter"
+                role="radio"
+                aria-checked="false"
+              >
+                US Letter
+              </button>
             </div>
           </div>
           <div class="option-group">
             <label class="option-label">Orientation</label>
-            <div class="option-pills" id="img-orient-pills">
-              <button class="opt-pill active" data-value="portrait">
+            <div
+              class="option-pills"
+              id="img-orient-pills"
+              role="radiogroup"
+              aria-label="Orientation"
+            >
+              <button
+                class="opt-pill active"
+                data-value="portrait"
+                role="radio"
+                aria-checked="true"
+              >
                 Portrait
               </button>
-              <button class="opt-pill" data-value="landscape">Landscape</button>
+              <button
+                class="opt-pill"
+                data-value="landscape"
+                role="radio"
+                aria-checked="false"
+              >
+                Landscape
+              </button>
             </div>
           </div>
           <div class="option-group">

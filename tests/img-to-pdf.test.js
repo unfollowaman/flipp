@@ -551,6 +551,49 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(fixedDrawTall.imgY, 10);
   });
 
+  await t.test('HTML markup specifies radiogroup and radio ARIA attributes for option pills', () => {
+    const htmlPath = path.join(__dirname, '../tools/images-to-pdf/index.html');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+
+    // Page size radiogroup
+    assert.match(
+      htmlContent,
+      /id="img-size-pills"[\s\S]*?role="radiogroup"[\s\S]*?aria-label="Page size"/,
+      'Page size option pills should have role="radiogroup" and aria-label="Page size"'
+    );
+
+    // Orientation radiogroup
+    assert.match(
+      htmlContent,
+      /id="img-orient-pills"[\s\S]*?role="radiogroup"[\s\S]*?aria-label="Orientation"/,
+      'Orientation option pills should have role="radiogroup" and aria-label="Orientation"'
+    );
+
+    // Page size radio buttons
+    assert.match(
+      htmlContent,
+      /<button[^>]*class="opt-pill active"[^>]*data-value="auto"[^>]*role="radio"[^>]*aria-checked="true"/,
+      'Auto page size pill should have role="radio" and aria-checked="true"'
+    );
+    assert.match(
+      htmlContent,
+      /<button[^>]*class="opt-pill"[^>]*data-value="a4"[^>]*role="radio"[^>]*aria-checked="false"/,
+      'A4 page size pill should have role="radio" and aria-checked="false"'
+    );
+
+    // Orientation radio buttons
+    assert.match(
+      htmlContent,
+      /<button[^>]*class="opt-pill active"[^>]*data-value="portrait"[^>]*role="radio"[^>]*aria-checked="true"/,
+      'Portrait orientation pill should have role="radio" and aria-checked="true"'
+    );
+    assert.match(
+      htmlContent,
+      /<button[^>]*class="opt-pill"[^>]*data-value="landscape"[^>]*role="radio"[^>]*aria-checked="false"/,
+      'Landscape orientation pill should have role="radio" and aria-checked="false"'
+    );
+  });
+
   await t.test('addImageFiles assigns secure random UUIDs for image item IDs', async () => {
     let mockUUIDCount = 0;
     const mockCrypto = {
