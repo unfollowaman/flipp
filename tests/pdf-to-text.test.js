@@ -216,28 +216,14 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
       }
     };
 
-    const handleFileFnMatch = src.match(/async function handleFile[\s\S]*?\n\}/);
-    const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
-    assert.ok(handleFileFnMatch, 'handleFile function exists');
-
     const evalCode = `
       const document = mockDocument;
       const window = mockWindow;
-      let currentFile = null;
-      let currentText = "";
-      const dropZone = mockDocument.getElementById("pdf-drop-zone");
-      const progressArea = mockDocument.getElementById("pdf-progress");
-      const progressBar = mockDocument.getElementById("pdf-progress-bar");
-      const progressLabel = mockDocument.getElementById("pdf-progress-label");
-      const resultsArea = mockDocument.getElementById("pdf-results");
-      const textOutput = mockDocument.getElementById("pdf-text-output");
-      const ocrNotice = mockDocument.getElementById("ocr-notice");
-
+      function initDropZone() {}
       function showToast() {}
       function setProgress() {}
 
-      ${extractFnMatch[0]}
-      ${handleFileFnMatch[0]}
+      ${src}
 
       return handleFile;
     `;
@@ -330,29 +316,17 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
 
     global.document = mockDocument;
 
-    const handleFileFnMatch = src.match(/async function handleFile[\s\S]*?\n\}/);
-    const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
-
     const evalCode = `
       const window = mockWindow;
-      let currentFile = null;
-      let currentText = "";
-      const dropZone = mockDocument.getElementById("pdf-drop-zone");
-      const progressArea = mockDocument.getElementById("pdf-progress");
-      const progressBar = mockDocument.getElementById("pdf-progress-bar");
-      const progressLabel = mockDocument.getElementById("pdf-progress-label");
-      const resultsArea = mockDocument.getElementById("pdf-results");
-      const textOutput = mockDocument.getElementById("pdf-text-output");
-      const ocrNotice = mockDocument.getElementById("ocr-notice");
-
+      const document = mockDocument;
+      function initDropZone() {}
       function showToast(msg, type) {
         state.toastMessage = msg;
         state.toastType = type;
       }
       function setProgress() {}
 
-      ${extractFnMatch[0]}
-      ${handleFileFnMatch[0]}
+      ${src}
 
       return handleFile;
     `;
@@ -446,29 +420,17 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
 
     global.document = mockDocument;
 
-    const handleFileFnMatch = src.match(/async function handleFile[\s\S]*?\n\}/);
-    const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
-
     const evalCode = `
       const window = mockWindow;
-      let currentFile = null;
-      let currentText = "";
-      const dropZone = mockDocument.getElementById("pdf-drop-zone");
-      const progressArea = mockDocument.getElementById("pdf-progress");
-      const progressBar = mockDocument.getElementById("pdf-progress-bar");
-      const progressLabel = mockDocument.getElementById("pdf-progress-label");
-      const resultsArea = mockDocument.getElementById("pdf-results");
-      const textOutput = mockDocument.getElementById("pdf-text-output");
-      const ocrNotice = mockDocument.getElementById("ocr-notice");
-
+      const document = mockDocument;
+      function initDropZone() {}
       function showToast(msg, type) {
         state.toastMessage = msg;
         state.toastType = type;
       }
       function setProgress() {}
 
-      ${extractFnMatch[0]}
-      ${handleFileFnMatch[0]}
+      ${src}
 
       return handleFile;
     `;

@@ -86,95 +86,120 @@ downloadBtn.addEventListener("click", () => {
   }
 });
 
-async function handleFile(file) {
-  if (
-    file.type !== "application/pdf" &&
-    !file.name.toLowerCase().endsWith(".pdf")
-  ) {
-    showToast("Please upload a PDF file", "error");
-    return;
-  }
-  currentFile = file;
-  currentText = "";
-  textOutput.value = "";
+function showProcessingUI() {
   dropZone.style.display = "none";
   progressArea.style.display = "block";
   resultsArea.classList.add("is-visible");
   resultsArea.style.flexDirection = "column";
   ocrNotice.style.display = "none";
   setProgress(progressBar, progressLabel, 0, "Analyzing PDF...");
+}
+
+function resetProcessingUI() {
+  progressArea.style.display = "none";
+  resultsArea.classList.remove("is-visible");
+  dropZone.style.display = "block";
+}
+
+async function terminateOcrWorker(ocrWorkerPromise) {
+  if (ocrWorkerPromise) {
+    try {
+      const worker = await ocrWorkerPromise;
+      await worker.terminate();
+    } catch (e) {
+      // Ignore termination errors on failure
+    }
+  }
+}
+
+async function processSinglePage(pdfDoc, i, getOcrWorker, pageTexts, tracker) {
+  const page = await pdfDoc.getPage(i);
+  try {
+    const textContent = await page.getTextContent();
+    const { text: finalPageText, usedOcr } = await extractTextFromPage(
+      page,
+      textContent,
+      getOcrWorker
+    );
+
+    if (usedOcr) {
+      ocrNotice.style.display = "block";
+    }
+
+    pageTexts[i - 1] = finalPageText;
+    tracker.completedPages++;
+
+    setProgress(
+      progressBar,
+      progressLabel,
+      (tracker.completedPages / tracker.numPages) * 100,
+      `Extracting text... (${tracker.completedPages} of ${tracker.numPages} pages)`
+    );
+  } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
+  }
+}
+
+async function extractAllPagesText(pdfDoc, getOcrWorker) {
+  const numPages = pdfDoc.numPages;
+  const tracker = { completedPages: 0, numPages };
+  const batchSize = 25;
+  const pageTexts = new Array(numPages);
+
+  for (let start = 1; start <= numPages; start += batchSize) {
+    const batch = [];
+    const end = Math.min(start + batchSize - 1, numPages);
+
+    for (let i = start; i <= end; i++) {
+      batch.push(
+        processSinglePage(pdfDoc, i, getOcrWorker, pageTexts, tracker)
+      );
+    }
+
+    await Promise.all(batch);
+
+    // Update text output progressively
+    currentText = pageTexts.filter((t) => t !== undefined).join("\n\n");
+    textOutput.value = currentText.trim();
+  }
+}
+
+async function handleFile(file) {
+  if (
+    !file ||
+    (file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf"))
+  ) {
+    showToast("Please upload a PDF file", "error");
+    return;
+  }
+
+  currentFile = file;
+  currentText = "";
+  textOutput.value = "";
+  showProcessingUI();
 
   let ocrWorkerPromise = null;
   let pdfDoc = null;
+
+  // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
+  const getOcrWorker = () => {
+    if (!ocrWorkerPromise) {
+      ocrWorkerPromise = window.Tesseract.createWorker("hin+eng");
+    }
+    return ocrWorkerPromise;
+  };
 
   try {
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
     const arrayBuffer = await file.arrayBuffer();
     pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
-    const numPages = pdfDoc.numPages;
 
-    let completedPages = 0;
+    await extractAllPagesText(pdfDoc, getOcrWorker);
 
-    // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
-    const getOcrWorker = () => {
-      if (!ocrWorkerPromise) {
-        ocrWorkerPromise = window.Tesseract.createWorker("hin+eng");
-      }
-      return ocrWorkerPromise;
-    };
-
-    const batchSize = 25;
-    const pageTexts = new Array(numPages);
-
-    for (let start = 1; start <= numPages; start += batchSize) {
-      const batch = [];
-      const end = Math.min(start + batchSize - 1, numPages);
-
-      for (let i = start; i <= end; i++) {
-        batch.push(
-          (async () => {
-            const page = await pdfDoc.getPage(i);
-            try {
-              const textContent = await page.getTextContent();
-              const { text: finalPageText, usedOcr } = await extractTextFromPage(
-                page,
-                textContent,
-                getOcrWorker,
-              );
-
-              if (usedOcr) {
-                ocrNotice.style.display = "block";
-              }
-
-              pageTexts[i - 1] = finalPageText;
-              completedPages++;
-
-              setProgress(
-                progressBar,
-                progressLabel,
-                (completedPages / numPages) * 100,
-                `Extracting text... (${completedPages} of ${numPages} pages)`,
-              );
-            } finally {
-              if (page && typeof page.cleanup === "function") {
-                page.cleanup();
-              }
-            }
-          })(),
-        );
-      }
-
-      await Promise.all(batch);
-
-      // Update text output progressively
-      currentText = pageTexts.filter((t) => t !== undefined).join("\n\n");
-      textOutput.value = currentText.trim();
-    }
-
-    if (ocrWorkerPromise) {
-      const worker = await ocrWorkerPromise;
-      await worker.terminate();
-    }
+    await terminateOcrWorker(ocrWorkerPromise);
 
     setProgress(progressBar, progressLabel, 100, "Extraction complete!");
     setTimeout(() => {
@@ -183,17 +208,8 @@ async function handleFile(file) {
   } catch (error) {
     console.error("Error processing PDF:", error);
     showToast("Failed to process PDF", "error");
-    if (ocrWorkerPromise) {
-      try {
-        const worker = await ocrWorkerPromise;
-        await worker.terminate();
-      } catch (e) {
-        // Ignore termination errors on failure
-      }
-    }
-    progressArea.style.display = "none";
-    resultsArea.classList.remove("is-visible");
-    dropZone.style.display = "block";
+    await terminateOcrWorker(ocrWorkerPromise);
+    resetProcessingUI();
   } finally {
     if (pdfDoc && typeof pdfDoc.destroy === "function") {
       try {
