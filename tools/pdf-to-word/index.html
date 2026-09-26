@@ -329,17 +329,21 @@
           aria-live="polite"
           aria-label="Conversion results"
           id="pdf-results"
-          style="width: 100%"
         >
-          <div class="results-header" style="justify-content: space-between; align-items: center; width: 100%;">
-            <span class="results-title">✓ Conversion complete!</span>
+          <div class="merged-stage-container" id="p2w-stage-container">
+            <div class="merged-sources-grid" id="p2w-sources-grid"></div>
+            <div class="merge-connector-wrapper" id="p2w-connector-wrapper">
+              <svg class="merge-connector-svg" id="p2w-connector-svg"></svg>
+            </div>
+            <div class="merged-master-card" id="p2w-master-card">
+              <div class="merged-master-badge">WORD DOCUMENT READY!</div>
+              <div class="merged-master-preview" id="p2w-master-preview">
+                <div class="merged-master-icon">📝</div>
+              </div>
+              <div class="merged-master-title" id="p2w-master-title">document.docx</div>
+            </div>
           </div>
-
-          <div style="margin: 16px 0; padding: 12px; background: #e8f5e9; border: 2px solid #2e7d32; border-radius: 8px; color: #1b5e20; font-weight: 600;">
-            Your editable Word document (.docx) is ready to download.
-          </div>
-
-          <div class="results-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <div class="results-actions">
             <button class="cta-btn cta-mint" id="pdf-download-btn">
               Download Word Document (.docx)
             </button>
