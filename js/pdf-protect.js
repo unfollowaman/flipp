@@ -15,6 +15,7 @@ const passwordEl = document.getElementById("protect-password");
 const confirmPasswordEl = document.getElementById("protect-password-confirm");
 const togglePwBtn = document.getElementById("protect-toggle-pw");
 
+const masterTitleEl = document.getElementById("protect-master-title");
 const imgClearEl = document.getElementById("protect-img-clear");
 const imgResultLockedEl = document.getElementById("protect-result-img-locked");
 
@@ -38,11 +39,12 @@ async function addFiles(files) {
 
   pdfFile = first;
   protectedBlob = null;
+  if (dropZoneEl) dropZoneEl.style.display = "";
   previewArea.classList.add("is-visible");
   resultsArea.classList.remove("is-visible");
   passwordEl.value = "";
   confirmPasswordEl.value = "";
-  infoEl.textContent = `Selected: ${first.name}`;
+  if (infoEl) infoEl.textContent = `Selected: ${first.name}`;
 
   if (imgClearEl) imgClearEl.src = "";
   if (imgResultLockedEl) imgResultLockedEl.src = "";
@@ -182,7 +184,15 @@ protectBtn.addEventListener("click", async () => {
 
   try {
     protectedBlob = await encryptPdf(pdfFile, password);
+    if (dropZoneEl) dropZoneEl.style.display = "none";
     previewArea.classList.remove("is-visible");
+
+    const baseName = pdfFile.name.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
+    const downloadFilename = `${baseName}-protected.pdf`;
+
+    if (masterTitleEl) masterTitleEl.textContent = pdfFile.name;
+    if (downloadBtn) downloadBtn.textContent = `Download ${downloadFilename}`;
+
     resultsArea.classList.add("is-visible");
     showToast("Protected PDF is ready!");
   } catch (err) {
@@ -206,11 +216,14 @@ downloadBtn.addEventListener("click", () => {
 resetBtn.addEventListener("click", () => {
   pdfFile = null;
   protectedBlob = null;
+  if (dropZoneEl) dropZoneEl.style.display = "";
   previewArea.classList.remove("is-visible");
   resultsArea.classList.remove("is-visible");
-  infoEl.textContent = "";
+  if (infoEl) infoEl.textContent = "";
   passwordEl.value = "";
   confirmPasswordEl.value = "";
+  if (downloadBtn) downloadBtn.textContent = "Download Protected PDF";
+  if (masterTitleEl) masterTitleEl.textContent = "";
   if (imgClearEl) imgClearEl.src = "";
   if (imgResultLockedEl) imgResultLockedEl.src = "";
 });

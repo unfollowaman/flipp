@@ -353,27 +353,21 @@
           aria-label="Conversion results"
           id="protect-results"
         >
-          <div class="protect-result-preview-container">
-            <div class="protect-preview-card protect-result-card">
-              <div class="protect-card-badge protect-badge-locked">Protected PDF</div>
-              <div class="protect-card-frame protect-frame-blurred">
-                <img id="protect-result-img-locked" src="" alt="Protected PDF preview" class="protect-img-blur" />
-                <div class="protect-lock-overlay">
-                  <span class="protect-lock-emoji" role="img" aria-label="Locked">🔒</span>
-                </div>
+          <div class="protect-stage-container" id="protect-stage-container">
+            <div class="protect-master-card" id="protect-master-card">
+              <div class="protect-master-badge">PROTECTED PDF READY!</div>
+              <div class="protect-master-preview" id="protect-master-preview">
+                <div class="protect-master-icon">🔒</div>
               </div>
+              <div class="protect-master-title" id="protect-master-title">protected.pdf</div>
             </div>
           </div>
-
-          <div class="results-header" style="margin-top: 20px;">
-            <span class="results-title">✓ Protected PDF ready!</span>
+          <div class="results-actions">
             <button class="cta-btn cta-mint" id="protect-download-btn">
-              Download protected PDF 🔐
+              Download protected.pdf
             </button>
+            <button class="reset-btn" id="protect-reset-btn">Reset ↺</button>
           </div>
-          <button class="reset-btn" id="protect-reset-btn">
-            Protect another file ↺
-          </button>
         </div>
       </section>
 
