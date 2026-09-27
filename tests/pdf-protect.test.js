@@ -164,25 +164,32 @@ const defaultInstance = createTestInstance();
 const { validatePasswords, addFiles, encryptPdf, getPdfFile, getProtectedBlob } = defaultInstance.exportsObj;
 const { elementMap } = defaultInstance;
 
-test('protect-toggle-pw click toggles password visibility', async (t) => {
+test('protect-toggle-pw click toggles password visibility independently', async (t) => {
   const inst = createTestInstance();
   const toggleBtn = inst.elementMap['protect-toggle-pw'];
+  const toggleConfirmBtn = inst.elementMap['protect-toggle-pw-confirm'];
   const passwordInput = inst.elementMap['protect-password'];
   const confirmInput = inst.elementMap['protect-password-confirm'];
 
   passwordInput.type = 'password';
   confirmInput.type = 'password';
 
-  // First click toggles to text
+  // Toggle main password input
   await toggleBtn.click();
   assert.strictEqual(passwordInput.type, 'text');
-  assert.strictEqual(confirmInput.type, 'text');
+  assert.strictEqual(confirmInput.type, 'password');
   assert.strictEqual(toggleBtn.textContent, '🙈');
 
-  // Second click toggles back to password
+  // Toggle confirm password input independently
+  await toggleConfirmBtn.click();
+  assert.strictEqual(passwordInput.type, 'text');
+  assert.strictEqual(confirmInput.type, 'text');
+  assert.strictEqual(toggleConfirmBtn.textContent, '🙈');
+
+  // Toggle back main password input
   await toggleBtn.click();
   assert.strictEqual(passwordInput.type, 'password');
-  assert.strictEqual(confirmInput.type, 'password');
+  assert.strictEqual(confirmInput.type, 'text');
   assert.strictEqual(toggleBtn.textContent, '🐵');
 });
 
