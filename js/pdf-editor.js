@@ -29,6 +29,9 @@ let uploadedSigSrc = null;
 // Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight }
 const pageMetricsCache = new Map();
 
+// Overlay map cache: pageNum -> overlay DOM element
+const pageOverlayMap = new Map();
+
 // DOM References
 const editorHeader = document.getElementById("editor-header");
 const dropZone = document.getElementById("editor-drop-zone");
@@ -195,6 +198,7 @@ export async function renderAllPages() {
 
   pagesScrollArea.innerHTML = "";
   pageMetricsCache.clear();
+  pageOverlayMap.clear();
 
   const pagePromises = [];
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
@@ -240,6 +244,7 @@ export async function renderAllPages() {
     const overlay = document.createElement("div");
     overlay.className = "pdf-page-overlay";
     overlay.dataset.pageNum = pageNum;
+    pageOverlayMap.set(pageNum, overlay);
 
     const badge = document.createElement("div");
     badge.className = "pdf-page-badge";
@@ -944,15 +949,22 @@ function renderSingleObject(obj, overlay) {
 }
 
 export function renderAllObjects() {
-  const overlays = document.querySelectorAll(".pdf-page-overlay");
-  const overlayMap = new Map();
-  overlays.forEach((overlay) => {
+  if (pageOverlayMap.size === 0) {
+    const overlays = document.querySelectorAll(".pdf-page-overlay");
+    overlays.forEach((overlay) => {
+      const pageNum = parseInt(overlay.dataset.pageNum, 10);
+      if (!isNaN(pageNum)) {
+        pageOverlayMap.set(pageNum, overlay);
+      }
+    });
+  }
+
+  pageOverlayMap.forEach((overlay) => {
     overlay.innerHTML = "";
-    overlayMap.set(parseInt(overlay.dataset.pageNum, 10), overlay);
   });
 
   editorObjects.forEach((obj) => {
-    const overlay = overlayMap.get(obj.pageNum);
+    const overlay = pageOverlayMap.get(obj.pageNum);
     if (!overlay) return;
     renderSingleObject(obj, overlay);
   });
@@ -1609,6 +1621,7 @@ export function resetEditor() {
   pdfBytesOriginal = null;
   numPages = 0;
   currentPageIndex = 1;
+  pageOverlayMap.clear();
   editorObjects = [];
   historyStack = [];
   redoStack = [];
