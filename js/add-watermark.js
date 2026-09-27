@@ -46,6 +46,7 @@ const convertBtn = document.getElementById("wm-convert-btn");
 const downloadBtn = document.getElementById("wm-download-btn");
 const resetBtn = document.getElementById("wm-reset-btn");
 const loadingOverlay = document.getElementById("wm-loading-overlay");
+const masterTitle = document.getElementById("wm-master-title");
 
 const prevPageBtn = document.getElementById("wm-prev-page");
 const nextPageBtn = document.getElementById("wm-next-page");
@@ -916,6 +917,11 @@ convertBtn.addEventListener("click", async () => {
 
     processedPdfBytes = await pdfDoc.save();
 
+    const safeFileName = fileName.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
+    const outputName = `${safeFileName}-watermarked.pdf`;
+    if (masterTitle) masterTitle.textContent = outputName;
+    if (downloadBtn) downloadBtn.textContent = `Download ${outputName}`;
+
     progressArea.style.display = "none";
     resultsArea.classList.add("is-visible");
   } catch (err) {
@@ -976,7 +982,7 @@ downloadBtn.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  const safeFileName = fileName.replace(".pdf", "").replace(/[\/\\]/g, "_");
+  const safeFileName = fileName.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
   a.download = `${safeFileName}-watermarked.pdf`;
   document.body.appendChild(a);
   a.click();
@@ -1017,6 +1023,9 @@ async function resetApp() {
   previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
+
+  if (masterTitle) masterTitle.textContent = "document.pdf";
+  if (downloadBtn) downloadBtn.textContent = "Download Watermarked PDF";
 
   fileInput.value = "";
 }

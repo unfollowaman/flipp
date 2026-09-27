@@ -590,18 +590,26 @@
         <div
           class="results-area"
           aria-live="polite"
-          aria-label="Conversion results"
+          aria-label="Watermark results"
           id="wm-results"
         >
-          <div class="results-header">
-            <span class="results-title">✓ Watermark applied!</span>
+          <div class="watermark-stage-container" id="wm-stage-container">
+            <div class="watermark-master-card" id="wm-master-card">
+              <span class="watermark-master-badge">WATERMARKED PDF READY!</span>
+              <div class="watermark-master-preview" id="wm-master-preview">
+                <span class="watermark-master-icon">🏷️</span>
+              </div>
+              <h3 class="watermark-master-title" id="wm-master-title">document.pdf</h3>
+            </div>
+          </div>
+          <div class="results-actions">
             <button class="cta-btn cta-mint" id="wm-download-btn">
-              Download PDF
+              Download Watermarked PDF
+            </button>
+            <button class="reset-btn" id="wm-reset-btn">
+              Watermark another file ↺
             </button>
           </div>
-          <button class="reset-btn" id="wm-reset-btn">
-            Watermark another file ↺
-          </button>
         </div>
       </section>
 

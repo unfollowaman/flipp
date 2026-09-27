@@ -1240,7 +1240,8 @@ textarea {
 Results ============================== */
 /* ============================== Merged & Protect PDF Final Stage ============================== */
 .merged-stage-container,
-.protect-stage-container {
+.protect-stage-container,
+.watermark-stage-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1347,7 +1348,8 @@ Results ============================== */
 }
 
 .merged-master-card,
-.protect-master-card {
+.protect-master-card,
+.watermark-master-card {
   width: 180px;
   background: var(--cream);
   border: 2px solid var(--black);
@@ -1363,7 +1365,8 @@ Results ============================== */
 }
 
 .merged-master-badge,
-.protect-master-badge {
+.protect-master-badge,
+.watermark-master-badge {
   background: var(--mint);
   color: var(--black);
   font-size: 10px;
@@ -1376,7 +1379,8 @@ Results ============================== */
 }
 
 .merged-master-preview,
-.protect-master-preview {
+.protect-master-preview,
+.watermark-master-preview {
   width: 90px;
   height: 110px;
   background: var(--white);
@@ -1396,12 +1400,14 @@ Results ============================== */
 }
 
 .merged-master-icon,
-.protect-master-icon {
+.protect-master-icon,
+.watermark-master-icon {
   font-size: 36px;
 }
 
 .merged-master-title,
-.protect-master-title {
+.protect-master-title,
+.watermark-master-title {
   font-size: 14px;
   font-weight: 800;
   color: var(--black);
