@@ -221,4 +221,34 @@ test('pdf-merge functionality', async (t) => {
     assert.strictEqual(loadedBytesList[1], mockBuf2);
     assert.strictEqual(toastMessage, 'Merged PDF is ready!');
   });
+
+  await t.test('populates master preview with securely constructed img element upon merge', async () => {
+    const mockPDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          copyPages: async (src, indices) => indices.map((i) => ({ index: i })),
+          addPage: () => {},
+          save: async () => new Uint8Array([1, 2, 3])
+        }),
+        load: async () => ({
+          getPageIndices: () => [0]
+        })
+      }
+    };
+    mockWindow.PDFLib = mockPDFLib;
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: '2.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    await mockMergeClick();
+
+    const masterPreview = mockDocument.getElementById('merged-master-preview');
+    assert.strictEqual(masterPreview.children.length, 1);
+    const img = masterPreview.children[0];
+    assert.strictEqual(img.src, 'data:image/png;base64,mockthumbnail');
+    assert.strictEqual(img.alt, 'Merged PDF preview');
+    assert.strictEqual(img.className, 'merged-master-img');
+  });
 });

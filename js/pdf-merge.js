@@ -231,7 +231,12 @@ function renderFinalStageUI() {
   }
 
   if (masterPreviewEl && pdfItems.length > 0 && pdfItems[0].thumbnailDataUrl) {
-    masterPreviewEl.innerHTML = `<img src="${pdfItems[0].thumbnailDataUrl}" alt="Merged PDF preview" class="merged-master-img" />`;
+    masterPreviewEl.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = pdfItems[0].thumbnailDataUrl;
+    img.alt = "Merged PDF preview";
+    img.className = "merged-master-img";
+    masterPreviewEl.appendChild(img);
   }
 
   setTimeout(updateConnectorLines, 50);
