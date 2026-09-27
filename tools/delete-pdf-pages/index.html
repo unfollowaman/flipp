@@ -142,7 +142,7 @@
             "name": "How do I delete pages from a PDF?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Simply upload your PDF, click the delete icon on the top corner of any page thumbnail you wish to remove, and click 'Download PDF Without Deleted Pages' to save your new document."
+              "text": "Simply upload your PDF, click the delete icon on the top corner of any page thumbnail you wish to remove, and click 'Download PDF' to save your new document."
             }
           },
           {
@@ -325,7 +325,7 @@
               ↩ Undo Delete
             </button>
             <button class="cta-btn cta-pink" id="delete-btn">
-              Download PDF Without Deleted Pages
+              Download PDF
             </button>
           </div>
           <div class="img-reorder-hint">Click ✕ on any page thumbnail to delete it. You can also drag pages to adjust order.</div>
@@ -339,15 +339,23 @@
           aria-label="Page deletion results"
           id="delete-results"
         >
-          <div class="results-header">
-            <span class="results-title">✓ PDF pages deleted!</span>
+          <div class="delete-stage-container" id="delete-stage-container">
+            <div class="delete-master-card" id="delete-master-card">
+              <div class="delete-master-badge">CLEANED PDF READY!</div>
+              <div class="delete-master-preview" id="delete-master-preview">
+                <div class="delete-master-icon">📄</div>
+              </div>
+              <div class="delete-master-title" id="delete-master-title">document.pdf</div>
+            </div>
+          </div>
+          <div class="results-actions">
             <button class="cta-btn cta-mint" id="delete-download-btn">
               Download PDF
             </button>
+            <button class="reset-btn" id="delete-reset-btn">
+              Delete pages from another PDF ↺
+            </button>
           </div>
-          <button class="reset-btn" id="delete-reset-btn">
-            Delete pages from another PDF ↺
-          </button>
         </div>
       </section>
 
@@ -382,7 +390,7 @@
             <div class="tcs-step-body">
               <div class="tcs-step-title">Download your cleaned file</div>
               <div class="tcs-step-desc">
-                Click "Download PDF Without Deleted Pages" to save your updated file. The newly generated PDF will contain only the pages you kept.
+                Click "Download PDF" to save your updated file. The newly generated PDF will contain only the pages you kept.
               </div>
             </div>
           </div>
@@ -478,7 +486,7 @@
               How do I delete pages from a PDF?
             </button>
             <div class="tcs-faq-a">
-              Simply upload your PDF, click the delete icon on the top corner of any page thumbnail you wish to remove, and click "Download PDF Without Deleted Pages" to save your new document.
+              Simply upload your PDF, click the delete icon on the top corner of any page thumbnail you wish to remove, and click "Download PDF" to save your new document.
             </div>
           </div>
           <div class="tcs-faq-item">
