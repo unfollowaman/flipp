@@ -3,7 +3,7 @@ import {
   showToast,
   setProgress,
   setupDragReorder,
-  renderPageToDataUrl,
+  renderPageToCanvas,
 } from "./drag-drop.js";
 import { PageDeleteUndoManager } from "./page-delete-undo.js";
 
@@ -75,7 +75,7 @@ async function loadPdfDocument() {
   return numPages;
 }
 
-function createThumbnailCard(dataUrl, i) {
+function createThumbnailCard(canvasOrDataUrl, i) {
   const card = document.createElement("div");
   card.className = "img-thumb-card";
   card.draggable = true;
@@ -86,11 +86,15 @@ function createThumbnailCard(dataUrl, i) {
   num.textContent = i;
   card.appendChild(num);
 
-  const img = document.createElement("img");
-  img.src = dataUrl;
-  img.loading = "lazy";
-  img.alt = `Page ${i}`;
-  card.appendChild(img);
+  if (canvasOrDataUrl && typeof canvasOrDataUrl !== "string") {
+    card.appendChild(canvasOrDataUrl);
+  } else if (canvasOrDataUrl) {
+    const img = document.createElement("img");
+    img.src = canvasOrDataUrl;
+    img.loading = "lazy";
+    img.alt = `Page ${i}`;
+    card.appendChild(img);
+  }
 
   const lbl = document.createElement("div");
   lbl.className = "img-thumb-label";
@@ -149,9 +153,9 @@ async function renderThumbnails(numPages) {
             page = await pdfDocument.getPage(i);
             const scale = 0.3;
             const viewport = page.getViewport({ scale });
-            const dataUrl = await renderPageToDataUrl(page, viewport);
+            const canvas = await renderPageToCanvas(page, viewport);
 
-            return { dataUrl, i };
+            return { canvas, i };
           } finally {
             if (page && typeof page.cleanup === "function") {
               page.cleanup();
@@ -164,7 +168,7 @@ async function renderThumbnails(numPages) {
     const results = await Promise.all(batchPromises);
 
     for (const res of results) {
-      const card = createThumbnailCard(res.dataUrl, res.i);
+      const card = createThumbnailCard(res.canvas, res.i);
       fragment.appendChild(card);
     }
   }

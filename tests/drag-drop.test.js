@@ -22,6 +22,7 @@ src += `
     setupDragReorder,
     fileToDataUrl,
     triggerDownload,
+    renderPageToCanvas,
     renderPageToDataUrl,
     renderPdfFirstPage,
     getDOMState: () => ({ bodyChildren, allElements, timeouts, revokedUrls }),
@@ -130,7 +131,7 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, triggerDownload, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
+const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, triggerDownload, renderPageToCanvas, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -549,6 +550,28 @@ test('triggerDownload', async (t) => {
 
     // Falsy URL should not trigger URL.revokeObjectURL
     assert.strictEqual(revokedUrls.length, 0);
+  });
+});
+
+test('renderPageToCanvas', async (t) => {
+  await t.test('renders page to canvas and returns canvas element', async () => {
+    let renderCalledWith = null;
+
+    const mockPage = {
+      render: (options) => {
+        renderCalledWith = options;
+        return { promise: Promise.resolve() };
+      }
+    };
+    const mockViewport = { width: 300, height: 400 };
+
+    const canvas = await renderPageToCanvas(mockPage, mockViewport);
+
+    assert.strictEqual(canvas.tag, 'canvas');
+    assert.strictEqual(canvas.width, 300);
+    assert.strictEqual(canvas.height, 400);
+    assert.strictEqual(renderCalledWith.viewport, mockViewport);
+    assert.ok(renderCalledWith.canvasContext);
   });
 });
 

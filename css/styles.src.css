@@ -1166,7 +1166,8 @@ textarea {
 .img-thumb-card.drag-target {
   box-shadow: 0 0 0 3px var(--pink);
 }
-.img-thumb-card img {
+.img-thumb-card img,
+.img-thumb-card canvas {
   width: 100%;
   height: auto;
   object-fit: contain;

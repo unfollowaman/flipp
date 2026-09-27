@@ -65,3 +65,7 @@
 ## 2026-09-29 - Pass HTMLCanvasElement directly to Tesseract worker.recognize to avoid Base64 PNG encoding
 **Learning:** In OCR processing pipelines (such as `js/pdf-to-text.js` and `js/pdf-to-word.js`), converting rendered page `<canvas>` elements to Base64 data URLs via `canvas.toDataURL("image/png")` before calling `worker.recognize(imageData)` causes CPU-intensive main-thread PNG image encoding and multi-megabyte Base64 string memory allocations. Tesseract.js natively accepts `HTMLCanvasElement` directly.
 **Action:** Pass `canvas` directly to `worker.recognize(canvas)` instead of creating intermediate Base64 PNG strings with `canvas.toDataURL("image/png")`.
+
+## 2026-09-30 - Append HTMLCanvasElement directly in page thumbnail cards to eliminate canvas.toDataURL() Base64 encoding
+**Learning:** In multi-page PDF thumbnail rendering workflows (such as `js/delete-pdf-pages.js` and `js/rearrange-pdf.js`), invoking `canvas.toDataURL()` on rendered PDF page canvases to create `<img>` element sources incurs heavy main-thread CPU Base64 PNG encoding and multi-megabyte string memory allocations across pages. Appending `<canvas>` elements directly into `.img-thumb-card` containers eliminates Base64 string creation and decoding completely.
+**Action:** Use `renderPageToCanvas(page, viewport)` to render page thumbnails to `<canvas>` elements and append the canvas directly to thumbnail cards instead of converting canvases to Base64 data URLs.

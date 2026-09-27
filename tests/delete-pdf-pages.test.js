@@ -175,16 +175,13 @@ test('delete-pdf-pages functionality', async (t) => {
     }
   }
 
-  const mockRenderPageToDataUrl = async (page, viewport, type, quality) => {
+  const mockRenderPageToCanvas = async (page, viewport) => {
     const canvas = mockDocument.createElement('canvas');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     const ctx = canvas.getContext('2d');
     await page.render({ canvasContext: ctx, viewport }).promise;
-    const dataUrl = canvas.toDataURL(type, quality);
-    canvas.width = 0;
-    canvas.height = 0;
-    return dataUrl;
+    return canvas;
   };
 
   const wrapper = new Function(
@@ -194,7 +191,7 @@ test('delete-pdf-pages functionality', async (t) => {
     'showToast',
     'setProgress',
     'setupDragReorder',
-    'renderPageToDataUrl',
+    'renderPageToCanvas',
     'Blob',
     'URL',
     'setTimeout',
@@ -222,7 +219,7 @@ test('delete-pdf-pages functionality', async (t) => {
       mockShowToast,
       mockSetProgress,
       mockSetupDragReorder,
-      mockRenderPageToDataUrl,
+      mockRenderPageToCanvas,
       MockBlob,
       mockURL,
       setTimeout
