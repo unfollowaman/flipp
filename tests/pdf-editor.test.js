@@ -942,7 +942,14 @@ test('pdf-editor updateSelectedObjectUI selection toggling', async (t) => {
 
     mockDocument.querySelectorAll = (selector) => {
       if (selector === '.editor-obj') return [el1, el2];
+      if (selector === '.editor-obj.selected') return [el1, el2].filter((el) => el.classList.contains('selected'));
       return [];
+    };
+
+    mockDocument.querySelector = (selector) => {
+      if (selector.includes('data-obj-id="obj_1"')) return el1;
+      if (selector.includes('data-obj-id="obj_2"')) return el2;
+      return null;
     };
 
     // 1. Select obj_1
