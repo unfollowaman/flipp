@@ -65,3 +65,7 @@
 ## 2026-09-29 - Pass HTMLCanvasElement directly to Tesseract worker.recognize to avoid Base64 PNG encoding
 **Learning:** In OCR processing pipelines (such as `js/pdf-to-text.js` and `js/pdf-to-word.js`), converting rendered page `<canvas>` elements to Base64 data URLs via `canvas.toDataURL("image/png")` before calling `worker.recognize(imageData)` causes CPU-intensive main-thread PNG image encoding and multi-megabyte Base64 string memory allocations. Tesseract.js natively accepts `HTMLCanvasElement` directly.
 **Action:** Pass `canvas` directly to `worker.recognize(canvas)` instead of creating intermediate Base64 PNG strings with `canvas.toDataURL("image/png")`.
+
+## 2026-09-30 - Short-circuit text quality heuristics and use zero-allocation RegExp.exec loops
+**Learning:** In text extraction analysis (such as `js/pdf-to-text.js`), unconditionally lowercasing full page strings (`.toLowerCase()`) and running `.match()` for character ranges allocates intermediate strings and array objects for every page.
+**Action:** Short-circuit text quality analysis early using page text length thresholds, and use zero-allocation `RegExp.prototype.exec()` loops with early termination for character and word counting.
