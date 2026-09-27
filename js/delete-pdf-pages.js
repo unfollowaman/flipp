@@ -27,6 +27,7 @@ const deleteBtn = document.getElementById("delete-btn");
 const resultsArea = document.getElementById("delete-results");
 const downloadBtn = document.getElementById("delete-download-btn");
 const resetBtn = document.getElementById("delete-reset-btn");
+const masterTitleEl = document.getElementById("delete-master-title");
 
 if (previewGrid) {
   undoManager = new PageDeleteUndoManager({
@@ -240,6 +241,14 @@ deleteBtn.addEventListener("click", async () => {
 
     const bytes = await outPdf.save();
     cleanedBlob = new Blob([bytes], { type: "application/pdf" });
+
+    const originalName = originalPdfFile ? originalPdfFile.name : "document.pdf";
+    const outputName =
+      originalName.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_") +
+      "-cleaned.pdf";
+
+    if (masterTitleEl) masterTitleEl.textContent = outputName;
+    if (downloadBtn) downloadBtn.textContent = `Download ${outputName}`;
 
     progressArea.style.display = "none";
     resultsArea.classList.add("is-visible");
