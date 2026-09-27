@@ -81,6 +81,7 @@ addBtn.addEventListener("click", async () => {
     let fontSize = 12;
     let margin = 18;
     const textColor = pdfLib.rgb(0.25, 0.25, 0.25);
+    const textWidthCache = new Map();
 
     for (let i = start - 1; i < pages.length; i++) {
       const page = pages[i];
@@ -94,7 +95,12 @@ addBtn.addEventListener("click", async () => {
         lastHeight = height;
       }
 
-      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      const cacheKey = `${text}_${fontSize}`;
+      let textWidth = textWidthCache.get(cacheKey);
+      if (textWidth === undefined) {
+        textWidth = font.widthOfTextAtSize(text, fontSize);
+        textWidthCache.set(cacheKey, textWidth);
+      }
 
       let x = width - margin - textWidth;
       let y = margin;

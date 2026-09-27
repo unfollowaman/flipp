@@ -69,3 +69,7 @@
 ## 2026-09-30 - Short-circuit text quality heuristics and use zero-allocation RegExp.exec loops
 **Learning:** In text extraction analysis (such as `js/pdf-to-text.js`), unconditionally lowercasing full page strings (`.toLowerCase()`) and running `.match()` for character ranges allocates intermediate strings and array objects for every page.
 **Action:** Short-circuit text quality analysis early using page text length thresholds, and use zero-allocation `RegExp.prototype.exec()` loops with early termination for character and word counting.
+
+## 2026-10-01 - Cache PDF-lib font text width measurements across page numbering iterations
+**Learning:** In multi-page PDF page numbering workflows (such as `js/pdf-page-numbers.js`), invoking `font.widthOfTextAtSize(text, fontSize)` on every page loop iteration triggers repeated Fontkit font layout parsing and glyph metrics calculations in pdf-lib.
+**Action:** Cache calculated font text widths in a local `Map` keyed by `${text}_${fontSize}` within the page numbering action scope to reuse measurements across pages.
