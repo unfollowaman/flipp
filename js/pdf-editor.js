@@ -474,13 +474,19 @@ function applyPropChangesToSelected() {
 // ── Overlay Events & Object Creation ────────────────────────────────
 
 export function updateSelectedObjectUI() {
-  document.querySelectorAll(".editor-obj").forEach((node) => {
-    if (node.dataset.objId === selectedObjId) {
-      node.classList.add("selected");
-    } else {
+  document.querySelectorAll(".editor-obj.selected").forEach((node) => {
+    if (node.dataset.objId !== selectedObjId) {
       node.classList.remove("selected");
     }
   });
+
+  if (selectedObjId) {
+    const safeId = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(selectedObjId) : selectedObjId;
+    const target = document.querySelector(`.editor-obj[data-obj-id="${safeId}"]`);
+    if (target) {
+      target.classList.add("selected");
+    }
+  }
 }
 
 function createObjectForTool(tool, pageNum, x, y) {
