@@ -1167,3 +1167,104 @@ test('pdf-editor resetEditor cleanup and state nullification', async (t) => {
     assert.strictEqual(drawBtn.getAttribute('aria-pressed'), 'false');
   });
 });
+
+test('pdf-editor applyTextObject detailed assertions', async (t) => {
+  function createMockPage() {
+    return {
+      drawTextCalls: [],
+      drawText(line, opts) {
+        this.drawTextCalls.push({ line, opts });
+      }
+    };
+  }
+
+  const fonts = {
+    fontHelvetica: { name: 'Helvetica' },
+    fontHelveticaBold: { name: 'HelveticaBold' },
+    fontHelveticaOblique: { name: 'HelveticaOblique' }
+  };
+
+  const pdfCoords = { x: 100, y: 200, width: 150, height: 50 };
+  const pageMetrics = { pdfWidth: 600, pageViewport: { width: 300 } }; // scale factor = 2.0
+
+  await t.test('selects fontHelvetica by default when no bold or italic flag is set', () => {
+    const page = createMockPage();
+    const obj = { properties: { text: 'Hello', fontSize: 18, color: '#000000' } };
+
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls.length, 1);
+    assert.strictEqual(page.drawTextCalls[0].opts.font.name, 'Helvetica');
+  });
+
+  await t.test('selects fontHelveticaBold when bold property is true', () => {
+    const page = createMockPage();
+    const obj = { properties: { text: 'Bold Text', fontSize: 18, bold: true } };
+
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls.length, 1);
+    assert.strictEqual(page.drawTextCalls[0].opts.font.name, 'HelveticaBold');
+  });
+
+  await t.test('selects fontHelveticaOblique when italic property is true and bold is false', () => {
+    const page = createMockPage();
+    const obj = { properties: { text: 'Italic Text', fontSize: 18, italic: true } };
+
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls.length, 1);
+    assert.strictEqual(page.drawTextCalls[0].opts.font.name, 'HelveticaOblique');
+  });
+
+  await t.test('scales font size accurately based on page metrics ratio', () => {
+    const page = createMockPage();
+    const obj = { properties: { text: 'Scaled Size', fontSize: 20 } };
+
+    // scale factor = 600 / 300 = 2.0 -> scaled font size = 20 * 2.0 = 40
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls[0].opts.size, 40);
+  });
+
+  await t.test('calculates correct y coordinates and offsets for multi-line text', () => {
+    const page = createMockPage();
+    const obj = { properties: { text: 'Line 1\nLine 2\nLine 3', fontSize: 10 } };
+    // scale factor = 2.0 -> size = 20
+    // pdfCoords: y = 200, height = 50
+    // line 0 y = 200 + 50 - 20 * 1.1 * 1 = 228
+    // line 1 y = 200 + 50 - 20 * 1.1 * 2 = 206
+    // line 2 y = 200 + 50 - 20 * 1.1 * 3 = 184
+
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls.length, 3);
+
+    assert.strictEqual(page.drawTextCalls[0].line, 'Line 1');
+    assert.strictEqual(page.drawTextCalls[0].opts.x, 100);
+    assert.strictEqual(page.drawTextCalls[0].opts.y, 228);
+
+    assert.strictEqual(page.drawTextCalls[1].line, 'Line 2');
+    assert.strictEqual(page.drawTextCalls[1].opts.x, 100);
+    assert.strictEqual(page.drawTextCalls[1].opts.y, 206);
+
+    assert.strictEqual(page.drawTextCalls[2].line, 'Line 3');
+    assert.strictEqual(page.drawTextCalls[2].opts.x, 100);
+    assert.strictEqual(page.drawTextCalls[2].opts.y, 184);
+  });
+
+  await t.test('handles empty properties gracefully with default fallback values', () => {
+    const page = createMockPage();
+    const obj = { properties: {} };
+
+    editorModule.applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
+
+    assert.strictEqual(page.drawTextCalls.length, 1);
+    assert.strictEqual(page.drawTextCalls[0].line, '');
+    // default fontSize = 18 -> scaled size = 36
+    assert.strictEqual(page.drawTextCalls[0].opts.size, 36);
+    // default color hex = "#000000" -> rgb(0, 0, 0)
+    assert.deepStrictEqual(page.drawTextCalls[0].opts.color, { r: 0, g: 0, b: 0 });
+    assert.strictEqual(page.drawTextCalls[0].opts.font.name, 'Helvetica');
+  });
+});
