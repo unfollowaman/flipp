@@ -73,3 +73,7 @@
 ## 2026-10-01 - Cache PDF-lib font text width measurements across page numbering iterations
 **Learning:** In multi-page PDF page numbering workflows (such as `js/pdf-page-numbers.js`), invoking `font.widthOfTextAtSize(text, fontSize)` on every page loop iteration triggers repeated Fontkit font layout parsing and glyph metrics calculations in pdf-lib.
 **Action:** Cache calculated font text widths in a local `Map` keyed by `${text}_${fontSize}` within the page numbering action scope to reuse measurements across pages.
+
+## 2026-10-02 - Hoist constant RegExp instances outside text item iteration loops
+**Learning:** In layout reconstruction and text extraction algorithms (such as `js/pdf-to-word.js`), instantiating regular expression literals like `/bold|black|heavy|medium/i` inside loops over page text items allocates thousands of temporary `RegExp` instances during document parsing.
+**Action:** Hoist stateless constant regular expressions to module scope outside text item and line iteration loops to eliminate repeated object allocations per text item.

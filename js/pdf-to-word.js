@@ -105,6 +105,10 @@ export class SmoothProgressController {
   }
 }
 
+const IS_BOLD_REGEX = /bold|black|heavy|medium/i;
+const IS_ITALIC_REGEX = /italic|oblique/i;
+const IS_LIST_REGEX = /^([•\-\*▪]|(\d+|[a-zA-Z])[\.\)])\s+/;
+
 // Coordinate transformation: convert PDF Y (from bottom) to top-down Y
 export function extractPageTextItems(textContent, viewportHeight) {
   if (!textContent || !textContent.items) return [];
@@ -120,8 +124,8 @@ export function extractPageTextItems(textContent, viewportHeight) {
     const width = item.width || (item.str.length * fontSize * 0.5);
     const height = item.height || fontSize;
     const fontName = item.fontName || "";
-    const isBold = /bold|black|heavy|medium/i.test(fontName);
-    const isItalic = /italic|oblique/i.test(fontName);
+    const isBold = IS_BOLD_REGEX.test(fontName);
+    const isItalic = IS_ITALIC_REGEX.test(fontName);
 
     items.push({
       str: item.str,
@@ -319,10 +323,7 @@ function formatParagraphObject(para, pageWidth) {
   }
 
   // List detection
-  let isList = false;
-  if (/^([•\-\*▪]|(\d+|[a-zA-Z])[\.\)])\s+/.test(fullText)) {
-    isList = true;
-  }
+  let isList = IS_LIST_REGEX.test(fullText);
 
   return {
     text: fullText,
