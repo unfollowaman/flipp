@@ -312,11 +312,39 @@ placeBtn.addEventListener("click", () => {
   }
 });
 
+function deselectAllSignatures() {
+  document.querySelectorAll(".signature-overlay.selected").forEach((overlay) => {
+    overlay.classList.remove("selected");
+  });
+}
+
+function selectSignature(overlay) {
+  deselectAllSignatures();
+  overlay.classList.add("selected");
+}
+
+document.addEventListener("click", (e) => {
+  const overlays = document.querySelectorAll(".signature-overlay");
+  if (overlays.length === 0) return;
+
+  const clickedOverlay = e.target.closest(".signature-overlay");
+  const clickedPlaceBtn = e.target.closest("#sign-place-btn");
+
+  if (!clickedOverlay && !clickedPlaceBtn) {
+    deselectAllSignatures();
+  }
+});
+
 function createSignatureOverlay(src) {
   const overlay = document.createElement("div");
   overlay.className = "signature-overlay";
   overlay.dataset.id = `sig-${overlayIdCounter++}`;
   overlay.dataset.page = currentPage; // Remember which page it was placed on
+
+  selectSignature(overlay);
+
+  overlay.addEventListener("mousedown", () => selectSignature(overlay));
+  overlay.addEventListener("touchstart", () => selectSignature(overlay), { passive: true });
 
   const img = document.createElement("img");
   img.src = src;
