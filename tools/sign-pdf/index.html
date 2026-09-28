@@ -214,10 +214,13 @@
       }
       .signature-overlay {
         position: absolute;
-        border: 1px dashed #000;
+        border: 1px dashed transparent;
         cursor: move;
         touch-action: none;
         user-select: none;
+      }
+      .signature-overlay.selected {
+        border-color: #000;
       }
       .signature-overlay img {
         width: 100%;
@@ -235,6 +238,10 @@
         bottom: -8px;
         cursor: se-resize;
         border-radius: 50%;
+        display: none;
+      }
+      .signature-overlay.selected .resize-handle {
+        display: block;
       }
       .delete-handle {
         position: absolute;
@@ -247,12 +254,15 @@
         top: -10px;
         cursor: pointer;
         border-radius: 50%;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
         font-size: 12px;
         font-weight: bold;
         line-height: 1;
+      }
+      .signature-overlay.selected .delete-handle {
+        display: flex;
       }
       #sign-type-preview {
         font-family: "Dancing Script", cursive;

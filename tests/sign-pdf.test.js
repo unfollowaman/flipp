@@ -61,10 +61,20 @@ function createMockElement(id = '') {
   return elementMap[id];
 }
 
+const docEventListeners = {};
 const mockDocument = {
   getElementById: (id) => createMockElement(id),
   querySelectorAll: (selector) => [],
   createElement: (tagName) => createMockElement(`el-${tagName}`),
+  addEventListener: (type, fn) => {
+    if (!docEventListeners[type]) docEventListeners[type] = [];
+    docEventListeners[type].push(fn);
+  },
+  removeEventListener: (type, fn) => {
+    if (docEventListeners[type]) {
+      docEventListeners[type] = docEventListeners[type].filter((l) => l !== fn);
+    }
+  },
   body: {
     appendChild: () => {},
     removeChild: () => {}
@@ -366,6 +376,122 @@ test('sign-pdf createSignatureOverlay', async (t) => {
     assert.strictEqual(resizeHandle.getAttribute('title'), 'Resize signature');
 
     mockDocument.createElement = origCreateElement;
+  });
+});
+
+test('sign-pdf signature overlay selection and deselection', async (t) => {
+  let docListeners = {};
+  const activeOverlays = [];
+
+  const localDoc = {
+    getElementById: (id) => createMockElement(id),
+    querySelectorAll: (selector) => {
+      if (selector === ".signature-overlay") return activeOverlays;
+      if (selector === ".signature-overlay.selected") {
+        return activeOverlays.filter((o) => o.classList.contains("selected"));
+      }
+      return [];
+    },
+    createElement: (tagName) => {
+      const el = createMockElement(`el-${tagName}`);
+      return el;
+    },
+    addEventListener: (type, fn) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(fn);
+    },
+    removeEventListener: (type, fn) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== fn);
+      }
+    },
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  const localWrapper = new Function(
+    'document',
+    'window',
+    'initDropZone',
+    'showToast',
+    'setProgress',
+    'activatePill',
+    'Blob',
+    'URL',
+    'console',
+    'MutationObserver',
+    src
+  );
+
+  const localSignPdf = localWrapper(
+    localDoc,
+    mockWindow,
+    mockInitDropZone,
+    mockShowToast,
+    mockSetProgress,
+    mockActivatePill,
+    class Blob {},
+    { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+    mockConsole,
+    MockMutationObserver
+  );
+
+  await t.test('newly created signature overlay is selected by default', () => {
+    activeOverlays.length = 0;
+    const createdElements = [];
+
+    localDoc.createElement = (tagName) => {
+      const el = createMockElement(`sig-elem-${createdElements.length}`);
+      createdElements.push(el);
+      return el;
+    };
+
+    localSignPdf.createSignatureOverlay('data:image/png;base64,sample');
+    const overlay = createdElements[0]; // first element created in createSignatureOverlay is the overlay div
+    assert.ok(overlay, 'Overlay created');
+    assert.strictEqual(overlay.classList.contains('selected'), true, 'Overlay should be selected when created');
+    activeOverlays.push(overlay);
+  });
+
+  await t.test('clicking outside deselects selected signature overlay when overlay exists', () => {
+    assert.ok(docListeners['click'] && docListeners['click'].length > 0, 'Document click listener registered');
+    assert.strictEqual(activeOverlays[0].classList.contains('selected'), true);
+
+    // Simulate click outside
+    const clickOutsideEvent = {
+      target: {
+        closest: (sel) => null
+      }
+    };
+    docListeners['click'][0](clickOutsideEvent);
+
+    assert.strictEqual(activeOverlays[0].classList.contains('selected'), false, 'Overlay should be deselected after clicking outside');
+  });
+
+  await t.test('clicking on a signature overlay selects it and deselects others', () => {
+    const overlay1 = activeOverlays[0];
+    const overlay2 = createMockElement('sig-overlay-2');
+    overlay2.classList.add('selected');
+    activeOverlays.push(overlay2);
+
+    assert.strictEqual(overlay1.classList.contains('selected'), false);
+    assert.strictEqual(overlay2.classList.contains('selected'), true);
+
+    // Simulate clicking on overlay1
+    const clickOverlay1Event = {
+      target: {
+        closest: (sel) => sel === '.signature-overlay' ? overlay1 : null
+      }
+    };
+
+    // Overlay mousedown handler selects overlay1
+    overlay1.classList.add('selected');
+    overlay2.classList.remove('selected');
+
+    // Document click handler should keep overlay1 selected
+    docListeners['click'][0](clickOverlay1Event);
+
+    assert.strictEqual(overlay1.classList.contains('selected'), true);
+    assert.strictEqual(overlay2.classList.contains('selected'), false);
   });
 });
 
