@@ -184,6 +184,100 @@ test('pdf-page-numbers font caching behavior', async (t) => {
   assert.strictEqual(fetchCallCount, 1, 'Second click should use cached font without additional fetch calls');
 });
 
+test('pdf-page-numbers text width calculation caching', async (t) => {
+  let mockAddClick;
+  let addFilesCallback;
+  let widthOfTextAtSizeCallCount = 0;
+
+  const createMockElement = (id = '') => {
+    const el = {
+      id,
+      value: '1',
+      style: { display: '' },
+      dataset: { value: '' },
+      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
+      appendChild: () => {},
+      closest: () => null,
+      innerHTML: '',
+      textContent: '',
+      addEventListener: (event, handler) => {
+        if (id === 'number-btn' && event === 'click') {
+          mockAddClick = handler;
+        }
+      },
+      querySelector: () => createMockElement(),
+      querySelectorAll: () => [],
+      getAttribute: () => null,
+      setAttribute: () => {},
+      removeAttribute: () => {}
+    };
+    return el;
+  };
+
+  const mockDocument = {
+    getElementById: createMockElement,
+    createElement: () => createMockElement()
+  };
+
+  const mockPage1 = {
+    getSize: () => ({ width: 600, height: 800 }),
+    drawText: () => {}
+  };
+  const mockPage2 = {
+    getSize: () => ({ width: 600, height: 800 }),
+    drawText: () => {}
+  };
+
+  const mockFont = {
+    widthOfTextAtSize: (text, fontSize) => {
+      widthOfTextAtSizeCallCount++;
+      return 10;
+    }
+  };
+
+  const mockPdfDoc = {
+    registerFontkit: () => {},
+    embedFont: async () => mockFont,
+    getPages: () => [mockPage1, mockPage2],
+    save: async () => new Uint8Array([1, 2, 3])
+  };
+
+  const mockWindow = {
+    fontkit: {},
+    PDFLib: {
+      PDFDocument: {
+        load: async () => mockPdfDoc
+      },
+      rgb: () => ({})
+    }
+  };
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'fetch', src);
+
+  wrapper(
+    mockDocument,
+    mockWindow,
+    (dz, fi, cb) => { addFilesCallback = cb; },
+    () => {},
+    class Blob {},
+    { createObjectURL: () => '', revokeObjectURL: () => '' },
+    async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(16) })
+  );
+
+  addFilesCallback([
+    { type: 'application/pdf', name: 'document.pdf', arrayBuffer: async () => new ArrayBuffer(0) }
+  ]);
+
+  await mockAddClick();
+
+  // For a 2-page document starting at page 1, page numbers are "1" and "2" (each unique text).
+  // Thus widthOfTextAtSize should be called 2 times.
+  assert.strictEqual(widthOfTextAtSizeCallCount, 2, 'Should call widthOfTextAtSize once per unique text');
+
+  // When running on a 2-page document ("1" and "2"), calls = 2
+  assert.strictEqual(widthOfTextAtSizeCallCount, 2, 'Should call widthOfTextAtSize once per unique page number string');
+});
+
 test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
   let positionClickCallback;
   let resetClickCallback;
