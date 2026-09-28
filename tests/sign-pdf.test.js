@@ -666,3 +666,49 @@ test('sign-pdf makeDraggableAndResizable interactions', async (t) => {
     mockDocument.removeEventListener = origDocRemoveListener;
   });
 });
+
+test('sign-pdf and edit-pdf option pills ARIA radiogroup attributes', async (t) => {
+  await t.test('tools/sign-pdf/index.html uses role="radiogroup" and role="radio" on option pill groups', () => {
+    const htmlPath = path.join(__dirname, '../tools/sign-pdf/index.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+
+    assert.match(html, /id="sign-mode-pills"[^>]*role="radiogroup"/);
+    assert.match(html, /id="sign-color-pills"[^>]*role="radiogroup"/);
+
+    const modeMatch = html.match(/id="sign-mode-pills"[\s\S]*?<\/div>/);
+    assert.ok(modeMatch, 'sign-mode-pills block should exist');
+    const modePillButtons = modeMatch[0].match(/<button[^>]*>/g) || [];
+    for (const btn of modePillButtons) {
+      assert.match(btn, /role="radio"/, 'Each button in sign-mode-pills should have role="radio"');
+    }
+
+    const colorMatch = html.match(/id="sign-color-pills"[\s\S]*?<\/div>/);
+    assert.ok(colorMatch, 'sign-color-pills block should exist');
+    const colorPillButtons = colorMatch[0].match(/<button[^>]*>/g) || [];
+    for (const btn of colorPillButtons) {
+      assert.match(btn, /role="radio"/, 'Each button in sign-color-pills should have role="radio"');
+    }
+  });
+
+  await t.test('tools/edit-pdf/index.html uses role="radiogroup" and role="radio" on option pill groups', () => {
+    const htmlPath = path.join(__dirname, '../tools/edit-pdf/index.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+
+    assert.match(html, /id="sig-mode-pills"[^>]*role="radiogroup"/);
+    assert.match(html, /id="sig-color-pills"[^>]*role="radiogroup"/);
+
+    const modeMatch = html.match(/id="sig-mode-pills"[\s\S]*?<\/div>/);
+    assert.ok(modeMatch, 'sig-mode-pills block should exist');
+    const modePillButtons = modeMatch[0].match(/<button[^>]*>/g) || [];
+    for (const btn of modePillButtons) {
+      assert.match(btn, /role="radio"/, 'Each button in sig-mode-pills should have role="radio"');
+    }
+
+    const colorMatch = html.match(/id="sig-color-pills"[\s\S]*?<\/div>/);
+    assert.ok(colorMatch, 'sig-color-pills block should exist');
+    const colorPillButtons = colorMatch[0].match(/<button[^>]*>/g) || [];
+    for (const btn of colorPillButtons) {
+      assert.match(btn, /role="radio"/, 'Each button in sig-color-pills should have role="radio"');
+    }
+  });
+});

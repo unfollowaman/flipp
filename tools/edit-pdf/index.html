@@ -848,17 +848,17 @@
         <div class="editor-modal">
           <div class="editor-modal-title" id="editor-sig-modal-title">Create Signature</div>
 
-          <div class="option-pills" id="sig-mode-pills" role="region" aria-label="Signature mode" style="justify-content: center;">
-            <button class="opt-pill active" data-value="draw" aria-checked="true">Draw</button>
-            <button class="opt-pill" data-value="type" aria-checked="false">Type</button>
-            <button class="opt-pill" data-value="upload" aria-checked="false">Upload</button>
+          <div class="option-pills" id="sig-mode-pills" role="radiogroup" aria-label="Signature mode" style="justify-content: center;">
+            <button class="opt-pill active" data-value="draw" role="radio" aria-checked="true">Draw</button>
+            <button class="opt-pill" data-value="type" role="radio" aria-checked="false">Type</button>
+            <button class="opt-pill" data-value="upload" role="radio" aria-checked="false">Upload</button>
           </div>
 
-          <div class="option-pills" id="sig-color-pills" role="region" aria-label="Signature color" style="justify-content: center;">
-            <button class="opt-pill active color-pill-black" data-value="#000000" aria-checked="true">Black</button>
-            <button class="opt-pill color-pill-blue" data-value="#0000FF" aria-checked="false">Blue</button>
-            <button class="opt-pill color-pill-red" data-value="#FF0000" aria-checked="false">Red</button>
-            <button class="opt-pill color-pill-green" data-value="#008000" aria-checked="false">Green</button>
+          <div class="option-pills" id="sig-color-pills" role="radiogroup" aria-label="Signature color" style="justify-content: center;">
+            <button class="opt-pill active color-pill-black" data-value="#000000" role="radio" aria-checked="true">Black</button>
+            <button class="opt-pill color-pill-blue" data-value="#0000FF" role="radio" aria-checked="false">Blue</button>
+            <button class="opt-pill color-pill-red" data-value="#FF0000" role="radio" aria-checked="false">Red</button>
+            <button class="opt-pill color-pill-green" data-value="#008000" role="radio" aria-checked="false">Green</button>
           </div>
 
           <!-- Draw Mode -->
