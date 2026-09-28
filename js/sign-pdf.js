@@ -537,7 +537,7 @@ function makeResizable(overlay, resizeHandle) {
 
 // Ensure overlays are only visible on their respective pages
 function updateOverlayVisibility() {
-  const overlays = document.querySelectorAll(".signature-overlay");
+  const overlays = canvasContainer.querySelectorAll(".signature-overlay");
   overlays.forEach((overlay) => {
     const page = parseInt(overlay.dataset.page, 10);
     if (page === currentPage) {
