@@ -242,7 +242,9 @@ compressBtn.addEventListener("click", async () => {
               updateProgress(
                 `Compressing page ${completedCount} of ${totalPages}...`,
               );
-              await new Promise((resolve) => setTimeout(resolve, 0));
+              if (completedCount % 5 === 0 || completedCount === totalPages) {
+                await new Promise((resolve) => setTimeout(resolve, 0));
+              }
 
               return {
                 index: j,
