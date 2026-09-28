@@ -73,3 +73,7 @@
 ## 2026-10-01 - Cache PDF-lib font text width measurements across page numbering iterations
 **Learning:** In multi-page PDF page numbering workflows (such as `js/pdf-page-numbers.js`), invoking `font.widthOfTextAtSize(text, fontSize)` on every page loop iteration triggers repeated Fontkit font layout parsing and glyph metrics calculations in pdf-lib.
 **Action:** Cache calculated font text widths in a local `Map` keyed by `${text}_${fontSize}` within the page numbering action scope to reuse measurements across pages.
+
+## 2026-10-02 - Scope DOM element queries in mutation callbacks to specific parent containers
+**Learning:** In interactive tool overlays (such as `js/sign-pdf.js`), calling `document.querySelectorAll(".signature-overlay")` inside `updateOverlayVisibility` (triggered on page changes and DOM mutations via MutationObserver) forces full-document DOM tree traversals.
+**Action:** Scope query selectors to known parent containers (e.g. `canvasContainer.querySelectorAll(".signature-overlay")`) to limit DOM traversal depth.
