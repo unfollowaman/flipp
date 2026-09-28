@@ -14,21 +14,25 @@ const resetBtn = document.getElementById("protect-reset-btn");
 const passwordEl = document.getElementById("protect-password");
 const confirmPasswordEl = document.getElementById("protect-password-confirm");
 const togglePwBtn = document.getElementById("protect-toggle-pw");
+const togglePwConfirmBtn = document.getElementById("protect-toggle-pw-confirm");
 
 const masterTitleEl = document.getElementById("protect-master-title");
 const imgClearEl = document.getElementById("protect-img-clear");
 const imgResultLockedEl = document.getElementById("protect-result-img-locked");
 
-if (togglePwBtn && passwordEl) {
-  togglePwBtn.addEventListener("click", () => {
-    const show = passwordEl.type === "password";
-    passwordEl.type = show ? "text" : "password";
-    if (confirmPasswordEl) confirmPasswordEl.type = show ? "text" : "password";
-    togglePwBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
-    togglePwBtn.title = show ? "Hide password" : "Show password";
-    togglePwBtn.textContent = show ? "🙈" : "🐵";
+function setupPasswordToggle(toggleBtn, inputEl) {
+  if (!toggleBtn || !inputEl) return;
+  toggleBtn.addEventListener("click", () => {
+    const show = inputEl.type === "password";
+    inputEl.type = show ? "text" : "password";
+    toggleBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    toggleBtn.title = show ? "Hide password" : "Show password";
+    toggleBtn.textContent = show ? "🙈" : "🐵";
   });
 }
+
+setupPasswordToggle(togglePwBtn, passwordEl);
+setupPasswordToggle(togglePwConfirmBtn, confirmPasswordEl);
 
 async function addFiles(files) {
   const first = files.find(
