@@ -56,7 +56,8 @@ src += `\nreturn {
   setNumPages: (n) => { numPages = n; },
   getCurrentPageIndex: () => currentPageIndex,
   setCurrentPageIndex: (idx) => { currentPageIndex = idx; },
-  getRevokedUrls: () => revokedUrls
+  getRevokedUrls: () => revokedUrls,
+  getPageOverlayMap: () => pageOverlayMap
 };\n`;
 
 const elementMap = {};
@@ -840,6 +841,50 @@ test('pdf-editor renderAllPages performance', async (t) => {
 
     console.log(`renderAllPages duration for 10 pages: ${duration.toFixed(2)}ms`);
     assert.ok(duration < 200, `Expected duration to be reasonable, got ${duration}ms`);
+  });
+
+  await t.test('renderAllObjects benchmark over multi-page overlays', async () => {
+    // Setup 100 overlay elements
+    const overlays = [];
+    for (let pageNum = 1; pageNum <= 100; pageNum++) {
+      const overlay = createMockElement();
+      overlay.dataset.pageNum = String(pageNum);
+      overlays.push(overlay);
+    }
+
+    const prevQuerySelectorAll = mockDocument.querySelectorAll;
+    mockDocument.querySelectorAll = (selector) => {
+      if (selector === '.pdf-page-overlay') return overlays;
+      return [];
+    };
+
+    // Setup 100 editor objects
+    const testObjects = [];
+    for (let i = 1; i <= 100; i++) {
+      testObjects.push({
+        id: `obj_${i}`,
+        type: 'text',
+        pageNum: (i % 100) + 1,
+        x: 10,
+        y: 10,
+        width: 100,
+        height: 30,
+        properties: { text: `Text ${i}`, fontSize: 14 }
+      });
+    }
+    editorModule.setEditorObjects(testObjects);
+
+    const iterations = 2000;
+    const start = performance.now();
+    for (let i = 0; i < iterations; i++) {
+      editorModule.renderAllObjects();
+    }
+    const end = performance.now();
+    const duration = end - start;
+    console.log(`renderAllObjects duration for ${iterations} iterations (100 pages, 100 objects): ${duration.toFixed(2)}ms`);
+
+    mockDocument.querySelectorAll = prevQuerySelectorAll;
+    assert.ok(duration < 5000, `Expected benchmark to run quickly, took ${duration}ms`);
   });
 });
 
