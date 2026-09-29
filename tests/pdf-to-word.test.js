@@ -40,10 +40,14 @@ const fn = new Function(`
     if (barEl) barEl.style.width = value + "%";
     if (labelEl) labelEl.textContent = label;
   }
+  const lastToast = { message: null, type: null };
   function initDropZone(zone, input, onFiles) {
     zone._onFiles = onFiles;
   }
-  function showToast() {}
+  function showToast(msg, type) {
+    lastToast.message = msg;
+    lastToast.type = type;
+  }
   function triggerDownload() {}
 
   return {
@@ -62,6 +66,7 @@ const fn = new Function(`
     generateDocxBlobFromPdfData,
     getPdfToWordElements,
     createPdfToWordState,
+    handleFileSelected,
     setConfigurationControlsDisabled,
     loadPdfDocument,
     cleanupOcrWorker,
@@ -70,6 +75,7 @@ const fn = new Function(`
     handleConversionError,
     initPdfToWordUI,
     elementsMap,
+    lastToast,
     window
   };
 `);
@@ -613,5 +619,103 @@ describe("pdf-to-word unit and integration tests", () => {
 
     assert.strictEqual(masterTitle.textContent, "my_report.docx");
     assert.notStrictEqual(sourcesGrid.innerHTML, undefined);
+  });
+
+  describe("handleFileSelected", () => {
+    it("rejects non-PDF files and shows error toast without updating state", () => {
+      pdfToWordModule.lastToast.message = null;
+      pdfToWordModule.lastToast.type = null;
+
+      const state = pdfToWordModule.createPdfToWordState();
+      const mockElements = {
+        dropZone: { style: {} }
+      };
+
+      const invalidFile = { name: "image.png", type: "image/png", size: 1024 };
+
+      pdfToWordModule.handleFileSelected(invalidFile, mockElements, state);
+
+      assert.strictEqual(state.currentFile, null);
+      assert.strictEqual(pdfToWordModule.lastToast.message, "Please upload a PDF file");
+      assert.strictEqual(pdfToWordModule.lastToast.type, "error");
+      assert.notStrictEqual(mockElements.dropZone.style.display, "none");
+    });
+
+    it("accepts valid PDF file by mime type or extension and updates state and UI", () => {
+      let stoppedController = false;
+      const state = {
+        currentFile: null,
+        generatedBlob: { size: 500 },
+        progressController: {
+          stop: () => { stoppedController = true; }
+        }
+      };
+
+      const removedClasses = [];
+      const mockElements = {
+        dropZone: { style: {} },
+        optionsArea: { style: {} },
+        progressArea: { style: {} },
+        resultsArea: {
+          classList: {
+            remove: (cls) => removedClasses.push(cls)
+          }
+        },
+        fileInfo: { textContent: "" },
+        modeSelect: { disabled: true },
+        languageSelect: { disabled: true },
+        convertBtn: { disabled: true }
+      };
+
+      const pdfFile = { name: "document.pdf", type: "application/pdf", size: 2048 };
+
+      pdfToWordModule.handleFileSelected(pdfFile, mockElements, state);
+
+      assert.strictEqual(state.currentFile, pdfFile);
+      assert.strictEqual(state.generatedBlob, null);
+      assert.strictEqual(stoppedController, true);
+
+      assert.strictEqual(mockElements.dropZone.style.display, "none");
+      assert.strictEqual(mockElements.optionsArea.style.display, "block");
+      assert.strictEqual(mockElements.progressArea.style.display, "none");
+      assert.ok(removedClasses.includes("is-visible"));
+      assert.strictEqual(mockElements.fileInfo.textContent, "Selected PDF: document.pdf (2 KB)");
+
+      assert.strictEqual(mockElements.modeSelect.disabled, false);
+      assert.strictEqual(mockElements.languageSelect.disabled, false);
+      assert.strictEqual(mockElements.convertBtn.disabled, false);
+    });
+
+    it("accepts file with uppercase .PDF extension even if type is not application/pdf", () => {
+      const state = pdfToWordModule.createPdfToWordState();
+      const mockElements = {
+        dropZone: { style: {} },
+        optionsArea: { style: {} }
+      };
+
+      const upperPdfFile = { name: "REPORT.PDF", type: "", size: 1024 };
+
+      pdfToWordModule.handleFileSelected(upperPdfFile, mockElements, state);
+
+      assert.strictEqual(state.currentFile, upperPdfFile);
+      assert.strictEqual(mockElements.dropZone.style.display, "none");
+      assert.strictEqual(mockElements.optionsArea.style.display, "block");
+    });
+
+    it("handles missing optional UI elements gracefully without throwing errors", () => {
+      const state = pdfToWordModule.createPdfToWordState();
+      const minimalElements = {
+        dropZone: { style: {} }
+      };
+
+      const pdfFile = { name: "test.pdf", type: "application/pdf", size: 512 };
+
+      assert.doesNotThrow(() => {
+        pdfToWordModule.handleFileSelected(pdfFile, minimalElements, state);
+      });
+
+      assert.strictEqual(state.currentFile, pdfFile);
+      assert.strictEqual(minimalElements.dropZone.style.display, "none");
+    });
   });
 });
