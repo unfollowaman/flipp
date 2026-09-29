@@ -37,7 +37,7 @@ const modeCards = document.querySelectorAll
  * @template T, R
  * @param {T[]} items
  * @param {number} limit
- * @param {(item: T, index: number) => Promise<R>} fn
+ * @param {(item: T, index: number, workerIndex: number) => Promise<R>} fn
  * @returns {Promise<R[]>}
  */
 export async function mapConcurrent(items, limit, fn) {
@@ -45,17 +45,17 @@ export async function mapConcurrent(items, limit, fn) {
   const results = new Array(items.length);
   let index = 0;
 
-  async function worker() {
+  async function worker(workerIndex) {
     while (index < items.length) {
       const currentIndex = index++;
-      results[currentIndex] = await fn(items[currentIndex], currentIndex);
+      results[currentIndex] = await fn(items[currentIndex], currentIndex, workerIndex);
     }
   }
 
   const workerCount = Math.min(limit, items.length);
   const workers = new Array(workerCount);
   for (let i = 0; i < workerCount; i++) {
-    workers[i] = worker();
+    workers[i] = worker(i);
   }
 
   await Promise.all(workers);
@@ -210,55 +210,68 @@ compressBtn.addEventListener("click", async () => {
         const concurrencyLimit = 5;
         const pageIndices = Array.from({ length: totalPages }, (_, i) => i + 1);
         let completedCount = 0;
+        const canvasPool = [];
 
-        const results = await mapConcurrent(
-          pageIndices,
-          concurrencyLimit,
-          async (j) => {
-            const page = await pdfjsDoc.getPage(j);
-            try {
-              const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
+        let results;
+        try {
+          results = await mapConcurrent(
+            pageIndices,
+            concurrencyLimit,
+            async (j, _, workerIndex) => {
+              const page = await pdfjsDoc.getPage(j);
+              try {
+                const viewport = page.getViewport({ scale: 1.5 }); // Lower scale for better compression, 1.5 is a good balance
 
-              const canvas = document.createElement("canvas");
-              const context = canvas.getContext("2d");
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
+                if (!canvasPool[workerIndex]) {
+                  const canvas = document.createElement("canvas");
+                  canvasPool[workerIndex] = {
+                    canvas,
+                    context: canvas.getContext("2d"),
+                  };
+                }
+                const { canvas, context } = canvasPool[workerIndex];
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-              const renderContext = {
-                canvasContext: context,
-                viewport: viewport,
-              };
+                const renderContext = {
+                  canvasContext: context,
+                  viewport: viewport,
+                };
 
-              await page.render(renderContext).promise;
+                await page.render(renderContext).promise;
 
-              // Compress canvas as jpeg
-              const imgData = canvas.toDataURL("image/jpeg", 0.7);
+                // Compress canvas as jpeg
+                const imgData = canvas.toDataURL("image/jpeg", 0.7);
 
-              // Immediately release canvas
-              canvas.width = 0;
-              canvas.height = 0;
+                completedCount++;
+                updateProgress(
+                  `Compressing page ${completedCount} of ${totalPages}...`,
+                );
+                if (completedCount % 5 === 0 || completedCount === totalPages) {
+                  await new Promise((resolve) => setTimeout(resolve, 0));
+                }
 
-              completedCount++;
-              updateProgress(
-                `Compressing page ${completedCount} of ${totalPages}...`,
-              );
-              if (completedCount % 5 === 0 || completedCount === totalPages) {
-                await new Promise((resolve) => setTimeout(resolve, 0));
+                return {
+                  index: j,
+                  imgData,
+                  width: viewport.width,
+                  height: viewport.height,
+                };
+              } finally {
+                if (page && typeof page.cleanup === "function") {
+                  page.cleanup();
+                }
               }
-
-              return {
-                index: j,
-                imgData,
-                width: viewport.width,
-                height: viewport.height,
-              };
-            } finally {
-              if (page && typeof page.cleanup === "function") {
-                page.cleanup();
-              }
+            },
+          );
+        } finally {
+          for (const poolItem of canvasPool) {
+            if (poolItem && poolItem.canvas) {
+              poolItem.canvas.width = 0;
+              poolItem.canvas.height = 0;
             }
-          },
-        );
+          }
+        }
 
         for (const res of results) {
           // Resize jsPDF page to match viewport dimensions
