@@ -503,3 +503,91 @@ test('pdf-compress UI redesign updates', async (t) => {
     assert.strictEqual(localElementMap['compress-download-filename'].textContent, 'sample-compressed.pdf');
   });
 });
+
+test('pdf-compress mode cards accessibility attributes and interaction', async (t) => {
+  await t.test('tools/compress-pdf/index.html contains radiogroup and radio attributes', () => {
+    const htmlPath = path.join(__dirname, '../tools/compress-pdf/index.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+
+    assert.ok(html.includes('role="radiogroup"'), 'mode cards container should have role="radiogroup"');
+    assert.ok(html.includes('aria-label="Compression mode"'), 'mode cards container should have aria-label');
+    assert.ok(html.includes('role="radio"'), 'mode cards should have role="radio"');
+    assert.ok(html.includes('aria-checked="true"'), 'selected mode card should have aria-checked="true"');
+    assert.ok(html.includes('aria-checked="false"'), 'unselected mode card should have aria-checked="false"');
+  });
+
+  await t.test('clicking mode cards synchronizes aria-checked attributes', () => {
+    const cards = [
+      {
+        dataset: { mode: 'recommended' },
+        classList: {
+          add: function(cls) { if (cls === 'selected') this.selected = true; },
+          remove: function(cls) { if (cls === 'selected') this.selected = false; },
+          selected: true
+        },
+        attributes: { 'aria-checked': 'true' },
+        setAttribute: function(k, v) { this.attributes[k] = String(v); },
+        listeners: {},
+        addEventListener: function(evt, handler) { this.listeners[evt] = handler; },
+        click: function() { if (this.listeners['click']) this.listeners['click'](); }
+      },
+      {
+        dataset: { mode: 'maximum' },
+        classList: {
+          add: function(cls) { if (cls === 'selected') this.selected = true; },
+          remove: function(cls) { if (cls === 'selected') this.selected = false; },
+          selected: false
+        },
+        attributes: { 'aria-checked': 'false' },
+        setAttribute: function(k, v) { this.attributes[k] = String(v); },
+        listeners: {},
+        addEventListener: function(evt, handler) { this.listeners[evt] = handler; },
+        click: function() { if (this.listeners['click']) this.listeners['click'](); }
+      }
+    ];
+
+    const mockDocumentLocal = {
+      getElementById: () => ({ addEventListener: () => {}, style: {}, classList: { add: () => {}, remove: () => {} }, value: '' }),
+      getElementsByName: () => [],
+      querySelectorAll: (sel) => (sel === '.compress-mode-card' ? cards : []),
+      querySelector: (sel) => {
+        if (sel.includes('[data-mode="recommended"]')) return cards[0];
+        return null;
+      },
+      createElement: () => ({ addEventListener: () => {} }),
+      createTextNode: (t) => ({ textContent: t })
+    };
+
+    let localSrc = fs.readFileSync(srcPath, 'utf8');
+    localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+    localSrc = localSrc.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
+
+    const localWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'Blob',
+      'URL',
+      localSrc
+    );
+
+    localWrapper(
+      mockDocumentLocal,
+      {},
+      () => {},
+      () => {},
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' }
+    );
+
+    // Initial state
+    assert.strictEqual(cards[0].attributes['aria-checked'], 'true');
+    assert.strictEqual(cards[1].attributes['aria-checked'], 'false');
+
+    // Click maximum card
+    cards[1].click();
+    assert.strictEqual(cards[0].attributes['aria-checked'], 'false');
+    assert.strictEqual(cards[1].attributes['aria-checked'], 'true');
+  });
+});

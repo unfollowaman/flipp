@@ -307,11 +307,13 @@
             Compress PDF →
           </button>
 
-          <div class="compress-mode-cards">
+          <div class="compress-mode-cards" role="radiogroup" aria-label="Compression mode">
             <button
               type="button"
               class="compress-mode-card selected"
               data-mode="recommended"
+              role="radio"
+              aria-checked="true"
             >
               <span class="cmc-check">✓</span>
               <span class="cmc-icon" style="background: var(--mint)">🗜️</span>
@@ -325,6 +327,8 @@
               type="button"
               class="compress-mode-card"
               data-mode="maximum"
+              role="radio"
+              aria-checked="false"
             >
               <span class="cmc-check">✓</span>
               <span class="cmc-icon" style="background: var(--pink)">📉</span>
