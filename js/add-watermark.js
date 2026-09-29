@@ -408,8 +408,8 @@ function drawTextWatermarkOnCanvas(ctx, width, height, config, rotationRad) {
 
 function drawImageWatermarkOnCanvas(ctx, width, height, config, rotationRad) {
   if (!uploadedImageURL) return null;
-  const img = document.getElementById("wm-image-preview");
-  if (!img.complete || img.naturalWidth === 0) return null;
+  const img = imagePreview;
+  if (!img || !img.complete || img.naturalWidth === 0) return null;
 
   const imgWidth = img.naturalWidth * config.scale;
   const imgHeight = img.naturalHeight * config.scale;
@@ -506,10 +506,9 @@ previewCanvas.addEventListener("pointerdown", (e) => {
     itemW = ctx.measureText(config.text || " ").width;
     itemH = config.fontSize * 1.5;
   } else {
-    const img = document.getElementById("wm-image-preview");
-    if (img && img.complete && img.naturalWidth > 0) {
-      itemW = img.naturalWidth * config.scale;
-      itemH = img.naturalHeight * config.scale;
+    if (imagePreview && imagePreview.complete && imagePreview.naturalWidth > 0) {
+      itemW = imagePreview.naturalWidth * config.scale;
+      itemH = imagePreview.naturalHeight * config.scale;
     }
   }
 
