@@ -61,6 +61,7 @@ const fn = new Function(`
     createDocxElementsFromPageData,
     generateDocxBlobFromPdfData,
     createPdfToWordState,
+    setConfigurationControlsDisabled,
     loadPdfDocument,
     cleanupOcrWorker,
     extractPdfPagesData,
@@ -506,6 +507,36 @@ describe("pdf-to-word unit and integration tests", () => {
     await pdfToWordModule.cleanupOcrWorker(state);
     assert.strictEqual(terminated, true);
     assert.strictEqual(state.ocrWorkerPromise, null);
+  });
+
+  it("setConfigurationControlsDisabled updates disabled states on configuration controls or handles null controls", () => {
+    // Edge case: null or undefined controls
+    assert.doesNotThrow(() => pdfToWordModule.setConfigurationControlsDisabled(null, true));
+    assert.doesNotThrow(() => pdfToWordModule.setConfigurationControlsDisabled(undefined, false));
+
+    // Full controls object: disable = true
+    const mockControls = {
+      modeSelect: { disabled: false },
+      languageSelect: { disabled: false },
+      convertBtn: { disabled: false }
+    };
+    pdfToWordModule.setConfigurationControlsDisabled(mockControls, true);
+    assert.strictEqual(mockControls.modeSelect.disabled, true);
+    assert.strictEqual(mockControls.languageSelect.disabled, true);
+    assert.strictEqual(mockControls.convertBtn.disabled, true);
+
+    // Full controls object: disable = false
+    pdfToWordModule.setConfigurationControlsDisabled(mockControls, false);
+    assert.strictEqual(mockControls.modeSelect.disabled, false);
+    assert.strictEqual(mockControls.languageSelect.disabled, false);
+    assert.strictEqual(mockControls.convertBtn.disabled, false);
+
+    // Partial controls object: missing some elements
+    const partialControls = {
+      modeSelect: { disabled: false }
+    };
+    assert.doesNotThrow(() => pdfToWordModule.setConfigurationControlsDisabled(partialControls, true));
+    assert.strictEqual(partialControls.modeSelect.disabled, true);
   });
 
   it("showConversionSuccessUI populates source card and word master title", async () => {
