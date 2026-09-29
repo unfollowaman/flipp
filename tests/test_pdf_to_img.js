@@ -178,6 +178,14 @@ describe('pdf-to-img format and resolution handling', () => {
     assert.ok(code.includes('const ext = imageFormat === "jpg" ? "jpg" : "png";'), 'Handles dynamic file extension');
     assert.ok(code.includes('`page-${String(pageNum).padStart(3, "0")}.${ext}`'), 'Uses dynamic extension for filenames');
   });
+
+  test('batches yield to UI every 5 pages or on final page', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    assert.ok(
+      code.includes('if (completedCount % 5 === 0 || completedCount === pages.length)'),
+      'Yields to UI periodically (every 5 pages) or on final page'
+    );
+  });
 });
 
 describe('loadPDF error handling and validation', () => {
