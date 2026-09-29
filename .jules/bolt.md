@@ -77,3 +77,7 @@
 ## 2026-10-02 - Hoist constant RegExp instances outside text item iteration loops
 **Learning:** In layout reconstruction and text extraction algorithms (such as `js/pdf-to-word.js`), instantiating regular expression literals like `/bold|black|heavy|medium/i` inside loops over page text items allocates thousands of temporary `RegExp` instances during document parsing.
 **Action:** Hoist stateless constant regular expressions to module scope outside text item and line iteration loops to eliminate repeated object allocations per text item.
+
+## 2026-10-03 - Hoist global config extraction outside page iteration loops in PDF watermark generation
+**Learning:** In multi-page PDF document processing workflows (such as `js/add-watermark.js`), querying global UI DOM elements (`textInput`, `colorInput`, `opacityInput`, `rotationInput`, `positionSelect`, `fontSizeInput`, `scaleInput`) inside per-page iteration loops executes redundant DOM tree accesses and property parses on every page.
+**Action:** Extract a base global configuration object once outside document page iteration loops, pass it to page configuration resolvers (e.g. `getPageConfig(pageNum, baseGlobalConfig)`), and merge page-specific overrides onto the cached global configuration.

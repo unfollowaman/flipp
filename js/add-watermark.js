@@ -293,8 +293,8 @@ async function renderPreviewForPage(page, viewport) {
   drawWatermarkOnCanvas(ctx, viewport.width, viewport.height, config);
 }
 
-export function getPageConfig(pageNum) {
-  const globalConfig = {
+export function getPageConfig(pageNum, baseGlobalConfig) {
+  const globalConfig = baseGlobalConfig || {
     mode: currentMode,
     text: textInput.value,
     color: colorInput.value,
@@ -798,6 +798,19 @@ convertBtn.addEventListener("click", async () => {
       return textDimensionCache.get(cacheKey);
     };
 
+    const baseGlobalConfig = {
+      mode: currentMode,
+      text: textInput.value,
+      color: colorInput.value,
+      opacity: parseInt(opacityInput.value) / 100,
+      rotation: parseInt(rotationInput.value),
+      position: globalWatermarkConfig.position || positionSelect.value,
+      fontSize: parseInt(fontSizeInput.value),
+      scale: parseFloat(scaleInput.value),
+      customX: globalWatermarkConfig.customX,
+      customY: globalWatermarkConfig.customY,
+    };
+
     for (let i = 0; i < pdfNumPages; i++) {
       const pageNum = i + 1;
       setProgress(
@@ -809,7 +822,7 @@ convertBtn.addEventListener("click", async () => {
 
       const page = pages[i];
       const { width, height } = page.getSize();
-      const pageConfig = getPageConfig(pageNum);
+      const pageConfig = getPageConfig(pageNum, baseGlobalConfig);
 
       const opacity = pageConfig.opacity;
       const rotationDeg = pageConfig.rotation;
@@ -823,7 +836,7 @@ convertBtn.addEventListener("click", async () => {
         const { textWidth, textHeight } = getTextDimensions(text, fontSize);
 
         let pdfColor = defaultPdfColor;
-        if (pageConfig.color && pageConfig.color !== colorInput.value) {
+        if (pageConfig.color && pageConfig.color !== baseGlobalConfig.color) {
           pdfColor = parseColor(pageConfig.color);
         }
 
