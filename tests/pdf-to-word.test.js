@@ -60,6 +60,7 @@ const fn = new Function(`
     detectTableStructure,
     createDocxElementsFromPageData,
     generateDocxBlobFromPdfData,
+    getPdfToWordElements,
     createPdfToWordState,
     setConfigurationControlsDisabled,
     loadPdfDocument,
@@ -76,6 +77,55 @@ const fn = new Function(`
 const pdfToWordModule = fn();
 
 describe("pdf-to-word unit and integration tests", () => {
+  it("getPdfToWordElements returns map of DOM element references or null when absent", () => {
+    // Test case 1: when elements exist in elementsMap
+    const dummyElements = {
+      "pdf-drop-zone": { id: "pdf-drop-zone" },
+      "pdf-file-input": { id: "pdf-file-input" },
+      "pdf-progress": { id: "pdf-progress" },
+      "pdf-progress-bar": { id: "pdf-progress-bar" },
+      "pdf-progress-label": { id: "pdf-progress-label" },
+      "pdf-options": { id: "pdf-options" },
+      "pdf-file-info": { id: "pdf-file-info" },
+      "pdf-convert-btn": { id: "pdf-convert-btn" },
+      "pdf-results": { id: "pdf-results" },
+      "pdf-download-btn": { id: "pdf-download-btn" },
+      "pdf-reset-btn": { id: "pdf-reset-btn" },
+      "conversion-mode-select": { id: "conversion-mode-select" },
+      "ocr-language-group": { id: "ocr-language-group" },
+      "ocr-language-select": { id: "ocr-language-select" }
+    };
+
+    Object.assign(pdfToWordModule.elementsMap, dummyElements);
+
+    const elements = pdfToWordModule.getPdfToWordElements();
+
+    assert.strictEqual(elements.dropZone, dummyElements["pdf-drop-zone"]);
+    assert.strictEqual(elements.fileInput, dummyElements["pdf-file-input"]);
+    assert.strictEqual(elements.progressArea, dummyElements["pdf-progress"]);
+    assert.strictEqual(elements.progressBar, dummyElements["pdf-progress-bar"]);
+    assert.strictEqual(elements.progressLabel, dummyElements["pdf-progress-label"]);
+    assert.strictEqual(elements.optionsArea, dummyElements["pdf-options"]);
+    assert.strictEqual(elements.fileInfo, dummyElements["pdf-file-info"]);
+    assert.strictEqual(elements.convertBtn, dummyElements["pdf-convert-btn"]);
+    assert.strictEqual(elements.resultsArea, dummyElements["pdf-results"]);
+    assert.strictEqual(elements.downloadBtn, dummyElements["pdf-download-btn"]);
+    assert.strictEqual(elements.resetBtn, dummyElements["pdf-reset-btn"]);
+    assert.strictEqual(elements.modeSelect, dummyElements["conversion-mode-select"]);
+    assert.strictEqual(elements.languageGroup, dummyElements["ocr-language-group"]);
+    assert.strictEqual(elements.languageSelect, dummyElements["ocr-language-select"]);
+
+    // Clear elements map and verify null returns when elements are missing
+    for (const key of Object.keys(dummyElements)) {
+      delete pdfToWordModule.elementsMap[key];
+    }
+
+    const missingElements = pdfToWordModule.getPdfToWordElements();
+    for (const key of Object.keys(missingElements)) {
+      assert.strictEqual(missingElements[key], null);
+    }
+  });
+
   it("getPdfJsLib returns window['pdfjs-dist/build/pdf'] or window.pdfjsLib fallback", () => {
     const mockPdfJs = { version: "2.10" };
     pdfToWordModule.window["pdfjs-dist/build/pdf"] = mockPdfJs;
