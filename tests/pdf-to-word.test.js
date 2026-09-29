@@ -60,6 +60,7 @@ const fn = new Function(`
     detectTableStructure,
     createDocxElementsFromPageData,
     generateDocxBlobFromPdfData,
+    createPdfToWordState,
     loadPdfDocument,
     cleanupOcrWorker,
     extractPdfPagesData,
@@ -84,6 +85,16 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(pdfToWordModule.getPdfJsLib(), mockPdfJs);
 
     delete pdfToWordModule.window.pdfjsLib;
+  });
+
+  it("createPdfToWordState returns initial state object structure with default null properties", () => {
+    const state = pdfToWordModule.createPdfToWordState();
+    assert.deepStrictEqual(state, {
+      currentFile: null,
+      generatedBlob: null,
+      ocrWorkerPromise: null,
+      progressController: null
+    });
   });
 
   it("getDocxLib returns window.docx", () => {
