@@ -37,6 +37,9 @@ src += `\nreturn {
   finishDrawingPath,
   sanitizeFilename,
   checkShareSupport,
+  makeObjectDraggableAndResizable,
+  makeObjectDraggable,
+  makeObjectResizable,
   getZoomLevel: () => zoomLevel,
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
@@ -144,11 +147,15 @@ function createMockElement(id = '') {
   return el;
 }
 
+const mockDocListeners = {};
+
 const mockDocument = {
   getElementById: (id) => createMockElement(id),
   querySelectorAll: (selector) => [],
   querySelector: (selector) => createMockElement('querySelector_' + selector),
   createElement: (tagName) => createMockElement(`el-${tagName}`),
+  addEventListener: (type, handler) => { mockDocListeners[type] = handler; },
+  removeEventListener: (type, handler) => { delete mockDocListeners[type]; },
   body: {
     appendChild: () => {},
     removeChild: () => {}
@@ -1050,43 +1057,84 @@ test('pdf-editor draggable and resizable behavior', async (t) => {
     assert.strictEqual(editorModule.getSelectedObjId(), null);
   });
 
-  await t.test('updates object dimensions during drag and resize for all object types', () => {
-    const textObj = {
-      id: 'obj_text_1',
-      type: 'text',
-      pageNum: 1,
-      x: 10,
-      y: 10,
-      width: 100,
-      height: 40,
-      properties: { text: 'Test', fontSize: 16 }
+  await t.test('makeObjectDraggable moves object and updates position on pointer drag', () => {
+    const eventListeners = {};
+    const el = {
+      style: {},
+      parentElement: { clientWidth: 500, clientHeight: 500 },
+      addEventListener: (type, handler) => { eventListeners[type] = handler; }
     };
 
-    const shapeObj = {
-      id: 'obj_shape_1',
-      type: 'shape',
-      pageNum: 1,
-      x: 50,
-      y: 50,
-      width: 120,
-      height: 100,
-      properties: { shapeType: 'rect', strokeColor: '#000000' }
+    const obj = { x: 10, y: 10, width: 100, height: 50 };
+    const moveHandle = { addEventListener: () => {} };
+    const resizeHandle = { addEventListener: () => {} };
+    const deleteHandle = { addEventListener: () => {} };
+
+    // Register draggable listeners
+    editorModule.makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle);
+
+    assert.ok(typeof eventListeners['mousedown'] === 'function');
+
+    // Simulate mousedown on element
+    eventListeners['mousedown']({
+      target: el,
+      clientX: 50,
+      clientY: 50
+    });
+
+    // Simulate drag movement
+    if (mockDocListeners['mousemove']) {
+      mockDocListeners['mousemove']({ clientX: 100, clientY: 120 });
+    }
+
+    assert.strictEqual(obj.x, 60);
+    assert.strictEqual(obj.y, 80);
+    assert.strictEqual(el.style.left, '60px');
+    assert.strictEqual(el.style.top, '80px');
+
+    // Simulate mouseup
+    if (mockDocListeners['mouseup']) {
+      mockDocListeners['mouseup']();
+    }
+  });
+
+  await t.test('makeObjectResizable resizes object and updates dimensions on pointer resize', () => {
+    const resizeListeners = {};
+    const resizeHandle = {
+      addEventListener: (type, handler) => { resizeListeners[type] = handler; }
+    };
+    const el = {
+      style: {},
+      querySelector: () => null
     };
 
-    editorModule.setEditorObjects([textObj, shapeObj]);
+    const obj = { width: 100, height: 80, properties: {} };
 
-    // Simulate drag movement on text object
-    textObj.x = 60;
-    textObj.y = 80;
+    editorModule.makeObjectResizable(el, obj, resizeHandle);
 
-    // Simulate resize movement on shape object
-    shapeObj.width = 200;
-    shapeObj.height = 150;
+    assert.ok(typeof resizeListeners['mousedown'] === 'function');
 
-    assert.strictEqual(editorModule.getEditorObjects()[0].x, 60);
-    assert.strictEqual(editorModule.getEditorObjects()[0].y, 80);
-    assert.strictEqual(editorModule.getEditorObjects()[1].width, 200);
-    assert.strictEqual(editorModule.getEditorObjects()[1].height, 150);
+    // Simulate mousedown on resize handle
+    resizeListeners['mousedown']({
+      stopPropagation: () => {},
+      clientX: 100,
+      clientY: 100
+    });
+
+    // Simulate mousemove on document
+    if (mockDocListeners['mousemove']) {
+      mockDocListeners['mousemove']({ clientX: 150, clientY: 130 });
+    }
+
+    assert.strictEqual(obj.width, 150);
+    assert.strictEqual(obj.height, 110);
+    assert.strictEqual(el.style.width, '150px');
+    assert.strictEqual(el.style.height, '110px');
+
+    // Simulate mouseup
+    if (mockDocListeners['mouseup']) {
+      mockDocListeners['mouseup']();
+    }
   });
 });
 
