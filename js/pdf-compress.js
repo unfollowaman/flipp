@@ -73,8 +73,12 @@ function formatBytes(bytes, decimals = 2) {
 
 modeCards.forEach((card) => {
   card.addEventListener("click", () => {
-    modeCards.forEach((c) => c.classList.remove("selected"));
+    modeCards.forEach((c) => {
+      c.classList.remove("selected");
+      c.setAttribute("aria-checked", "false");
+    });
     card.classList.add("selected");
+    card.setAttribute("aria-checked", "true");
   });
 });
 
@@ -386,9 +390,15 @@ resetBtn.addEventListener("click", () => {
   if (downloadFilename) downloadFilename.textContent = "";
   if (downloadsDiv) downloadsDiv.innerHTML = "";
 
-  modeCards.forEach((c) => c.classList.remove("selected"));
+  modeCards.forEach((c) => {
+    c.classList.remove("selected");
+    c.setAttribute("aria-checked", "false");
+  });
   const defaultCard = document.querySelector(
     '.compress-mode-card[data-mode="recommended"]',
   );
-  if (defaultCard) defaultCard.classList.add("selected");
+  if (defaultCard) {
+    defaultCard.classList.add("selected");
+    defaultCard.setAttribute("aria-checked", "true");
+  }
 });
