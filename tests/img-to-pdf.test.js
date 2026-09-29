@@ -649,4 +649,129 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(files[0].id, '10000000-8000-4000-8000-000000000001');
     assert.strictEqual(files[1].id, '10000000-8000-4000-8000-000000000002');
   });
+
+  await t.test('removing an image card after drag-reordering revokes correct object URL and removes correct item', async () => {
+    const revokedUrls = [];
+    const mockURL = {
+      createObjectURL: (file) => `blob:mock-${file.name}`,
+      revokeObjectURL: (url) => { revokedUrls.push(url); }
+    };
+
+    const elements = {
+      'img-convert-btn': createMockElement('img-convert-btn'),
+      'img-preview-area': createMockElement('img-preview-area'),
+      'img-options': createMockElement('img-options'),
+      'img-progress': createMockElement('img-progress'),
+      'img-results': createMockElement('img-results'),
+      'img-drop-zone': createMockElement('img-drop-zone'),
+      'img-file-input': createMockElement('img-file-input'),
+      'img-size-pills': createMockElement('img-size-pills'),
+      'img-orient-pills': createMockElement('img-orient-pills'),
+      'img-filename-input': createMockElement('img-filename-input'),
+      'img-file-count': createMockElement('img-file-count'),
+      'img-add-more-btn': createMockElement('img-add-more-btn'),
+      'img-preview-grid': createMockElement('img-preview-grid'),
+      'img-progress-bar': createMockElement('img-progress-bar'),
+      'img-progress-label': createMockElement('img-progress-label'),
+      'img-download-btn': createMockElement('img-download-btn'),
+      'img-result-info': createMockElement('img-result-info'),
+      'img-reset-btn': createMockElement('img-reset-btn'),
+    };
+
+    const createdElements = [];
+    const localMockDocument = {
+      getElementById: (id) => elements[id] || createMockElement(id),
+      createElement: (tag) => {
+        const listeners = {};
+        const children = [];
+        const el = {
+          tagName: tag.toUpperCase(),
+          className: '',
+          draggable: false,
+          dataset: {},
+          type: '',
+          textContent: '',
+          title: '',
+          alt: '',
+          src: '',
+          children,
+          appendChild: (child) => { children.push(child); },
+          querySelector: (sel) => children.find(c => sel.startsWith('.') ? c.className === sel.slice(1) : c.id === sel.slice(1)) || createMockElement(),
+          addEventListener: (evt, fn) => { listeners[evt] = fn; },
+          listeners,
+          setAttribute: () => {},
+          getAttribute: () => null
+        };
+        createdElements.push(el);
+        return el;
+      },
+      createDocumentFragment: () => createMockElement()
+    };
+
+    let dragReorderCb = null;
+    const mockSetupDragReorder = (card, cb) => {
+      dragReorderCb = cb;
+    };
+
+    const { addImageFiles, getImageFiles, createImageCard, resetImgConverter } = wrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      mockURL,
+      class FileReader {},
+      class Image {}
+    );
+
+    resetImgConverter();
+
+    const fileA = { name: 'A.jpg', type: 'image/jpeg' };
+    const fileB = { name: 'B.jpg', type: 'image/jpeg' };
+    const fileC = { name: 'C.jpg', type: 'image/jpeg' };
+
+    addImageFiles([fileA, fileB, fileC]);
+
+    const initialFiles = getImageFiles();
+    assert.strictEqual(initialFiles.length, 3);
+
+    // Create cards for A (idx 0), B (idx 1), C (idx 2)
+    const cardA = createImageCard(initialFiles[0], 0);
+    const cardB = createImageCard(initialFiles[1], 1);
+    const cardC = createImageCard(initialFiles[2], 2);
+
+    // Simulate drag reorder: DOM order becomes [cardC, cardA, cardB]
+    const reorderedCards = [cardC, cardA, cardB];
+    elements['img-preview-grid'].querySelectorAll = (sel) => sel === '.img-thumb-card' ? reorderedCards : [];
+
+    // Trigger updateImageOrder callback
+    assert.ok(dragReorderCb, 'Drag reorder callback should be registered');
+    dragReorderCb();
+
+    // Verify imageFiles was reordered to [C, A, B]
+    const reorderedFiles = getImageFiles();
+    assert.strictEqual(reorderedFiles[0].name, 'C.jpg');
+    assert.strictEqual(reorderedFiles[1].name, 'A.jpg');
+    assert.strictEqual(reorderedFiles[2].name, 'B.jpg');
+
+    // Find remove button for Card C (which was created with entry C at idx 2)
+    const rmBtnC = cardC.children.find(c => c.className === 'img-thumb-remove');
+    assert.ok(rmBtnC, 'Remove button for card C should exist');
+    assert.ok(rmBtnC.listeners.click, 'Click listener should be registered on rmBtnC');
+
+    // Click remove on Card C
+    rmBtnC.listeners.click({ stopPropagation: () => {} });
+
+    // Verify object URL for C was revoked
+    assert.ok(revokedUrls.includes('blob:mock-C.jpg'), 'Object URL for C should be revoked');
+
+    // Verify imageFiles now has 2 items: [A, B] and C was removed
+    const finalFiles = getImageFiles();
+    assert.strictEqual(finalFiles.length, 2);
+    assert.strictEqual(finalFiles[0].name, 'A.jpg');
+    assert.strictEqual(finalFiles[1].name, 'B.jpg');
+  });
 });

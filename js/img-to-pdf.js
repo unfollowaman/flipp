@@ -120,7 +120,10 @@ function createImageCard(entry, idx) {
   rmBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     URL.revokeObjectURL(entry.objectUrl);
-    imageFiles.splice(idx, 1);
+    const itemIdx = imageFiles.indexOf(entry);
+    if (itemIdx !== -1) {
+      imageFiles.splice(itemIdx, 1);
+    }
     if (imageFiles.length === 0) {
       resetImgConverter();
     } else {
