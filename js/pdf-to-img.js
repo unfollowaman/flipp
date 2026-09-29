@@ -282,8 +282,10 @@ convertBtn.addEventListener("click", async () => {
         `Converting page ${pageNum} of ${totalPages}…`,
       );
 
-      // Yield to UI
-      await new Promise((r) => setTimeout(r, 0));
+      // Yield to UI periodically or on final page
+      if (completedCount % 5 === 0 || completedCount === pages.length) {
+        await new Promise((r) => setTimeout(r, 0));
+      }
     }
   }
 
