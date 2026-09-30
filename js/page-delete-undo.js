@@ -37,26 +37,24 @@ function announce(message) {
   }
 }
 
+const DISINTEGRATION_COLORS = [
+  "#ff70a6", // pink
+  "#70d6ff", // sky-blue
+  "#ff9770", // orange
+  "#ffd670", // yellow
+  "#e9ff70", // lime
+  "#3a86ff", // blue
+  "#000000", // dark detail
+  "#ffffff", // paper white
+];
+
 /**
- * Run particle disintegration animation on a page card.
- * @param {HTMLElement} card - The thumbnail card DOM element.
- * @returns {Promise<void>} Resolves when animation completes and card can be removed.
+ * Creates an overlay canvas positioned above card for particle animation.
+ * @param {HTMLElement} card - Host card element.
+ * @param {DOMRect} rect - Card bounding rect.
+ * @returns {HTMLCanvasElement} Overlay canvas element.
  */
-export async function animatePageDisintegration(card) {
-  if (!card || !card.getBoundingClientRect) return;
-
-  if (isReducedMotion()) {
-    card.style.transition = "opacity 150ms ease, transform 150ms ease";
-    card.style.opacity = "0";
-    card.style.transform = "scale(0.9)";
-    await new Promise((r) => setTimeout(r, 150));
-    return;
-  }
-
-  const rect = card.getBoundingClientRect();
-  if (rect.width === 0 || rect.height === 0) return;
-
-  // Create overlay canvas for particle animation
+function createOverlayCanvas(card, rect) {
   const canvas = document.createElement("canvas");
   canvas.width = rect.width;
   canvas.height = rect.height;
@@ -74,48 +72,47 @@ export async function animatePageDisintegration(card) {
     parent.appendChild(canvas);
   }
 
-  const ctx = canvas.getContext("2d");
+  return canvas;
+}
 
-  // Sample card background / image or use Candy Brutalism colors
-  const colors = [
-    "#ff70a6", // pink
-    "#70d6ff", // sky-blue
-    "#ff9770", // orange
-    "#ffd670", // yellow
-    "#e9ff70", // lime
-    "#3a86ff", // blue
-    "#000000", // dark detail
-    "#ffffff", // paper white
-  ];
-
-  const NUM_PARTICLES = 45;
+/**
+ * Generates an array of initial particle properties for disintegration.
+ * @param {number} width - Canvas width.
+ * @param {number} height - Canvas height.
+ * @param {number} [numParticles=45] - Total particles to generate.
+ * @returns {Array<Object>} Particle objects.
+ */
+function generateParticles(width, height, numParticles = 45) {
   const particles = [];
-
-  for (let i = 0; i < NUM_PARTICLES; i++) {
+  for (let i = 0; i < numParticles; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 1.5 + Math.random() * 4.5;
     particles.push({
-      x: Math.random() * rect.width,
-      y: Math.random() * rect.height,
+      x: Math.random() * width,
+      y: Math.random() * height,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed - 0.5, // slight upward float bias
       size: 2.5 + Math.random() * 4.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
+      color: DISINTEGRATION_COLORS[Math.floor(Math.random() * DISINTEGRATION_COLORS.length)],
       alpha: 1.0,
       decay: 0.02 + Math.random() * 0.03,
     });
   }
+  return particles;
+}
 
-  // Fade and scale down host card simultaneously
-  card.style.transition = "transform 350ms ease, opacity 350ms ease, filter 350ms ease";
-  card.style.transform = "scale(0.85) rotate(" + (Math.random() * 6 - 3) + "deg)";
-  card.style.opacity = "0.2";
-  card.style.filter = "blur(2px)";
-
+/**
+ * Animates particles on context until completed or duration expires.
+ * @param {HTMLCanvasElement} canvas - Particle canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
+ * @param {Array<Object>} particles - Array of particle state objects.
+ * @param {number} [duration=400] - Animation duration in ms.
+ * @returns {Promise<void>} Resolves when particle animation finishes.
+ */
+function renderParticleDisintegration(canvas, ctx, particles, duration = 400) {
   const startTime = Date.now();
-  const DURATION = 400;
 
-  await new Promise((resolve) => {
+  return new Promise((resolve) => {
     function step() {
       const elapsed = Date.now() - startTime;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -137,7 +134,7 @@ export async function animatePageDisintegration(card) {
         ctx.restore();
       }
 
-      if (elapsed < DURATION && activeParticles > 0) {
+      if (elapsed < duration && activeParticles > 0) {
         requestAnimationFrame(step);
       } else {
         if (canvas.parentElement) {
@@ -148,6 +145,38 @@ export async function animatePageDisintegration(card) {
     }
     requestAnimationFrame(step);
   });
+}
+
+/**
+ * Run particle disintegration animation on a page card.
+ * @param {HTMLElement} card - The thumbnail card DOM element.
+ * @returns {Promise<void>} Resolves when animation completes and card can be removed.
+ */
+export async function animatePageDisintegration(card) {
+  if (!card || !card.getBoundingClientRect) return;
+
+  if (isReducedMotion()) {
+    card.style.transition = "opacity 150ms ease, transform 150ms ease";
+    card.style.opacity = "0";
+    card.style.transform = "scale(0.9)";
+    await new Promise((r) => setTimeout(r, 150));
+    return;
+  }
+
+  const rect = card.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  const canvas = createOverlayCanvas(card, rect);
+  const ctx = canvas.getContext("2d");
+  const particles = generateParticles(rect.width, rect.height);
+
+  // Fade and scale down host card simultaneously
+  card.style.transition = "transform 350ms ease, opacity 350ms ease, filter 350ms ease";
+  card.style.transform = "scale(0.85) rotate(" + (Math.random() * 6 - 3) + "deg)";
+  card.style.opacity = "0.2";
+  card.style.filter = "blur(2px)";
+
+  await renderParticleDisintegration(canvas, ctx, particles);
 }
 
 /**
