@@ -99,6 +99,11 @@ async function renderPagePreview(pageNum, container) {
     pageNumber < 1 ||
     pageNumber > totalPages
   ) {
+    const existingCanvas = container.querySelector("canvas");
+    if (existingCanvas) {
+      existingCanvas.width = 0;
+      existingCanvas.height = 0;
+    }
     container.innerHTML = "";
     container.textContent = "No such page 😑";
     updateChip(pageNum);
@@ -132,6 +137,11 @@ async function renderPagePreview(pageNum, container) {
       viewport: viewport,
     };
 
+    const existingCanvas = container.querySelector("canvas");
+    if (existingCanvas) {
+      existingCanvas.width = 0;
+      existingCanvas.height = 0;
+    }
     container.innerHTML = "";
     container.appendChild(canvas);
     await page.render(renderContext).promise;
@@ -434,8 +444,16 @@ resetBtn.addEventListener("click", () => {
   downloadsEl.innerHTML = "";
   rangeStartEl.value = "";
   rangeEndEl.value = "";
-  previewStartEl.innerHTML = "";
-  previewEndEl.innerHTML = "";
+  [previewStartEl, previewEndEl].forEach((container) => {
+    if (container) {
+      const existingCanvas = container.querySelector("canvas");
+      if (existingCanvas) {
+        existingCanvas.width = 0;
+        existingCanvas.height = 0;
+      }
+      container.innerHTML = "";
+    }
+  });
   if (splitNCheckbox) splitNCheckbox.checked = false;
   if (splitNInput) splitNInput.value = "1";
   toggleNModeUI();

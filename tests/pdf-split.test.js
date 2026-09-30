@@ -261,6 +261,85 @@ test('pdf-split resource cleanup', async (t) => {
     assert.strictEqual(cleanupCalled, true);
   });
 
+  await t.test('resets existing canvas width and height to 0 before updating preview container', async () => {
+    let canvasZeroed = false;
+    const existingCanvas = {
+      _w: 200,
+      _h: 300,
+      set width(v) {
+        this._w = v;
+        if (v === 0) canvasZeroed = true;
+      },
+      get width() { return this._w; },
+      set height(v) { this._h = v; },
+      get height() { return this._h; }
+    };
+
+    const mockLocalMap = {};
+    const createLocalElement = (id = '') => {
+      const key = id || Math.random().toString();
+      if (!mockLocalMap[key]) {
+        mockLocalMap[key] = {
+          id: key,
+          value: '',
+          style: {},
+          classList: { add: () => {}, remove: () => {}, contains: () => false },
+          appendChild: () => {},
+          innerHTML: '',
+          textContent: '',
+          addEventListener: () => {},
+          getContext: () => ({}),
+          querySelector: (sel) => (sel === 'canvas' ? existingCanvas : createLocalElement()),
+          querySelectorAll: () => [],
+        };
+      }
+      return mockLocalMap[key];
+    };
+
+    const mockLocalDoc = {
+      getElementById: createLocalElement,
+      createElement: () => createLocalElement()
+    };
+
+    const mockLocalPdfDoc = {
+      getPage: async () => ({
+        getViewport: () => ({ width: 100, height: 100 }),
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {}
+      }),
+      destroy: async () => {}
+    };
+
+    const mockLocalWin = {
+      PDFLib: {
+        PDFDocument: {
+          load: async () => ({ getPageCount: () => 5 })
+        }
+      },
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({ promise: Promise.resolve(mockLocalPdfDoc) })
+      }
+    };
+
+    const localWrapper = wrapper(
+      mockLocalDoc,
+      mockLocalWin,
+      () => {},
+      () => {},
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      { error: () => {}, warn: () => {} }
+    );
+
+    const fakeFile = { name: 'test.pdf', arrayBuffer: async () => new ArrayBuffer(0) };
+    await localWrapper.loadPdfMetadataAndPreviews(fakeFile);
+
+    const container = createLocalElement('container');
+    await localWrapper.renderPagePreview(1, container);
+
+    assert.strictEqual(canvasZeroed, true);
+  });
+
   await t.test('discards superseded render requests when a newer render is requested', async () => {
     let renderedPages = [];
     const slowPdfDocument = {
