@@ -971,13 +971,14 @@ export function renderAllObjects() {
 }
 
 function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, moveHandle) {
+  makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle);
+  makeObjectResizable(el, obj, resizeHandle);
+}
+
+function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
   let isDragging = false;
-  let isResizing = false;
   let startX, startY;
   let startLeft, startTop;
-  let startWidth, startHeight;
-
-  const overlay = el.parentElement;
 
   const startDrag = (e) => {
     if (e.target === deleteHandle || e.target === resizeHandle) return;
@@ -994,10 +995,10 @@ function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, mo
     startLeft = obj.x;
     startTop = obj.y;
 
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("touchmove", onMove, { passive: false });
-    document.addEventListener("mouseup", onEnd);
-    document.addEventListener("touchend", onEnd);
+    document.addEventListener("mousemove", onDragMove);
+    document.addEventListener("touchmove", onDragMove, { passive: false });
+    document.addEventListener("mouseup", onDragEnd);
+    document.addEventListener("touchend", onDragEnd);
 
     if (e.type && e.type.includes("touch")) e.preventDefault();
   };
@@ -1010,47 +1011,42 @@ function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, mo
   el.addEventListener("mousedown", startDrag);
   el.addEventListener("touchstart", startDrag, { passive: false });
 
-  const onMove = (e) => {
+  const onDragMove = (e) => {
+    if (!isDragging) return;
     const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
     const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    if (isDragging) {
-      const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
-      const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
+    const overlay = el.parentElement;
+    const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
+    const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
 
-      obj.x = Math.max(0, Math.min(maxLeft, startLeft + dx));
-      obj.y = Math.max(0, Math.min(maxTop, startTop + dy));
+    obj.x = Math.max(0, Math.min(maxLeft, startLeft + dx));
+    obj.y = Math.max(0, Math.min(maxTop, startTop + dy));
 
-      el.style.left = `${obj.x}px`;
-      el.style.top = `${obj.y}px`;
+    el.style.left = `${obj.x}px`;
+    el.style.top = `${obj.y}px`;
 
-      if (e.type && e.type.includes("touch")) e.preventDefault();
-    } else if (isResizing) {
-      obj.width = Math.max(20, startWidth + dx);
-      obj.height = Math.max(20, startHeight + dy);
-
-      el.style.width = `${obj.width}px`;
-      el.style.height = `${obj.height}px`;
-
-      updateObjectInternalDimensions(el, obj);
-
-      if (e.type && e.type.includes("touch")) e.preventDefault();
-    }
+    if (e.type && e.type.includes("touch")) e.preventDefault();
   };
 
-  const onEnd = () => {
-    if (isDragging || isResizing) {
+  const onDragEnd = () => {
+    if (isDragging) {
       saveState();
     }
     isDragging = false;
-    isResizing = false;
-    document.removeEventListener("mousemove", onMove);
-    document.removeEventListener("touchmove", onMove);
-    document.removeEventListener("mouseup", onEnd);
-    document.removeEventListener("touchend", onEnd);
+    document.removeEventListener("mousemove", onDragMove);
+    document.removeEventListener("touchmove", onDragMove);
+    document.removeEventListener("mouseup", onDragEnd);
+    document.removeEventListener("touchend", onDragEnd);
   };
+}
+
+function makeObjectResizable(el, obj, resizeHandle) {
+  let isResizing = false;
+  let startX, startY;
+  let startWidth, startHeight;
 
   const startResize = (e) => {
     e.stopPropagation();
@@ -1063,16 +1059,47 @@ function makeObjectDraggableAndResizable(el, obj, resizeHandle, deleteHandle, mo
     startWidth = obj.width;
     startHeight = obj.height;
 
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("touchmove", onMove, { passive: false });
-    document.addEventListener("mouseup", onEnd);
-    document.addEventListener("touchend", onEnd);
+    document.addEventListener("mousemove", onResizeMove);
+    document.addEventListener("touchmove", onResizeMove, { passive: false });
+    document.addEventListener("mouseup", onResizeEnd);
+    document.addEventListener("touchend", onResizeEnd);
 
     if (e.type && e.type.includes("touch")) e.preventDefault();
   };
 
-  resizeHandle.addEventListener("mousedown", startResize);
-  resizeHandle.addEventListener("touchstart", startResize, { passive: false });
+  if (resizeHandle) {
+    resizeHandle.addEventListener("mousedown", startResize);
+    resizeHandle.addEventListener("touchstart", startResize, { passive: false });
+  }
+
+  const onResizeMove = (e) => {
+    if (!isResizing) return;
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+
+    obj.width = Math.max(20, startWidth + dx);
+    obj.height = Math.max(20, startHeight + dy);
+
+    el.style.width = `${obj.width}px`;
+    el.style.height = `${obj.height}px`;
+
+    updateObjectInternalDimensions(el, obj);
+
+    if (e.type && e.type.includes("touch")) e.preventDefault();
+  };
+
+  const onResizeEnd = () => {
+    if (isResizing) {
+      saveState();
+    }
+    isResizing = false;
+    document.removeEventListener("mousemove", onResizeMove);
+    document.removeEventListener("touchmove", onResizeMove);
+    document.removeEventListener("mouseup", onResizeEnd);
+    document.removeEventListener("touchend", onResizeEnd);
+  };
 }
 
 // ── Signature Modal Integration ─────────────────────────────────────
