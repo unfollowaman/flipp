@@ -177,6 +177,30 @@ test('getPageConfig and applyWatermarkScope functionality', async (t) => {
     assert.strictEqual(config.scale, 1);
   });
 
+  await t.test('uses baseGlobalConfig when passed to avoid DOM lookups and applies page overrides', () => {
+    setPageConfig(2, { fontSize: 36 });
+    const baseConfig = {
+      mode: 'text',
+      text: 'PREVIEW',
+      color: '#ff0000',
+      opacity: 0.8,
+      rotation: 30,
+      position: 'center',
+      fontSize: 50,
+      scale: 1.2,
+      customX: null,
+      customY: null,
+    };
+    const configPage1 = getPageConfig(1, baseConfig);
+    const configPage2 = getPageConfig(2, baseConfig);
+
+    assert.strictEqual(configPage1.text, 'PREVIEW');
+    assert.strictEqual(configPage1.fontSize, 50);
+    assert.strictEqual(configPage2.fontSize, 36);
+    assert.strictEqual(configPage2.text, 'PREVIEW');
+    setPageConfig(2, null);
+  });
+
   await t.test('applies scope to single page only', () => {
     setPageConfig(2, { fontSize: 32, scale: 0.8 });
     applyWatermarkScope('page', 2);
