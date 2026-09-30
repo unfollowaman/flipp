@@ -14,6 +14,18 @@ const passwordInput = document.getElementById("unlock-password");
 const toggleUnlockPwBtn = document.getElementById("unlock-toggle-pw");
 const errorMsgEl = document.getElementById("unlock-error");
 
+function resetPasswordInputState() {
+  if (passwordInput) {
+    passwordInput.value = "";
+    passwordInput.type = "password";
+  }
+  if (toggleUnlockPwBtn) {
+    toggleUnlockPwBtn.setAttribute("aria-label", "Show password");
+    toggleUnlockPwBtn.title = "Show password";
+    toggleUnlockPwBtn.textContent = "🐵";
+  }
+}
+
 if (toggleUnlockPwBtn && passwordInput) {
   toggleUnlockPwBtn.addEventListener("click", () => {
     const show = passwordInput.type === "password";
@@ -91,7 +103,7 @@ initDropZone(
           infoEl.textContent = `Ready to unlock: ${currentFileName}`;
           passwordGroupEl.style.display = "block";
           errorMsgEl.style.display = "none";
-          passwordInput.value = "";
+          resetPasswordInputState();
           passwordInput.focus();
         } else {
           // It has owner restrictions only (which are bypassed by ignoreEncryption)
@@ -202,7 +214,7 @@ resetBtn.addEventListener("click", () => {
   pdfDocToSave = null;
   needsPassword = false;
 
-  passwordInput.value = "";
+  resetPasswordInputState();
   errorMsgEl.style.display = "none";
 
   resultsAreaEl.classList.remove("is-visible");
