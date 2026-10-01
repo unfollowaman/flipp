@@ -120,6 +120,10 @@ function createThumbnailCard(canvas, i) {
 
 async function renderThumbnails(numPages) {
   if (undoManager) undoManager.reset();
+  for (const canvas of previewGrid.querySelectorAll("canvas")) {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
   previewGrid.innerHTML = "";
   countEl.textContent = `${numPages} page${numPages !== 1 ? "s" : ""}`;
 
@@ -283,6 +287,10 @@ function resetRearrange() {
   previewArea.classList.remove("is-visible");
   resultsArea.classList.remove("is-visible");
   progressArea.style.display = "none";
+  for (const canvas of previewGrid.querySelectorAll("canvas")) {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
   previewGrid.innerHTML = "";
   countEl.textContent = "";
   setProgress(progressBar, progressLabel, 0, "");

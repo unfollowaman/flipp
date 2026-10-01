@@ -97,6 +97,15 @@ test('delete-pdf-pages functionality', async (t) => {
       },
       querySelectorAll: (selector) => {
         if (selector === '.img-thumb-card') return children.filter(c => c.className === 'img-thumb-card');
+        if (selector === 'canvas') {
+          const canvases = [];
+          const findCanvases = (node) => {
+            if (node.tagName === 'CANVAS') canvases.push(node);
+            if (Array.isArray(node.children)) node.children.forEach(findCanvases);
+          };
+          children.forEach(findCanvases);
+          return canvases;
+        }
         return [];
       },
       click: () => {
@@ -480,5 +489,48 @@ test('delete-pdf-pages functionality', async (t) => {
 
     resetDelete();
     assert.strictEqual(docDestroyCount, 1);
+  });
+
+  await t.test('resets canvas width and height to 0 before clearing preview container in renderThumbnails and resetDelete', async () => {
+    mockWindow['pdfjs-dist/build/pdf'] = {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          numPages: 1,
+          destroy: async () => {},
+          getPage: async () => ({
+            getViewport: () => ({ width: 100, height: 100 }),
+            render: () => ({ promise: Promise.resolve() }),
+            cleanup: () => {}
+          })
+        })
+      })
+    };
+
+    const grid = mockDocument.getElementById('delete-preview-grid');
+    const existingCanvas = mockDocument.createElement('canvas');
+    existingCanvas.width = 100;
+    existingCanvas.height = 100;
+    grid.appendChild(existingCanvas);
+
+    const fakeFile = {
+      name: 'zero-canvas.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(16)
+    };
+
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+
+    assert.strictEqual(existingCanvas.width, 0);
+    assert.strictEqual(existingCanvas.height, 0);
+
+    const renderedCanvas = grid.querySelectorAll('canvas')[0];
+    assert.ok(renderedCanvas);
+    renderedCanvas.width = 100;
+    renderedCanvas.height = 100;
+
+    resetDelete();
+    assert.strictEqual(renderedCanvas.width, 0);
+    assert.strictEqual(renderedCanvas.height, 0);
   });
 });
