@@ -278,14 +278,14 @@ test('pdf-page-numbers text width calculation caching', async (t) => {
   assert.strictEqual(widthOfTextAtSizeCallCount, 2, 'Should call widthOfTextAtSize once per unique page number string');
 });
 
-test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
+test('pdf-page-numbers position selection aria-checked updates', async (t) => {
   let positionClickCallback;
   let resetClickCallback;
 
   const cards = [
     {
       dataset: { value: 'bottom-right' },
-      attributes: { 'aria-pressed': 'true' },
+      attributes: { 'aria-checked': 'true' },
       classList: {
         contains: (cls) => cls === 'active',
         toggle: function(cls, state) { if (cls === 'active') this._active = state; }
@@ -295,7 +295,7 @@ test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
     },
     {
       dataset: { value: 'top-right' },
-      attributes: { 'aria-pressed': 'false' },
+      attributes: { 'aria-checked': 'false' },
       classList: {
         contains: (cls) => cls === 'active',
         toggle: function(cls, state) { if (cls === 'active') this._active = state; }
@@ -305,7 +305,7 @@ test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
     },
     {
       dataset: { value: 'bottom-center' },
-      attributes: { 'aria-pressed': 'false' },
+      attributes: { 'aria-checked': 'false' },
       classList: {
         contains: (cls) => cls === 'active',
         toggle: function(cls, state) { if (cls === 'active') this._active = state; }
@@ -379,14 +379,14 @@ test('pdf-page-numbers position selection aria-pressed updates', async (t) => {
     }
   });
 
-  assert.strictEqual(cards[0].getAttribute('aria-pressed'), 'false');
-  assert.strictEqual(cards[1].getAttribute('aria-pressed'), 'true');
-  assert.strictEqual(cards[2].getAttribute('aria-pressed'), 'false');
+  assert.strictEqual(cards[0].getAttribute('aria-checked'), 'false');
+  assert.strictEqual(cards[1].getAttribute('aria-checked'), 'true');
+  assert.strictEqual(cards[2].getAttribute('aria-checked'), 'false');
 
   // Simulate reset click
   resetClickCallback();
 
-  assert.strictEqual(cards[0].getAttribute('aria-pressed'), 'true');
-  assert.strictEqual(cards[1].getAttribute('aria-pressed'), 'false');
-  assert.strictEqual(cards[2].getAttribute('aria-pressed'), 'false');
+  assert.strictEqual(cards[0].getAttribute('aria-checked'), 'true');
+  assert.strictEqual(cards[1].getAttribute('aria-checked'), 'false');
+  assert.strictEqual(cards[2].getAttribute('aria-checked'), 'false');
 });
