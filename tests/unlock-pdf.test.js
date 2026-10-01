@@ -70,8 +70,25 @@ function createTestInstance(customPdfLib = {}) {
     },
     "unlock-password": {
       value: "",
+      type: "password",
       focused: false,
       focus() { this.focused = true; }
+    },
+    "unlock-toggle-pw": {
+      attrs: {
+        "aria-label": "Show password"
+      },
+      title: "Show password",
+      textContent: "🐵",
+      setAttribute(k, v) { this.attrs[k] = v; },
+      getAttribute(k) { return this.attrs[k]; },
+      listeners: {},
+      addEventListener(evt, cb) {
+        this.listeners[evt] = cb;
+      },
+      click() {
+        if (this.listeners["click"]) this.listeners["click"]();
+      }
     },
     "unlock-btn": {
       disabled: false,
@@ -368,6 +385,68 @@ test("Unlock PDF logic handles file reading error", async () => {
   }]);
 
   assert.strictEqual(inst.getToastMsg(), "Failed to read PDF. It might be corrupted.");
+});
+
+test("Unlock PDF logic toggles password visibility and resets state correctly", async () => {
+  const mockPdfLib = {
+    PDFDocument: {
+      load: async (bytes, options) => {
+        if (options && options.ignoreEncryption) {
+          return {
+            isEncrypted: true,
+            getPageIndices: () => [0]
+          };
+        }
+        throw new Error("EncryptedPDFError: Password required");
+      }
+    }
+  };
+
+  const inst = createTestInstance(mockPdfLib);
+  const cb = inst.getDropZoneCb();
+
+  await cb([{
+    name: "protected.pdf",
+    type: "application/pdf",
+    arrayBuffer: async () => new ArrayBuffer(16)
+  }]);
+
+  const pwInput = inst.elements["unlock-password"];
+  const toggleBtn = inst.elements["unlock-toggle-pw"];
+
+  assert.strictEqual(pwInput.type, "password");
+  assert.strictEqual(toggleBtn.getAttribute("aria-label"), "Show password");
+  assert.strictEqual(toggleBtn.title, "Show password");
+  assert.strictEqual(toggleBtn.textContent, "🐵");
+
+  // Toggle to show password
+  toggleBtn.click();
+  assert.strictEqual(pwInput.type, "text");
+  assert.strictEqual(toggleBtn.getAttribute("aria-label"), "Hide password");
+  assert.strictEqual(toggleBtn.title, "Hide password");
+  assert.strictEqual(toggleBtn.textContent, "🙈");
+
+  // Reset tool
+  await inst.elements["unlock-reset-btn"].click();
+  assert.strictEqual(pwInput.type, "password");
+  assert.strictEqual(toggleBtn.getAttribute("aria-label"), "Show password");
+  assert.strictEqual(toggleBtn.title, "Show password");
+  assert.strictEqual(toggleBtn.textContent, "🐵");
+
+  // Load file again while visible
+  toggleBtn.click();
+  assert.strictEqual(pwInput.type, "text");
+
+  await cb([{
+    name: "protected2.pdf",
+    type: "application/pdf",
+    arrayBuffer: async () => new ArrayBuffer(16)
+  }]);
+
+  assert.strictEqual(pwInput.type, "password");
+  assert.strictEqual(toggleBtn.getAttribute("aria-label"), "Show password");
+  assert.strictEqual(toggleBtn.title, "Show password");
+  assert.strictEqual(toggleBtn.textContent, "🐵");
 });
 
 test("Unlock PDF logic handles process error during unlocking", async () => {

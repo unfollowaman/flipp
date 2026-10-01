@@ -82,6 +82,6 @@
 **Learning:** In multi-page PDF document processing workflows (such as `js/add-watermark.js`), querying global UI DOM elements (`textInput`, `colorInput`, `opacityInput`, `rotationInput`, `positionSelect`, `fontSizeInput`, `scaleInput`) inside per-page iteration loops executes redundant DOM tree accesses and property parses on every page.
 **Action:** Extract a base global configuration object once outside document page iteration loops, pass it to page configuration resolvers (e.g. `getPageConfig(pageNum, baseGlobalConfig)`), and merge page-specific overrides onto the cached global configuration.
 
-## 2026-10-04 - Release canvas backing store memory before replacing element innerHTML
-**Learning:** In interactive PDF tools (such as `js/pdf-split.js`), replacing element `innerHTML` containing `<canvas>` elements detaches the DOM node without immediately freeing its GPU/RAM pixel backing store. Setting `canvas.width = 0` and `canvas.height = 0` on existing preview canvas elements prior to clearing container `innerHTML` or resetting state forces browser graphics engines to immediately deallocate pixel memory.
-**Action:** Query and explicitly zero out dimensions (`canvas.width = 0; canvas.height = 0;`) on existing `<canvas>` elements before clearing container `innerHTML` or re-rendering preview elements.
+## 2026-10-04 - Zero canvas backing store dimensions before detaching canvas DOM elements
+**Learning:** In interactive rendering components (such as PDF Split preview containers in `js/pdf-split.js`), clearing container elements via `container.innerHTML = ""` detaches existing `<canvas>` elements without releasing their allocated backing pixel stores in GPU/RAM memory until browser garbage collection occurs.
+**Action:** Explicitly set `existingCanvas.width = 0` and `existingCanvas.height = 0` on existing `<canvas>` preview elements prior to clearing container HTML or resetting UI state to immediately release canvas backing store memory.

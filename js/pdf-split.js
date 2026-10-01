@@ -444,16 +444,18 @@ resetBtn.addEventListener("click", () => {
   downloadsEl.innerHTML = "";
   rangeStartEl.value = "";
   rangeEndEl.value = "";
-  [previewStartEl, previewEndEl].forEach((container) => {
-    if (container) {
-      const existingCanvas = container.querySelector("canvas");
-      if (existingCanvas) {
-        existingCanvas.width = 0;
-        existingCanvas.height = 0;
-      }
-      container.innerHTML = "";
-    }
-  });
+  const startCanvas = previewStartEl.querySelector("canvas");
+  if (startCanvas) {
+    startCanvas.width = 0;
+    startCanvas.height = 0;
+  }
+  const endCanvas = previewEndEl.querySelector("canvas");
+  if (endCanvas) {
+    endCanvas.width = 0;
+    endCanvas.height = 0;
+  }
+  previewStartEl.innerHTML = "";
+  previewEndEl.innerHTML = "";
   if (splitNCheckbox) splitNCheckbox.checked = false;
   if (splitNInput) splitNInput.value = "1";
   toggleNModeUI();
