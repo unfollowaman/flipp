@@ -75,6 +75,12 @@ describe('pdf-to-img resource cleanup', () => {
     const destroyCount = (code.match(/pdfDoc\.destroy\(\)/g) || []).length;
     assert.ok(destroyCount >= 2, 'pdfDoc.destroy() should be called when resetting or reloading PDF');
   });
+
+  test('resets canvas width and height to 0 before clearing preview container in showPreview and resetPdfConverter', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const canvasZeroCount = (code.match(/for\s*\(\s*const\s+canvas\s+of\s+previewGrid\.querySelectorAll\("canvas"\)\s*\)\s*\{\s*canvas\.width\s*=\s*0;\s*canvas\.height\s*=\s*0;\s*\}/g) || []).length;
+    assert.strictEqual(canvasZeroCount, 2, 'canvas dimensions should be zeroed out in showPreview and resetPdfConverter before clearing HTML');
+  });
 });
 
 describe('pdf-to-img format and resolution handling', () => {

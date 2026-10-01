@@ -179,6 +179,11 @@ async function showPreview(filename) {
   previewArea.classList.add("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
+
+  for (const canvas of previewGrid.querySelectorAll("canvas")) {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
   previewGrid.innerHTML = "";
 
   pageCountEl.textContent = `${totalPages} page${totalPages !== 1 ? "s" : ""} — "${filename}"`;
@@ -406,6 +411,11 @@ async function resetPdfConverter() {
   previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
+
+  for (const canvas of previewGrid.querySelectorAll("canvas")) {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
   previewGrid.innerHTML = "";
   resultsGrid.innerHTML = "";
   rangeGroup.style.display = "none";
