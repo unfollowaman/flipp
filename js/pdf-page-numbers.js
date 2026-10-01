@@ -54,7 +54,7 @@ positionEl.addEventListener("click", (e) => {
     .forEach((b) => {
       const isActive = b.dataset.value === position;
       b.classList.toggle("active", isActive);
-      b.setAttribute("aria-pressed", isActive ? "true" : "false");
+      b.setAttribute("aria-checked", isActive ? "true" : "false");
     });
 });
 
@@ -157,7 +157,7 @@ resetBtn.addEventListener("click", () => {
     .forEach((b) => {
       const isActive = b.dataset.value === "bottom-right";
       b.classList.toggle("active", isActive);
-      b.setAttribute("aria-pressed", isActive ? "true" : "false");
+      b.setAttribute("aria-checked", isActive ? "true" : "false");
     });
 });
 
