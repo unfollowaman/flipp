@@ -173,6 +173,14 @@ describe('pdf-to-img format and resolution handling', () => {
     assert.strictEqual(toDataUrlCalled, false, 'toDataURL should not be called when generateDataUrl is false');
   });
 
+  test('convertBtn worker cleans up canvas dimensions to 0 after renderPageToCanvas', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    assert.ok(
+      code.includes('canvas.width = 0;') && code.includes('canvas.height = 0;'),
+      'Resets canvas dimensions to 0 in batch conversion worker loop to free GPU/RAM memory'
+    );
+  });
+
   test('generates correct file extensions for result cards and zip downloads', () => {
     const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
     assert.ok(code.includes('const ext = imageFormat === "jpg" ? "jpg" : "png";'), 'Handles dynamic file extension');

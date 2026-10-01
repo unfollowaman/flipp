@@ -179,6 +179,10 @@ async function showPreview(filename) {
   previewArea.classList.add("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
+  previewGrid.querySelectorAll("canvas").forEach((c) => {
+    c.width = 0;
+    c.height = 0;
+  });
   previewGrid.innerHTML = "";
 
   pageCountEl.textContent = `${totalPages} page${totalPages !== 1 ? "s" : ""} — "${filename}"`;
@@ -266,8 +270,12 @@ convertBtn.addEventListener("click", async () => {
 
       const page = await pdfDoc.getPage(pageNum);
       try {
-        const { dataUrl } = await renderPageToCanvas(page, scale, imageFormat);
+        const { canvas, dataUrl } = await renderPageToCanvas(page, scale, imageFormat);
         renderedPages[idx] = { pageNum, dataUrl };
+        if (canvas) {
+          canvas.width = 0;
+          canvas.height = 0;
+        }
       } finally {
         if (page && typeof page.cleanup === "function") {
           page.cleanup();
@@ -406,6 +414,10 @@ async function resetPdfConverter() {
   previewArea.classList.remove("is-visible");
   progressArea.style.display = "none";
   resultsArea.classList.remove("is-visible");
+  previewGrid.querySelectorAll("canvas").forEach((c) => {
+    c.width = 0;
+    c.height = 0;
+  });
   previewGrid.innerHTML = "";
   resultsGrid.innerHTML = "";
   rangeGroup.style.display = "none";
