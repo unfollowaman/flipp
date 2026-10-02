@@ -85,3 +85,7 @@
 ## 2026-10-04 - Zero canvas backing store dimensions before detaching canvas DOM elements
 **Learning:** In interactive rendering components (such as PDF Split preview containers in `js/pdf-split.js`), clearing container elements via `container.innerHTML = ""` detaches existing `<canvas>` elements without releasing their allocated backing pixel stores in GPU/RAM memory until browser garbage collection occurs.
 **Action:** Explicitly set `existingCanvas.width = 0` and `existingCanvas.height = 0` on existing `<canvas>` preview elements prior to clearing container HTML or resetting UI state to immediately release canvas backing store memory.
+
+## 2026-10-05 - Scope DOM queries for signature overlays to the container element
+**Learning:** In interactive PDF tools with overlay elements (such as `js/sign-pdf.js`), querying `.signature-overlay` elements using document-wide `document.querySelectorAll()` on click events, page navigation, deselections, PDF downloads, and resets causes full DOM tree traversals.
+**Action:** Scope `.signature-overlay` element queries directly to `canvasContainer.querySelectorAll(".signature-overlay")` to restrict DOM searches to the relevant parent container.
