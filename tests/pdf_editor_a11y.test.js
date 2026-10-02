@@ -89,3 +89,26 @@ test("PDF Editor Signature Modal accessibility attributes", () => {
     "Signature option pills must have aria-checked attributes"
   );
 });
+
+test("PDF Editor Property Bar form controls have associated labels", () => {
+  const htmlPath = path.join(__dirname, "..", "tools", "edit-pdf", "index.html");
+  const htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+  const expectedControlIds = [
+    "prop-font-size",
+    "prop-font-family",
+    "prop-color",
+    "prop-shape-type",
+    "prop-fill-color",
+    "prop-stroke-width",
+    "prop-opacity"
+  ];
+
+  expectedControlIds.forEach((controlId) => {
+    const regex = new RegExp(`<label[^>]*for="${controlId}"[^>]*>`, "i");
+    assert.ok(
+      regex.test(htmlContent),
+      `Property control #${controlId} should have a corresponding <label for="${controlId}">`
+    );
+  });
+});
