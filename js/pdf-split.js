@@ -294,6 +294,10 @@ splitBtn.addEventListener("click", async () => {
           blob: new Blob([await outPdf.save()], { type: "application/pdf" }),
         });
         chunkIndex++;
+
+        if (chunkIndex % 5 === 0 || i + interval >= totalPages) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
       }
 
       previewArea.classList.remove("is-visible");

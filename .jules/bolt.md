@@ -85,3 +85,7 @@
 ## 2026-10-04 - Zero canvas backing store dimensions before detaching canvas DOM elements
 **Learning:** In interactive rendering components (such as PDF Split preview containers in `js/pdf-split.js`), clearing container elements via `container.innerHTML = ""` detaches existing `<canvas>` elements without releasing their allocated backing pixel stores in GPU/RAM memory until browser garbage collection occurs.
 **Action:** Explicitly set `existingCanvas.width = 0` and `existingCanvas.height = 0` on existing `<canvas>` preview elements prior to clearing container HTML or resetting UI state to immediately release canvas backing store memory.
+
+## 2026-10-05 - Yield main-thread event loop periodically during multi-chunk PDF document creation
+**Learning:** In multi-page document split workflows (such as N-mode PDF splitting in `js/pdf-split.js`), sequentially invoking `PDFLib.PDFDocument.create()`, `copyPages()`, and `outPdf.save()` inside a synchronous loop blocks the main thread for extended periods on large documents, freezing browser UI and causing "Page Unresponsive" browser warnings.
+**Action:** Insert batched `await new Promise((resolve) => setTimeout(resolve, 0))` yields every N chunks (e.g., 5 chunks or final chunk) inside document processing loops to yield control back to the event loop for browser paints and UI responsiveness.
