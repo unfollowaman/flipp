@@ -85,3 +85,7 @@
 ## 2026-10-04 - Zero canvas backing store dimensions before detaching canvas DOM elements
 **Learning:** In interactive rendering components (such as PDF Split preview containers in `js/pdf-split.js`), clearing container elements via `container.innerHTML = ""` detaches existing `<canvas>` elements without releasing their allocated backing pixel stores in GPU/RAM memory until browser garbage collection occurs.
 **Action:** Explicitly set `existingCanvas.width = 0` and `existingCanvas.height = 0` on existing `<canvas>` preview elements prior to clearing container HTML or resetting UI state to immediately release canvas backing store memory.
+
+## 2026-10-05 - Use zero-allocation RegExp.prototype.test instead of String.prototype.trim for non-whitespace checks in item iteration loops
+**Learning:** In layout reconstruction and document parsing loops (such as `js/pdf-to-word.js` and `js/text-to-pdf.js`), invoking `str.trim()` to filter out empty or whitespace-only items/lines allocates thousands of temporary string objects in heap memory on multi-page files. Testing strings directly against a module-scoped regular expression (`/\S/.test(str)`) performs non-whitespace validation without string allocations or GC churn.
+**Action:** Use `!/\S/.test(str)` instead of `!str.trim()` or `str.trim().length === 0` when checking whether a string contains non-whitespace content inside document item iteration loops.
