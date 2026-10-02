@@ -359,6 +359,15 @@ export class PageDeleteUndoManager {
    * Clear history (e.g., when resetting or uploading a new document).
    */
   reset() {
+    for (const entry of this.history) {
+      if (entry && entry.card) {
+        const canvas = entry.card.querySelector("canvas");
+        if (canvas) {
+          canvas.width = 0;
+          canvas.height = 0;
+        }
+      }
+    }
     this.history = [];
     this.hasEverDeleted = false;
     this.isProcessing = false;
