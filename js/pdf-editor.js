@@ -32,6 +32,9 @@ const pageMetricsCache = new Map();
 // Overlay map cache: pageNum -> overlay DOM element
 const pageOverlayMap = new Map();
 
+// RGB color cache: hexString -> pdf-lib RGB object
+const pdfRgbCache = new Map();
+
 // DOM References
 const editorHeader = document.getElementById("editor-header");
 const dropZone = document.getElementById("editor-drop-zone");
@@ -118,6 +121,8 @@ export function domToPdfCoords(domRect, pageViewport, pdfSize) {
 // Helper to parse hex color string to pdf-lib RGB color object
 function hexToPdfRgb(hex) {
   if (!hex || hex === "none") return null;
+  if (pdfRgbCache.has(hex)) return pdfRgbCache.get(hex);
+
   let h = hex.replace("#", "");
   if (h.length === 3) h = h.split("").map((c) => c + c).join("");
   const num = parseInt(h, 16);
@@ -125,7 +130,9 @@ function hexToPdfRgb(hex) {
   const r = ((num >> 16) & 255) / 255;
   const g = ((num >> 8) & 255) / 255;
   const b = (num & 255) / 255;
-  return window.PDFLib ? window.PDFLib.rgb(r, g, b) : { r, g, b };
+  const rgbObj = window.PDFLib ? window.PDFLib.rgb(r, g, b) : { r, g, b };
+  pdfRgbCache.set(hex, rgbObj);
+  return rgbObj;
 }
 
 // ── PDF File Selection & Rendering ──────────────────────────────────
@@ -1649,6 +1656,7 @@ export function resetEditor() {
   numPages = 0;
   currentPageIndex = 1;
   pageOverlayMap.clear();
+  pdfRgbCache.clear();
   editorObjects = [];
   historyStack = [];
   redoStack = [];
