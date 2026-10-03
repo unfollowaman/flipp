@@ -177,11 +177,22 @@ export function sortAndDetectColumns(items, pageWidth) {
     rightColItems.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
     fullWidthItems.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
 
-    // Merge in natural reading order
-    return [...fullWidthItems.filter(i => i.topY < Math.min(leftColItems[0]?.topY || Infinity, rightColItems[0]?.topY || Infinity)),
-            ...leftColItems,
-            ...rightColItems,
-            ...fullWidthItems.filter(i => i.topY >= Math.min(leftColItems[0]?.topY || Infinity, rightColItems[0]?.topY || Infinity))];
+    const topThreshold = Math.min(
+      leftColItems[0]?.topY ?? Infinity,
+      rightColItems[0]?.topY ?? Infinity
+    );
+
+    const topFullWidth = [];
+    const bottomFullWidth = [];
+    for (const item of fullWidthItems) {
+      if (item.topY < topThreshold) {
+        topFullWidth.push(item);
+      } else {
+        bottomFullWidth.push(item);
+      }
+    }
+
+    return [...topFullWidth, ...leftColItems, ...rightColItems, ...bottomFullWidth];
   }
 
   return sortedByY;
