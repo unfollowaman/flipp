@@ -89,3 +89,7 @@
 ## 2026-10-05 - Use zero-allocation RegExp.prototype.test instead of String.prototype.trim for non-whitespace checks in item iteration loops
 **Learning:** In layout reconstruction and document parsing loops (such as `js/pdf-to-word.js` and `js/text-to-pdf.js`), invoking `str.trim()` to filter out empty or whitespace-only items/lines allocates thousands of temporary string objects in heap memory on multi-page files. Testing strings directly against a module-scoped regular expression (`/\S/.test(str)`) performs non-whitespace validation without string allocations or GC churn.
 **Action:** Use `!/\S/.test(str)` instead of `!str.trim()` or `str.trim().length === 0` when checking whether a string contains non-whitespace content inside document item iteration loops.
+
+## 2026-10-06 - Cache parsed PDF-lib RGB color objects across PDF editor export loops
+**Learning:** In PDF annotation and object rendering workflows (such as `js/pdf-editor.js`), parsing hex color strings and calling `pdfLib.rgb(r, g, b)` repeatedly for every text, shape, and highlight object during document export performs redundant hex string manipulations (`replace`, `parseInt`, bitwise shifting) and temporary object allocations across pages.
+**Action:** Cache parsed `pdfLib.rgb(r, g, b)` color objects in a module-scoped `Map` keyed by hex color string, and clear the cache when resetting the editor UI.
