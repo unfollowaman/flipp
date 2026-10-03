@@ -85,3 +85,7 @@
 ## 2026-10-04 - Zero canvas backing store dimensions before detaching canvas DOM elements
 **Learning:** In interactive rendering components (such as PDF Split preview containers in `js/pdf-split.js`), clearing container elements via `container.innerHTML = ""` detaches existing `<canvas>` elements without releasing their allocated backing pixel stores in GPU/RAM memory until browser garbage collection occurs.
 **Action:** Explicitly set `existingCanvas.width = 0` and `existingCanvas.height = 0` on existing `<canvas>` preview elements prior to clearing container HTML or resetting UI state to immediately release canvas backing store memory.
+
+## 2026-10-05 - Stream page canvas images directly to jsPDF without buffering in an array
+**Learning:** In canvas-to-PDF conversion pipelines (such as `js/text-to-pdf.js`), buffering rendered page JPEG DataURL strings in a temporary `pages` array retains megabytes of Base64 strings concurrently in RAM until document compilation finishes.
+**Action:** Stream page images directly into `doc.addImage(...)` upon page breaks and at document completion instead of pushing DataURLs into a `pages` array, allowing intermediate page strings to be garbage-collected immediately per page.
