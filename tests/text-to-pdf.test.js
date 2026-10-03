@@ -72,6 +72,14 @@ test('normalizeText', async (t) => {
   });
 });
 
+test('generatePdfFromText streams page images directly to jsPDF without buffering in a pages array', async (t) => {
+  await t.test('does not declare or buffer pages array in memory', () => {
+    assert.ok(!src.includes('let pages = []'), 'Should not declare a pages array in generatePdfFromText');
+    assert.ok(!src.includes('pages.push('), 'Should not push DataURLs into a pages array');
+    assert.ok(src.includes('doc.addImage('), 'Should call doc.addImage directly for pages');
+  });
+});
+
 test('text-to-pdf HTML accessibility attributes', async (t) => {
   await t.test('textarea input has an aria-label', () => {
     const htmlPath = path.join(__dirname, '../tools/text-to-pdf/index.html');
