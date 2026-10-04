@@ -81,3 +81,111 @@ test('text-to-pdf HTML accessibility attributes', async (t) => {
     assert.match(textareaMatch[0], /aria-label=["'][^"']+["']/, '#text-pdf-raw-input should have non-empty aria-label');
   });
 });
+
+test('generatePdfFromText streaming page logic', async (t) => {
+  const funcMatch = src.match(/async function generatePdfFromText\(content\) \{[\s\S]*?\n\}/);
+  assert.ok(funcMatch, 'Found generatePdfFromText in source');
+
+  let addPageCount = 0;
+  let addImageCalls = [];
+  let setPageCalls = [];
+
+  class MockJsPDF {
+    constructor() {
+      this.pagesCount = 1;
+      this.internal = {
+        pageSize: {
+          getWidth: () => 595.28,
+          getHeight: () => 841.89,
+        },
+      };
+    }
+    addPage() {
+      addPageCount++;
+      this.pagesCount++;
+    }
+    addImage(dataUrl, format, x, y, w, h) {
+      addImageCalls.push({ dataUrl, format, x, y, w, h });
+    }
+    getNumberOfPages() {
+      return this.pagesCount;
+    }
+    setFontSize() {}
+    setTextColor() {}
+    setPage(p) {
+      setPageCalls.push(p);
+    }
+    text() {}
+    output() {
+      return new Uint8Array([1, 2, 3]);
+    }
+  }
+
+  const mockCanvas = {
+    width: 0,
+    height: 0,
+    getContext: () => ({
+      scale: () => {},
+      fillRect: () => {},
+      fillText: () => {},
+      measureText: (txt) => ({ width: txt.length * 6 }),
+    }),
+    toDataURL: (type, quality) => `data:${type};base64,mockdata`,
+  };
+
+  const mockDocument = {
+    fonts: {
+      load: async () => {},
+      ready: Promise.resolve(),
+    },
+    createElement: (tag) => {
+      if (tag === 'canvas') return mockCanvas;
+      return {};
+    },
+    getElementById: () => null,
+  };
+
+  const fn = new Function(
+    'window',
+    'document',
+    'HAS_NON_WHITESPACE_REGEX',
+    `
+    ${funcMatch[0]}
+    return generatePdfFromText;
+    `
+  );
+
+  const generatePdfFromText = fn(
+    { jspdf: { jsPDF: MockJsPDF } },
+    mockDocument,
+    /\S/
+  );
+
+  await t.test('streams pages directly to jsPDF without buffering array', async () => {
+    addPageCount = 0;
+    addImageCalls = [];
+    setPageCalls = [];
+
+    const shortContent = 'Hello world\nThis is a short text.';
+    const result = await generatePdfFromText(shortContent);
+
+    assert.ok(result, 'Returned PDF result');
+    assert.strictEqual(addImageCalls.length, 1, 'Called addImage once for single page');
+    assert.strictEqual(addPageCount, 0, 'No extra addPage needed for 1-page doc');
+    assert.strictEqual(setPageCalls.length, 1, 'Footer applied to page 1');
+  });
+
+  await t.test('handles multi-page text document with page breaks', async () => {
+    addPageCount = 0;
+    addImageCalls = [];
+    setPageCalls = [];
+
+    // Construct content long enough to trigger multiple page breaks
+    const longContent = Array.from({ length: 150 }, (_, i) => `Paragraph line number ${i + 1} with extra words to fill page.`).join('\n');
+    const result = await generatePdfFromText(longContent);
+
+    assert.ok(result, 'Returned PDF result');
+    assert.ok(addImageCalls.length > 1, 'Called addImage multiple times for multi-page document');
+    assert.strictEqual(addPageCount, addImageCalls.length - 1, 'addPage called once per additional page');
+  });
+});
