@@ -623,3 +623,20 @@ test('pdf-split N-page splitting logic', async (t) => {
     assert.strictEqual(docs[1].addedPages.length, 1); // page 10
   });
 });
+
+test('tools/split-pdf/index.html includes aria-labels for split range inputs', async (t) => {
+  const htmlPath = path.join(__dirname, '../tools/split-pdf/index.html');
+  const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+
+  assert.match(
+    htmlContent,
+    /id="split-range-start"[^>]*aria-label="From page"/,
+    '#split-range-start input should have aria-label="From page"'
+  );
+
+  assert.match(
+    htmlContent,
+    /id="split-range-end"[^>]*aria-label="To page"/,
+    '#split-range-end input should have aria-label="To page"'
+  );
+});
