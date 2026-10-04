@@ -33,6 +33,8 @@ Candy Brutalism ============================== */
 }
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 body {
   font-family: var(--font-body);
@@ -40,6 +42,7 @@ body {
   background: var(--white);
   line-height: 1.5;
   overflow-x: hidden;
+  max-width: 100%;
 }
 a {
   color: inherit;
@@ -1912,10 +1915,10 @@ Results ============================== */
     font-size: clamp(40px, 10vw, 56px);
   }
   .homepage-hero-img {
-    max-width: 150%;
-    width: 150%;
-    margin-left: -20%;
-    transform: translateY(-40px);
+    max-width: 100%;
+    width: 100%;
+    margin-left: 0;
+    transform: translateY(-10px);
   }
   .hero-content-top {
     grid-template-columns: 1.5fr 1fr;
