@@ -82,7 +82,15 @@ async function generatePdfFromText(content) {
   const maxWidth = pageWidth - marginX * 2;
 
   const paragraphs = content.split("\n");
-  let pages = [];
+  let pageCount = 0;
+
+  function flushPageToDoc() {
+    if (pageCount > 0) {
+      doc.addPage();
+    }
+    pageCount++;
+    doc.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
+  }
 
   function drawNewPage() {
     ctx.fillStyle = "#ffffff";
@@ -96,7 +104,7 @@ async function generatePdfFromText(content) {
 
   function checkPageBreak() {
     if (y > pageHeight - marginBottom) {
-      pages.push(canvas.toDataURL("image/jpeg", 0.95));
+      flushPageToDoc();
       drawNewPage();
       y = marginTop;
     }
@@ -132,22 +140,17 @@ async function generatePdfFromText(content) {
     checkPageBreak();
   }
 
-  // Push the last page
-  pages.push(canvas.toDataURL("image/jpeg", 0.95));
+  // Flush final page directly to jsPDF
+  flushPageToDoc();
 
   // Release canvas memory allocation
   canvas.width = 0;
   canvas.height = 0;
 
-  for (let i = 0; i < pages.length; i++) {
-    if (i > 0) doc.addPage();
-    doc.addImage(pages[i], "JPEG", 0, 0, pageWidth, pageHeight);
-  }
-
-  const pageCount = doc.getNumberOfPages();
+  const totalDocPages = doc.getNumberOfPages();
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
-  for (let p = 1; p <= pageCount; p += 1) {
+  for (let p = 1; p <= totalDocPages; p += 1) {
     doc.setPage(p);
     doc.text(String(p), pageWidth / 2, pageHeight - 32, { align: "center" });
   }
