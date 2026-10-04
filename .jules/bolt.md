@@ -89,3 +89,7 @@
 ## 2026-10-05 - Use zero-allocation RegExp.prototype.test instead of String.prototype.trim for non-whitespace checks in item iteration loops
 **Learning:** In layout reconstruction and document parsing loops (such as `js/pdf-to-word.js` and `js/text-to-pdf.js`), invoking `str.trim()` to filter out empty or whitespace-only items/lines allocates thousands of temporary string objects in heap memory on multi-page files. Testing strings directly against a module-scoped regular expression (`/\S/.test(str)`) performs non-whitespace validation without string allocations or GC churn.
 **Action:** Use `!/\S/.test(str)` instead of `!str.trim()` or `str.trim().length === 0` when checking whether a string contains non-whitespace content inside document item iteration loops.
+
+## 2026-10-06 - Scope interactive overlay DOM queries to target container
+**Learning:** In interactive canvas/overlay components (such as `js/sign-pdf.js`), executing `document.querySelectorAll(".signature-overlay")` traverses the full DOM tree during click events, page navigation, and visibility toggling.
+**Action:** Scope overlay element lookups to `container.querySelectorAll(...)` (e.g. `canvasContainer.querySelectorAll(".signature-overlay")`) to restrict DOM searches to the specific container element holding the overlays.

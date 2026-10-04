@@ -384,7 +384,19 @@ test('sign-pdf signature overlay selection and deselection', async (t) => {
   const activeOverlays = [];
 
   const localDoc = {
-    getElementById: (id) => createMockElement(id),
+    getElementById: (id) => {
+      const el = createMockElement(id);
+      if (id === "sign-canvas-container") {
+        el.querySelectorAll = (selector) => {
+          if (selector === ".signature-overlay") return activeOverlays;
+          if (selector === ".signature-overlay.selected") {
+            return activeOverlays.filter((o) => o.classList.contains("selected"));
+          }
+          return [];
+        };
+      }
+      return el;
+    },
     querySelectorAll: (selector) => {
       if (selector === ".signature-overlay") return activeOverlays;
       if (selector === ".signature-overlay.selected") {
