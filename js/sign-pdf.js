@@ -313,7 +313,7 @@ placeBtn.addEventListener("click", () => {
 });
 
 function deselectAllSignatures() {
-  document.querySelectorAll(".signature-overlay.selected").forEach((overlay) => {
+  canvasContainer.querySelectorAll(".signature-overlay.selected").forEach((overlay) => {
     overlay.classList.remove("selected");
   });
 }
@@ -324,7 +324,7 @@ function selectSignature(overlay) {
 }
 
 document.addEventListener("click", (e) => {
-  const overlays = document.querySelectorAll(".signature-overlay");
+  const overlays = canvasContainer.querySelectorAll(".signature-overlay");
   if (overlays.length === 0) return;
 
   const clickedOverlay = e.target.closest(".signature-overlay");
@@ -537,7 +537,7 @@ function makeResizable(overlay, resizeHandle) {
 
 // Ensure overlays are only visible on their respective pages
 function updateOverlayVisibility() {
-  const overlays = document.querySelectorAll(".signature-overlay");
+  const overlays = canvasContainer.querySelectorAll(".signature-overlay");
   overlays.forEach((overlay) => {
     const page = parseInt(overlay.dataset.page, 10);
     if (page === currentPage) {
@@ -560,7 +560,7 @@ nextPageBtn.addEventListener("click", updateOverlayVisibility);
 
 // Download Process
 downloadBtn.addEventListener("click", async () => {
-  const overlays = document.querySelectorAll(".signature-overlay");
+  const overlays = canvasContainer.querySelectorAll(".signature-overlay");
   if (overlays.length === 0) {
     showToast("Please place at least one signature on the PDF.", "error");
     return;
@@ -697,7 +697,7 @@ function resetTool() {
   uploadedImageSrc = null;
   if (signaturePad) signaturePad.clear();
 
-  document.querySelectorAll(".signature-overlay").forEach((el) => el.remove());
+  canvasContainer.querySelectorAll(".signature-overlay").forEach((el) => el.remove());
 
   imgPreview.src = "";
   imgPreview.style.display = "none";
