@@ -104,12 +104,14 @@ async function encryptPdf(file, password) {
   });
 
   const BATCH_SIZE = 4;
+  const canvasPool = [];
   try {
     for (let start = 1; start <= numPages; start += BATCH_SIZE) {
       const end = Math.min(start + BATCH_SIZE - 1, numPages);
       const pagePromises = [];
 
       for (let pageNum = start; pageNum <= end; pageNum++) {
+        const slot = pageNum - start;
         pagePromises.push(
           (async () => {
             let page = null;
@@ -120,8 +122,15 @@ async function encryptPdf(file, password) {
               const heightPt = unscaledViewport.height;
 
               const renderViewport = page.getViewport({ scale: 2.0 });
-              const canvas = document.createElement("canvas");
-              const context = canvas.getContext("2d");
+
+              if (!canvasPool[slot]) {
+                const canvas = document.createElement("canvas");
+                canvasPool[slot] = {
+                  canvas,
+                  context: canvas.getContext("2d"),
+                };
+              }
+              const { canvas, context } = canvasPool[slot];
               canvas.width = renderViewport.width;
               canvas.height = renderViewport.height;
               context.fillStyle = "#ffffff";
@@ -130,9 +139,6 @@ async function encryptPdf(file, password) {
               await page.render({ canvasContext: context, viewport: renderViewport }).promise;
 
               const imgData = canvas.toDataURL("image/jpeg", 0.95);
-
-              canvas.width = 0;
-              canvas.height = 0;
 
               return { pageNum, widthPt, heightPt, imgData };
             } finally {
@@ -161,6 +167,12 @@ async function encryptPdf(file, password) {
 
     return jsPdfDoc.output("blob");
   } finally {
+    for (const poolItem of canvasPool) {
+      if (poolItem && poolItem.canvas) {
+        poolItem.canvas.width = 0;
+        poolItem.canvas.height = 0;
+      }
+    }
     if (pdfjsDoc && typeof pdfjsDoc.destroy === "function") {
       try {
         await pdfjsDoc.destroy();

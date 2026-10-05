@@ -379,6 +379,47 @@ test('encryptPdf function', async (t) => {
     assert.strictEqual(cleanupCallCount, 6);
     assert.strictEqual(destroyCalled, true);
   });
+
+  await t.test('reuses canvas elements via pool and resets canvas dimensions to 0 upon completion', async () => {
+    const multiPageWindow = {
+      jspdf: {
+        jsPDF: function() {
+          return {
+            internal: { pageSize: { setWidth: () => {}, setHeight: () => {} } },
+            addPage: () => {},
+            addImage: () => {},
+            output: () => new global.Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' })
+          };
+        }
+      },
+      "pdfjs-dist/build/pdf": {
+        getDocument: () => ({
+          promise: Promise.resolve({
+            numPages: 10,
+            getPage: () => Promise.resolve({
+              getViewport: ({ scale }) => ({ width: 100 * scale, height: 100 * scale }),
+              render: () => ({ promise: Promise.resolve() }),
+              cleanup: () => {}
+            })
+          })
+        })
+      }
+    };
+
+    const instance = createTestInstance(multiPageWindow);
+    const dummyFile = { arrayBuffer: async () => new ArrayBuffer(8) };
+    const blob = await instance.exportsObj.encryptPdf(dummyFile, 'password123');
+    assert.ok(blob);
+
+    const canvasElements = instance.createdElements.filter(el => el.tagName === 'canvas');
+    // BATCH_SIZE is 4, so for 10 pages only 4 canvas instances should be created
+    assert.strictEqual(canvasElements.length, 4);
+    // All pooled canvas elements should have their width and height reset to 0 in finally
+    for (const canvas of canvasElements) {
+      assert.strictEqual(canvas.width, 0);
+      assert.strictEqual(canvas.height, 0);
+    }
+  });
 });
 
 test('protectBtn click handling and error paths', async (t) => {
