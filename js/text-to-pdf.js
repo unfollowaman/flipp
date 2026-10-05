@@ -13,6 +13,8 @@ const resultsEl = document.getElementById("text-pdf-results");
 let selectedTextFile = null;
 let outputBlob = null;
 
+const HAS_NON_WHITESPACE_REGEX = /\S/;
+
 function normalizeText(text) {
   return text
     .replace(/\r\n?/g, "\n")
@@ -103,7 +105,7 @@ async function generatePdfFromText(content) {
   drawNewPage();
 
   for (const p of paragraphs) {
-    if (!p.trim()) {
+    if (!HAS_NON_WHITESPACE_REGEX.test(p)) {
       y += lineHeight;
       checkPageBreak();
       continue;
@@ -198,7 +200,7 @@ resetBtnEl.addEventListener("click", () => {
 });
 
 rawTextEl.addEventListener("input", () => {
-  if (rawTextEl.value.trim()) {
+  if (HAS_NON_WHITESPACE_REGEX.test(rawTextEl.value)) {
     previewEl.classList.add("is-visible");
     resultsEl.classList.remove("is-visible");
   }

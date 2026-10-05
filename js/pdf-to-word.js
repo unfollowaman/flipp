@@ -108,6 +108,7 @@ export class SmoothProgressController {
 const IS_BOLD_REGEX = /bold|black|heavy|medium/i;
 const IS_ITALIC_REGEX = /italic|oblique/i;
 const IS_LIST_REGEX = /^([•\-\*▪]|(\d+|[a-zA-Z])[\.\)])\s+/;
+const HAS_NON_WHITESPACE_REGEX = /\S/;
 
 // Coordinate transformation: convert PDF Y (from bottom) to top-down Y
 export function extractPageTextItems(textContent, viewportHeight) {
@@ -115,7 +116,7 @@ export function extractPageTextItems(textContent, viewportHeight) {
 
   const items = [];
   for (const item of textContent.items) {
-    if (!item.str || item.str.trim().length === 0) continue;
+    if (!item.str || !HAS_NON_WHITESPACE_REGEX.test(item.str)) continue;
     const transform = item.transform; // [scaleX, skewY, skewX, scaleY, x, y]
     const leftX = transform[4];
     const pdfY = transform[5];
