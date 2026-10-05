@@ -439,10 +439,22 @@ if (propItalic) {
   });
 }
 
+if (propFillColor) {
+  propFillColor.addEventListener("input", () => {
+    if (propTransparentFill) {
+      propTransparentFill.dataset.none = "false";
+      if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", "false");
+    }
+  });
+}
+
 if (propTransparentFill) {
   propTransparentFill.addEventListener("click", () => {
-    propFillColor.value = "#ffffff";
-    propTransparentFill.dataset.none = "true";
+    const isNone = propTransparentFill.dataset.none === "true";
+    const newNone = !isNone;
+    if (newNone) propFillColor.value = "#ffffff";
+    propTransparentFill.dataset.none = newNone ? "true" : "false";
+    if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", newNone ? "true" : "false");
     applyPropChangesToSelected();
   });
 }
