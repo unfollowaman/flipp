@@ -82,7 +82,7 @@ async function generatePdfFromText(content) {
   const maxWidth = pageWidth - marginX * 2;
 
   const paragraphs = content.split("\n");
-  let pages = [];
+  let pageIndex = 0;
 
   function drawNewPage() {
     ctx.fillStyle = "#ffffff";
@@ -96,7 +96,9 @@ async function generatePdfFromText(content) {
 
   function checkPageBreak() {
     if (y > pageHeight - marginBottom) {
-      pages.push(canvas.toDataURL("image/jpeg", 0.95));
+      if (pageIndex > 0) doc.addPage();
+      doc.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
+      pageIndex++;
       drawNewPage();
       y = marginTop;
     }
@@ -132,17 +134,13 @@ async function generatePdfFromText(content) {
     checkPageBreak();
   }
 
-  // Push the last page
-  pages.push(canvas.toDataURL("image/jpeg", 0.95));
+  // Add the last page
+  if (pageIndex > 0) doc.addPage();
+  doc.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
 
   // Release canvas memory allocation
   canvas.width = 0;
   canvas.height = 0;
-
-  for (let i = 0; i < pages.length; i++) {
-    if (i > 0) doc.addPage();
-    doc.addImage(pages[i], "JPEG", 0, 0, pageWidth, pageHeight);
-  }
 
   const pageCount = doc.getNumberOfPages();
   doc.setFontSize(10);
