@@ -8,7 +8,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
-src += '\nreturn { loadPdfMetadataAndPreviews, renderPagePreview, addFiles };\n';
+src += '\nreturn { loadPdfMetadataAndPreviews, renderPagePreview, addFiles, toggleNModeUI };\n';
 
 test('pdf-split error handling', async (t) => {
   const elementMap = {};
@@ -467,6 +467,7 @@ test('pdf-split N-page splitting logic', async (t) => {
         },
         innerHTML: '',
         textContent: '',
+        setAttribute: () => {},
         addEventListener: (event, handler) => {
           if (!elementMap[id].listeners) elementMap[id].listeners = {};
           elementMap[id].listeners[event] = handler;
@@ -639,4 +640,53 @@ test('tools/split-pdf/index.html includes aria-labels for split range inputs', a
     /id="split-range-end"[^>]*aria-label="To page"/,
     '#split-range-end input should have aria-label="To page"'
   );
+
+  assert.match(
+    htmlContent,
+    /id="split-n-checkbox"[^>]*aria-label="Split PDF by page interval"/,
+    '#split-n-checkbox input should have aria-label="Split PDF by page interval"'
+  );
+
+  assert.match(
+    htmlContent,
+    /id="split-n-checkbox"[^>]*aria-controls="split-n-stepper"/,
+    '#split-n-checkbox input should have aria-controls="split-n-stepper"'
+  );
+});
+
+test('pdf-split toggleNModeUI updates aria-expanded attribute on checkbox', async (t) => {
+  const attributes = {};
+  const mockCheckbox = {
+    checked: false,
+    setAttribute: (attr, val) => {
+      attributes[attr] = String(val);
+    },
+    getAttribute: (attr) => attributes[attr],
+    addEventListener: () => {},
+  };
+
+  const elementMap = {
+    'split-n-checkbox': mockCheckbox,
+    'split-n-stepper': { style: {}, addEventListener: () => {} },
+    'split-n-dec': { disabled: false, addEventListener: () => {} },
+    'split-n-inc': { disabled: false, addEventListener: () => {} },
+    'split-n-input': { disabled: false, addEventListener: () => {} },
+    'split-range-group': { style: {}, addEventListener: () => {} },
+  };
+
+  const mockDocument = {
+    getElementById: (id) => elementMap[id] || { style: {}, addEventListener: () => {} },
+    createElement: () => ({ style: {}, addEventListener: () => {} }),
+  };
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'console', src);
+  const { toggleNModeUI } = wrapper(mockDocument, {}, () => {}, () => {}, class Blob {}, {}, { error: () => {}, warn: () => {} });
+
+  mockCheckbox.checked = true;
+  toggleNModeUI();
+  assert.strictEqual(mockCheckbox.getAttribute('aria-expanded'), 'true');
+
+  mockCheckbox.checked = false;
+  toggleNModeUI();
+  assert.strictEqual(mockCheckbox.getAttribute('aria-expanded'), 'false');
 });
