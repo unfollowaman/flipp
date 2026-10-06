@@ -12,6 +12,7 @@ test("PDF Editor toolbar and control buttons have aria-label attributes", () => 
     "editor-redo-btn",
     "prop-bold",
     "prop-italic",
+    "prop-transparent-fill",
     "editor-delete-obj",
     "editor-prev-page",
     "editor-next-page",
@@ -53,10 +54,10 @@ test("PDF Editor toolbar container and toggle buttons have proper ARIA attribute
     assert.ok(match, `Tool button data-tool="${tool}" should have an aria-pressed attribute ("true" or "false")`);
   });
 
-  ["prop-bold", "prop-italic"].forEach((id) => {
+  ["prop-bold", "prop-italic", "prop-transparent-fill"].forEach((id) => {
     const regex = new RegExp(`<button[^>]*id="${id}"[^>]*aria-pressed="(true|false)"`, "i");
     const match = htmlContent.match(regex);
-    assert.ok(match, `Formatting button #${id} should have an aria-pressed attribute`);
+    assert.ok(match, `Formatting/toggle button #${id} should have an aria-pressed attribute`);
   });
 });
 
