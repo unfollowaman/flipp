@@ -28,6 +28,9 @@ const splitRangeGroup = document.getElementById("split-range-group");
 
 function toggleNModeUI() {
   const isChecked = splitNCheckbox ? splitNCheckbox.checked : false;
+  if (splitNCheckbox && typeof splitNCheckbox.setAttribute === "function") {
+    splitNCheckbox.setAttribute("aria-expanded", isChecked ? "true" : "false");
+  }
   if (splitNStepper) {
     splitNStepper.style.opacity = isChecked ? "1" : "0.5";
     splitNStepper.style.pointerEvents = isChecked ? "auto" : "none";
