@@ -7,11 +7,103 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
   const srcPath = path.join(__dirname, '../js/pdf-to-text.js');
   let src = fs.readFileSync(srcPath, 'utf8');
 
-  // Strip imports
+  // Strip imports and export statements for sandbox Function evaluation
   src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+  src = src.replace(/export\s+/g, '');
+
+  await t.test('evaluateExtractionQuality signal evaluation', async () => {
+    const thresholdsMatch = src.match(/const DEFAULT_QUALITY_THRESHOLDS[\s\S]*?;\n/);
+    const evalQualityMatch = src.match(/function evaluateExtractionQuality[\s\S]*?\n\}/);
+    assert.ok(thresholdsMatch && evalQualityMatch, 'evaluateExtractionQuality and thresholds exist');
+
+    const evaluateExtractionQuality = new Function(
+      'pageText',
+      'textContent',
+      'options',
+      thresholdsMatch[0] + '\n' + evalQualityMatch[0] + '\nreturn evaluateExtractionQuality(pageText, textContent, options);'
+    );
+
+    // 1. Clean English text
+    const cleanEngText = 'This is a standard clean English PDF document with normal sentence structure.';
+    const engRes = evaluateExtractionQuality(cleanEngText);
+    assert.strictEqual(engRes.isValid, true, 'Clean English text should be valid');
+    assert.strictEqual(engRes.reasons.length, 0);
+
+    // 2. Clean Hindi text
+    const cleanHindiText = 'लोकतांत्रिक व्यवस्था में राजनीतिक दलों की महत्वपूर्ण भूमिका होती है। भारत एक विशाल लोकतंत्र है।';
+    const hinRes = evaluateExtractionQuality(cleanHindiText);
+    assert.strictEqual(hinRes.isValid, true, 'Clean Hindi text should be valid');
+    assert.strictEqual(hinRes.reasons.length, 0);
+
+    // 3. Signal 1: NUL character detection
+    const nulText = 'जिससे मतदाताओं के पास \u0000ज ससे वास्तविक विकल्प कम हो गए हैं।';
+    const nulRes = evaluateExtractionQuality(nulText);
+    assert.strictEqual(nulRes.isValid, false);
+    assert.ok(nulRes.reasons.includes('null-characters'), 'Should detect null-characters');
+    assert.strictEqual(nulRes.metrics.nullCount, 1);
+
+    // 4. Signal 1: Replacement character (\uFFFD) detection
+    const replacementText = 'This contains replacement \uFFFD characters from corrupted encoding.';
+    const repRes = evaluateExtractionQuality(replacementText);
+    assert.strictEqual(repRes.isValid, false);
+    assert.ok(repRes.reasons.includes('replacement-characters'), 'Should detect replacement-characters');
+    assert.strictEqual(repRes.metrics.replacementCount, 1);
+
+    // 5. Signal 2: Isolated Devanagari matras detection
+    const isolatedMatraText = 'लोकतां ित्र क यात्र ा का संद भ';
+    const matraRes = evaluateExtractionQuality(isolatedMatraText);
+    assert.strictEqual(matraRes.isValid, false);
+    assert.ok(matraRes.reasons.includes('isolated-devanagari-matras'), 'Should detect isolated-devanagari-matras');
+    assert.ok(matraRes.metrics.isolatedMatraCount > 1);
+
+    // 6. Signal 3: Devanagari token fragmentation detection
+    const fragmentedText = 'रा ज नी ित क द लों के का म का ज को सु धा र ने के उपा य';
+    const fragRes = evaluateExtractionQuality(fragmentedText);
+    assert.strictEqual(fragRes.isValid, false);
+    assert.ok(fragRes.reasons.includes('high-devanagari-token-fragmentation'), 'Should detect high-devanagari-token-fragmentation');
+    assert.ok(fragRes.metrics.shortTokenRatio > 0.35);
+
+    // 7. Scanned or empty text
+    const scannedText = '   ';
+    const scannedRes = evaluateExtractionQuality(scannedText);
+    assert.strictEqual(scannedRes.isValid, false);
+    assert.ok(scannedRes.reasons.includes('scanned-or-empty'));
+  });
+
+  await t.test('assets/test.pdf classification with evaluateExtractionQuality', async () => {
+    const pdfjsLib = require('pdfjs-dist');
+    const testPdfPath = path.join(__dirname, '../assets/test.pdf');
+    assert.ok(fs.existsSync(testPdfPath), 'assets/test.pdf fixture exists');
+
+    const data = new Uint8Array(fs.readFileSync(testPdfPath));
+    const doc = await pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
+
+    const thresholdsMatch = src.match(/const DEFAULT_QUALITY_THRESHOLDS[\s\S]*?;\n/);
+    const evalQualityMatch = src.match(/function evaluateExtractionQuality[\s\S]*?\n\}/);
+    const evaluateExtractionQuality = new Function(
+      'pageText',
+      'textContent',
+      'options',
+      thresholdsMatch[0] + '\n' + evalQualityMatch[0] + '\nreturn evaluateExtractionQuality(pageText, textContent, options);'
+    );
+
+    let totalCorruptedPages = 0;
+    for (let p = 1; p <= doc.numPages; p++) {
+      const page = await doc.getPage(p);
+      const textContent = await page.getTextContent();
+      const rawText = textContent.items.map((i) => i.str).join(' ');
+      const res = evaluateExtractionQuality(rawText, textContent);
+
+      assert.strictEqual(res.isValid, false, `Page ${p} of assets/test.pdf should be classified as invalid (requiring OCR)`);
+      totalCorruptedPages++;
+    }
+
+    assert.strictEqual(totalCorruptedPages, 17, 'All 17 pages of assets/test.pdf should require OCR fallback');
+  });
 
   await t.test('extractTextFromPage identifies standard text vs OCR needed', async () => {
-    // Evaluate extractTextFromPage function
+    const thresholdsMatch = src.match(/const DEFAULT_QUALITY_THRESHOLDS[\s\S]*?;\n/);
+    const evalQualityMatch = src.match(/function evaluateExtractionQuality[\s\S]*?\n\}/);
     const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
     assert.ok(extractFnMatch, 'extractTextFromPage function exists');
 
@@ -19,7 +111,7 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
       'page',
       'textContent',
       'getOcrWorker',
-      extractFnMatch[0] + '\nreturn extractTextFromPage(page, textContent, getOcrWorker);'
+      thresholdsMatch[0] + '\n' + evalQualityMatch[0] + '\n' + extractFnMatch[0] + '\nreturn extractTextFromPage(page, textContent, getOcrWorker);'
     );
 
     // Mock page and textContent for standard text
@@ -300,7 +392,16 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
 
     const mockDocument = {
       getElementById: (id) => elementMap[id] || createMockElement(id),
-      body: { appendChild: () => {}, removeChild: () => {} }
+      body: { appendChild: () => {}, removeChild: () => {} },
+      createElement: (tag) => {
+        if (tag === 'canvas') {
+          return {
+            getContext: () => ({}),
+            toDataURL: () => 'data:image/png;base64,abc'
+          };
+        }
+        return { addEventListener: () => {} };
+      }
     };
 
     const mockWindow = {
