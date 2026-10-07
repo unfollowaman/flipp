@@ -1,0 +1,67 @@
+{
+  "name": "Horizon Educational Catalog",
+  "description": "Catalog of free educational resources, study notes, previous year question papers (PYQs), and NCERT/CBSE syllabus frameworks for Classes 8, 9, and 10.",
+  "url": "https://unfollowaman.tech",
+  "version": "1.0",
+  "provider": {
+    "name": "Horizon",
+    "url": "https://unfollowaman.tech"
+  },
+  "categories": [
+    {
+      "id": "pyq",
+      "name": "Previous Year Question Papers",
+      "description": "Official previous year examination papers for Class 8th to 10th subjects.",
+      "url": "https://unfollowaman.tech/library/"
+    },
+    {
+      "id": "notes",
+      "name": "Study Notes",
+      "description": "Chapter-wise student study notes, key concepts, formulas, and topic summaries.",
+      "url": "https://unfollowaman.tech/notes/"
+    },
+    {
+      "id": "syllabus",
+      "name": "Syllabus Directory",
+      "description": "Detailed NCERT and CBSE curriculum chapter hierarchy and visual flowcharts.",
+      "url": "https://unfollowaman.tech/syllabus/"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "url": "https://unfollowaman.tech/",
+      "description": "Main landing page for Horizon educational platform."
+    },
+    {
+      "title": "Library (PYQs)",
+      "url": "https://unfollowaman.tech/library/",
+      "description": "Browse and search past examination papers by class, subject, and year."
+    },
+    {
+      "title": "Study Notes",
+      "url": "https://unfollowaman.tech/notes/",
+      "description": "Structured revision notes and chapter summaries."
+    },
+    {
+      "title": "Syllabus Directory",
+      "url": "https://unfollowaman.tech/syllabus/",
+      "description": "NCERT & CBSE class and subject syllabus breakdowns."
+    },
+    {
+      "title": "About Us",
+      "url": "https://unfollowaman.tech/about/",
+      "description": "Platform mission, background, and usage guide."
+    },
+    {
+      "title": "Contact",
+      "url": "https://unfollowaman.tech/contact/",
+      "description": "Contact details and feedback mechanisms."
+    },
+    {
+      "title": "Attribution",
+      "url": "https://unfollowaman.tech/attribution/",
+      "description": "Attribution policy for examination papers and third-party visual assets."
+    }
+  ]
+}
