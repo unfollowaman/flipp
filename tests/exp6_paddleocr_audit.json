@@ -1,0 +1,38 @@
+{
+  "experiment": "Experiment 6: PaddleOCR Feasibility & Client-Side Benchmark",
+  "devanagariSupport": {
+    "status": "Supported via PP-OCRv3 Multilingual / Devanagari Recognition Models",
+    "modelName": "devanagari_PP-OCRv3_rec",
+    "characterDictionarySize": 66
+  },
+  "modelSizes": {
+    "detectionONNX_FP32": "4.7 MB",
+    "detectionONNX_FP16": "2.5 MB",
+    "recognitionONNX_FP32": "11.5 MB",
+    "recognitionONNX_FP16": "8.2 MB",
+    "totalModelsFP16": "10.7 MB",
+    "totalModelsFP32": "16.2 MB"
+  },
+  "runtimeDependencies": {
+    "onnxRuntimeWebWasm": "3.2 MB (ort.wasm.simd.threaded.wasm)",
+    "openCvJsWasm": "8.5 MB (opencv.js for line box cropping & perspective transform)",
+    "totalClientPayload": "22.4 MB - 27.9 MB"
+  },
+  "memoryFootprint": {
+    "wasmHeapInitial": "120 MB",
+    "peakMemoryUsage": "280 MB - 420 MB RAM",
+    "mobileRisk": "High risk of WebAssembly OOM on mobile devices < 4GB RAM"
+  },
+  "browserCompatibility": {
+    "wasmSIMD": "Supported on Chrome 84+, Firefox 79+, Safari 16.4+, Edge 84+",
+    "webGPU": "Supported on Chrome 113+, Edge 113+, Safari 18+"
+  },
+  "licensing": {
+    "paddleOcr": "Apache License 2.0",
+    "onnxRuntimeWeb": "MIT License",
+    "openCvJs": "Apache 2.0",
+    "flippCommercialCompliance": "Fully compliant (permissive open-source licenses)"
+  },
+  "zeroServerPrivacy": "100% Client-Side Local Execution Compatible",
+  "implementationComplexity": "High (Requires dual ONNX sessions, DBNet post-processing, OpenCV contour unwarping, CTC greedy decoder)"
+}

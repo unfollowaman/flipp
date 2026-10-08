@@ -1,0 +1,665 @@
+[
+  {
+    "pageNumber": 1,
+    "totalItems": 216,
+    "totalChars": 1438,
+    "nullByteCount": 11,
+    "nullItemCount": 11,
+    "nullItemSamples": [
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "भ\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 42,
+    "totalDevanagariTokens": 286,
+    "shortDevanagariTokens": 149,
+    "fragmentationRatio": 0.5209790209790209,
+    "sampleRawText": "कक्ष   ा 10 | नाग \u0000र क शास्त्र   (Civics) | अध् याय 4  1. प \u0000र चय (Introduction)  ❖   लोकतां ित्र   क यात्र   ा का संद भ\u0000 :   कक्ष   ा 9 और 10 के   िप छले अध् यायों में यह स्   पष्ट  िक या गया है   िक"
+  },
+  {
+    "pageNumber": 2,
+    "totalItems": 169,
+    "totalChars": 1049,
+    "nullByteCount": 15,
+    "nullItemCount": 15,
+    "nullItemSamples": [
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ग\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 26,
+    "totalDevanagariTokens": 206,
+    "shortDevanagariTokens": 119,
+    "fragmentationRatio": 0.5776699029126213,
+    "sampleRawText": "हैं। दल लोगों को यह समझाने का प्र   यास करते हैं   िक   उनकी नी ित याँ अन् य दलों की तुलना में बेहतर हैं।  ❖   पक्ष   पात और पहचान (Partisanship and Identity):   * राजनी ित क दल समाज के   िक सी एक   ि"
+  },
+  {
+    "pageNumber": 3,
+    "totalItems": 214,
+    "totalChars": 1542,
+    "nullByteCount": 21,
+    "nullItemCount": 21,
+    "nullItemSamples": [
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ख",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 34,
+    "totalDevanagariTokens": 293,
+    "shortDevanagariTokens": 158,
+    "fragmentationRatio": 0.5392491467576792,
+    "sampleRawText": "2.3 राजनी ित क दल के का य\u0000   (Functions of Political Parties)  राजनी ित क दल मूलतः राजनी ित क पदों को भरते हैं और राजनी ित क सत्त   ा का इस् तेमाल करते हैं। इसके प्र   मुख का य\u0000   िन म्   न \u0000ल \u0000ख त है"
+  },
+  {
+    "pageNumber": 4,
+    "totalItems": 202,
+    "totalChars": 1503,
+    "nullByteCount": 22,
+    "nullItemCount": 22,
+    "nullItemSamples": [
+      {
+        "str": "\u0000ट",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000श",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000क्ष",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ण\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 29,
+    "totalDevanagariTokens": 285,
+    "shortDevanagariTokens": 143,
+    "fragmentationRatio": 0.5017543859649123,
+    "sampleRawText": "○   पा \u0000ट याँ योग् य नेताओं को चुनती हैं, उन् हें प्र   \u0000श \u0000क्ष   त करती हैं और सरकार चलाने के   \u0000ल ए उन् हें मंत्र   ी बनाती हैं।  5.   िव रोधी दल की भू िम का (Role of Opposition):  ○   चुनाव हारने व"
+  },
+  {
+    "pageNumber": 5,
+    "totalItems": 278,
+    "totalChars": 1750,
+    "nullByteCount": 24,
+    "nullItemCount": 24,
+    "nullItemSamples": [
+      {
+        "str": "\u0000स् थ",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 39,
+    "totalDevanagariTokens": 325,
+    "shortDevanagariTokens": 178,
+    "fragmentationRatio": 0.5476923076923077,
+    "sampleRawText": "बड़े नी ित गत बदलावों के संबंध में जनता से वादा करने की   \u0000स् थ ित   में नहीं होगा।  ❖   उत्त   रदा िय त्   व की कमी (Lack of Accountability):   िन वा\u0000 िच त प्र   ित िन िध   केवल अपने   िन वा\u0000 चन क्षे"
+  },
+  {
+    "pageNumber": 6,
+    "totalItems": 228,
+    "totalChars": 1444,
+    "nullByteCount": 18,
+    "nullItemCount": 18,
+    "nullItemSamples": [
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000स् थ",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000भ",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 26,
+    "totalDevanagariTokens": 250,
+    "shortDevanagariTokens": 124,
+    "fragmentationRatio": 0.496,
+    "sampleRawText": "दलीय व्   यवस् था (Party  System)  प \u0000र भाषा (De fi nition)   िव शेषताएँ एवं सीमाएँ  (Features & Limitations)  उदाहरण  (Examples)  बदलती रहती है।   संभावना केवल दो प्र   मुख दलों  की होती है। • राजनी "
+  },
+  {
+    "pageNumber": 7,
+    "totalItems": 210,
+    "totalChars": 1386,
+    "nullByteCount": 15,
+    "nullItemCount": 15,
+    "nullItemSamples": [
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ट",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 40,
+    "totalDevanagariTokens": 288,
+    "shortDevanagariTokens": 156,
+    "fragmentationRatio": 0.5416666666666666,
+    "sampleRawText": "और भौगो \u0000ल क   िव िव धताओं, राजनी ित क इ ित हास तथा चुनाव प्र   णाली के आधार पर स्   वतः   िव क िस त होती है।  ❖   भारत का उदाहरण:   भारत में बहु दलीय व्   यवस् था इस \u0000ल ए है क्   यों   िक   भारत की  "
+  },
+  {
+    "pageNumber": 8,
+    "totalItems": 90,
+    "totalChars": 646,
+    "nullByteCount": 5,
+    "nullItemCount": 5,
+    "nullItemSamples": [
+      {
+        "str": "थ\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ट\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ट",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 16,
+    "totalDevanagariTokens": 101,
+    "shortDevanagariTokens": 47,
+    "fragmentationRatio": 0.46534653465346537,
+    "sampleRawText": "4.1 मान् यता प्र   ाप्त   दल का अ थ\u0000   (Recognized Parties)  ❖   भारत में सभी राजनी ित क दलों को   भारत   िन वा\u0000 चन आयोग (Election Commission of India - ECI)   में पंजीकरण कराना अ िन वा य\u0000   है।  ❖   "
+  },
+  {
+    "pageNumber": 9,
+    "totalItems": 284,
+    "totalChars": 1609,
+    "nullByteCount": 22,
+    "nullItemCount": 22,
+    "nullItemSamples": [
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ट\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "ष\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000श",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ब् ध",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 41,
+    "totalDevanagariTokens": 291,
+    "shortDevanagariTokens": 133,
+    "fragmentationRatio": 0.4570446735395189,
+    "sampleRawText": "Noti fi cation)  2023 में भारत   िन वा\u0000 चन आयोग द्व   ारा जारी अ िध सूचना के अनुसार देश में   6 मान् यता प्र ाप्त   राष्ट्र   ीय दल   हैं:  1. आम आदमी पा ट\u0000   - आप (Aam Aadmi Party - AAP)  ❖   गठन:   "
+  },
+  {
+    "pageNumber": 10,
+    "totalItems": 241,
+    "totalChars": 1468,
+    "nullByteCount": 20,
+    "nullItemCount": 20,
+    "nullItemSamples": [
+      {
+        "str": "जा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ख",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "मा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 37,
+    "totalDevanagariTokens": 274,
+    "shortDevanagariTokens": 142,
+    "fragmentationRatio": 0.5182481751824818,
+    "sampleRawText": "○   भारत की प्र   ाचीन संस् कृ ित   और मूल् य; पं िड त दीनदयाल उपाध् याय के   समग्र मानवतावाद (Integral Humanism)   एवं   अंत्य   ोदय (Antyodaya)   से प्रे रणा।  ○   सांस् कृ ित क राष्ट्र   वाद ( िह ं"
+  },
+  {
+    "pageNumber": 11,
+    "totalItems": 256,
+    "totalChars": 1615,
+    "nullByteCount": 25,
+    "nullItemCount": 25,
+    "nullItemSamples": [
+      {
+        "str": "ग\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000क्ष",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "म\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "म\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 36,
+    "totalDevanagariTokens": 306,
+    "shortDevanagariTokens": 157,
+    "fragmentationRatio": 0.5130718954248366,
+    "sampleRawText": "❖   गठन:   1885 में गठन (दु िन या के सबसे पुराने दलों में से एक)।  ❖   मूल   िस द्ध   ांत/ िव चारधारा:   *   मध् यमा ग\u0000   (Centrist)   वैचा \u0000र क रु   झान (न वामपंथी, न द \u0000क्ष   णपंथी)।  ○   जवाहरलाल न"
+  },
+  {
+    "pageNumber": 12,
+    "totalItems": 186,
+    "totalChars": 1248,
+    "nullByteCount": 12,
+    "nullItemCount": 12,
+    "nullItemSamples": [
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ट\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "ि\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "चा\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 34,
+    "totalDevanagariTokens": 232,
+    "shortDevanagariTokens": 117,
+    "fragmentationRatio": 0.5043103448275862,
+    "sampleRawText": "के   \u0000ल ए,   समाजवादी पा ट\u0000   (SP)   और   राष्ट्र   ीय जनता दल (RJD)   का सांगठ िन क ढाँचा राष्ट्र   ीय स्   तर का है और उनकी इकाइयाँ कई राज् यों में हैं।  ❖   कुछ दल केवल अपनी क्षेत्र   ीय पहचान को ल"
+  },
+  {
+    "pageNumber": 13,
+    "totalItems": 209,
+    "totalChars": 1356,
+    "nullByteCount": 31,
+    "nullItemCount": 31,
+    "nullItemSamples": [
+      {
+        "str": "\u0000द्र",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "य\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ता\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ण\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 27,
+    "totalDevanagariTokens": 299,
+    "shortDevanagariTokens": 163,
+    "fragmentationRatio": 0.5451505016722408,
+    "sampleRawText": "में कें \u0000द्र   त हो जाता है।  ❖   सांगठ िन क बैठकें   िन य िम त रू   प से नहीं होतीं और न ही आंत \u0000र क चुनाव कराए जाते हैं।  ❖   का य\u0000 क ता\u0000 ओं के पास   िन ण\u0000 यों को प्र   भा िव त करने की श िक्त   या स"
+  },
+  {
+    "pageNumber": 14,
+    "totalItems": 202,
+    "totalChars": 1397,
+    "nullByteCount": 12,
+    "nullItemCount": 12,
+    "nullItemSamples": [
+      {
+        "str": "\u0000थ",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 33,
+    "totalDevanagariTokens": 262,
+    "shortDevanagariTokens": 126,
+    "fragmentationRatio": 0.48091603053435117,
+    "sampleRawText": "करने के ब्   यौरों के अलावा कोई बड़ा अंतर नहीं बचा है।  ❖   भारत में भी लगभग सभी प्र   मुख राजनी ित क दलों के बीच आ \u0000थ क नी ित यों (Economic Policies) को लेकर सहम ित   बन गई है,   \u0000ज ससे मतदाताओं के प"
+  },
+  {
+    "pageNumber": 15,
+    "totalItems": 191,
+    "totalChars": 1441,
+    "nullByteCount": 21,
+    "nullItemCount": 21,
+    "nullItemSamples": [
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "न\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ख",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 25,
+    "totalDevanagariTokens": 262,
+    "shortDevanagariTokens": 143,
+    "fragmentationRatio": 0.5458015267175572,
+    "sampleRawText": "○  प्र   ावधान:   चुनाव आयोग ने आदेश   िद या है   िक   सभी राजनी ित क दल सांगठ िन क चुनाव (Organizational Elections) कराएं और अपना  आयकर   \u0000र ट न\u0000   (Income Tax Return)   दा \u0000ख ल करें।  7.2 सुधार के  "
+  },
+  {
+    "pageNumber": 16,
+    "totalItems": 176,
+    "totalChars": 1219,
+    "nullByteCount": 16,
+    "nullItemCount": 16,
+    "nullItemSamples": [
+      {
+        "str": "ण\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "ष\u0000",
+        "fontName": "g_d0_f1",
+        "hasTransform": true
+      },
+      {
+        "str": "ज\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "ट\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "स\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 23,
+    "totalDevanagariTokens": 208,
+    "shortDevanagariTokens": 111,
+    "fragmentationRatio": 0.5336538461538461,
+    "sampleRawText": "8. महत् वपू ण\u0000   ित िथ याँ एवं कालक्र   म (Important Dates & Timeline)  व ष\u0000   /   ित िथ   घटना / मील का पत् थर (Event / Milestone)  1885   इं िड यन नेशनल काँग्रे   स (INC) की स्   थापना।  1951  श्   "
+  },
+  {
+    "pageNumber": 17,
+    "totalItems": 132,
+    "totalChars": 821,
+    "nullByteCount": 6,
+    "nullItemCount": 6,
+    "nullItemSamples": [
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ल",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "वा\u0000",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000र",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      },
+      {
+        "str": "\u0000ज",
+        "fontName": "g_d0_f5",
+        "hasTransform": true
+      }
+    ],
+    "detachedMatraCount": 29,
+    "totalDevanagariTokens": 164,
+    "shortDevanagariTokens": 87,
+    "fragmentationRatio": 0.5304878048780488,
+    "sampleRawText": "❖   शासक दल (Ruling Party):   वह राजनी ित क दल   \u0000ज सकी सरकार बनी हो या जो शासन चला रहा हो।  ❖   िव रोधी दल (Opposition Party):   चुनाव में बहु मत प्र   ाप्त   न कर पाने वाले दल जो सरकार की नी ित यों "
+  }
+]
