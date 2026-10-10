@@ -185,7 +185,7 @@ textarea {
 ============================== */
 .hero {
   background: var(--cream);
-  padding: 28.74px 32px 0;
+  padding: 28.74px 32px 12px;
   border-bottom: var(--border-std);
 }
 .hero-inner {
@@ -1905,7 +1905,7 @@ Results ============================== */
     padding: 0 16px;
   }
   .hero {
-    padding: 35px 16px 0;
+    padding: 35px 16px 12px;
   }
   .hero-badge {
     font-size: 10px;
