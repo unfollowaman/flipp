@@ -2759,7 +2759,8 @@ Results ============================== */
   object-fit: contain;
 }
 @media (max-width: 767px) {
-  .github-star-btn {
+  .github-star-btn,
+  .feedback-btn {
     display: none !important;
   }
 } /* Merge
