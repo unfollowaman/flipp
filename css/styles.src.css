@@ -2727,9 +2727,11 @@ Results ============================== */
   border: none;
   box-shadow: none;
   background: transparent;
-} /* ============================== GitHub Star Button
+}
+/* ============================== Header Nav Action Buttons
 ============================== */
-.github-star-btn {
+.github-star-btn,
+.feedback-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
