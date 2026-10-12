@@ -1,0 +1,16 @@
+[
+  {
+    "file": "exp8_combined_candidate_results.json",
+    "expName": "Exp 8: Combined Winner Candidate (hin, 1.5x, grayscale_contrast, PSM 4)",
+    "pageCount": 17,
+    "totalTimeSec": "64.6s",
+    "avgOcrSec": "3.66s",
+    "totalChars": 19833,
+    "shortTokenRatio": "27.6%",
+    "ger": 0,
+    "of": 0,
+    "bl": 0,
+    "num885": 1,
+    "num1885": 0
+  }
+]
