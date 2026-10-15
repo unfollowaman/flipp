@@ -1,0 +1,27 @@
+{
+  "baselineReproduction": {
+    "cer": 0.2946,
+    "wer": 0.4639,
+    "durationSeconds": 68.95,
+    "pages": 17,
+    "downloadMatch": true
+  },
+  "ortCapabilities": {
+    "hasOrt": true,
+    "wasmSupported": true,
+    "webgpuSupported": true,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36"
+  },
+  "paddleOcrTechnicalAssessment": {
+    "feasibilityStatus": "BLOCKED_PENDING_CONVERTED_ONNX_ARTIFACTS",
+    "blockerReason": "PP-OCRv3/v4 Devanagari models are provided by PaddlePaddle in fluid/inference (.pdmodel/.pdiparams) format. Direct browser execution requires non-trivial conversion via paddle2onnx Python toolchain, custom OpenCV.js image scaling/padding preprocessing, DBNet polygon box clipping/unclipping C++ post-processing port, and Devanagari character dictionary mapping.",
+    "requiredModelPayloads": {
+      "dbnetDetectionOnnx": "ch_PP-OCRv3_det_infer.onnx (~4.7 MB)",
+      "svtrRecognitionDevanagariOnnx": "devanagari_PP-OCRv3_rec_infer.onnx (~12.5 MB)",
+      "onnxRuntimeWasm": "ort-wasm-simd.wasm (~6.1 MB)",
+      "totalClientDownload": "~23.3 MB"
+    },
+    "runtimeMemoryRequirement": "~280 MB - 450 MB RAM per active tab",
+    "browserExecutionModel": "100% Client-Side ONNX Runtime WebAssembly (WASM SIMD)"
+  }
+}

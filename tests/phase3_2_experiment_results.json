@@ -1,0 +1,989 @@
+[
+  {
+    "id": "Control",
+    "description": "Control (Phase 3 Baseline: hin, 1.5x, grayscale_contrast, PSM 4)",
+    "totalTimeMs": 62584.10000000009,
+    "overallCER": 0.2945945945945946,
+    "overallWER": 0.463884430176565,
+    "totalRefChars": 3700,
+    "totalErrChars": 1090,
+    "totalRefWords": 623,
+    "totalErrWords": 289,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 1,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.06828528072837632,
+        "wer": 0.20175438596491227,
+        "refLength": 659,
+        "distanceChars": 45,
+        "refWords": 114,
+        "distanceWords": 23,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: क्तक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ट किय..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 0.3860182370820669,
+        "wer": 0.5636363636363636,
+        "refLength": 329,
+        "distanceChars": 127,
+        "refWords": 55,
+        "distanceWords": 31,
+        "snippet": "तीन प्रमुख हिस्से त066 00000 08 ए0ंपिं08। ए8000 + नेता (69675: ढल के शीर्ष पढ़ स..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.37065637065637064,
+        "wer": 0.575,
+        "refLength": 259,
+        "distanceChars": 96,
+        "refWords": 40,
+        "distanceWords": 23,
+        "snippet": "2.3 राजनीतिक ढल के कार्य (पा एंणाड ए ए0घं08। ए8650 राजनीतिक ढल मूलतः राजनीतिक पढ..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 0.40609137055837563,
+        "wer": 0.5172413793103449,
+        "refLength": 197,
+        "distanceChars": 80,
+        "refWords": 29,
+        "distanceWords": 15,
+        "snippet": "उत्तरदायित्व कीं कमी (80६० #80००0799॥0४): निर्लाचित प्रतिनिधि केवल अपने निर्वाचन..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.34440559440559443,
+        "wer": 0.4791666666666667,
+        "refLength": 572,
+        "distanceChars": 197,
+        "refWords": 96,
+        "distanceWords": 46,
+        "snippet": "गठबंधन या मोर्चा (8906 0 0770 + परिभाषा: जल बहुढलीय व्यलस्था में अनेक पार्टियाँ ..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.4105691056910569,
+        "wer": 0.5813953488372093,
+        "refLength": 246,
+        "distanceChars": 101,
+        "refWords": 43,
+        "distanceWords": 25,
+        "snippet": "मान्यता प्राप्त ढूल का अर्थ (र७०८०हाांट60 ए8प65) <+ भारत में सभी राजनीतिक ढ्लों ..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.19523809523809524,
+        "wer": 0.44339622641509435,
+        "refLength": 630,
+        "distanceChars": 123,
+        "refWords": 106,
+        "distanceWords": 47,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (ातांशा 8078] एणाइह्ठा655 - ९०0 + गठन: 885 में ग..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.319672131147541,
+        "wer": 0.5,
+        "refLength": 122,
+        "distanceChars": 39,
+        "refWords": 22,
+        "distanceWords": 11,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल (२00) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.9724137931034482,
+        "wer": 1.2083333333333333,
+        "refLength": 145,
+        "distanceChars": 141,
+        "refWords": 24,
+        "distanceWords": 29,
+        "snippet": "आयकर रिदर्न (0००णाए6 80: शाप) ढारिल करें। 7.2 सुधार के लिए ढ़िए गए प्रमुख सुझाव ..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 0.1903114186851211,
+        "wer": 0.391304347826087,
+        "refLength": 289,
+        "distanceChars": 55,
+        "refWords": 46,
+        "distanceWords": 18,
+        "snippet": "7885 इंडियन नेशनल काँग्रेस (५0) की स्थापना। 957. श्यामा प्रसाढ़ मुरवर्जी ढ्वारा ..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.3412698412698413,
+        "wer": 0.4375,
+        "refLength": 252,
+        "distanceChars": 86,
+        "refWords": 48,
+        "distanceWords": 21,
+        "snippet": "शासक ढ़ल (रपाडड ए9१: वह राजनीतिक ढल जिसकी सरकार बनी हो या जो शासन चला रहा हो। + ..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_1_Otsu",
+    "description": "Exp 1: Otsu Adaptive Binarization (hin, 1.5x, otsu, PSM 4)",
+    "totalTimeMs": 64338.39999999991,
+    "overallCER": 0.5091891891891892,
+    "overallWER": 0.6260032102728732,
+    "totalRefChars": 3700,
+    "totalErrChars": 1884,
+    "totalRefWords": 623,
+    "totalErrWords": 390,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 2,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.05918057663125948,
+        "wer": 0.17543859649122806,
+        "refLength": 659,
+        "distanceChars": 39,
+        "refWords": 114,
+        "distanceWords": 20,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: कक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ठ किया ..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 329,
+        "distanceChars": 329,
+        "refWords": 55,
+        "distanceWords": 55,
+        "snippet": "..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 259,
+        "distanceChars": 259,
+        "refWords": 40,
+        "distanceWords": 40,
+        "snippet": "..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 197,
+        "distanceChars": 197,
+        "refWords": 29,
+        "distanceWords": 29,
+        "snippet": "..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.3304195804195804,
+        "wer": 0.4270833333333333,
+        "refLength": 572,
+        "distanceChars": 189,
+        "refWords": 96,
+        "distanceWords": 41,
+        "snippet": "गठबंधन या मोर्चा (8॥॥क्ञाठ्6 0 नए + परिभाषा; जल्र बहुइलीय व्यलस्था में अनेक पार्..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.3780487804878049,
+        "wer": 0.5813953488372093,
+        "refLength": 246,
+        "distanceChars": 93,
+        "refWords": 43,
+        "distanceWords": 25,
+        "snippet": "मान्यता प्राप्त ुल का अर्थ (रि600्ांटि€ एल €ि50 + भारत में सभी राजनीतिक ढुलों को..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.18571428571428572,
+        "wer": 0.46226415094339623,
+        "refLength": 630,
+        "distanceChars": 117,
+        "refWords": 106,
+        "distanceWords": 49,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (ातांशा 808 एणाइ्ठा655 - १९०0 कि के ज्ु 07 ् (5)..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.09016393442622951,
+        "wer": 0.22727272727272727,
+        "refLength": 122,
+        "distanceChars": 11,
+        "refWords": 22,
+        "distanceWords": 5,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल 0६/0) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.993103448275862,
+        "wer": 1.25,
+        "refLength": 145,
+        "distanceChars": 144,
+        "refWords": 24,
+        "distanceWords": 30,
+        "snippet": "आयकर रिदर्न (00०06 789 र्टापशा) ढाखिल करें। 7.2 सुधार के लिए ढिए गए प्रमुरव सुझा..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 289,
+        "distanceChars": 289,
+        "refWords": 46,
+        "distanceWords": 46,
+        "snippet": "..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.8611111111111112,
+        "wer": 1.0416666666666667,
+        "refLength": 252,
+        "distanceChars": 217,
+        "refWords": 48,
+        "distanceWords": 50,
+        "snippet": "शासक ढल (शपाइ्ट ए 800 अपनी राय के अनुरूप ही सरकार की नीतियाँ तय करता है। 3. कानू..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_2_SigmoidContrast",
+    "description": "Exp 2: Sigmoid S-Curve Contrast (hin, 1.5x, sigmoid_contrast, PSM 4)",
+    "totalTimeMs": 64259.59999999963,
+    "overallCER": 0.492972972972973,
+    "overallWER": 0.6645264847512039,
+    "totalRefChars": 3700,
+    "totalErrChars": 1824,
+    "totalRefWords": 623,
+    "totalErrWords": 414,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 1,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.06676783004552352,
+        "wer": 0.20175438596491227,
+        "refLength": 659,
+        "distanceChars": 44,
+        "refWords": 114,
+        "distanceWords": 23,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: कश्ना 9 और 0 के पिछले अध्यायों में यह स्पष् किया ग..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 329,
+        "distanceChars": 329,
+        "refWords": 55,
+        "distanceWords": 55,
+        "snippet": "..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.40540540540540543,
+        "wer": 0.6,
+        "refLength": 259,
+        "distanceChars": 105,
+        "refWords": 40,
+        "distanceWords": 24,
+        "snippet": "2.3 राजनीतिक ढ़ल के कार्य #घा एड 0 ए0घ08। ९865) राजनीतिक ढल मूलतः राजनीतिक पढ़ों..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 197,
+        "distanceChars": 197,
+        "refWords": 29,
+        "distanceWords": 29,
+        "snippet": "..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.3304195804195804,
+        "wer": 0.46875,
+        "refLength": 572,
+        "distanceChars": 189,
+        "refWords": 96,
+        "distanceWords": 45,
+        "snippet": "गठबंधन या मोर्चा (8॥॥ ०6 0 070 + परिभाषा: जलन बहुढलीय ल्यलस्था में अनेक पार्टिया..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.44308943089430897,
+        "wer": 0.6976744186046512,
+        "refLength": 246,
+        "distanceChars": 109,
+        "refWords": 43,
+        "distanceWords": 30,
+        "snippet": "मान्यता प्राप्त ढुल का अर्थ (२6८०6 ए8ाप65) < भारत में सभी राजनीतिक ढ्लों को भारत..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.2619047619047619,
+        "wer": 0.5660377358490566,
+        "refLength": 630,
+        "distanceChars": 165,
+        "refWords": 106,
+        "distanceWords": 60,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (तां8ा घी था एणाह्ा655 - ९०) ड लि किक लि िकिकिनि..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.319672131147541,
+        "wer": 0.5454545454545454,
+        "refLength": 122,
+        "distanceChars": 39,
+        "refWords": 22,
+        "distanceWords": 12,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल (२/0) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.9517241379310345,
+        "wer": 1.625,
+        "refLength": 145,
+        "distanceChars": 138,
+        "refWords": 24,
+        "distanceWords": 39,
+        "snippet": "चुनाव में कुल मतों एमए + विधानसभा तुनाव में वैध मतों का 6% का 6% अथवा 4 राज्यों ..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 289,
+        "distanceChars": 289,
+        "refWords": 46,
+        "distanceWords": 46,
+        "snippet": "..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.873015873015873,
+        "wer": 1.0625,
+        "refLength": 252,
+        "distanceChars": 220,
+        "refWords": 48,
+        "distanceWords": 51,
+        "snippet": "शासक ढल (शा ए#ा$ अपनी राय के अनुरूप ही सरकार की नीतियाँ तय करता है। 3. कानून निर..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_3_SharpenContrast",
+    "description": "Exp 3: Unsharp Mask Sharpening + Contrast (hin, 1.5x, sharpen_contrast, PSM 4)",
+    "totalTimeMs": 66204.8999999999,
+    "overallCER": 0.5391891891891892,
+    "overallWER": 0.6581059390048154,
+    "totalRefChars": 3700,
+    "totalErrChars": 1995,
+    "totalRefWords": 623,
+    "totalErrWords": 410,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 1,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.06525037936267071,
+        "wer": 0.18421052631578946,
+        "refLength": 659,
+        "distanceChars": 43,
+        "refWords": 114,
+        "distanceWords": 21,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: कक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ट किया ..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 329,
+        "distanceChars": 329,
+        "refWords": 55,
+        "distanceWords": 55,
+        "snippet": "..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.22393822393822393,
+        "wer": 0.375,
+        "refLength": 259,
+        "distanceChars": 58,
+        "refWords": 40,
+        "distanceWords": 15,
+        "snippet": "2.3 राजनीतिक ढल के कार्य #़पाएघंणाड ए एणॉपं098 एघाप ०50 राजनीतिक ढल मूलतः राजनीत..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 0.4213197969543147,
+        "wer": 0.5517241379310345,
+        "refLength": 197,
+        "distanceChars": 83,
+        "refWords": 29,
+        "distanceWords": 16,
+        "snippet": "उत्तरदायित्व की कमी 0.80 #80०००पा॥8॥0४): निर्लाचित प्रतिनिधि केवल अपने निर्वाचन ..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 572,
+        "distanceChars": 572,
+        "refWords": 96,
+        "distanceWords": 96,
+        "snippet": "..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.4105691056910569,
+        "wer": 0.5581395348837209,
+        "refLength": 246,
+        "distanceChars": 101,
+        "refWords": 43,
+        "distanceWords": 24,
+        "snippet": "मान्यता प्राप्त ढुल का अर्थ (रि60८0०््ांट60 एघाप 65) 4 भारत में सभी राजनीतिक ढलो..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.23809523809523808,
+        "wer": 0.49056603773584906,
+        "refLength": 630,
+        "distanceChars": 150,
+        "refWords": 106,
+        "distanceWords": 52,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरई्डएनसी (ातांशा 808 एणाइ्ा 855 - ९०) हद) का ल्शुद डक द..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.08196721311475409,
+        "wer": 0.22727272727272727,
+        "refLength": 122,
+        "distanceChars": 10,
+        "refWords": 22,
+        "distanceWords": 5,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल (९.0) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.9862068965517241,
+        "wer": 1.2083333333333333,
+        "refLength": 145,
+        "distanceChars": 143,
+        "refWords": 24,
+        "distanceWords": 29,
+        "snippet": "चुनाव राजनीतिक ढलों ढ्रारा खड़े किए गए उम्मीढ़लारों के बीच लड़ा जाता है। ०. उम्म..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 289,
+        "distanceChars": 289,
+        "refWords": 46,
+        "distanceWords": 46,
+        "snippet": "..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.8611111111111112,
+        "wer": 1.0625,
+        "refLength": 252,
+        "distanceChars": 217,
+        "refWords": 48,
+        "distanceWords": 51,
+        "snippet": "शासक ढल (१घाघाडड ए2१0 अपनी राय के अलुरूप ही सरकार की नीतियाँ तय करता है। 3. कानू..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_4_DPI300",
+    "description": "Exp 4: Explicit DPI 300 Parameter (hin, 1.5x, grayscale_contrast, PSM 4, user_defined_dpi=300)",
+    "totalTimeMs": 62884.10000000009,
+    "overallCER": 0.36,
+    "overallWER": 0.5104333868378812,
+    "totalRefChars": 3700,
+    "totalErrChars": 1332,
+    "totalRefWords": 623,
+    "totalErrWords": 318,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 2,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.06828528072837632,
+        "wer": 0.20175438596491227,
+        "refLength": 659,
+        "distanceChars": 45,
+        "refWords": 114,
+        "distanceWords": 23,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: क्तक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ट किय..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 0.3860182370820669,
+        "wer": 0.5636363636363636,
+        "refLength": 329,
+        "distanceChars": 127,
+        "refWords": 55,
+        "distanceWords": 31,
+        "snippet": "तीन प्रमुख हिस्से त066 00000 08 ए0ंपिं08। ए8000 + नेता (69675: ढल के शीर्ष पढ़ स..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.37065637065637064,
+        "wer": 0.575,
+        "refLength": 259,
+        "distanceChars": 96,
+        "refWords": 40,
+        "distanceWords": 23,
+        "snippet": "2.3 राजनीतिक ढल के कार्य (पा एंणाड ए ए0घं08। ए8650 राजनीतिक ढल मूलतः राजनीतिक पढ..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 0.40609137055837563,
+        "wer": 0.5172413793103449,
+        "refLength": 197,
+        "distanceChars": 80,
+        "refWords": 29,
+        "distanceWords": 15,
+        "snippet": "उत्तरदायित्व कीं कमी (80६० #80००0799॥0४): निर्लाचित प्रतिनिधि केवल अपने निर्वाचन..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.32167832167832167,
+        "wer": 0.4166666666666667,
+        "refLength": 572,
+        "distanceChars": 184,
+        "refWords": 96,
+        "distanceWords": 40,
+        "snippet": "गठबंधन या मोर्चा (8906 0 0770 + परिभाषा: जल बहुढलीय व्यलस्था में अनेक पार्टियाँ ..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.4105691056910569,
+        "wer": 0.5813953488372093,
+        "refLength": 246,
+        "distanceChars": 101,
+        "refWords": 43,
+        "distanceWords": 25,
+        "snippet": "मान्यता प्राप्त ढूल का अर्थ (र७०८०हाांट60 ए8प65) <+ भारत में सभी राजनीतिक ढ्लों ..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.23015873015873015,
+        "wer": 0.5,
+        "refLength": 630,
+        "distanceChars": 145,
+        "refWords": 106,
+        "distanceWords": 53,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (ातांशा 8078] एणाइह्ठा655 - ९०0 ल््‌ 2 लक ्ध + ग..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.319672131147541,
+        "wer": 0.5454545454545454,
+        "refLength": 122,
+        "distanceChars": 39,
+        "refWords": 22,
+        "distanceWords": 12,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल (२00) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.9655172413793104,
+        "wer": 1.2083333333333333,
+        "refLength": 145,
+        "distanceChars": 140,
+        "refWords": 24,
+        "distanceWords": 29,
+        "snippet": "आयकर रिदर्न (0००6 क9६ ९७प0) ढाखिल सरें। 7.2 सुधार के लिए ढ़िए गए प्रमुख सुझाव (्..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 289,
+        "distanceChars": 289,
+        "refWords": 46,
+        "distanceWords": 46,
+        "snippet": "..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.3412698412698413,
+        "wer": 0.4375,
+        "refLength": 252,
+        "distanceChars": 86,
+        "refWords": 48,
+        "distanceWords": 21,
+        "snippet": "शासक ढ़ल (रपाडड ए9१: वह राजनीतिक ढल जिसकी सरकार बनी हो या जो शासन चला रहा हो। + ..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_5_PSM3",
+    "description": "Exp 5: Fully Automatic PSM 3 (hin, 1.5x, grayscale_contrast, PSM 3)",
+    "totalTimeMs": 65453.799999999814,
+    "overallCER": 0.2945945945945946,
+    "overallWER": 0.463884430176565,
+    "totalRefChars": 3700,
+    "totalErrChars": 1090,
+    "totalRefWords": 623,
+    "totalErrWords": 289,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 1,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.06828528072837632,
+        "wer": 0.20175438596491227,
+        "refLength": 659,
+        "distanceChars": 45,
+        "refWords": 114,
+        "distanceWords": 23,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: क्तक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ट किय..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 0.3860182370820669,
+        "wer": 0.5636363636363636,
+        "refLength": 329,
+        "distanceChars": 127,
+        "refWords": 55,
+        "distanceWords": 31,
+        "snippet": "तीन प्रमुख हिस्से त066 00000 08 ए0ंपिं08। ए8000 + नेता (69675: ढल के शीर्ष पढ़ स..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.37065637065637064,
+        "wer": 0.575,
+        "refLength": 259,
+        "distanceChars": 96,
+        "refWords": 40,
+        "distanceWords": 23,
+        "snippet": "2.3 राजनीतिक ढल के कार्य (पा एंणाड ए ए0घं08। ए8650 राजनीतिक ढल मूलतः राजनीतिक पढ..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 0.40609137055837563,
+        "wer": 0.5172413793103449,
+        "refLength": 197,
+        "distanceChars": 80,
+        "refWords": 29,
+        "distanceWords": 15,
+        "snippet": "उत्तरदायित्व कीं कमी (80६० #80००0799॥0४): निर्लाचित प्रतिनिधि केवल अपने निर्वाचन..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.34440559440559443,
+        "wer": 0.4791666666666667,
+        "refLength": 572,
+        "distanceChars": 197,
+        "refWords": 96,
+        "distanceWords": 46,
+        "snippet": "गठबंधन या मोर्चा (8906 0 0770 + परिभाषा: जल बहुढलीय व्यलस्था में अनेक पार्टियाँ ..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.4105691056910569,
+        "wer": 0.5813953488372093,
+        "refLength": 246,
+        "distanceChars": 101,
+        "refWords": 43,
+        "distanceWords": 25,
+        "snippet": "मान्यता प्राप्त ढूल का अर्थ (र७०८०हाांट60 ए8प65) <+ भारत में सभी राजनीतिक ढ्लों ..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.19523809523809524,
+        "wer": 0.44339622641509435,
+        "refLength": 630,
+        "distanceChars": 123,
+        "refWords": 106,
+        "distanceWords": 47,
+        "snippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (ातांशा 8078] एणाइह्ठा655 - ९०0 + गठन: 885 में ग..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 0.319672131147541,
+        "wer": 0.5,
+        "refLength": 122,
+        "distanceChars": 39,
+        "refWords": 22,
+        "distanceWords": 11,
+        "snippet": "समाजलाढ़ी पार्टी (50) और राष्ट्रीय जनता ढल (२00) का सांगठनिक ढाँचा राष्ट्रीय स्त..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 0.9724137931034482,
+        "wer": 1.2083333333333333,
+        "refLength": 145,
+        "distanceChars": 141,
+        "refWords": 24,
+        "distanceWords": 29,
+        "snippet": "आयकर रिदर्न (0००णाए6 80: शाप) ढारिल करें। 7.2 सुधार के लिए ढ़िए गए प्रमुख सुझाव ..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 0.1903114186851211,
+        "wer": 0.391304347826087,
+        "refLength": 289,
+        "distanceChars": 55,
+        "refWords": 46,
+        "distanceWords": 18,
+        "snippet": "7885 इंडियन नेशनल काँग्रेस (५0) की स्थापना। 957. श्यामा प्रसाढ़ मुरवर्जी ढ्वारा ..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.3412698412698413,
+        "wer": 0.4375,
+        "refLength": 252,
+        "distanceChars": 86,
+        "refWords": 48,
+        "distanceWords": 21,
+        "snippet": "शासक ढ़ल (रपाडड ए9१: वह राजनीतिक ढल जिसकी सरकार बनी हो या जो शासन चला रहा हो। + ..."
+      }
+    ]
+  },
+  {
+    "id": "Exp_6_Scale1_75",
+    "description": "Exp 6: Rendering Scale 1.75x (hin, 1.75x, grayscale_contrast, PSM 4)",
+    "totalTimeMs": 68213.70000000019,
+    "overallCER": 0.4391891891891892,
+    "overallWER": 0.5521669341894061,
+    "totalRefChars": 3700,
+    "totalErrChars": 1625,
+    "totalRefWords": 623,
+    "totalErrWords": 344,
+    "errors": {
+      "dhalCount": 0,
+      "num1885Count": 0,
+      "num885Count": 2,
+      "politicalPartiesCount": 0,
+      "gerCount": 0
+    },
+    "passageBreakdown": [
+      {
+        "id": "page1_intro",
+        "pageNumber": 1,
+        "cer": 0.09863429438543247,
+        "wer": 0.17543859649122806,
+        "refLength": 659,
+        "distanceChars": 65,
+        "refWords": 114,
+        "distanceWords": 20,
+        "snippet": "लोकतांत्रिक यात्रा का संदर्भ: कक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ठ किया ..."
+      },
+      {
+        "id": "page2_components",
+        "pageNumber": 2,
+        "cer": 0.3586626139817629,
+        "wer": 0.4727272727272727,
+        "refLength": 329,
+        "distanceChars": 118,
+        "refWords": 55,
+        "distanceWords": 26,
+        "snippet": "तीन प्रमुख हिस्से (066 00065 08 ?0॥ब09। ए8ा५0 + नेता (69065): ढल के शीर्ष पढ़ सं..."
+      },
+      {
+        "id": "page3_functions",
+        "pageNumber": 3,
+        "cer": 0.24324324324324326,
+        "wer": 0.4,
+        "refLength": 259,
+        "distanceChars": 63,
+        "refWords": 40,
+        "distanceWords": 16,
+        "snippet": "2.3 राजनीतिक ढल के कार्य (प्रा 0ा5 0 ९0॥॥08। ९8765) राजनीतिक ढल मूलतः राजनीतिक प..."
+      },
+      {
+        "id": "page5_accountability",
+        "pageNumber": 5,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 197,
+        "distanceChars": 197,
+        "refWords": 29,
+        "distanceWords": 29,
+        "snippet": "..."
+      },
+      {
+        "id": "page6_alliance",
+        "pageNumber": 6,
+        "cer": 0.32867132867132864,
+        "wer": 0.4270833333333333,
+        "refLength": 572,
+        "distanceChars": 188,
+        "refWords": 96,
+        "distanceWords": 41,
+        "snippet": "गठबंधन या मोर्चा (80806 0 वि) + परिभाषा: जब बहुढलीय व्यवस्था में अनेक पार्टियाँ ..."
+      },
+      {
+        "id": "page8_recognized",
+        "pageNumber": 8,
+        "cer": 0.4186991869918699,
+        "wer": 0.5813953488372093,
+        "refLength": 246,
+        "distanceChars": 103,
+        "refWords": 43,
+        "distanceWords": 25,
+        "snippet": "मान्यता प्राप्त ढल का अर्थ (२७००छ्ठा।ंर&0 ए8ं65) + भारत में सभी राजनीतिक ढलों को..."
+      },
+      {
+        "id": "page11_inc_date",
+        "pageNumber": 11,
+        "cer": 0.18095238095238095,
+        "wer": 0.3584905660377358,
+        "refLength": 630,
+        "distanceChars": 114,
+        "refWords": 106,
+        "distanceWords": 38,
+        "snippet": "इंडियन नेशनल काँग्रेस - आईएनसी (तां ि808| एणाछ्ठा&55 - १९00 + गठन: 885 में गठन (..."
+      },
+      {
+        "id": "page12_state_parties",
+        "pageNumber": 12,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 122,
+        "distanceChars": 122,
+        "refWords": 22,
+        "distanceWords": 22,
+        "snippet": "..."
+      },
+      {
+        "id": "page15_income_tax",
+        "pageNumber": 15,
+        "cer": 1,
+        "wer": 1.1666666666666667,
+        "refLength": 145,
+        "distanceChars": 145,
+        "refWords": 24,
+        "distanceWords": 28,
+        "snippet": "आयकर रिदर्न (ा0णा। 6 १89६ ९७00) ढाखिल करें। 7.2 सुधार के लिए ढ़िए गए प्रमुख सुझा..."
+      },
+      {
+        "id": "page16_timeline",
+        "pageNumber": 16,
+        "cer": 1,
+        "wer": 1,
+        "refLength": 289,
+        "distanceChars": 289,
+        "refWords": 46,
+        "distanceWords": 46,
+        "snippet": "..."
+      },
+      {
+        "id": "page17_glossary",
+        "pageNumber": 17,
+        "cer": 0.876984126984127,
+        "wer": 1.1041666666666667,
+        "refLength": 252,
+        "distanceChars": 221,
+        "refWords": 48,
+        "distanceWords": 53,
+        "snippet": "शासक ढ़ल (शा ए8 अपनी राय के अनुरूप ही सरकार की नीतियाँ तय करता है। 3. कानून निर्..."
+      }
+    ]
+  }
+]

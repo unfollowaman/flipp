@@ -32,7 +32,7 @@ function levenshteinDistance(arr1, arr2) {
 
 function normalizeText(text) {
   if (!text) return "";
-  return text
+  return String(text)
     .replace(/[\r\n]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -75,31 +75,43 @@ function calculateWER(reference, hypothesis) {
   };
 }
 
-function extractMatchingSubsegment(reference, fullPageText, startKeyword, endKeyword) {
-  if (!fullPageText) return "";
-  const normPage = normalizeText(fullPageText);
+function extractMatchingSubsegment(reference, fullDownloadedText, pageNumber, startKeyword, endKeyword) {
+  if (!fullDownloadedText) return "";
+
+  const normPage = normalizeText(fullDownloadedText);
   const normRef = normalizeText(reference);
 
-  let startIndex = 0;
+  let startIndex = -1;
 
   if (startKeyword) {
-    const idx = normPage.indexOf(startKeyword);
-    if (idx !== -1) {
-      startIndex = idx;
-    } else {
-      // Fallback: search for first 15 chars of startKeyword
-      const shortKw = startKeyword.substring(0, 15);
-      const idx2 = normPage.indexOf(shortKw);
-      if (idx2 !== -1) startIndex = idx2;
+    const kwStr = String(startKeyword);
+    startIndex = normPage.indexOf(kwStr);
+    if (startIndex === -1) {
+      // Fallback: search for first 12 characters of startKeyword
+      const shortKw = kwStr.substring(0, Math.min(12, kwStr.length));
+      startIndex = normPage.indexOf(shortKw);
     }
   }
 
-  let endIndex = startIndex + normRef.length + 40;
+  if (startIndex === -1) {
+    // If start keyword not found at all, try searching first word of reference
+    const firstWord = normRef.split(" ")[0];
+    if (firstWord && firstWord.length > 3) {
+      startIndex = normPage.indexOf(firstWord);
+    }
+  }
+
+  if (startIndex === -1) {
+    return "";
+  }
+
+  let endIndex = startIndex + normRef.length + 30;
 
   if (endKeyword) {
-    const idx = normPage.indexOf(endKeyword, startIndex);
-    if (idx !== -1 && idx - startIndex < normRef.length * 1.5) {
-      endIndex = idx + endKeyword.length;
+    const endKwStr = String(endKeyword);
+    const idx = normPage.indexOf(endKwStr, startIndex);
+    if (idx !== -1 && idx - startIndex < normRef.length * 2.0) {
+      endIndex = idx + endKwStr.length;
     }
   }
 

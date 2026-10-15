@@ -24,6 +24,7 @@ function evaluateBaselineAccuracy() {
     const extractedSegment = extractMatchingSubsegment(
       passage.text,
       fullDownloadedText,
+      passage.pageNumber,
       passage.startKeyword,
       passage.endKeyword
     );
