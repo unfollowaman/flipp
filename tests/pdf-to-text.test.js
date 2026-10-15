@@ -112,13 +112,14 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
     const thresholdsMatch = src.match(/const DEFAULT_QUALITY_THRESHOLDS[\s\S]*?;\n/);
     const evalQualityMatch = src.match(/function evaluateExtractionQuality[\s\S]*?\n\}/);
     const extractFnMatch = src.match(/async function extractTextFromPage[\s\S]*?\n\}/);
-    assert.ok(extractFnMatch, 'extractTextFromPage function exists');
+    const preprocessMatch = src.match(/function preprocessCanvasForOcr[\s\S]*?\n\}/);
+    assert.ok(extractFnMatch && preprocessMatch, 'extractTextFromPage and preprocessCanvasForOcr exist');
 
     const extractTextFromPage = new Function(
       'page',
       'textContent',
       'getOcrWorker',
-      thresholdsMatch[0] + '\n' + evalQualityMatch[0] + '\n' + extractFnMatch[0] + '\nreturn extractTextFromPage(page, textContent, getOcrWorker);'
+      thresholdsMatch[0] + '\n' + evalQualityMatch[0] + '\n' + preprocessMatch[0] + '\n' + extractFnMatch[0] + '\nreturn extractTextFromPage(page, textContent, getOcrWorker);'
     );
 
     // Mock page and textContent for standard text
@@ -130,6 +131,24 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
     const resStandard = await extractTextFromPage(samplePage, textContentStandard, null);
     assert.strictEqual(resStandard.usedOcr, false);
     assert.strictEqual(resStandard.text, 'Hello world this is a sample pdf document');
+    assert.ok(preprocessMatch, 'preprocessCanvasForOcr function exists');
+    const preprocessCanvasForOcr = new Function('ctx', 'width', 'height', preprocessMatch[0] + '\nreturn preprocessCanvasForOcr(ctx, width, height);');
+
+    const samplePixels = new Uint8ClampedArray([
+      200, 200, 200, 255, // avg = 200 >= 180 -> min(255, 200+20) = 220
+      100, 100, 100, 255  // avg = 100 < 180 -> max(0, 100-30) = 70
+    ]);
+    const mockImgData = { data: samplePixels };
+    let putDataCalled = false;
+    const mockPreprocessCtx = {
+      getImageData: () => mockImgData,
+      putImageData: () => { putDataCalled = true; }
+    };
+
+    preprocessCanvasForOcr(mockPreprocessCtx, 2, 1);
+    assert.strictEqual(putDataCalled, true);
+    assert.strictEqual(samplePixels[0], 220); // Red channel updated
+    assert.strictEqual(samplePixels[4], 70);  // Dark pixel contrast lowered
 
     // Mock page and textContent for empty / scanned document
     const textContentScanned = { items: [] };
@@ -137,7 +156,10 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
       recognize: async () => ({ data: { text: 'OCR extracted text' } })
     };
     const mockCanvas = {
-      getContext: () => ({}),
+      getContext: () => ({
+        getImageData: () => ({ data: new Uint8ClampedArray(16) }),
+        putImageData: () => {}
+      }),
       toDataURL: () => 'data:image/png;base64,abc'
     };
     const mockPageScanned = {
@@ -299,7 +321,10 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
       createElement: (tag) => {
         if (tag === 'canvas') {
           return {
-            getContext: () => ({}),
+            getContext: () => ({
+              getImageData: () => ({ data: new Uint8ClampedArray(16) }),
+              putImageData: () => {}
+            }),
             toDataURL: () => 'data:image/png;base64,abc'
           };
         }
@@ -361,6 +386,7 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
     };
 
     const mockWorker = {
+      setParameters: async () => {},
       recognize: async () => {
         throw new Error('OCR recognition failed');
       },
@@ -403,7 +429,10 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
       createElement: (tag) => {
         if (tag === 'canvas') {
           return {
-            getContext: () => ({}),
+            getContext: () => ({
+              getImageData: () => ({ data: new Uint8ClampedArray(16) }),
+              putImageData: () => {}
+            }),
             toDataURL: () => 'data:image/png;base64,abc'
           };
         }

@@ -249,8 +249,8 @@ async function extractAllPagesText(pdfDoc, getOcrWorker) {
     await Promise.all(batch);
 
     // Update text output progressively
-    currentText = pageTexts.filter((t) => t !== undefined).join("\n\n");
-    if (textOutput) textOutput.value = currentText.trim();
+    currentText = pageTexts.filter((t) => t !== undefined).join("\n\n").trim();
+    if (textOutput) textOutput.value = currentText;
   }
 }
 
@@ -275,7 +275,13 @@ async function handleFile(file) {
   // Use a promise singleton so we don't accidentally initialize the worker multiple times in parallel
   const getOcrWorker = () => {
     if (!ocrWorkerPromise) {
-      ocrWorkerPromise = window.Tesseract.createWorker("hin+eng");
+      ocrWorkerPromise = (async () => {
+        const worker = await window.Tesseract.createWorker("hin");
+        await worker.setParameters({
+          tessedit_pageseg_mode: "4",
+        });
+        return worker;
+      })();
     }
     return ocrWorkerPromise;
   };
@@ -309,6 +315,27 @@ async function handleFile(file) {
   }
 }
 
+/**
+ * Applies grayscale and contrast enhancement preprocessing to a 2D canvas context
+ * for improved Tesseract OCR accuracy on Devanagari text.
+ *
+ * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context.
+ * @param {number} width - Canvas width.
+ * @param {number} height - Canvas height.
+ */
+export function preprocessCanvasForOcr(ctx, width, height) {
+  const imgData = ctx.getImageData(0, 0, width, height);
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    const c = avg < 180 ? Math.max(0, avg - 30) : Math.min(255, avg + 20);
+    data[i] = c;
+    data[i + 1] = c;
+    data[i + 2] = c;
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
 export async function extractTextFromPage(page, textContent, getOcrWorker) {
   const pageText = textContent.items.map((item) => item.str).join(" ");
 
@@ -320,7 +347,7 @@ export async function extractTextFromPage(page, textContent, getOcrWorker) {
   if (needsOCR) {
     const worker = await getOcrWorker();
 
-    const viewport = page.getViewport({ scale: 2.0 });
+    const viewport = page.getViewport({ scale: 1.5 });
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.height = viewport.height;
@@ -332,6 +359,8 @@ export async function extractTextFromPage(page, textContent, getOcrWorker) {
     };
 
     await page.render(renderContext).promise;
+
+    preprocessCanvasForOcr(ctx, canvas.width, canvas.height);
 
     const {
       data: { text },
