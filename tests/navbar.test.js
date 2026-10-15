@@ -68,3 +68,25 @@ test('Navbar Give feedback button test', async (t) => {
 
   assert.ok(checkedCount > 0, 'Should have checked at least 1 page with .nav-end');
 });
+
+test('Navbar action buttons hidden on mobile viewports (max-width: 767px) CSS test', () => {
+  const rootDir = path.resolve(__dirname, '..');
+  const srcCssPath = path.join(rootDir, 'css', 'styles.src.css');
+  const compiledCssPath = path.join(rootDir, 'css', 'styles.css');
+
+  const srcCss = fs.readFileSync(srcCssPath, 'utf8');
+  const compiledCss = fs.readFileSync(compiledCssPath, 'utf8');
+
+  // Verify styles.src.css contains @media (max-width: 767px) hiding .feedback-btn and .github-star-btn
+  assert.ok(
+    /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{[\s\S]*?\.feedback-btn[\s\S]*?display:\s*none/i.test(srcCss) ||
+    /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{[\s\S]*?\.github-star-btn,\s*\.feedback-btn[\s\S]*?display:\s*none/i.test(srcCss),
+    'css/styles.src.css should hide .feedback-btn on mobile viewports (max-width: 767px)'
+  );
+
+  // Verify compiled css/styles.css also contains rule hiding .feedback-btn and .github-star-btn
+  assert.ok(
+    compiledCss.includes('.feedback-btn') && compiledCss.includes('display:none'),
+    'css/styles.css should contain minified rule hiding .feedback-btn'
+  );
+});
