@@ -1,0 +1,65 @@
+{
+  "overallCER": 0.21993543179983857,
+  "overallWER": 0.3932853717026379,
+  "totalRefChars": 2478,
+  "totalErrChars": 545,
+  "totalRefWords": 417,
+  "totalErrWords": 164,
+  "passageResults": [
+    {
+      "id": "page1_intro",
+      "pageNumber": 1,
+      "cer": 0.06828528072837632,
+      "wer": 0.20175438596491227,
+      "refLength": 659,
+      "distanceChars": 45,
+      "refWords": 114,
+      "distanceWords": 23,
+      "extractedSnippet": "लोकतांत्रिक यात्रा का संदर्भ: क्तक्षा 9 और 0 के पिछले अध्यायों में यह स्पष्ट किया गया है कि लोकतांत्..."
+    },
+    {
+      "id": "page2_components",
+      "pageNumber": 2,
+      "cer": 0.3424242424242424,
+      "wer": 0.509090909090909,
+      "refLength": 330,
+      "distanceChars": 113,
+      "refWords": 55,
+      "distanceWords": 28,
+      "extractedSnippet": "राजनीतिक ढल के तीन प्रमुख हिस्से त066 00000 08 ए0ंपिं08। ए8000 + नेता (69675: ढल के शीर्ष पढ़ संभालन..."
+    },
+    {
+      "id": "page6_alliance",
+      "pageNumber": 6,
+      "cer": 0.3618881118881119,
+      "wer": 0.4791666666666667,
+      "refLength": 572,
+      "distanceChars": 207,
+      "refWords": 96,
+      "distanceWords": 46,
+      "extractedSnippet": "गठबंधन या मोर्चा (8906 0 0770 + परिभाषा: जल बहुढलीय व्यलस्था में अनेक पार्टियाँ चुनाल लड़ने और सत्ता..."
+    },
+    {
+      "id": "page11_inc_date",
+      "pageNumber": 11,
+      "cer": 0.2111111111111111,
+      "wer": 0.46226415094339623,
+      "refLength": 630,
+      "distanceChars": 133,
+      "refWords": 106,
+      "distanceWords": 49,
+      "extractedSnippet": "इंडियन नेशनल काँग्रेस - आरईएनसी (ातांशा 8078] एणाइह्ठा655 - ९०0 + गठन: 885 में गठन (कूनिया के सबसे प..."
+    },
+    {
+      "id": "page16_timeline",
+      "pageNumber": 16,
+      "cer": 0.16376306620209058,
+      "wer": 0.391304347826087,
+      "refLength": 287,
+      "distanceChars": 47,
+      "refWords": 46,
+      "distanceWords": 18,
+      "extractedSnippet": "इंडियन नेशनल काँग्रेस (५0) की स्थापना। 957. श्यामा प्रसाढ़ मुरवर्जी ढ्वारा 'भारतीय जनसंघ' का गठन। | ..."
+    }
+  ]
+}

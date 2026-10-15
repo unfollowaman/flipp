@@ -1,7 +1,7 @@
 {
   "metrics": {
-    "totalTimeMs": 63232,
-    "avgTimePerPageMs": 3719.529411764706,
+    "totalTimeMs": 67136,
+    "avgTimePerPageMs": 3949.176470588235,
     "downloadedFileName": "test.txt",
     "uiTextMatch": true,
     "uiTextLength": 19863,

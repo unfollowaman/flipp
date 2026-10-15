@@ -365,7 +365,7 @@ export async function extractTextFromPage(page, textContent, getOcrWorker) {
     const {
       data: { text },
     } = await worker.recognize(canvas);
-    finalPageText = text;
+    finalPageText = text ? text.normalize("NFC") : "";
 
     // Free canvas memory immediately
     canvas.width = 0;

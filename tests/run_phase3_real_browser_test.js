@@ -124,10 +124,7 @@ async function runPhase3BrowserVerification() {
   );
   console.log(`Saved verification metrics to ${outputReportPath}`);
 
-  // Clean up downloaded txt file from tests directory after verification
-  if (fs.existsSync(downloadPath)) {
-    fs.unlinkSync(downloadPath);
-  }
+  // Keep downloaded test.txt for accuracy metric calculations
 
   await browser.close();
   server.close();
