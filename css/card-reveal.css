@@ -1,0 +1,78 @@
+/* Hidden pre-reveal state. Only applies when html has .card-reveal-ready */
+.card-reveal-ready .tool-card:not(.is-visible) {
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: perspective(1400px) rotateX(22deg) translateY(48px) scale(0.97);
+}
+.card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: perspective(900px) rotateX(35deg) translateY(28px) scale(0.94);
+}
+
+/* Disable existing hover transitions until the whole reveal has finished, otherwise the transition overrides the animation */
+.card-reveal-ready .tool-card:not(.is-settled),
+.card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  transition: none;
+}
+
+/* Per-element stagger offsets (added on top of the card's own --card-delay) */
+.tool-card .tool-card-icon-wrapper { --el-delay: 100ms; }
+.tool-card .tool-card-badge { --el-delay: 170ms; }
+.tool-card .tool-card-title { --el-delay: 240ms; }
+.tool-card .tool-card-desc { --el-delay: 310ms; }
+.tool-card .tool-card-arrow { --el-delay: 380ms; }
+
+/* Card unfold (runs once when JS adds .is-visible). animation-fill-mode is backwards only, so after it ends the card returns to its natural state and the existing hover lift keeps working */
+.card-reveal-ready .tool-card.is-visible {
+  transform-origin: 50% 100%;
+  animation:
+    card-fade 0.7s ease-out backwards,
+    card-unfold 1.1s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: var(--card-delay, 0ms), var(--card-delay, 0ms);
+}
+
+/* Inner element unfold, same motion language as the card but smaller travel and a steeper tilt, starting after the card */
+.card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  transform-origin: 50% 100%;
+  animation:
+    card-el-fade 0.6s ease-out backwards,
+    card-el-unfold 0.95s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay:
+    calc(var(--card-delay, 0ms) + var(--el-delay, 0ms)),
+    calc(var(--card-delay, 0ms) + var(--el-delay, 0ms));
+}
+
+@keyframes card-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes card-unfold {
+  from { transform: perspective(1400px) rotateX(22deg) translateY(48px) scale(0.97); }
+  to { transform: perspective(1400px) rotateX(0deg) translateY(0) scale(1); }
+}
+@keyframes card-el-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes card-el-unfold {
+  from { transform: perspective(900px) rotateX(35deg) translateY(28px) scale(0.94); }
+  to { transform: perspective(900px) rotateX(0deg) translateY(0) scale(1); }
+}
+
+/* Accessibility: no motion, everything visible immediately */
+@media (prefers-reduced-motion: reduce) {
+  .card-reveal-ready .tool-card:not(.is-visible),
+  .card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+    opacity: 1;
+    transform: none;
+  }
+  .card-reveal-ready .tool-card.is-visible,
+  .card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+    animation: none;
+  }
+  .card-reveal-ready .tool-card:not(.is-settled),
+  .card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+    transition: revert-layer;
+  }
+}
