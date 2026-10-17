@@ -1,0 +1,218 @@
+{
+  "audit": "Phase 1 - Essentials & Basics",
+  "project": "Flipp",
+  "domain": "https://tryflipp.pages.dev",
+  "timestamp": "2026-10-17T04:15:00Z",
+  "findings": [
+    {
+      "id": "FINDING-001",
+      "checklist_item": "C1",
+      "severity": "CRITICAL",
+      "domain": "Error Pages & Failure States",
+      "title": "Unstyled 404 Page Missing CSS, Navigation, Footer, and Tool Links",
+      "description": "The 404 page (404.html) consists of a bare <p>Page Not Found</p> element without CSS stylesheets, site header/navbar, footer, or navigation links to popular tools.",
+      "evidence": {
+        "file": "404.html",
+        "line_range": "1-30",
+        "snippet": "<body>\n  <p>Page Not Found</p>\n  <script src=\"./js/header-nav.js\" defer></script>\n</body>"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-002",
+      "checklist_item": "G3",
+      "severity": "HIGH",
+      "domain": "Load Performance & Caching Basics",
+      "title": "Immutable Caching on Unversioned JS/CSS Resources Risk Stale Client Code",
+      "description": "_headers defines Cache-Control: public, max-age=31536000, immutable for /js/* and /css/styles.css. However, HTML files import JS modules like ../../js/pdf-to-word.js without cache-busting query parameters (e.g. ?v=1), causing returning users to serve stale cached JS files indefinitely after new code deployments.",
+      "evidence": {
+        "file": "_headers",
+        "line_range": "5-6",
+        "snippet": "/js/*\n  Cache-Control: public, max-age=31536000, immutable"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-003",
+      "checklist_item": "D2",
+      "severity": "HIGH",
+      "domain": "Core File-Handling UX Basics",
+      "title": "Missing Window-Level Drag/Drop Event Prevention Causes Navigation Loss",
+      "description": "Dropping a file outside the drop zone container (e.g. on background or footer) does not prevent default browser behavior, causing the browser to navigate away from Flipp to display the dropped file directly and losing user state.",
+      "evidence": {
+        "file": "js/drag-drop.js",
+        "line_range": "1-50",
+        "snippet": "Missing window.addEventListener('dragover', e => e.preventDefault()) and window.addEventListener('drop', e => e.preventDefault()) across tool scripts."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-004",
+      "checklist_item": "D10",
+      "severity": "HIGH",
+      "domain": "Core File-Handling UX Basics",
+      "title": "Synchronous URL.revokeObjectURL Immediately After Download Triggers Failure on Safari/iOS",
+      "description": "Multiple JS tool scripts invoke URL.revokeObjectURL(a.href) synchronously immediately following a.click(). On Safari/iOS and Firefox, asynchronous download handoff fails when the blob URL is revoked before file reading finishes.",
+      "evidence": {
+        "file": "js/pdf-protect.js",
+        "line_range": "214-218",
+        "snippet": "a.href = URL.createObjectURL(protectedBlob);\na.download = `${baseName}-protected.pdf`;\na.click();\nURL.revokeObjectURL(a.href);"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-005",
+      "checklist_item": "D1",
+      "severity": "HIGH",
+      "domain": "Core File-Handling UX Basics & Accessibility",
+      "title": "Drop Zones Lacking TabIndex, Keyboard Focusability, and Outline Focus Indicators",
+      "description": "Drop zone elements on tool pages lack tabindex='0', preventing keyboard-only users from Tabbing into or triggering file upload pickers via Enter/Space. When focused programmatically, outline: none eliminates focus indicators.",
+      "evidence": {
+        "file": "tools/pdf-to-word/index.html",
+        "line_range": "240-255",
+        "snippet": "<div class=\"drop-zone\" id=\"drop-zone\" role=\"region\" aria-label=\"PDF file upload area\">"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-006",
+      "checklist_item": "B4",
+      "severity": "MEDIUM",
+      "domain": "Navigation & Wayfinding",
+      "title": "Footer Tool Links Inconsistent Across Page Types",
+      "description": "Footers vary significantly by page type: index.html and tools/index.html list 16 tools; tool pages list 15 tools; blog, about, and privacy policy pages list 14 tools (omitting Edit PDF and PDF to Word); 404.html has no footer.",
+      "evidence": {
+        "file": "privacy-policy/index.html",
+        "line_range": "350-375",
+        "snippet": "Footer tools list includes 14 tools, omitting Edit PDF and PDF to Word."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-007",
+      "checklist_item": "C3",
+      "severity": "MEDIUM",
+      "domain": "Error Pages & Failure States",
+      "title": "Missing User-Facing <noscript> Message for Disabled JavaScript",
+      "description": "No HTML page contains a user-facing <noscript> warning banner explaining that JavaScript is required for Flipp's client-side tools to function.",
+      "evidence": {
+        "file": "tools/merge-pdf/index.html",
+        "line_range": "220-230",
+        "snippet": "Only <noscript><link rel=\"stylesheet\" href=\"...\"></noscript> font fallback tags exist."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-008",
+      "checklist_item": "B5",
+      "severity": "MEDIUM",
+      "domain": "Navigation & Wayfinding & Accessibility",
+      "title": "Missing Skip-to-Content Link Across All HTML Pages",
+      "description": "Zero pages in the repository provide a skip-to-content accessibility link (<a href=\"#main\" class=\"skip-link\">Skip to main content</a>).",
+      "evidence": {
+        "file": "index.html",
+        "line_range": "190-210",
+        "snippet": "Header navigation lacks top skip-to-content anchor link."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-009",
+      "checklist_item": "A3",
+      "severity": "MEDIUM",
+      "domain": "Trust, Identity & Legal Basics",
+      "title": "Broken Link to Non-Existent Terms of Service Page",
+      "description": "about/index.html contains a link to <a href=\"../terms/\">Terms of Service</a>, but no /terms/ directory or index.html exists in the repository, resulting in a broken 404 link.",
+      "evidence": {
+        "file": "about/index.html",
+        "line_range": "254",
+        "snippet": "review our <a href=\"../privacy-policy/\">Privacy Policy</a> and <a href=\"../terms/\">Terms of Service</a>."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-010",
+      "checklist_item": "A4",
+      "severity": "LOW",
+      "domain": "Trust, Identity & Legal Basics",
+      "title": "Contact Email Discrepancy Between Manifest Schema and Website Footers",
+      "description": "ai-plugin.json specifies contact_email as unfollowaman@gmail.com, whereas HTML footers, headers, and about/index.html list idontknowaman@gmail.com.",
+      "evidence": {
+        "file": "ai-plugin.json",
+        "line_range": "14",
+        "snippet": "\"contact_email\": \"unfollowaman@gmail.com\" vs mailto:idontknowaman@gmail.com"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-011",
+      "checklist_item": "C5",
+      "severity": "MEDIUM",
+      "domain": "Error Pages & Failure States",
+      "title": "Silent Degradation and Missing User Error Hints when Third-Party CDNs Fail",
+      "description": "When external CDN scripts (pdf.js, docx.js, tesseract, signature_pad) are blocked or fail to load, tool pages fail silently on interaction without presenting an error banner or retry hint.",
+      "evidence": {
+        "file": "tools/pdf-to-word/index.html",
+        "line_range": "670-685",
+        "snippet": "<script src=\"https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js\"></script> without onerror handler or fallback."
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-012",
+      "checklist_item": "G4",
+      "severity": "LOW",
+      "domain": "Load Performance & Caching Basics",
+      "title": "Missing Feature Icon Asset txt.png Triggers 404 Console Error",
+      "description": "tools/pdf-to-text/index.html references assets/feature-cards-icons/txt.png, which does not exist on disk, causing a 404 GET request error on page load.",
+      "evidence": {
+        "file": "tools/pdf-to-text/index.html",
+        "line_range": "450",
+        "snippet": "<img src=\"../../assets/feature-cards-icons/txt.png\" alt=\"Text Icon\">"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-013",
+      "checklist_item": "A2",
+      "severity": "LOW",
+      "domain": "Trust, Identity & Legal Basics",
+      "title": "Unlisted Runtime Fetch to Third-Party Origin img.icons8.com",
+      "description": "tools/pdf-to-png/index.html loads an external asset directly from https://img.icons8.com/arcade/64/pdf.png, which is not documented in the Privacy Policy third-party requests section.",
+      "evidence": {
+        "file": "tools/pdf-to-png/index.html",
+        "line_range": "430",
+        "snippet": "<img src=\"https://img.icons8.com/arcade/64/pdf.png\" alt=\"PDF Icon\">"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-014",
+      "checklist_item": "D14",
+      "severity": "LOW",
+      "domain": "Core File-Handling UX Basics",
+      "title": "Single-File Drop Zones Silently Drop Extra Files Without Warning",
+      "description": "When multiple files are dropped onto single-file tool drop zones, tools silently select only files[0] without displaying a toast or warning message informing the user that only the first file was loaded.",
+      "evidence": {
+        "file": "js/pdf-to-png.js",
+        "line_range": "30-50",
+        "snippet": "const file = e.dataTransfer.files[0]; without checking files.length > 1"
+      },
+      "status": "CONFIRMED"
+    },
+    {
+      "id": "FINDING-015",
+      "checklist_item": "H2",
+      "severity": "MEDIUM",
+      "domain": "Technical SEO Basics",
+      "title": "Sitemap Schema Includes Non-HTML Files and Omits Key Information Pages",
+      "description": "sitemap.xml includes non-HTML resources (/llms.txt and /ai-plugin.json) while omitting valid live HTML pages (/about/ and /privacy-policy/).",
+      "evidence": {
+        "file": "sitemap.xml",
+        "line_range": "75-82",
+        "snippet": "<loc>https://tryflipp.pages.dev/llms.txt</loc>\n<loc>https://tryflipp.pages.dev/ai-plugin.json</loc>"
+      },
+      "status": "CONFIRMED"
+    }
+  ]
+}
