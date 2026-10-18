@@ -111,9 +111,13 @@ const mockActivatePill = (group, value) => {
 };
 
 let consoleErrors = [];
+let consoleWarns = [];
 const mockConsole = {
   error: (...args) => {
     consoleErrors.push(args);
+  },
+  warn: (...args) => {
+    consoleWarns.push(args);
   },
   log: () => {}
 };
@@ -294,6 +298,42 @@ test('sign-pdf resource cleanup on reset and reload', async (t) => {
     await handlePdfSelect([file]);
 
     assert.strictEqual(destroyCalled, true);
+  });
+
+  await t.test('resetTool and handlePdfSelect catch and log errors during pdfjsDocument.destroy()', async () => {
+    consoleWarns = [];
+    const destroyError = new Error('Destroy failed');
+    setPdfjsDocument({
+      destroy: () => {
+        throw destroyError;
+      }
+    });
+
+    resetTool();
+
+    assert.strictEqual(getPdfjsDocument(), null);
+    assert.strictEqual(consoleWarns.length, 1);
+    assert.strictEqual(consoleWarns[0][0], 'Error destroying PDF document:');
+    assert.strictEqual(consoleWarns[0][1], destroyError);
+
+    consoleWarns = [];
+    setPdfjsDocument({
+      destroy: async () => {
+        throw destroyError;
+      }
+    });
+
+    const file = {
+      name: 'test.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8)
+    };
+
+    await handlePdfSelect([file]);
+
+    assert.strictEqual(consoleWarns.length, 1);
+    assert.strictEqual(consoleWarns[0][0], 'Error destroying PDF document:');
+    assert.strictEqual(consoleWarns[0][1], destroyError);
   });
 });
 

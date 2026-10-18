@@ -209,7 +209,9 @@ async function handlePdfSelect(files) {
   if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
     try {
       await pdfjsDocument.destroy();
-    } catch (_) {}
+    } catch (err) {
+      console.warn("Error destroying PDF document:", err);
+    }
   }
 
   // Create a copy of array buffer for PDF.js as web worker transfers data buffer
@@ -691,7 +693,9 @@ function resetTool() {
   if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
     try {
       pdfjsDocument.destroy();
-    } catch (_) {}
+    } catch (err) {
+      console.warn("Error destroying PDF document:", err);
+    }
   }
   pdfjsDocument = null;
   uploadedImageSrc = null;
