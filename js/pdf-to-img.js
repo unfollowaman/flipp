@@ -375,7 +375,7 @@ downloadAllBtn.addEventListener("click", async () => {
   const ext = imageFormat === "jpg" ? "jpg" : "png";
   const zip = new window.JSZip();
   for (const { pageNum, dataUrl } of renderedPages) {
-    const base64 = dataUrl.split(",")[1];
+    const base64 = dataUrl.substring(dataUrl.indexOf(",") + 1);
     zip.file(`page-${String(pageNum).padStart(3, "0")}.${ext}`, base64, {
       base64: true,
     });

@@ -1,5 +1,10 @@
 [
   {
+    "file": "audit_metrics_recalculation.json",
+    "expName": "audit_metrics_recalculation.json",
+    "specialData": "0"
+  },
+  {
     "file": "exp8_combined_candidate_results.json",
     "expName": "Exp 8: Combined Winner Candidate (hin, 1.5x, grayscale_contrast, PSM 4)",
     "pageCount": 17,
@@ -12,5 +17,30 @@
     "bl": 0,
     "num885": 1,
     "num1885": 0
+  },
+  {
+    "file": "phase3_1_experiment_results.json",
+    "expName": "phase3_1_experiment_results.json",
+    "specialData": "0, 1, 2, 3, 4"
+  },
+  {
+    "file": "phase3_2_experiment_results.json",
+    "expName": "phase3_2_experiment_results.json",
+    "specialData": "0, 1, 2, 3, 4, 5, 6"
+  },
+  {
+    "file": "phase3_3_benchmark_feasibility_results.json",
+    "expName": "phase3_3_benchmark_feasibility_results.json",
+    "specialData": "baselineReproduction, ortCapabilities, paddleOcrTechnicalAssessment"
+  },
+  {
+    "file": "phase3_baseline_accuracy_metrics.json",
+    "expName": "phase3_baseline_accuracy_metrics.json",
+    "specialData": "overallCER, overallWER, totalRefChars, totalErrChars, totalRefWords, totalErrWords, passageResults"
+  },
+  {
+    "file": "phase3_browser_verification_results.json",
+    "expName": "phase3_browser_verification_results.json",
+    "specialData": "metrics, textSampleExcerptStart, textSampleExcerptPage16"
   }
 ]
