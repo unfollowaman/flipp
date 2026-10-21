@@ -200,6 +200,19 @@ describe('pdf-to-img format and resolution handling', () => {
       'Yields to UI periodically (every 5 pages) or on final page'
     );
   });
+
+  test('uses substring and indexOf instead of split for base64 extraction in zip generator', () => {
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    assert.ok(
+      code.includes('const base64 = dataUrl.substring(dataUrl.indexOf(",") + 1);'),
+      'Extracts base64 data using substring without array allocation'
+    );
+    assert.strictEqual(
+      code.includes('dataUrl.split(",")'),
+      false,
+      'Does not use dataUrl.split(",")'
+    );
+  });
 });
 
 describe('loadPDF error handling and validation', () => {
