@@ -173,7 +173,9 @@ export async function loadPdfFromBytes(arrayBuffer) {
   if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
     try {
       await pdfjsDocument.destroy();
-    } catch (_) {}
+    } catch (err) {
+      console.warn("Error destroying PDF document:", err);
+    }
     pdfjsDocument = null;
   }
 
@@ -1654,7 +1656,9 @@ export function resetEditor() {
   if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {
     try {
       pdfjsDocument.destroy();
-    } catch (_) {}
+    } catch (err) {
+      console.warn("Error destroying PDF document:", err);
+    }
   }
   pdfjsDocument = null;
   pdfBytesOriginal = null;
