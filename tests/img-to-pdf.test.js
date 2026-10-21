@@ -10,7 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 
 // Expose internal functions
-src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions, createImageCard, getImageFiles: () => imageFiles };\n';
+src += '\nreturn { addImageFiles, resetImgConverter, showResults, getImageDimensions, calculatePageDimensions, calculateImageDrawDimensions, createImageCard, generatePdfFromImages, getImageFiles: () => imageFiles };\n';
 
 test('img-to-pdf error handling', async (t) => {
   let toastMessage = null;
@@ -773,5 +773,111 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(finalFiles.length, 2);
     assert.strictEqual(finalFiles[0].name, 'A.jpg');
     assert.strictEqual(finalFiles[1].name, 'B.jpg');
+  });
+
+  await t.test('generatePdfFromImages batches image reading and generates PDF correctly across batch boundaries', async () => {
+    const addedImages = [];
+    const pagesAdded = [];
+    class MockJsPDF {
+      constructor(opts) {
+        this.opts = opts;
+      }
+      addPage(format, orientation) {
+        pagesAdded.push({ format, orientation });
+      }
+      addImage(dataUrl, format, x, y, w, h, alias, compression) {
+        addedImages.push({ dataUrl, format, x, y, w, h, compression });
+      }
+      output() {
+        return { size: 12345 };
+      }
+    }
+
+    class MockFileReader {
+      readAsDataURL(file) {
+        setTimeout(() => {
+          this.result = `data:${file.type};base64,mock-${file.name}`;
+          if (typeof this.onload === 'function') {
+            this.onload({ target: this });
+          }
+        }, 5);
+      }
+    }
+
+    class MockImage {
+      constructor() {
+        this.naturalWidth = 800;
+        this.naturalHeight = 600;
+      }
+      set src(url) {
+        if (typeof this.onload === 'function') {
+          setTimeout(() => this.onload(), 0);
+        }
+      }
+    }
+
+    const mockWindowJsPDF = {
+      jspdf: { jsPDF: MockJsPDF }
+    };
+
+    const wrapperGenerate = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'setProgress',
+      'activatePill',
+      'setupDragReorder',
+      'Blob',
+      'URL',
+      'FileReader',
+      'Image',
+      'fileToDataUrl',
+      src
+    );
+
+    const mockFileToDataUrl = async (file) => `data:${file.type};base64,mock-${file.name}`;
+
+    const { generatePdfFromImages } = wrapperGenerate(
+      { getElementById: createMockElement, createElement: createMockElement },
+      mockWindowJsPDF,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+      MockFileReader,
+      MockImage,
+      mockFileToDataUrl
+    );
+
+    const mockFiles = Array.from({ length: 7 }, (_, i) => ({
+      file: { name: `image_${i + 1}.png`, type: 'image/png' },
+      name: `image_${i + 1}.png`
+    }));
+
+    const progressLogs = [];
+    const onProgress = (percent, msg) => {
+      progressLogs.push({ percent, msg });
+    };
+
+    const result = await generatePdfFromImages(mockFiles, { pageSize: 'auto', orientation: 'portrait' }, onProgress);
+
+    assert.strictEqual(result.totalPagesAdded, 7);
+    assert.strictEqual(addedImages.length, 7);
+    assert.strictEqual(pagesAdded.length, 6); // First page created in constructor, 6 additional addPage calls
+
+    // Verify all data URLs were processed in order
+    mockFiles.forEach((f, idx) => {
+      assert.strictEqual(addedImages[idx].dataUrl, `data:image/png;base64,mock-${f.file.name}`);
+      assert.strictEqual(addedImages[idx].format, 'PNG');
+      assert.strictEqual(addedImages[idx].compression, 'FAST');
+    });
+
+    // Check progress reports
+    assert.ok(progressLogs.some(p => p.msg.includes('Processing image 1 of 7')));
+    assert.ok(progressLogs.some(p => p.msg.includes('Processing image 7 of 7')));
   });
 });

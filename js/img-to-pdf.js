@@ -295,59 +295,68 @@ async function generatePdfFromImages(files, options, onProgress) {
   onProgress(0, "Preparing images…");
   const loadedImages = await loadImagesForPdf(files);
 
-  for (let i = 0; i < loadedImages.length; i++) {
-    const { entry, imgW, imgH } = loadedImages[i];
-    onProgress(
-      Math.round((i / files.length) * 100),
-      `Processing image ${i + 1} of ${files.length}: ${entry.name}`,
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < loadedImages.length; i += BATCH_SIZE) {
+    const batch = loadedImages.slice(i, i + BATCH_SIZE);
+    const dataUrls = await Promise.all(
+      batch.map((item) => fileToDataUrl(item.entry.file)),
     );
 
-    const dataUrl = await fileToDataUrl(entry.file);
+    for (let j = 0; j < batch.length; j++) {
+      const idx = i + j;
+      const { entry, imgW, imgH } = batch[j];
+      const dataUrl = dataUrls[j];
 
-    // Determine format string for jsPDF
-    const imgFormat = entry.file.type === "image/png" ? "PNG" : "JPEG";
-
-    const { docW, docH } = calculatePageDimensions(
-      imgW,
-      imgH,
-      pageSize,
-      orientation,
-    );
-
-    if (!pdf) {
-      pdf = new jsPDF({
-        orientation: docW > docH ? "landscape" : "portrait",
-        unit: "mm",
-        format: pageSize === "auto" ? [docW, docH] : pageSize,
-      });
-    } else {
-      pdf.addPage(
-        pageSize === "auto" ? [docW, docH] : pageSize,
-        docW > docH ? "landscape" : "portrait",
+      onProgress(
+        Math.round((idx / files.length) * 100),
+        `Processing image ${idx + 1} of ${files.length}: ${entry.name}`,
       );
+
+      // Determine format string for jsPDF
+      const imgFormat = entry.file.type === "image/png" ? "PNG" : "JPEG";
+
+      const { docW, docH } = calculatePageDimensions(
+        imgW,
+        imgH,
+        pageSize,
+        orientation,
+      );
+
+      if (!pdf) {
+        pdf = new jsPDF({
+          orientation: docW > docH ? "landscape" : "portrait",
+          unit: "mm",
+          format: pageSize === "auto" ? [docW, docH] : pageSize,
+        });
+      } else {
+        pdf.addPage(
+          pageSize === "auto" ? [docW, docH] : pageSize,
+          docW > docH ? "landscape" : "portrait",
+        );
+      }
+
+      const { imgX, imgY, drawW, drawH } = calculateImageDrawDimensions(
+        imgW,
+        imgH,
+        docW,
+        docH,
+        pageSize,
+      );
+
+      pdf.addImage(
+        dataUrl,
+        imgFormat,
+        imgX,
+        imgY,
+        drawW,
+        drawH,
+        undefined,
+        "FAST",
+      );
+      totalPagesAdded++;
+
+      await new Promise((r) => setTimeout(r, 0));
     }
-
-    const { imgX, imgY, drawW, drawH } = calculateImageDrawDimensions(
-      imgW,
-      imgH,
-      docW,
-      docH,
-      pageSize,
-    );
-
-    pdf.addImage(
-      dataUrl,
-      imgFormat,
-      imgX,
-      imgY,
-      drawW,
-      drawH,
-      undefined,
-      "FAST",
-    );
-    totalPagesAdded++;
-
-    await new Promise((r) => setTimeout(r, 0));
   }
 
   onProgress(100, "Finalising PDF…");
