@@ -113,3 +113,29 @@ test("PDF Editor Property Bar form controls have associated labels", () => {
     );
   });
 });
+
+test("PDF Editor object handles have accessibility attributes in js/pdf-editor.js source", () => {
+  const jsPath = path.join(__dirname, "..", "js", "pdf-editor.js");
+  const jsContent = fs.readFileSync(jsPath, "utf8");
+
+  assert.ok(
+    jsContent.includes('moveHandle.setAttribute("role", "button")') &&
+    jsContent.includes('moveHandle.setAttribute("aria-label", "Move object")') &&
+    jsContent.includes('moveHandle.setAttribute("tabindex", "0")'),
+    "moveHandle must have role='button', aria-label='Move object', and tabindex='0'"
+  );
+
+  assert.ok(
+    jsContent.includes('resizeHandle.setAttribute("role", "button")') &&
+    jsContent.includes('resizeHandle.setAttribute("aria-label", "Resize object")') &&
+    jsContent.includes('resizeHandle.setAttribute("tabindex", "0")'),
+    "resizeHandle must have role='button', aria-label='Resize object', and tabindex='0'"
+  );
+
+  assert.ok(
+    jsContent.includes('deleteHandle.setAttribute("role", "button")') &&
+    jsContent.includes('deleteHandle.setAttribute("aria-label", "Delete object")') &&
+    jsContent.includes('deleteHandle.setAttribute("tabindex", "0")'),
+    "deleteHandle must have role='button', aria-label='Delete object', and tabindex='0'"
+  );
+});
