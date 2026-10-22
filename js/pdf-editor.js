@@ -356,6 +356,11 @@ if (toolbar) {
       });
       activeTool = btn.dataset.tool;
 
+      if (activeTool !== "select" && selectedObjId) {
+        selectedObjId = null;
+        updateSelectedObjectUI();
+      }
+
       if (activeTool === "signature") {
         openSignatureModal();
       } else {
@@ -655,18 +660,25 @@ function setupOverlayEvents(overlay, pageNum) {
   let currentPath = [];
   let tempCanvas = null;
 
-  overlay.addEventListener("mousedown", (e) => {
+  const handlePointerDown = (e) => {
     if (e.target !== overlay) return;
 
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
     const rect = overlay.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
 
     if (activeTool === "select") {
       selectedObjId = null;
       updateSelectedObjectUI();
       updatePropsBarVisibility();
       return;
+    }
+
+    if (e.type && e.type.includes("touch") && e.cancelable) {
+      e.preventDefault();
     }
 
     saveState();
@@ -683,16 +695,23 @@ function setupOverlayEvents(overlay, pageNum) {
       currentPath = [{ x: clickX, y: clickY }];
       tempCanvas = createTempDrawingCanvas(overlay);
     }
-  });
+  };
 
-  overlay.addEventListener("mousemove", (e) => {
+  const handlePointerMove = (e) => {
     if (!isDrawing || !tempCanvas) return;
 
+    const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+
     const rect = overlay.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     updateDrawingPath(tempCanvas, currentPath, x, y);
-  });
+
+    if (e.type && e.type.includes("touch") && e.cancelable) {
+      e.preventDefault();
+    }
+  };
 
   const finishDrawing = () => {
     if (!isDrawing) return;
@@ -711,7 +730,15 @@ function setupOverlayEvents(overlay, pageNum) {
     }
   };
 
+  overlay.addEventListener("mousedown", handlePointerDown);
+  overlay.addEventListener("touchstart", handlePointerDown, { passive: false });
+
+  overlay.addEventListener("mousemove", handlePointerMove);
+  overlay.addEventListener("touchmove", handlePointerMove, { passive: false });
+
   overlay.addEventListener("mouseup", finishDrawing);
+  overlay.addEventListener("touchend", finishDrawing);
+  overlay.addEventListener("touchcancel", finishDrawing);
   overlay.addEventListener("mouseleave", finishDrawing);
 }
 
@@ -916,13 +943,22 @@ function createObjectHandles(objId) {
   moveHandle.className = "editor-obj-handle move";
   moveHandle.textContent = "✥";
   moveHandle.title = "Drag to move";
+  moveHandle.setAttribute("role", "button");
+  moveHandle.setAttribute("aria-label", "Move object");
+  moveHandle.setAttribute("tabindex", "0");
 
   const resizeHandle = document.createElement("div");
   resizeHandle.className = "editor-obj-handle se";
+  resizeHandle.setAttribute("role", "button");
+  resizeHandle.setAttribute("aria-label", "Resize object");
+  resizeHandle.setAttribute("tabindex", "0");
 
   const deleteHandle = document.createElement("div");
   deleteHandle.className = "editor-obj-handle delete";
   deleteHandle.textContent = "✕";
+  deleteHandle.setAttribute("role", "button");
+  deleteHandle.setAttribute("aria-label", "Delete object");
+  deleteHandle.setAttribute("tabindex", "0");
   deleteHandle.addEventListener("click", (e) => {
     e.stopPropagation();
     deleteObject(objId);

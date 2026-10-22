@@ -944,6 +944,50 @@ test('pdf-editor overlay event interactions and object creation', async (t) => {
     editorModule.resetEditor();
   });
 
+  await t.test('setupOverlayEvents handles touchstart, touchmove, touchend for freehand drawing', () => {
+    const overlayListeners = {};
+    const mockOverlay = {
+      getBoundingClientRect: () => ({ left: 0, top: 0, width: 400, height: 400 }),
+      offsetWidth: 400,
+      offsetHeight: 400,
+      appendChild: () => {},
+      addEventListener: (type, handler) => { overlayListeners[type] = handler; }
+    };
+
+    editorModule.setupOverlayEvents(mockOverlay, 1);
+    editorModule.setActiveTool('draw');
+
+    assert.ok(typeof overlayListeners['touchstart'] === 'function');
+    assert.ok(typeof overlayListeners['touchmove'] === 'function');
+    assert.ok(typeof overlayListeners['touchend'] === 'function');
+
+    let defaultPrevented = false;
+    const fakeTouchStart = {
+      target: mockOverlay,
+      type: 'touchstart',
+      cancelable: true,
+      touches: [{ clientX: 50, clientY: 50 }],
+      preventDefault: () => { defaultPrevented = true; }
+    };
+
+    overlayListeners['touchstart'](fakeTouchStart);
+    assert.strictEqual(defaultPrevented, true);
+
+    const fakeTouchMove = {
+      type: 'touchmove',
+      cancelable: true,
+      touches: [{ clientX: 100, clientY: 100 }],
+      preventDefault: () => {}
+    };
+    overlayListeners['touchmove'](fakeTouchMove);
+
+    overlayListeners['touchend']();
+
+    const objs = editorModule.getEditorObjects();
+    assert.strictEqual(objs.length, 1);
+    assert.strictEqual(objs[0].type, 'draw');
+  });
+
   await t.test('createObjectForTool generates correct structures for all tool types', () => {
     const textObj = editorModule.createObjectForTool('text', 1, 100, 150);
     assert.strictEqual(textObj.type, 'text');
