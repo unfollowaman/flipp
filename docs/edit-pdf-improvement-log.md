@@ -29,3 +29,18 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 380 passing tests (0 failures).
 - **Known Limitations:** Complex multi-touch gesture pinch-zooming is mapped to zoom controls in the bottom bar; future runs can add multi-touch pinch-to-zoom support on page canvas.
 - **Next Recommended Improvement:** `EDIT-PDF-002` — Enhanced Mobile Toolbar Layout & Compact Contextual Control Bottom Sheet for narrow viewports (< 600px).
+
+### EDIT-PDF-002: Compact Responsive Toolbar Layout & Mobile Usability for Narrow Viewports (< 600px)
+- **Priority:** P1 (Mobile-specific usability & Workspace Ergonomics)
+- **User Problem:** On narrow mobile viewports (< 600px), the single editing toolbar and property bar became cramped, causing filename input controls and tool pills to squish or clip horizontally. Furthermore, tool buttons lacked touch-friendly target dimensions (min 38-44px), making precise tool selection difficult on mobile phone screens.
+- **Status:** Completed
+- **Technical Rationale:** Refined the responsive workspace CSS layout under `@media (max-width: 600px)` in `css/styles.src.css`, compiled to `css/styles.css`, and updated `tools/edit-pdf/index.html`. Toolbar elements wrap gracefully into flex rows, the filename input flex-grows with compact bounds, the `.tool-group` palette enables smooth horizontal touch panning (`touch-action: pan-x`, `-webkit-overflow-scrolling: touch`), and tool pills/buttons feature touch-friendly target sizing (40x38px).
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tools/edit-pdf/index.html`
+  - `tests/pdf_editor_mobile.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 382 passing tests (0 failures), Playwright mobile screenshot/video verification (`/home/jules/verification/screenshots/mobile_workspace.png`).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-003` — Direct Text Alignment & Wrap Properties for Text Annotations.
