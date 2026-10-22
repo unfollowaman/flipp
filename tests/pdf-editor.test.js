@@ -668,9 +668,9 @@ test('pdf-editor PDF export process', async (t) => {
       type: 'text',
       properties: { text: 'Line 1\nLine 2', fontSize: 18, color: '#ff0000', bold: true }
     };
-    const pdfCoords = { x: 10, y: 20, width: 100, height: 40 };
+    const pdfCoords = { x: 10, y: 20, width: 200, height: 40 };
     const pageMetrics = { pdfWidth: 600, pageViewport: { width: 300 } };
-    const fonts = { fontHelveticaBold: 'HelveticaBold' };
+    const fonts = { fontHelveticaBold: { name: 'HelveticaBold', widthOfTextAtSize: (txt, sz) => txt.length * sz * 0.5 } };
 
     editorModule.applyTextObject(mockPage, textObj, pdfCoords, pageMetrics, fonts);
     assert.strictEqual(mockPage.drawTextCalls.length, 2);
@@ -699,7 +699,7 @@ test('pdf-editor PDF export process', async (t) => {
     await editorModule.applyCanvasObject(mockPage, drawObj, pdfCoords, mockPdfDoc);
     assert.strictEqual(mockPage.drawImageCalls.length, 2);
 
-    await editorModule.applyEditorObjectToPage(mockPage, { x: 0, y: 0, width: 50, height: 50, ...textObj }, pageMetrics, fonts, mockPdfDoc, embeddedImages);
+    await editorModule.applyEditorObjectToPage(mockPage, { x: 0, y: 0, width: 200, height: 50, ...textObj }, pageMetrics, fonts, mockPdfDoc, embeddedImages);
     assert.strictEqual(mockPage.drawTextCalls.length, 4);
   });
 
@@ -1323,12 +1323,12 @@ test('pdf-editor applyTextObject detailed assertions', async (t) => {
   }
 
   const fonts = {
-    fontHelvetica: { name: 'Helvetica' },
-    fontHelveticaBold: { name: 'HelveticaBold' },
-    fontHelveticaOblique: { name: 'HelveticaOblique' }
+    fontHelvetica: { name: 'Helvetica', widthOfTextAtSize: (txt, sz) => txt.length * sz * 0.5 },
+    fontHelveticaBold: { name: 'HelveticaBold', widthOfTextAtSize: (txt, sz) => txt.length * sz * 0.5 },
+    fontHelveticaOblique: { name: 'HelveticaOblique', widthOfTextAtSize: (txt, sz) => txt.length * sz * 0.5 }
   };
 
-  const pdfCoords = { x: 100, y: 200, width: 150, height: 50 };
+  const pdfCoords = { x: 100, y: 200, width: 250, height: 50 };
   const pageMetrics = { pdfWidth: 600, pageViewport: { width: 300 } }; // scale factor = 2.0
 
   await t.test('selects fontHelvetica by default when no bold or italic flag is set', () => {
@@ -1410,5 +1410,54 @@ test('pdf-editor applyTextObject detailed assertions', async (t) => {
     // default color hex = "#000000" -> rgb(0, 0, 0)
     assert.deepStrictEqual(page.drawTextCalls[0].opts.color, { r: 0, g: 0, b: 0 });
     assert.strictEqual(page.drawTextCalls[0].opts.font.name, 'Helvetica');
+  });
+
+  await t.test('adjusts line x coordinate based on textAlign property (left, center, right)', () => {
+    const page = createMockPage();
+    const fontWithWidth = {
+      name: 'Helvetica',
+      widthOfTextAtSize: (txt, sz) => txt.length * 10 // 5 chars = 50px width
+    };
+    const fontsWithWidth = { fontHelvetica: fontWithWidth };
+    const boxCoords = { x: 100, y: 200, width: 200, height: 50 };
+    const pMetrics = { pdfWidth: 300, pageViewport: { width: 300 } }; // scale factor = 1.0
+
+    // 1. Left alignment
+    const leftObj = { properties: { text: 'Hello', fontSize: 18, textAlign: 'left' } };
+    editorModule.applyTextObject(page, leftObj, boxCoords, pMetrics, fontsWithWidth);
+    assert.strictEqual(page.drawTextCalls[0].opts.x, 100);
+
+    // 2. Center alignment: box width = 200, text width = 50 -> offset = (200 - 50) / 2 = 75 -> x = 175
+    page.drawTextCalls = [];
+    const centerObj = { properties: { text: 'Hello', fontSize: 18, textAlign: 'center' } };
+    editorModule.applyTextObject(page, centerObj, boxCoords, pMetrics, fontsWithWidth);
+    assert.strictEqual(page.drawTextCalls[0].opts.x, 175);
+
+    // 3. Right alignment: box width = 200, text width = 50 -> offset = 200 - 50 = 150 -> x = 250
+    page.drawTextCalls = [];
+    const rightObj = { properties: { text: 'Hello', fontSize: 18, textAlign: 'right' } };
+    editorModule.applyTextObject(page, rightObj, boxCoords, pMetrics, fontsWithWidth);
+    assert.strictEqual(page.drawTextCalls[0].opts.x, 250);
+  });
+
+  await t.test('wraps long text lines to fit bounding box width on PDF export', () => {
+    const page = createMockPage();
+    const fontWithWidth = {
+      name: 'Helvetica',
+      widthOfTextAtSize: (txt, sz) => txt.length * 10 // each char is 10px wide
+    };
+    const fontsWithWidth = { fontHelvetica: fontWithWidth };
+    // Bounding box width is 100px (fits max 10 chars per line)
+    const boxCoords = { x: 50, y: 100, width: 100, height: 100 };
+    const pMetrics = { pdfWidth: 300, pageViewport: { width: 300 } };
+
+    const longTextObj = { properties: { text: 'Quick brown fox jumps', fontSize: 10, textAlign: 'left' } };
+    editorModule.applyTextObject(page, longTextObj, boxCoords, pMetrics, fontsWithWidth);
+
+    // 'Quick brown' = 110px (>100px) -> 'Quick' (50px); candidate 'brown fox' = 90px (<=100px); candidate 'jumps' (50px)
+    assert.strictEqual(page.drawTextCalls.length, 3);
+    assert.strictEqual(page.drawTextCalls[0].line, 'Quick');
+    assert.strictEqual(page.drawTextCalls[1].line, 'brown fox');
+    assert.strictEqual(page.drawTextCalls[2].line, 'jumps');
   });
 });
