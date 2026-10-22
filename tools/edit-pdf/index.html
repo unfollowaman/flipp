@@ -799,7 +799,10 @@
               <button class="tool-pill" data-tool="signature" title="Signature" aria-label="Signature tool" aria-pressed="false">✍️</button>
             </div>
 
-            <div style="display: flex; gap: 4px; flex-shrink: 0;">
+            <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
+              <button class="editor-btn" id="editor-toggle-sidebar-btn" title="Toggle Page Sidebar" aria-label="Toggle Page Sidebar" aria-expanded="false" aria-controls="editor-sidebar" style="padding: 4px 8px; font-size: 12px;">
+                📋 <span class="btn-text">Pages</span>
+              </button>
               <button class="tool-pill undo-redo-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↩</button>
               <button class="tool-pill undo-redo-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>↪</button>
             </div>
@@ -875,9 +878,23 @@
             </div>
           </div>
 
-          <!-- Document Pages View Area -->
-          <div class="editor-pages-scroll" id="editor-pages-scroll">
-            <!-- Pages rendered dynamically here -->
+          <!-- Workspace Main Area (Sidebar + Scroll Area) -->
+          <div class="editor-workspace-main" id="editor-workspace-main" style="display: flex; gap: 12px; width: 100%; position: relative;">
+            <!-- Page Thumbnails Sidebar -->
+            <aside class="editor-sidebar" id="editor-sidebar" aria-label="Page thumbnails sidebar" style="display: none;">
+              <div class="editor-sidebar-header">
+                <span class="editor-sidebar-title">Pages</span>
+                <button class="editor-sidebar-close" id="editor-sidebar-close" aria-label="Close page sidebar">✕</button>
+              </div>
+              <div class="editor-sidebar-thumbs" id="editor-sidebar-thumbs">
+                <!-- Page thumbnail cards rendered dynamically here -->
+              </div>
+            </aside>
+
+            <!-- Document Pages View Area -->
+            <div class="editor-pages-scroll" id="editor-pages-scroll" style="flex: 1;">
+              <!-- Pages rendered dynamically here -->
+            </div>
           </div>
 
           <!-- Stacked Bottom Control & Actions Bar -->

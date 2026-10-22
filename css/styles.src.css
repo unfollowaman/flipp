@@ -2988,9 +2988,156 @@ for Dynamic UI Sections */
 }
 
 /* ==============================
+   PDF Editor Page Thumbnails Sidebar & Page Actions
+   ============================== */
+.editor-workspace-main {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  position: relative;
+  align-items: stretch;
+}
+.editor-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  background: #f7f7f5;
+  border: var(--border-std);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  overflow: hidden;
+}
+.editor-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #eceae2;
+  border-bottom: 1.5px solid var(--black);
+  font-weight: 800;
+  font-size: 13px;
+}
+.editor-sidebar-close {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.editor-sidebar-thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 8px;
+  overflow-y: auto;
+}
+.thumb-card {
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+  position: relative;
+}
+.thumb-card.active {
+  border-color: var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+  background: #fffbeb;
+}
+.thumb-card-canvas-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 4px;
+  min-height: 80px;
+}
+.thumb-card canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.thumb-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+}
+.thumb-card-actions {
+  display: flex;
+  gap: 2px;
+}
+.thumb-card-btn {
+  background: #fff;
+  border: 1px solid var(--black);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.thumb-card-btn:hover {
+  background: var(--cream);
+}
+.pdf-page-header {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: var(--border-std);
+  padding: 2px 8px;
+  border-radius: 12px;
+  box-shadow: 1px 1px 0 var(--black);
+  z-index: 10;
+}
+.pdf-page-header .pdf-page-badge {
+  position: static;
+  transform: none;
+  border: none;
+  padding: 0;
+}
+.pdf-page-action-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+/* ==============================
    PDF Editor Mobile Responsive Workspace
    ============================== */
 @media (max-width: 600px) {
+  .editor-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    width: 160px;
+    height: 100%;
+    max-height: 65vh;
+  }
   .editor-single-toolbar {
     flex-wrap: wrap;
     padding: 8px 10px;
