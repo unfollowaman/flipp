@@ -483,7 +483,51 @@
       }
       @media (max-width: 600px) {
         .editor-single-toolbar {
-          padding: 6px 10px;
+          flex-wrap: wrap;
+          padding: 8px 10px;
+          gap: 8px;
+        }
+        .fname-edit {
+          max-width: 140px;
+          flex: 1 1 auto;
+        }
+        .tool-group {
+          width: 100%;
+          order: 3;
+          justify-content: flex-start;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          touch-action: pan-x;
+        }
+        .tool-group::-webkit-scrollbar {
+          display: none;
+        }
+        .tool-pill {
+          width: 40px;
+          height: 38px;
+          font-size: 16px;
+        }
+        .editor-props-bar {
+          padding: 8px 10px;
+          gap: 8px 10px;
+        }
+        .editor-prop-item select,
+        .editor-prop-item input[type="number"] {
+          min-height: 36px;
+          font-size: 13px;
+        }
+        .editor-prop-item input[type="color"] {
+          width: 34px;
+          height: 34px;
+        }
+        .editor-btn {
+          padding: 8px 12px;
+          min-height: 36px;
+          font-size: 13px;
+        }
+        .editor-pages-scroll {
+          padding: 8px;
+          max-height: 65vh;
         }
         .bottom-bar {
           padding: 10px 12px;

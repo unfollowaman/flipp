@@ -2,7 +2,7 @@
   {
     "file": "audit_metrics_recalculation.json",
     "expName": "audit_metrics_recalculation.json",
-    "specialData": "0"
+    "specialData": "0, 1, 2, 3, 4, 5, 6"
   },
   {
     "file": "exp8_combined_candidate_results.json",
