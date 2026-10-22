@@ -60,7 +60,11 @@ src += `\nreturn {
   getCurrentPageIndex: () => currentPageIndex,
   setCurrentPageIndex: (idx) => { currentPageIndex = idx; },
   getRevokedUrls: () => revokedUrls,
-  getPageOverlayMap: () => pageOverlayMap
+  getPageOverlayMap: () => pageOverlayMap,
+  rotatePage,
+  deletePage,
+  getPageRotations,
+  getDeletedPages
 };\n`;
 
 const elementMap = {};
@@ -1459,5 +1463,157 @@ test('pdf-editor applyTextObject detailed assertions', async (t) => {
     assert.strictEqual(page.drawTextCalls[0].line, 'Quick');
     assert.strictEqual(page.drawTextCalls[1].line, 'brown fox');
     assert.strictEqual(page.drawTextCalls[2].line, 'jumps');
+  });
+});
+
+test('pdf-editor page rotation, page deletion, coordinate transformation & export', async (t) => {
+  t.beforeEach(() => {
+    toastMessages = [];
+    editorModule.resetEditor();
+  });
+
+  await t.test('rotatePage updates angle and normalizes degrees to 0-360 range', () => {
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.getPageRotations().get(1), 90);
+
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.getPageRotations().get(1), 180);
+
+    editorModule.rotatePage(1, 180);
+    assert.strictEqual(editorModule.getPageRotations().get(1), 0);
+
+    editorModule.rotatePage(1, -90);
+    assert.strictEqual(editorModule.getPageRotations().get(1), 270);
+  });
+
+  await t.test('deletePage deletes pages and prevents deleting when only 1 active page remains', () => {
+    editorModule.setNumPages(2);
+
+    const deletedPage1 = editorModule.deletePage(1);
+    assert.strictEqual(deletedPage1, true);
+    assert.strictEqual(editorModule.getDeletedPages().has(1), true);
+
+    // Try deleting remaining page 2 -> should be blocked by guardrail
+    const deletedPage2 = editorModule.deletePage(2);
+    assert.strictEqual(deletedPage2, false);
+    assert.strictEqual(editorModule.getDeletedPages().has(2), false);
+    assert.strictEqual(toastMessages.length, 1);
+    assert.strictEqual(toastMessages[0].msg, 'A document must have at least one page.');
+  });
+
+  await t.test('domToPdfCoords calculates correct coordinates for 0, 90, 180, 270 degree rotations', () => {
+    const domRect = { x: 10, y: 20, width: 100, height: 50 };
+    const pageViewport = { width: 400, height: 800 };
+    const pdfSize = { width: 600, height: 1200 };
+
+    // 0 degrees (unrotated)
+    const rot0 = editorModule.domToPdfCoords(domRect, pageViewport, pdfSize, 0);
+    assert.strictEqual(rot0.x, 15);
+    assert.strictEqual(rot0.y, 1095);
+    assert.strictEqual(rot0.width, 150);
+    assert.strictEqual(rot0.height, 75);
+
+    // 90 degrees CW
+    // domRect: { x: 10, y: 20, width: 100, height: 50 }, pageViewport: { width: 400, height: 800 }, pdfSize: { width: 600, height: 1200 }
+    // rot 90: scaleX = 1200 / 400 = 3, scaleY = 600 / 800 = 0.75
+    // pdfW = 50 * 0.75 = 37.5, pdfH = 100 * 3 = 300
+    // pdfX = 20 * 0.75 = 15, pdfY = (400 - 110) * 3 = 870
+    const rot90 = editorModule.domToPdfCoords(domRect, pageViewport, pdfSize, 90);
+    assert.strictEqual(rot90.x, 15);
+    assert.strictEqual(rot90.y, 870);
+    assert.strictEqual(rot90.width, 37.5);
+    assert.strictEqual(rot90.height, 300);
+
+    // 180 degrees
+    // rot 180: scaleX = 600 / 400 = 1.5, scaleY = 1200 / 800 = 1.5
+    // pdfW = 100 * 1.5 = 150, pdfH = 50 * 1.5 = 75
+    // pdfX = (400 - 110) * 1.5 = 435, pdfY = 20 * 1.5 = 30
+    const rot180 = editorModule.domToPdfCoords(domRect, pageViewport, pdfSize, 180);
+    assert.strictEqual(rot180.x, 435);
+    assert.strictEqual(rot180.y, 30);
+    assert.strictEqual(rot180.width, 150);
+    assert.strictEqual(rot180.height, 75);
+
+    // 270 degrees CW
+    // rot 270: scaleX = 1200 / 400 = 3, scaleY = 600 / 800 = 0.75
+    // pdfW = 50 * 0.75 = 37.5, pdfH = 100 * 3 = 300
+    // pdfX = (800 - 70) * 0.75 = 547.5, pdfY = 10 * 3 = 30
+    const rot270 = editorModule.domToPdfCoords(domRect, pageViewport, pdfSize, 270);
+    assert.strictEqual(rot270.x, 547.5);
+    assert.strictEqual(rot270.y, 30);
+    assert.strictEqual(rot270.width, 37.5);
+    assert.strictEqual(rot270.height, 300);
+  });
+
+  await t.test('undoAction and redoAction restore page rotations and page deletion state', () => {
+    editorModule.setNumPages(3);
+
+    // State 0 -> rotate page 1 by 90
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.getPageRotations().get(1), 90);
+
+    // State 1 -> delete page 2
+    editorModule.deletePage(2);
+    assert.strictEqual(editorModule.getDeletedPages().has(2), true);
+
+    // Undo deletion -> page 2 restored
+    editorModule.undoAction();
+    assert.strictEqual(editorModule.getDeletedPages().has(2), false);
+
+    // Undo rotation -> page 1 rotation cleared/0
+    editorModule.undoAction();
+    assert.strictEqual(editorModule.getPageRotations().get(1) || 0, 0);
+
+    // Redo rotation
+    editorModule.redoAction();
+    assert.strictEqual(editorModule.getPageRotations().get(1), 90);
+
+    // Redo deletion
+    editorModule.redoAction();
+    assert.strictEqual(editorModule.getDeletedPages().has(2), true);
+  });
+
+  await t.test('PDFLib export applies page rotation and removes deleted pages from output document', async () => {
+    let setRotationCalls = [];
+    let removePageCalls = [];
+
+    mockWindow.PDFLib.PDFDocument.load = async (bytes, opts) => ({
+      getPages: () => [
+        {
+          getRotation: () => ({ angle: 0 }),
+          setRotation: (deg) => setRotationCalls.push({ pageNum: 1, deg }),
+          drawText: () => {}, drawRectangle: () => {}, drawImage: () => {}
+        },
+        {
+          getRotation: () => ({ angle: 0 }),
+          setRotation: (deg) => setRotationCalls.push({ pageNum: 2, deg }),
+          drawText: () => {}, drawRectangle: () => {}, drawImage: () => {}
+        }
+      ],
+      embedFont: async () => ({}),
+      embedPng: async () => ({}),
+      embedJpg: async () => ({}),
+      removePage: (index) => removePageCalls.push(index),
+      save: async () => new Uint8Array([0x25, 0x50, 0x44, 0x46])
+    });
+
+    mockWindow.PDFLib.degrees = (val) => val;
+
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    editorModule.setPdfBytesOriginal(fakeBuffer);
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+
+    editorModule.rotatePage(1, 90);
+    editorModule.deletePage(2);
+
+    const blob = await editorModule.generateEditedPdfBlob();
+    assert.ok(blob, 'generateEditedPdfBlob should return a Blob');
+
+    assert.strictEqual(setRotationCalls.length, 1);
+    assert.strictEqual(setRotationCalls[0].pageNum, 1);
+    assert.strictEqual(setRotationCalls[0].deg, 90);
+
+    assert.strictEqual(removePageCalls.length, 1);
+    assert.strictEqual(removePageCalls[0], 1); // 0-indexed page 2
   });
 });

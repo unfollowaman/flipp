@@ -14,6 +14,12 @@ let selectedObjId = null;
 // Editor Objects Array
 let editorObjects = [];
 
+// Page rotation tracking: pageNum -> degrees (0, 90, 180, 270)
+const pageRotations = new Map();
+
+// Deleted pages tracking: Set of pageNums
+const deletedPages = new Set();
+
 // History Stack for Undo/Redo
 let historyStack = [];
 let redoStack = [];
@@ -26,11 +32,53 @@ let currentSigMode = "draw";
 let currentSigColor = "#000000";
 let uploadedSigSrc = null;
 
-// Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight }
+// Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight, rotation }
 const pageMetricsCache = new Map();
 
 // Overlay map cache: pageNum -> overlay DOM element
 const pageOverlayMap = new Map();
+
+export function getPageRotations() {
+  return pageRotations;
+}
+
+export function getDeletedPages() {
+  return deletedPages;
+}
+
+export function rotatePage(pageNum, deltaDegrees) {
+  const current = pageRotations.get(pageNum) || 0;
+  const newAngle = ((current + deltaDegrees) % 360 + 360) % 360;
+  saveState();
+  pageRotations.set(pageNum, newAngle);
+  renderAllPages();
+}
+
+export function deletePage(pageNum) {
+  const activeCount = numPages - deletedPages.size;
+  if (activeCount <= 1) {
+    showToast("A document must have at least one page.", "error");
+    return false;
+  }
+  saveState();
+  deletedPages.add(pageNum);
+
+  const remainingCount = Math.max(1, numPages - deletedPages.size);
+  if (currentPageIndex > remainingCount) {
+    currentPageIndex = remainingCount;
+  }
+
+  renderAllPages();
+  updatePageIndicator();
+  return true;
+}
+
+function updatePageIndicator() {
+  if (pageIndicator) {
+    const activeCount = Math.max(1, numPages - deletedPages.size);
+    pageIndicator.textContent = `${currentPageIndex} / ${activeCount}`;
+  }
+}
 
 // DOM References
 const editorHeader = document.getElementById("editor-header");
@@ -104,16 +152,45 @@ if (dropZone && fileInput) {
 
 // ── Centralized Coordinate Conversion Helpers ──────────────────────
 
-export function domToPdfCoords(domRect, pageViewport, pdfSize) {
-  const scaleX = pdfSize.width / pageViewport.width;
-  const scaleY = pdfSize.height / pageViewport.height;
+export function domToPdfCoords(domRect, pageViewport, pdfSize, rotationAngle = 0) {
+  const rot = ((rotationAngle % 360) + 360) % 360;
+  const vw = pageViewport.width;
+  const vh = pageViewport.height;
 
-  const pdfW = domRect.width * scaleX;
-  const pdfH = domRect.height * scaleY;
-  const pdfX = domRect.x * scaleX;
-  const pdfY = pdfSize.height - domRect.y * scaleY - pdfH;
-
-  return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  if (rot === 90) {
+    const scaleX = pdfSize.height / vw;
+    const scaleY = pdfSize.width / vh;
+    const pdfW = domRect.height * scaleY;
+    const pdfH = domRect.width * scaleX;
+    const pdfX = domRect.y * scaleY;
+    const pdfY = (vw - (domRect.x + domRect.width)) * scaleX;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else if (rot === 180) {
+    const scaleX = pdfSize.width / vw;
+    const scaleY = pdfSize.height / vh;
+    const pdfW = domRect.width * scaleX;
+    const pdfH = domRect.height * scaleY;
+    const pdfX = (vw - (domRect.x + domRect.width)) * scaleX;
+    const pdfY = domRect.y * scaleY;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else if (rot === 270) {
+    const scaleX = pdfSize.height / vw;
+    const scaleY = pdfSize.width / vh;
+    const pdfW = domRect.height * scaleY;
+    const pdfH = domRect.width * scaleX;
+    const pdfX = (vh - (domRect.y + domRect.height)) * scaleY;
+    const pdfY = domRect.x * scaleX;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else {
+    // 0 degrees
+    const scaleX = pdfSize.width / vw;
+    const scaleY = pdfSize.height / vh;
+    const pdfW = domRect.width * scaleX;
+    const pdfH = domRect.height * scaleY;
+    const pdfX = domRect.x * scaleX;
+    const pdfY = pdfSize.height - (domRect.y + domRect.height) * scaleY;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  }
 }
 
 // Helper to parse hex color string to pdf-lib RGB color object
@@ -186,7 +263,7 @@ export async function loadPdfFromBytes(arrayBuffer) {
 
   numPages = pdfjsDocument.numPages;
   currentPageIndex = 1;
-  if (pageIndicator) pageIndicator.textContent = `1 / ${numPages}`;
+  updatePageIndicator();
 
   editorObjects = [];
   historyStack = [];
@@ -216,17 +293,21 @@ export async function renderAllPages() {
 
   const renderPromises = pages.map((page, index) => {
     const pageNum = index + 1;
-    const unscaledViewport = page.getViewport({ scale: 1 });
+    if (deletedPages.has(pageNum)) return Promise.resolve();
+
+    const pageRot = pageRotations.get(pageNum) || 0;
+    const unscaledViewport = page.getViewport({ scale: 1, rotation: pageRot });
 
     const baseScale = maxContainerW / unscaledViewport.width;
     const finalScale = baseScale * zoomLevel;
 
-    const viewport = page.getViewport({ scale: finalScale });
+    const viewport = page.getViewport({ scale: finalScale, rotation: pageRot });
 
     pageMetricsCache.set(pageNum, {
       pageViewport: viewport,
       pdfWidth: unscaledViewport.width,
       pdfHeight: unscaledViewport.height,
+      rotation: pageRot,
     });
 
     const pageWrapper = document.createElement("div");
@@ -251,7 +332,52 @@ export async function renderAllPages() {
 
     const badge = document.createElement("div");
     badge.className = "pdf-page-badge";
-    badge.textContent = `Page ${pageNum}`;
+
+    const badgeLabel = document.createElement("span");
+    badgeLabel.textContent = `Page ${pageNum}`;
+
+    const actions = document.createElement("div");
+    actions.className = "page-badge-actions";
+
+    const rotCcwBtn = document.createElement("button");
+    rotCcwBtn.type = "button";
+    rotCcwBtn.className = "page-action-btn";
+    rotCcwBtn.title = "Rotate Left (90° CCW)";
+    rotCcwBtn.setAttribute("aria-label", `Rotate page ${pageNum} left`);
+    rotCcwBtn.textContent = "↶";
+    rotCcwBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      rotatePage(pageNum, -90);
+    });
+
+    const rotCwBtn = document.createElement("button");
+    rotCwBtn.type = "button";
+    rotCwBtn.className = "page-action-btn";
+    rotCwBtn.title = "Rotate Right (90° CW)";
+    rotCwBtn.setAttribute("aria-label", `Rotate page ${pageNum} right`);
+    rotCwBtn.textContent = "↷";
+    rotCwBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      rotatePage(pageNum, 90);
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "page-action-btn delete";
+    deleteBtn.title = "Delete Page";
+    deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deletePage(pageNum);
+    });
+
+    actions.appendChild(rotCcwBtn);
+    actions.appendChild(rotCwBtn);
+    actions.appendChild(deleteBtn);
+
+    badge.appendChild(badgeLabel);
+    badge.appendChild(actions);
 
     pageWrapper.appendChild(canvas);
     pageWrapper.appendChild(overlay);
@@ -318,7 +444,7 @@ if (pagesScrollArea) {
     });
     if (closestPage !== currentPageIndex) {
       currentPageIndex = closestPage;
-      if (pageIndicator) pageIndicator.textContent = `${currentPageIndex} / ${numPages}`;
+      updatePageIndicator();
     }
   });
 }
@@ -1514,10 +1640,12 @@ export async function applyCanvasObject(page, obj, pdfCoords, pdfDoc) {
 }
 
 export async function applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdfDoc, embeddedImages) {
+  const rotationAngle = pageMetrics.rotation || 0;
   const pdfCoords = domToPdfCoords(
     { x: obj.x, y: obj.y, width: obj.width, height: obj.height },
     pageMetrics.pageViewport,
-    { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight }
+    { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight },
+    rotationAngle
   );
 
   if (obj.type === "text") {
@@ -1554,9 +1682,20 @@ export async function generateEditedPdfBlob() {
   await new Promise((r) => setTimeout(r, 50));
 
   try {
-    const { PDFDocument, StandardFonts } = window.PDFLib;
+    const { PDFDocument, StandardFonts, degrees } = window.PDFLib;
     const pdfDoc = await PDFDocument.load(pdfBytesOriginal, { ignoreEncryption: true });
     const pages = pdfDoc.getPages();
+
+    // Apply page rotations
+    pages.forEach((page, idx) => {
+      const pageNum = idx + 1;
+      const rot = pageRotations.get(pageNum) || 0;
+      if (rot !== 0) {
+        const existingRot = page.getRotation ? page.getRotation().angle : 0;
+        const totalRot = (existingRot + rot) % 360;
+        page.setRotation(degrees(totalRot));
+      }
+    });
 
     setProgress(progressBar, progressLabel, 30, "Embedding fonts & images...");
     const [fontHelvetica, fontHelveticaBold, fontHelveticaOblique] = await Promise.all([
@@ -1573,6 +1712,7 @@ export async function generateEditedPdfBlob() {
     for (let i = 0; i < editorObjects.length; i++) {
       const obj = editorObjects[i];
       if (obj.pageNum < 1 || obj.pageNum > pages.length) continue;
+      if (deletedPages.has(obj.pageNum)) continue;
 
       const page = pages[obj.pageNum - 1];
       const pageMetrics = pageMetricsCache.get(obj.pageNum);
@@ -1588,6 +1728,14 @@ export async function generateEditedPdfBlob() {
         `Applying edit ${i + 1}/${editorObjects.length}...`
       );
     }
+
+    // Remove deleted pages in descending order to preserve valid page indices
+    const sortedDeletedPages = Array.from(deletedPages).sort((a, b) => b - a);
+    sortedDeletedPages.forEach((pageNum) => {
+      if (pageNum >= 1 && pageNum <= pages.length) {
+        pdfDoc.removePage(pageNum - 1);
+      }
+    });
 
     setProgress(progressBar, progressLabel, 90, "Saving edited PDF...");
     const modifiedPdfBytes = await pdfDoc.save();
@@ -1687,8 +1835,37 @@ function updateUndoRedoUI() {
   if (redoBtn) redoBtn.disabled = redoStack.length === 0;
 }
 
+function createSnapshot() {
+  return JSON.stringify({
+    objects: editorObjects,
+    rotations: Array.from(pageRotations.entries()),
+    deleted: Array.from(deletedPages),
+  });
+}
+
+function restoreSnapshot(snapshotStr) {
+  try {
+    const data = JSON.parse(snapshotStr);
+    if (Array.isArray(data)) {
+      editorObjects = data;
+    } else {
+      editorObjects = data.objects || [];
+      pageRotations.clear();
+      if (Array.isArray(data.rotations)) {
+        data.rotations.forEach(([k, v]) => pageRotations.set(k, v));
+      }
+      deletedPages.clear();
+      if (Array.isArray(data.deleted)) {
+        data.deleted.forEach((v) => deletedPages.add(v));
+      }
+    }
+  } catch (err) {
+    console.error("Error restoring snapshot:", err);
+  }
+}
+
 export function saveState() {
-  historyStack.push(JSON.stringify(editorObjects));
+  historyStack.push(createSnapshot());
   redoStack = [];
   updateUndoRedoUI();
 }
@@ -1698,20 +1875,22 @@ if (redoBtn) redoBtn.addEventListener("click", redoAction);
 
 export function undoAction() {
   if (historyStack.length === 0) return;
-  redoStack.push(JSON.stringify(editorObjects));
+  redoStack.push(createSnapshot());
   const previousState = historyStack.pop();
-  editorObjects = JSON.parse(previousState);
+  restoreSnapshot(previousState);
   updateUndoRedoUI();
-  renderAllObjects();
+  renderAllPages();
+  updatePageIndicator();
 }
 
 export function redoAction() {
   if (redoStack.length === 0) return;
-  historyStack.push(JSON.stringify(editorObjects));
+  historyStack.push(createSnapshot());
   const nextState = redoStack.pop();
-  editorObjects = JSON.parse(nextState);
+  restoreSnapshot(nextState);
   updateUndoRedoUI();
-  renderAllObjects();
+  renderAllPages();
+  updatePageIndicator();
 }
 
 window.addEventListener("keydown", (e) => {
@@ -1770,6 +1949,8 @@ export function resetEditor() {
   numPages = 0;
   currentPageIndex = 1;
   pageOverlayMap.clear();
+  pageRotations.clear();
+  deletedPages.clear();
   editorObjects = [];
   historyStack = [];
   redoStack = [];
