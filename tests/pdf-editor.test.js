@@ -9,6 +9,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 // Strip import statements
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 // Strip export keywords
+src = src.replace(/export\s+const/g, 'const');
 src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+async\s+function/g, 'async function');
 
@@ -17,9 +18,15 @@ src += `\nreturn {
   domToPdfCoords,
   handlePdfSelect,
   loadPdfFromBytes,
+  getActivePages,
+  rotatePage,
+  deletePage,
   renderAllPages,
+  renderSidebarThumbnails,
   renderAllObjects,
   updateSelectedObjectUI,
+  pageRotations,
+  deletedPages,
   saveState,
   undoAction,
   redoAction,
@@ -205,16 +212,31 @@ const mockWindow = {
   },
   PDFLib: {
     rgb: (r, g, b) => ({ r, g, b }),
+    degrees: (deg) => ({ angle: deg }),
     StandardFonts: {
       Helvetica: 'Helvetica',
       HelveticaBold: 'HelveticaBold',
       HelveticaOblique: 'HelveticaOblique'
     },
     PDFDocument: {
+      create: async () => {
+        const addedPages = [];
+        return {
+          copyPages: async (srcDoc, indices) => {
+            const pages = srcDoc.getPages();
+            return indices.map((i) => pages[i]).filter(Boolean);
+          },
+          addPage: (p) => { addedPages.push(p); },
+          embedFont: async () => ({}),
+          embedPng: async () => ({}),
+          embedJpg: async () => ({}),
+          save: async () => new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37])
+        };
+      },
       load: async (bytes, opts) => ({
         getPages: () => [
-          { getWidth: () => 612, getHeight: () => 792, drawText: () => {}, drawRectangle: () => {}, drawImage: () => {} },
-          { getWidth: () => 612, getHeight: () => 792, drawText: () => {}, drawRectangle: () => {}, drawImage: () => {} }
+          { getWidth: () => 612, getHeight: () => 792, getRotation: () => ({ angle: 0 }), setRotation: () => {}, drawText: () => {}, drawRectangle: () => {}, drawImage: () => {} },
+          { getWidth: () => 612, getHeight: () => 792, getRotation: () => ({ angle: 0 }), setRotation: () => {}, drawText: () => {}, drawRectangle: () => {}, drawImage: () => {} }
         ],
         embedFont: async () => ({}),
         embedPng: async () => ({}),
@@ -468,7 +490,7 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
 
     assert.deepStrictEqual(editorModule.getEditorObjects(), stateUpdated);
     assert.strictEqual(editorModule.getHistoryStack().length, 1);
-    assert.strictEqual(editorModule.getHistoryStack()[0], JSON.stringify(stateInitial));
+    assert.deepStrictEqual(JSON.parse(editorModule.getHistoryStack()[0]).objects, stateInitial);
     assert.strictEqual(editorModule.getRedoStack().length, 0);
     assert.strictEqual(undoBtn.disabled, false);
     assert.strictEqual(redoBtn.disabled, true);
@@ -491,7 +513,7 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
 
     // Verify historyStack incremented with JSON stringified state
     assert.strictEqual(editorModule.getHistoryStack().length, 1);
-    assert.strictEqual(editorModule.getHistoryStack()[0], JSON.stringify(testObj));
+    assert.deepStrictEqual(JSON.parse(editorModule.getHistoryStack()[0]).objects, testObj);
 
     // Verify redoStack is empty
     assert.strictEqual(editorModule.getRedoStack().length, 0);
@@ -1459,5 +1481,135 @@ test('pdf-editor applyTextObject detailed assertions', async (t) => {
     assert.strictEqual(page.drawTextCalls[0].line, 'Quick');
     assert.strictEqual(page.drawTextCalls[1].line, 'brown fox');
     assert.strictEqual(page.drawTextCalls[2].line, 'jumps');
+  });
+});
+
+test('pdf-editor page management, rotations, deletion guardrail & rotated coordinate mapping', async (t) => {
+  t.beforeEach(() => {
+    toastMessages = [];
+    editorModule.resetEditor();
+  });
+
+  await t.test('rotatePage increases rotation by 90 degrees and wraps at 360', () => {
+    editorModule.setNumPages(3);
+    assert.strictEqual(editorModule.pageRotations.get(1) || 0, 0);
+
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.pageRotations.get(1), 90);
+
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.pageRotations.get(1), 180);
+
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.pageRotations.get(1), 270);
+
+    editorModule.rotatePage(1, 90);
+    assert.strictEqual(editorModule.pageRotations.get(1), 0);
+  });
+
+  await t.test('deletePage deletes page when page count > 1 and removes associated objects', () => {
+    editorModule.setNumPages(3);
+    editorModule.setEditorObjects([
+      { id: 'o1', pageNum: 1, type: 'text', properties: { text: 'P1' } },
+      { id: 'o2', pageNum: 2, type: 'text', properties: { text: 'P2' } }
+    ]);
+
+    const success = editorModule.deletePage(2);
+    assert.strictEqual(success, true);
+    assert.strictEqual(editorModule.deletedPages.has(2), true);
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 3]);
+
+    // Verify object on page 2 was removed
+    const remainingObjs = editorModule.getEditorObjects();
+    assert.strictEqual(remainingObjs.length, 1);
+    assert.strictEqual(remainingObjs[0].id, 'o1');
+  });
+
+  await t.test('deletePage enforces 1-page minimum guardrail and displays toast error', () => {
+    editorModule.setNumPages(1);
+
+    const success = editorModule.deletePage(1);
+    assert.strictEqual(success, false);
+    assert.strictEqual(editorModule.deletedPages.has(1), false);
+    assert.strictEqual(toastMessages.length, 1);
+    assert.strictEqual(toastMessages[0].msg, 'Cannot delete page. A document must contain at least one page.');
+    assert.strictEqual(toastMessages[0].type, 'error');
+  });
+
+  await t.test('domToPdfCoords accurately maps coordinates across 0, 90, 180, 270 degree rotations', () => {
+    const viewport = { width: 800, height: 600 };
+    const pdfSize = { width: 600, height: 800 };
+
+    // 1. Full-canvas bounding box (0,0,800,600)
+    const fullRect = { x: 0, y: 0, width: 800, height: 600 };
+
+    const coords0 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 0);
+    assert.strictEqual(coords0.x, 0);
+    assert.strictEqual(coords0.y, 0);
+    assert.strictEqual(coords0.width, 600);
+    assert.strictEqual(coords0.height, 800);
+
+    const coords90 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 90);
+    assert.strictEqual(coords90.x, 0);
+    assert.strictEqual(coords90.y, 0);
+    assert.strictEqual(coords90.width, 800);
+    assert.strictEqual(coords90.height, 600);
+
+    const coords180 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 180);
+    assert.strictEqual(coords180.x, 0);
+    assert.strictEqual(coords180.y, 0);
+    assert.strictEqual(coords180.width, 600);
+    assert.strictEqual(coords180.height, 800);
+
+    const coords270 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 270);
+    assert.strictEqual(coords270.x, 0);
+    assert.strictEqual(coords270.y, 0);
+    assert.strictEqual(coords270.width, 800);
+    assert.strictEqual(coords270.height, 600);
+
+    // 2. Partial bounding box: top-left quadrant (x:0, y:0, w:400, h:300)
+    const partialRect = { x: 0, y: 0, width: 400, height: 300 };
+
+    // 0 deg: top-left in DOM -> x: 0, y: 800 - 400 = 400 in PDF
+    const pCoords0 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 0);
+    assert.strictEqual(pCoords0.x, 0);
+    assert.strictEqual(pCoords0.y, 400);
+    assert.strictEqual(pCoords0.width, 300);
+    assert.strictEqual(pCoords0.height, 400);
+
+    // 90 deg: top-left in DOM -> x: 0, y: 600 - (400/800)*600 = 300 in unrotated PDF
+    const pCoords90 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 90);
+    assert.strictEqual(pCoords90.x, 0);
+    assert.strictEqual(pCoords90.y, 300);
+    assert.strictEqual(pCoords90.width, 400);
+    assert.strictEqual(pCoords90.height, 300);
+
+    // 180 deg: top-left in DOM -> x: 600 - 300 = 300, y: 0 in unrotated PDF
+    const pCoords180 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 180);
+    assert.strictEqual(pCoords180.x, 300);
+    assert.strictEqual(pCoords180.y, 0);
+    assert.strictEqual(pCoords180.width, 300);
+    assert.strictEqual(pCoords180.height, 400);
+
+    // 270 deg: top-left in DOM -> x: 800 - 400 = 400, y: 0 in unrotated PDF
+    const pCoords270 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 270);
+    assert.strictEqual(pCoords270.x, 400);
+    assert.strictEqual(pCoords270.y, 0);
+    assert.strictEqual(pCoords270.width, 400);
+    assert.strictEqual(pCoords270.height, 300);
+  });
+
+  await t.test('resetEditor clears pageRotations and deletedPages', () => {
+    editorModule.setNumPages(3);
+    editorModule.pageRotations.set(1, 90);
+    editorModule.deletedPages.add(2);
+
+    assert.strictEqual(editorModule.pageRotations.size, 1);
+    assert.strictEqual(editorModule.deletedPages.size, 1);
+
+    editorModule.resetEditor();
+
+    assert.strictEqual(editorModule.pageRotations.size, 0);
+    assert.strictEqual(editorModule.deletedPages.size, 0);
   });
 });

@@ -59,3 +59,19 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 384 passing tests (0 failures), Playwright frontend verification screenshot/video (`/home/jules/verification/screenshots/text_alignment_verification.png`).
 - **Known Limitations:** Text wrapping uses standard whitespace splitting; hyphenation for long continuous words without spaces is not applied.
 - **Next Recommended Improvement:** `EDIT-PDF-004` — PDF Page Rotation & Reordering in Page Thumbnail Sidebar.
+
+### EDIT-PDF-004: Page Rotation & Page Deletion with Thumbnail Sidebar & Rotation-Aware Coordinate Conversions
+- **Priority:** P2 (Advanced Workflows & Page Management)
+- **User Problem:** Users had no way to rotate misoriented pages or delete unwanted pages in multi-page documents while editing, nor could they easily navigate pages using a visual thumbnail sidebar. Additionally, exporting annotations placed on rotated pages required accurate coordinate mapping across 0°, 90°, 180°, and 270° rotations.
+- **Status:** Completed
+- **Technical Rationale:** Introduced a collapsible Page Thumbnails Sidebar (`#editor-sidebar`) with canvas thumbnails, active page indicators, and page rotation/deletion actions. Implemented `pageRotations` (Map) and `deletedPages` (Set) state management integrated with undo/redo undo history stack (`saveState`, `undoAction`, `redoAction`). Updated `domToPdfCoords()` in `js/pdf-editor.js` to accurately map DOM overlay bounding boxes to unrotated PDF coordinates across 0°, 90°, 180°, and 270° angles. Enforced a 1-page minimum guardrail for deletion with toast messaging, and updated `generateEditedPdfBlob()` to filter deleted pages and apply page rotations during PDF export via PDF-lib.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 390 passing unit tests (0 failures), Playwright frontend verification screenshot (`/home/jules/verification/screenshots/edit_pdf_sidebar_verification.png`).
+- **Known Limitations:** Page reordering via drag-and-drop thumbnails can be added in a future update.
+- **Next Recommended Improvement:** `EDIT-PDF-005` — Visual Drag & Drop Page Thumbnail Reordering in Workspace Sidebar.

@@ -26,7 +26,13 @@ let currentSigMode = "draw";
 let currentSigColor = "#000000";
 let uploadedSigSrc = null;
 
-// Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight }
+// Page Rotations: pageNum -> relative rotation angle in degrees (0, 90, 180, 270)
+export const pageRotations = new Map();
+
+// Deleted Pages: Set of pageNums that have been deleted
+export const deletedPages = new Set();
+
+// Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight, userRotation }
 const pageMetricsCache = new Map();
 
 // Overlay map cache: pageNum -> overlay DOM element
@@ -43,6 +49,10 @@ const shareBtn = document.getElementById("editor-share-btn");
 const pageIndicator = document.getElementById("editor-page-indicator");
 const prevPageBtn = document.getElementById("editor-prev-page");
 const nextPageBtn = document.getElementById("editor-next-page");
+const toggleSidebarBtn = document.getElementById("editor-toggle-sidebar-btn");
+const sidebarEl = document.getElementById("editor-sidebar");
+const sidebarCloseBtn = document.getElementById("editor-sidebar-close");
+const sidebarThumbsContainer = document.getElementById("editor-sidebar-thumbs");
 const zoomValLabel = document.getElementById("editor-zoom-val");
 const zoomInBtn = document.getElementById("editor-zoom-in");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
@@ -104,16 +114,40 @@ if (dropZone && fileInput) {
 
 // ── Centralized Coordinate Conversion Helpers ──────────────────────
 
-export function domToPdfCoords(domRect, pageViewport, pdfSize) {
-  const scaleX = pdfSize.width / pageViewport.width;
-  const scaleY = pdfSize.height / pageViewport.height;
+export function domToPdfCoords(domRect, pageViewport, pdfSize, userRotation = 0) {
+  const rot = ((userRotation % 360) + 360) % 360;
+  const vw = pageViewport.width;
+  const vh = pageViewport.height;
+  const pw = pdfSize.width;
+  const ph = pdfSize.height;
 
-  const pdfW = domRect.width * scaleX;
-  const pdfH = domRect.height * scaleY;
-  const pdfX = domRect.x * scaleX;
-  const pdfY = pdfSize.height - domRect.y * scaleY - pdfH;
+  const { x, y, width: w, height: h } = domRect;
 
-  return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  if (rot === 90) {
+    const pdfX = (y / vh) * pw;
+    const pdfY = ph - ((x + w) / vw) * ph;
+    const pdfW = (h / vh) * pw;
+    const pdfH = (w / vw) * ph;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else if (rot === 180) {
+    const pdfX = pw - ((x + w) / vw) * pw;
+    const pdfY = (y / vh) * ph;
+    const pdfW = (w / vw) * pw;
+    const pdfH = (h / vh) * ph;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else if (rot === 270) {
+    const pdfX = pw - ((y + h) / vh) * pw;
+    const pdfY = (x / vw) * ph;
+    const pdfW = (h / vh) * pw;
+    const pdfH = (w / vw) * ph;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  } else {
+    const pdfX = (x / vw) * pw;
+    const pdfY = ph - ((y + h) / vh) * ph;
+    const pdfW = (w / vw) * pw;
+    const pdfH = (h / vh) * ph;
+    return { x: pdfX, y: pdfY, width: pdfW, height: pdfH };
+  }
 }
 
 // Helper to parse hex color string to pdf-lib RGB color object
@@ -186,7 +220,8 @@ export async function loadPdfFromBytes(arrayBuffer) {
 
   numPages = pdfjsDocument.numPages;
   currentPageIndex = 1;
-  if (pageIndicator) pageIndicator.textContent = `1 / ${numPages}`;
+  pageRotations.clear();
+  deletedPages.clear();
 
   editorObjects = [];
   historyStack = [];
@@ -196,6 +231,49 @@ export async function loadPdfFromBytes(arrayBuffer) {
   await renderAllPages();
 }
 
+// ── Page Management Actions ───────────────────────────────────────
+
+export function getActivePages() {
+  const active = [];
+  for (let i = 1; i <= numPages; i++) {
+    if (!deletedPages.has(i)) {
+      active.push(i);
+    }
+  }
+  return active;
+}
+
+export function rotatePage(pageNum, deltaDegrees = 90) {
+  saveState();
+  const currentRot = pageRotations.get(pageNum) || 0;
+  const newRot = (currentRot + deltaDegrees) % 360;
+  pageRotations.set(pageNum, newRot);
+  renderAllPages();
+}
+
+export function deletePage(pageNum) {
+  const activeCount = numPages - deletedPages.size;
+  if (activeCount <= 1) {
+    showToast("Cannot delete page. A document must contain at least one page.", "error");
+    return false;
+  }
+  saveState();
+  deletedPages.add(pageNum);
+
+  editorObjects = editorObjects.filter((obj) => obj.pageNum !== pageNum);
+  if (selectedObjId && !editorObjects.some((o) => o.id === selectedObjId)) {
+    selectedObjId = null;
+  }
+
+  const active = getActivePages();
+  if (!active.includes(currentPageIndex)) {
+    currentPageIndex = active[0] || 1;
+  }
+
+  renderAllPages();
+  return true;
+}
+
 export async function renderAllPages() {
   if (!pdfjsDocument) return;
 
@@ -203,10 +281,14 @@ export async function renderAllPages() {
   pageMetricsCache.clear();
   pageOverlayMap.clear();
 
-  const pagePromises = [];
-  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-    pagePromises.push(pdfjsDocument.getPage(pageNum));
+  const activePages = getActivePages();
+  if (pageIndicator) {
+    const activeIdx = activePages.indexOf(currentPageIndex);
+    const displayIdx = activeIdx !== -1 ? activeIdx + 1 : 1;
+    pageIndicator.textContent = `${displayIdx} / ${activePages.length}`;
   }
+
+  const pagePromises = activePages.map((pageNum) => pdfjsDocument.getPage(pageNum));
   const pages = await Promise.all(pagePromises);
 
   const scrollAreaW = pagesScrollArea.clientWidth;
@@ -215,18 +297,22 @@ export async function renderAllPages() {
   const dpr = window.devicePixelRatio || 1;
 
   const renderPromises = pages.map((page, index) => {
-    const pageNum = index + 1;
-    const unscaledViewport = page.getViewport({ scale: 1 });
+    const pageNum = activePages[index];
+    const userRot = pageRotations.get(pageNum) || 0;
+    const totalRotation = (page.rotate + userRot) % 360;
+
+    const unscaledViewport = page.getViewport({ scale: 1, rotation: totalRotation });
 
     const baseScale = maxContainerW / unscaledViewport.width;
     const finalScale = baseScale * zoomLevel;
 
-    const viewport = page.getViewport({ scale: finalScale });
+    const viewport = page.getViewport({ scale: finalScale, rotation: totalRotation });
 
     pageMetricsCache.set(pageNum, {
       pageViewport: viewport,
       pdfWidth: unscaledViewport.width,
       pdfHeight: unscaledViewport.height,
+      userRotation: userRot,
     });
 
     const pageWrapper = document.createElement("div");
@@ -249,13 +335,40 @@ export async function renderAllPages() {
     overlay.dataset.pageNum = pageNum;
     pageOverlayMap.set(pageNum, overlay);
 
-    const badge = document.createElement("div");
+    const header = document.createElement("div");
+    header.className = "pdf-page-header";
+
+    const badge = document.createElement("span");
     badge.className = "pdf-page-badge";
     badge.textContent = `Page ${pageNum}`;
 
+    const rotateBtn = document.createElement("button");
+    rotateBtn.className = "pdf-page-action-btn rotate-btn";
+    rotateBtn.title = "Rotate 90° clockwise";
+    rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
+    rotateBtn.textContent = "🔄";
+    rotateBtn.onclick = (e) => {
+      e.stopPropagation();
+      rotatePage(pageNum, 90);
+    };
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "pdf-page-action-btn delete-btn";
+    deleteBtn.title = "Delete page";
+    deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deletePage(pageNum);
+    };
+
+    header.appendChild(badge);
+    header.appendChild(rotateBtn);
+    header.appendChild(deleteBtn);
+
     pageWrapper.appendChild(canvas);
     pageWrapper.appendChild(overlay);
-    pageWrapper.appendChild(badge);
+    pageWrapper.appendChild(header);
     pagesScrollArea.appendChild(pageWrapper);
 
     setupOverlayEvents(overlay, pageNum);
@@ -274,6 +387,114 @@ export async function renderAllPages() {
   await Promise.all(renderPromises);
 
   renderAllObjects();
+  renderSidebarThumbnails();
+}
+
+export async function renderSidebarThumbnails() {
+  if (!sidebarThumbsContainer || !sidebarEl || sidebarEl.style.display === "none") return;
+
+  const existingCanvases = sidebarThumbsContainer.querySelectorAll("canvas");
+  existingCanvases.forEach((c) => {
+    c.width = 0;
+    c.height = 0;
+  });
+  sidebarThumbsContainer.innerHTML = "";
+
+  const activePages = getActivePages();
+  const pagePromises = activePages.map((pageNum) => pdfjsDocument.getPage(pageNum));
+  const pages = await Promise.all(pagePromises);
+
+  for (let index = 0; index < pages.length; index++) {
+    const page = pages[index];
+    const pageNum = activePages[index];
+    const userRot = pageRotations.get(pageNum) || 0;
+    const totalRotation = (page.rotate + userRot) % 360;
+
+    const thumbViewport = page.getViewport({ scale: 0.2, rotation: totalRotation });
+
+    const card = document.createElement("div");
+    card.className = `thumb-card ${pageNum === currentPageIndex ? "active" : ""}`;
+    card.dataset.pageNum = pageNum;
+
+    const wrap = document.createElement("div");
+    wrap.className = "thumb-card-canvas-wrap";
+
+    const canvas = document.createElement("canvas");
+    canvas.width = thumbViewport.width;
+    canvas.height = thumbViewport.height;
+
+    const ctx = canvas.getContext("2d");
+    wrap.appendChild(canvas);
+
+    const footer = document.createElement("div");
+    footer.className = "thumb-card-footer";
+
+    const label = document.createElement("span");
+    label.textContent = `P. ${pageNum}`;
+
+    const actions = document.createElement("div");
+    actions.className = "thumb-card-actions";
+
+    const rotateBtn = document.createElement("button");
+    rotateBtn.className = "thumb-card-btn";
+    rotateBtn.title = "Rotate";
+    rotateBtn.textContent = "🔄";
+    rotateBtn.onclick = (e) => {
+      e.stopPropagation();
+      rotatePage(pageNum, 90);
+    };
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "thumb-card-btn";
+    deleteBtn.title = "Delete";
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deletePage(pageNum);
+    };
+
+    actions.appendChild(rotateBtn);
+    actions.appendChild(deleteBtn);
+    footer.appendChild(label);
+    footer.appendChild(actions);
+
+    card.appendChild(wrap);
+    card.appendChild(footer);
+
+    card.onclick = () => {
+      currentPageIndex = pageNum;
+      scrollToPage(pageNum);
+      renderSidebarThumbnails();
+    };
+
+    sidebarThumbsContainer.appendChild(card);
+
+    page.render({ canvasContext: ctx, viewport: thumbViewport }).promise.then(() => {
+      if (page && typeof page.cleanup === "function") page.cleanup();
+    });
+  }
+}
+
+if (toggleSidebarBtn && sidebarEl) {
+  toggleSidebarBtn.addEventListener("click", () => {
+    const isHidden = sidebarEl.style.display === "none";
+    sidebarEl.style.display = isHidden ? "flex" : "none";
+    toggleSidebarBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+    toggleSidebarBtn.classList.toggle("active", isHidden);
+    if (isHidden) {
+      renderSidebarThumbnails();
+    }
+  });
+}
+
+if (sidebarCloseBtn && sidebarEl) {
+  sidebarCloseBtn.addEventListener("click", () => {
+    sidebarEl.style.display = "none";
+    if (toggleSidebarBtn) {
+      toggleSidebarBtn.setAttribute("aria-expanded", "false");
+      toggleSidebarBtn.classList.remove("active");
+    }
+  });
 }
 
 // ── Page Navigation Controls ─────────────────────────────────────
@@ -288,16 +509,20 @@ function scrollToPage(pageNum) {
 
 if (prevPageBtn) {
   prevPageBtn.addEventListener("click", () => {
-    if (currentPageIndex > 1) {
-      scrollToPage(currentPageIndex - 1);
+    const active = getActivePages();
+    const activeIdx = active.indexOf(currentPageIndex);
+    if (activeIdx > 0) {
+      scrollToPage(active[activeIdx - 1]);
     }
   });
 }
 
 if (nextPageBtn) {
   nextPageBtn.addEventListener("click", () => {
-    if (currentPageIndex < numPages) {
-      scrollToPage(currentPageIndex + 1);
+    const active = getActivePages();
+    const activeIdx = active.indexOf(currentPageIndex);
+    if (activeIdx !== -1 && activeIdx < active.length - 1) {
+      scrollToPage(active[activeIdx + 1]);
     }
   });
 }
@@ -1514,10 +1739,12 @@ export async function applyCanvasObject(page, obj, pdfCoords, pdfDoc) {
 }
 
 export async function applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdfDoc, embeddedImages) {
+  const userRot = pageMetrics.userRotation || 0;
   const pdfCoords = domToPdfCoords(
     { x: obj.x, y: obj.y, width: obj.width, height: obj.height },
     pageMetrics.pageViewport,
-    { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight }
+    { width: pageMetrics.pdfWidth, height: pageMetrics.pdfHeight },
+    userRot
   );
 
   if (obj.type === "text") {
@@ -1550,13 +1777,29 @@ export async function generateEditedPdfBlob() {
   if (progressArea) progressArea.style.display = "block";
   setProgress(progressBar, progressLabel, 10, "Loading PDF document...");
 
-  // Delay slightly to yield main thread and paint progress DOM
   await new Promise((r) => setTimeout(r, 50));
 
   try {
-    const { PDFDocument, StandardFonts } = window.PDFLib;
-    const pdfDoc = await PDFDocument.load(pdfBytesOriginal, { ignoreEncryption: true });
-    const pages = pdfDoc.getPages();
+    const { PDFDocument, StandardFonts, degrees } = window.PDFLib;
+    const srcPdfDoc = await PDFDocument.load(pdfBytesOriginal, { ignoreEncryption: true });
+
+    const activePages = getActivePages();
+    const keepIndices = activePages.map((p) => p - 1);
+
+    const pdfDoc = await PDFDocument.create();
+    const copiedPages = await pdfDoc.copyPages(srcPdfDoc, keepIndices);
+
+    const pageNumToDestPage = new Map();
+    copiedPages.forEach((page, idx) => {
+      const pageNum = activePages[idx];
+      const relRot = pageRotations.get(pageNum) || 0;
+      if (relRot !== 0) {
+        const existingRot = page.getRotation ? page.getRotation().angle : 0;
+        page.setRotation(degrees((existingRot + relRot) % 360));
+      }
+      pdfDoc.addPage(page);
+      pageNumToDestPage.set(pageNum, page);
+    });
 
     setProgress(progressBar, progressLabel, 30, "Embedding fonts & images...");
     const [fontHelvetica, fontHelveticaBold, fontHelveticaOblique] = await Promise.all([
@@ -1572,12 +1815,12 @@ export async function generateEditedPdfBlob() {
 
     for (let i = 0; i < editorObjects.length; i++) {
       const obj = editorObjects[i];
-      if (obj.pageNum < 1 || obj.pageNum > pages.length) continue;
+      if (deletedPages.has(obj.pageNum)) continue;
 
-      const page = pages[obj.pageNum - 1];
+      const page = pageNumToDestPage.get(obj.pageNum);
       const pageMetrics = pageMetricsCache.get(obj.pageNum);
 
-      if (!pageMetrics) continue;
+      if (!page || !pageMetrics) continue;
 
       await applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdfDoc, embeddedImages);
 
@@ -1688,9 +1931,36 @@ function updateUndoRedoUI() {
 }
 
 export function saveState() {
-  historyStack.push(JSON.stringify(editorObjects));
+  const state = {
+    objects: editorObjects,
+    rotations: Array.from(pageRotations.entries()),
+    deleted: Array.from(deletedPages),
+  };
+  historyStack.push(JSON.stringify(state));
   redoStack = [];
   updateUndoRedoUI();
+}
+
+function applyStateObject(state) {
+  if (Array.isArray(state)) {
+    editorObjects = state;
+  } else if (state && typeof state === "object") {
+    editorObjects = state.objects || [];
+    pageRotations.clear();
+    if (Array.isArray(state.rotations)) {
+      state.rotations.forEach(([p, r]) => pageRotations.set(p, r));
+    }
+    deletedPages.clear();
+    if (Array.isArray(state.deleted)) {
+      state.deleted.forEach((p) => deletedPages.add(p));
+    }
+  }
+  updateUndoRedoUI();
+  if (pdfjsDocument) {
+    renderAllPages();
+  } else {
+    renderAllObjects();
+  }
 }
 
 if (undoBtn) undoBtn.addEventListener("click", undoAction);
@@ -1698,20 +1968,26 @@ if (redoBtn) redoBtn.addEventListener("click", redoAction);
 
 export function undoAction() {
   if (historyStack.length === 0) return;
-  redoStack.push(JSON.stringify(editorObjects));
-  const previousState = historyStack.pop();
-  editorObjects = JSON.parse(previousState);
-  updateUndoRedoUI();
-  renderAllObjects();
+  const currentState = {
+    objects: editorObjects,
+    rotations: Array.from(pageRotations.entries()),
+    deleted: Array.from(deletedPages),
+  };
+  redoStack.push(JSON.stringify(currentState));
+  const previousState = JSON.parse(historyStack.pop());
+  applyStateObject(previousState);
 }
 
 export function redoAction() {
   if (redoStack.length === 0) return;
-  historyStack.push(JSON.stringify(editorObjects));
-  const nextState = redoStack.pop();
-  editorObjects = JSON.parse(nextState);
-  updateUndoRedoUI();
-  renderAllObjects();
+  const currentState = {
+    objects: editorObjects,
+    rotations: Array.from(pageRotations.entries()),
+    deleted: Array.from(deletedPages),
+  };
+  historyStack.push(JSON.stringify(currentState));
+  const nextState = JSON.parse(redoStack.pop());
+  applyStateObject(nextState);
 }
 
 window.addEventListener("keydown", (e) => {
@@ -1769,10 +2045,17 @@ export function resetEditor() {
   pdfBytesOriginal = null;
   numPages = 0;
   currentPageIndex = 1;
+  pageRotations.clear();
+  deletedPages.clear();
   pageOverlayMap.clear();
   editorObjects = [];
   historyStack = [];
   redoStack = [];
+  if (sidebarEl) sidebarEl.style.display = "none";
+  if (toggleSidebarBtn) {
+    toggleSidebarBtn.setAttribute("aria-expanded", "false");
+    toggleSidebarBtn.classList.remove("active");
+  }
   selectedObjId = null;
   activeTool = "select";
   if (toolbar) {
