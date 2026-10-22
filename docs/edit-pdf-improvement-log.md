@@ -44,3 +44,18 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 382 passing tests (0 failures), Playwright mobile screenshot/video verification (`/home/jules/verification/screenshots/mobile_workspace.png`).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-003` — Direct Text Alignment & Wrap Properties for Text Annotations.
+
+### EDIT-PDF-003: Direct Text Alignment (Left, Center, Right) & Automatic Word Wrapping for Text Annotations
+- **Priority:** P1 (Essential Editing Workspace & PDF Export Parity)
+- **User Problem:** Text added to PDF documents could only be aligned to the left on export regardless of visual styling, and long multi-line text blocks without manual line breaks would overflow the text annotation boundary when exported to PDF. Furthermore, users lacked an explicit text alignment selector in the text property bar.
+- **Status:** Completed
+- **Technical Rationale:** Added `#prop-text-align` select dropdown to `tools/edit-pdf/index.html` within `.prop-group-text` with appropriate label accessibility. Updated `js/pdf-editor.js` text object model to store and render `textAlign` CSS properties on text overlays (`left`, `center`, `right`). Enhanced `applyTextObject` in `js/pdf-editor.js` during PDF export to measure font text metrics via `font.widthOfTextAtSize`, perform word-wrapping to constrain lines within `pdfCoords.width`, and apply appropriate horizontal offset calculations for `center` and `right` aligned text blocks.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `tests/pdf_editor_a11y.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 384 passing tests (0 failures), Playwright frontend verification screenshot/video (`/home/jules/verification/screenshots/text_alignment_verification.png`).
+- **Known Limitations:** Text wrapping uses standard whitespace splitting; hyphenation for long continuous words without spaces is not applied.
+- **Next Recommended Improvement:** `EDIT-PDF-004` — PDF Page Rotation & Reordering in Page Thumbnail Sidebar.

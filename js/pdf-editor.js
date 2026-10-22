@@ -65,6 +65,7 @@ const deleteObjBtn = document.getElementById("editor-delete-obj");
 // Property Controls
 const propFontSize = document.getElementById("prop-font-size");
 const propFontFamily = document.getElementById("prop-font-family");
+const propTextAlign = document.getElementById("prop-text-align");
 const propBold = document.getElementById("prop-bold");
 const propItalic = document.getElementById("prop-italic");
 const propColor = document.getElementById("prop-color");
@@ -382,6 +383,18 @@ function updatePropsBarVisibility() {
   if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
     propColorGroup.forEach((el) => (el.style.display = "flex"));
+    if (propFontSize) propFontSize.value = "18";
+    if (propFontFamily) propFontFamily.value = "sans-serif";
+    if (propTextAlign) propTextAlign.value = "left";
+    if (propColor) propColor.value = "#000000";
+    if (propBold) {
+      propBold.classList.remove("active");
+      if (propBold.setAttribute) propBold.setAttribute("aria-pressed", "false");
+    }
+    if (propItalic) {
+      propItalic.classList.remove("active");
+      if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", "false");
+    }
     hasVisibleProps = true;
   } else if (activeTool === "highlight") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -402,6 +415,20 @@ function updatePropsBarVisibility() {
       if (obj.type === "text") {
         propTextGroup.forEach((el) => (el.style.display = "flex"));
         propColorGroup.forEach((el) => (el.style.display = "flex"));
+        if (propFontSize) propFontSize.value = String(obj.properties.fontSize || 18);
+        if (propFontFamily) propFontFamily.value = obj.properties.fontFamily || "sans-serif";
+        if (propTextAlign) propTextAlign.value = obj.properties.textAlign || "left";
+        if (propColor) propColor.value = obj.properties.color || "#000000";
+        if (propBold) {
+          const isBold = !!obj.properties.bold;
+          propBold.classList.toggle("active", isBold);
+          if (propBold.setAttribute) propBold.setAttribute("aria-pressed", isBold ? "true" : "false");
+        }
+        if (propItalic) {
+          const isItalic = !!obj.properties.italic;
+          propItalic.classList.toggle("active", isItalic);
+          if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", isItalic ? "true" : "false");
+        }
         hasVisibleProps = true;
       } else if (obj.type === "highlight") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -424,9 +451,10 @@ function updatePropsBarVisibility() {
 }
 
 // Property change listeners
-[propFontSize, propFontFamily, propColor, propShapeType, propFillColor, propStrokeWidth, propOpacity].forEach((input) => {
+[propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propOpacity].forEach((input) => {
   if (input) {
     input.addEventListener("input", applyPropChangesToSelected);
+    input.addEventListener("change", applyPropChangesToSelected);
   }
 });
 
@@ -476,6 +504,7 @@ function applyPropChangesToSelected() {
   if (obj.type === "text") {
     obj.properties.fontSize = parseInt(propFontSize.value, 10) || 18;
     obj.properties.fontFamily = propFontFamily.value;
+    if (propTextAlign) obj.properties.textAlign = propTextAlign.value;
     obj.properties.color = propColor.value;
     obj.properties.bold = propBold.classList.contains("active");
     obj.properties.italic = propItalic.classList.contains("active");
@@ -529,6 +558,7 @@ function createObjectForTool(tool, pageNum, x, y) {
         text: "Type text here...",
         fontSize: parseInt(propFontSize.value, 10) || 18,
         fontFamily: propFontFamily.value || "sans-serif",
+        textAlign: propTextAlign ? propTextAlign.value || "left" : "left",
         color: propColor.value || "#000000",
         bold: propBold ? propBold.classList.contains("active") : false,
         italic: propItalic ? propItalic.classList.contains("active") : false,
@@ -881,6 +911,7 @@ function renderObjectContent(obj, el) {
     textarea.value = obj.properties.text;
     textarea.style.fontSize = `${obj.properties.fontSize}px`;
     textarea.style.fontFamily = obj.properties.fontFamily;
+    textarea.style.textAlign = obj.properties.textAlign || "left";
     textarea.style.color = obj.properties.color;
     textarea.style.fontWeight = obj.properties.bold ? "bold" : "normal";
     textarea.style.fontStyle = obj.properties.italic ? "italic" : "normal";
@@ -1380,15 +1411,53 @@ export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
   const text = obj.properties.text || "";
   const size = (obj.properties.fontSize || 18) * (pageMetrics.pdfWidth / pageMetrics.pageViewport.width);
   const color = hexToPdfRgb(obj.properties.color || "#000000");
+  const align = obj.properties.textAlign || "left";
 
   let font = fonts.fontHelvetica;
   if (obj.properties.bold) font = fonts.fontHelveticaBold;
   else if (obj.properties.italic) font = fonts.fontHelveticaOblique;
 
-  const lines = text.split("\n");
-  lines.forEach((line, lIdx) => {
+  const rawLines = text.split("\n");
+  const wrappedLines = [];
+
+  rawLines.forEach((rawLine) => {
+    if (!rawLine) {
+      wrappedLines.push("");
+      return;
+    }
+
+    const words = rawLine.split(" ");
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const candidate = currentLine ? `${currentLine} ${word}` : word;
+      const candidateWidth = font.widthOfTextAtSize ? font.widthOfTextAtSize(candidate, size) : candidate.length * size * 0.5;
+
+      if (candidateWidth <= pdfCoords.width || !currentLine) {
+        currentLine = candidate;
+      } else {
+        wrappedLines.push(currentLine);
+        currentLine = word;
+      }
+    });
+
+    if (currentLine) {
+      wrappedLines.push(currentLine);
+    }
+  });
+
+  wrappedLines.forEach((line, lIdx) => {
+    const lineWidth = font.widthOfTextAtSize ? font.widthOfTextAtSize(line, size) : line.length * size * 0.5;
+    let lineX = pdfCoords.x;
+
+    if (align === "center") {
+      lineX = pdfCoords.x + (pdfCoords.width - lineWidth) / 2;
+    } else if (align === "right") {
+      lineX = pdfCoords.x + pdfCoords.width - lineWidth;
+    }
+
     page.drawText(line, {
-      x: pdfCoords.x,
+      x: lineX,
       y: pdfCoords.y + pdfCoords.height - size * 1.1 * (lIdx + 1),
       size: size,
       font: font,

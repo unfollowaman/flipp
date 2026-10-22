@@ -98,6 +98,7 @@ test("PDF Editor Property Bar form controls have associated labels", () => {
   const expectedControlIds = [
     "prop-font-size",
     "prop-font-family",
+    "prop-text-align",
     "prop-color",
     "prop-shape-type",
     "prop-fill-color",
