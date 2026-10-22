@@ -32,6 +32,12 @@ export const pageRotations = new Map();
 // Deleted Pages: Set of pageNums that have been deleted
 export const deletedPages = new Set();
 
+// Page Order: array of page numbers in current order
+export let pageOrder = [];
+
+// Dragged Card Index for Sidebar Drag & Drop Reordering
+let draggedCardIndex = null;
+
 // Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight, userRotation }
 const pageMetricsCache = new Map();
 
@@ -222,6 +228,7 @@ export async function loadPdfFromBytes(arrayBuffer) {
   currentPageIndex = 1;
   pageRotations.clear();
   deletedPages.clear();
+  pageOrder = Array.from({ length: numPages }, (_, i) => i + 1);
 
   editorObjects = [];
   historyStack = [];
@@ -235,12 +242,49 @@ export async function loadPdfFromBytes(arrayBuffer) {
 
 export function getActivePages() {
   const active = [];
-  for (let i = 1; i <= numPages; i++) {
-    if (!deletedPages.has(i)) {
-      active.push(i);
+  if (pageOrder.length > 0) {
+    for (const pageNum of pageOrder) {
+      if (!deletedPages.has(pageNum)) {
+        active.push(pageNum);
+      }
+    }
+  } else {
+    for (let i = 1; i <= numPages; i++) {
+      if (!deletedPages.has(i)) {
+        active.push(i);
+      }
     }
   }
   return active;
+}
+
+export function reorderPage(fromActiveIndex, toActiveIndex) {
+  const activePages = getActivePages();
+  if (
+    fromActiveIndex < 0 ||
+    fromActiveIndex >= activePages.length ||
+    toActiveIndex < 0 ||
+    toActiveIndex >= activePages.length ||
+    fromActiveIndex === toActiveIndex
+  ) {
+    return false;
+  }
+
+  saveState();
+
+  const movedPageNum = activePages[fromActiveIndex];
+  const targetPageNum = activePages[toActiveIndex];
+
+  const fullFromIdx = pageOrder.indexOf(movedPageNum);
+  const fullToIdx = pageOrder.indexOf(targetPageNum);
+
+  if (fullFromIdx !== -1 && fullToIdx !== -1) {
+    pageOrder.splice(fullFromIdx, 1);
+    pageOrder.splice(fullToIdx, 0, movedPageNum);
+  }
+
+  renderAllPages();
+  return true;
 }
 
 export function rotatePage(pageNum, deltaDegrees = 90) {
@@ -415,6 +459,51 @@ export async function renderSidebarThumbnails() {
     const card = document.createElement("div");
     card.className = `thumb-card ${pageNum === currentPageIndex ? "active" : ""}`;
     card.dataset.pageNum = pageNum;
+    card.dataset.index = index;
+    card.draggable = true;
+
+    // Drag and drop event listeners for sidebar reordering
+    card.addEventListener("dragstart", (e) => {
+      draggedCardIndex = index;
+      card.classList.add("dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", String(index));
+      }
+    });
+
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      if (sidebarThumbsContainer) {
+        sidebarThumbsContainer.querySelectorAll(".thumb-card").forEach((c) => {
+          c.classList.remove("drag-over");
+        });
+      }
+      draggedCardIndex = null;
+    });
+
+    card.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = "move";
+      }
+      if (draggedCardIndex !== null && draggedCardIndex !== index) {
+        card.classList.add("drag-over");
+      }
+    });
+
+    card.addEventListener("dragleave", () => {
+      card.classList.remove("drag-over");
+    });
+
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      const fromIdx = draggedCardIndex !== null ? draggedCardIndex : parseInt(e.dataTransfer.getData("text/plain"), 10);
+      if (!isNaN(fromIdx) && fromIdx !== index) {
+        reorderPage(fromIdx, index);
+      }
+    });
 
     const wrap = document.createElement("div");
     wrap.className = "thumb-card-canvas-wrap";
@@ -435,9 +524,42 @@ export async function renderSidebarThumbnails() {
     const actions = document.createElement("div");
     actions.className = "thumb-card-actions";
 
+    const moveUpBtn = document.createElement("button");
+    moveUpBtn.className = "thumb-card-btn move-up-btn";
+    moveUpBtn.title = "Move page up";
+    moveUpBtn.setAttribute("aria-label", `Move page ${pageNum} up`);
+    moveUpBtn.textContent = "⬆️";
+    if (index === 0) {
+      moveUpBtn.disabled = true;
+      moveUpBtn.style.opacity = "0.4";
+      moveUpBtn.style.cursor = "not-allowed";
+    } else {
+      moveUpBtn.onclick = (e) => {
+        e.stopPropagation();
+        reorderPage(index, index - 1);
+      };
+    }
+
+    const moveDownBtn = document.createElement("button");
+    moveDownBtn.className = "thumb-card-btn move-down-btn";
+    moveDownBtn.title = "Move page down";
+    moveDownBtn.setAttribute("aria-label", `Move page ${pageNum} down`);
+    moveDownBtn.textContent = "⬇️";
+    if (index === pages.length - 1) {
+      moveDownBtn.disabled = true;
+      moveDownBtn.style.opacity = "0.4";
+      moveDownBtn.style.cursor = "not-allowed";
+    } else {
+      moveDownBtn.onclick = (e) => {
+        e.stopPropagation();
+        reorderPage(index, index + 1);
+      };
+    }
+
     const rotateBtn = document.createElement("button");
     rotateBtn.className = "thumb-card-btn";
     rotateBtn.title = "Rotate";
+    rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
     rotateBtn.textContent = "🔄";
     rotateBtn.onclick = (e) => {
       e.stopPropagation();
@@ -447,12 +569,15 @@ export async function renderSidebarThumbnails() {
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "thumb-card-btn";
     deleteBtn.title = "Delete";
+    deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
     deleteBtn.textContent = "🗑️";
     deleteBtn.onclick = (e) => {
       e.stopPropagation();
       deletePage(pageNum);
     };
 
+    actions.appendChild(moveUpBtn);
+    actions.appendChild(moveDownBtn);
     actions.appendChild(rotateBtn);
     actions.appendChild(deleteBtn);
     footer.appendChild(label);
@@ -1935,6 +2060,7 @@ export function saveState() {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
+    pageOrder: [...pageOrder],
   };
   historyStack.push(JSON.stringify(state));
   redoStack = [];
@@ -1954,6 +2080,11 @@ function applyStateObject(state) {
     if (Array.isArray(state.deleted)) {
       state.deleted.forEach((p) => deletedPages.add(p));
     }
+    if (Array.isArray(state.pageOrder)) {
+      pageOrder = [...state.pageOrder];
+    } else if (numPages > 0) {
+      pageOrder = Array.from({ length: numPages }, (_, i) => i + 1);
+    }
   }
   updateUndoRedoUI();
   if (pdfjsDocument) {
@@ -1972,6 +2103,7 @@ export function undoAction() {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
+    pageOrder: [...pageOrder],
   };
   redoStack.push(JSON.stringify(currentState));
   const previousState = JSON.parse(historyStack.pop());
@@ -1984,6 +2116,7 @@ export function redoAction() {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
+    pageOrder: [...pageOrder],
   };
   historyStack.push(JSON.stringify(currentState));
   const nextState = JSON.parse(redoStack.pop());
@@ -2047,6 +2180,7 @@ export function resetEditor() {
   currentPageIndex = 1;
   pageRotations.clear();
   deletedPages.clear();
+  pageOrder = [];
   pageOverlayMap.clear();
   editorObjects = [];
   historyStack = [];

@@ -3052,6 +3052,16 @@ for Dynamic UI Sections */
   box-shadow: 2px 2px 0 var(--black);
   background: #fffbeb;
 }
+.thumb-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.96);
+  border-style: dashed;
+}
+.thumb-card.drag-over {
+  border-color: var(--black);
+  box-shadow: 0 0 0 3px #fde047;
+  transform: translateY(-2px);
+}
 .thumb-card-canvas-wrap {
   width: 100%;
   display: flex;

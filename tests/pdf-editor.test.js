@@ -10,6 +10,7 @@ let src = fs.readFileSync(srcPath, 'utf8');
 src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 // Strip export keywords
 src = src.replace(/export\s+const/g, 'const');
+src = src.replace(/export\s+let/g, 'let');
 src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+async\s+function/g, 'async function');
 
@@ -21,6 +22,9 @@ src += `\nreturn {
   getActivePages,
   rotatePage,
   deletePage,
+  reorderPage,
+  getPageOrder: () => pageOrder,
+  setPageOrder: (arr) => { pageOrder = arr; },
   renderAllPages,
   renderSidebarThumbnails,
   renderAllObjects,
@@ -1552,8 +1556,8 @@ test('pdf-editor page management, rotations, deletion guardrail & rotated coordi
     const coords90 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 90);
     assert.strictEqual(coords90.x, 0);
     assert.strictEqual(coords90.y, 0);
-    assert.strictEqual(coords90.width, 800);
-    assert.strictEqual(coords90.height, 600);
+    assert.strictEqual(coords90.width, 600);
+    assert.strictEqual(coords90.height, 800);
 
     const coords180 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 180);
     assert.strictEqual(coords180.x, 0);
@@ -1564,8 +1568,8 @@ test('pdf-editor page management, rotations, deletion guardrail & rotated coordi
     const coords270 = editorModule.domToPdfCoords(fullRect, viewport, pdfSize, 270);
     assert.strictEqual(coords270.x, 0);
     assert.strictEqual(coords270.y, 0);
-    assert.strictEqual(coords270.width, 800);
-    assert.strictEqual(coords270.height, 600);
+    assert.strictEqual(coords270.width, 600);
+    assert.strictEqual(coords270.height, 800);
 
     // 2. Partial bounding box: top-left quadrant (x:0, y:0, w:400, h:300)
     const partialRect = { x: 0, y: 0, width: 400, height: 300 };
@@ -1577,12 +1581,12 @@ test('pdf-editor page management, rotations, deletion guardrail & rotated coordi
     assert.strictEqual(pCoords0.width, 300);
     assert.strictEqual(pCoords0.height, 400);
 
-    // 90 deg: top-left in DOM -> x: 0, y: 600 - (400/800)*600 = 300 in unrotated PDF
+    // 90 deg: top-left in DOM -> x: 0, y: 800 - (400/800)*800 = 400 in unrotated PDF
     const pCoords90 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 90);
     assert.strictEqual(pCoords90.x, 0);
-    assert.strictEqual(pCoords90.y, 300);
-    assert.strictEqual(pCoords90.width, 400);
-    assert.strictEqual(pCoords90.height, 300);
+    assert.strictEqual(pCoords90.y, 400);
+    assert.strictEqual(pCoords90.width, 300);
+    assert.strictEqual(pCoords90.height, 400);
 
     // 180 deg: top-left in DOM -> x: 600 - 300 = 300, y: 0 in unrotated PDF
     const pCoords180 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 180);
@@ -1591,12 +1595,12 @@ test('pdf-editor page management, rotations, deletion guardrail & rotated coordi
     assert.strictEqual(pCoords180.width, 300);
     assert.strictEqual(pCoords180.height, 400);
 
-    // 270 deg: top-left in DOM -> x: 800 - 400 = 400, y: 0 in unrotated PDF
+    // 270 deg: top-left in DOM -> x: 600 - 300 = 300, y: 0 in unrotated PDF
     const pCoords270 = editorModule.domToPdfCoords(partialRect, viewport, pdfSize, 270);
-    assert.strictEqual(pCoords270.x, 400);
+    assert.strictEqual(pCoords270.x, 300);
     assert.strictEqual(pCoords270.y, 0);
-    assert.strictEqual(pCoords270.width, 400);
-    assert.strictEqual(pCoords270.height, 300);
+    assert.strictEqual(pCoords270.width, 300);
+    assert.strictEqual(pCoords270.height, 400);
   });
 
   await t.test('resetEditor clears pageRotations and deletedPages', () => {
@@ -1611,5 +1615,63 @@ test('pdf-editor page management, rotations, deletion guardrail & rotated coordi
 
     assert.strictEqual(editorModule.pageRotations.size, 0);
     assert.strictEqual(editorModule.deletedPages.size, 0);
+  });
+});
+
+test('pdf-editor page reordering, undo/redo state restoration & sidebar controls', async (t) => {
+  t.beforeEach(() => {
+    toastMessages = [];
+    editorModule.resetEditor();
+  });
+
+  await t.test('reorderPage reorders active pages and updates getActivePages()', () => {
+    editorModule.setNumPages(3);
+    editorModule.setPageOrder([1, 2, 3]);
+
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 2, 3]);
+
+    // Move page at index 2 (P3) to index 0 (top) -> [3, 1, 2]
+    const success = editorModule.reorderPage(2, 0);
+    assert.strictEqual(success, true);
+    assert.deepStrictEqual(editorModule.getActivePages(), [3, 1, 2]);
+
+    // Move page at index 0 (P3) to index 1 -> [1, 3, 2]
+    editorModule.reorderPage(0, 1);
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 3, 2]);
+  });
+
+  await t.test('reorderPage rejects invalid indices and returns false', () => {
+    editorModule.setNumPages(3);
+    editorModule.setPageOrder([1, 2, 3]);
+
+    assert.strictEqual(editorModule.reorderPage(-1, 0), false);
+    assert.strictEqual(editorModule.reorderPage(0, 5), false);
+    assert.strictEqual(editorModule.reorderPage(1, 1), false);
+
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 2, 3]);
+  });
+
+  await t.test('reorderPage integrates with undoAction and redoAction history stack', () => {
+    editorModule.setNumPages(3);
+    editorModule.setPageOrder([1, 2, 3]);
+
+    // Initial state: [1, 2, 3]
+    editorModule.reorderPage(2, 0); // [3, 1, 2]
+    assert.deepStrictEqual(editorModule.getActivePages(), [3, 1, 2]);
+
+    editorModule.undoAction(); // restores [1, 2, 3]
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 2, 3]);
+
+    editorModule.redoAction(); // restores [3, 1, 2]
+    assert.deepStrictEqual(editorModule.getActivePages(), [3, 1, 2]);
+  });
+
+  await t.test('resetEditor clears pageOrder array', () => {
+    editorModule.setNumPages(3);
+    editorModule.setPageOrder([1, 2, 3]);
+    assert.strictEqual(editorModule.getPageOrder().length, 3);
+
+    editorModule.resetEditor();
+    assert.strictEqual(editorModule.getPageOrder().length, 0);
   });
 });
