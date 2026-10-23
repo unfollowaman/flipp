@@ -818,3 +818,24 @@ test('result area and download button CSS rules', async (t) => {
     assert.ok(cssContent.includes('outline: 3px solid var(--black);'), 'download btn focus outline must exist');
   });
 });
+
+test('tool settings panel CSS rules', async (t) => {
+  await t.test('css/styles.src.css contains options bar, option label, range input, and position card tactile styling', () => {
+    const cssPath = path.join(__dirname, '../css/styles.src.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    assert.ok(cssContent.includes('.options-bar {'), '.options-bar rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 4px 4px 0 var(--black);'), 'options-bar tactile offset shadow must exist');
+    assert.ok(cssContent.includes('.option-label {'), '.option-label rule must exist');
+    assert.ok(cssContent.includes('font-weight: 800;'), 'option-label font-weight 800 must exist');
+    assert.ok(cssContent.includes('color: var(--black);'), 'option-label color var(--black) must exist');
+    assert.ok(cssContent.includes('.range-input {'), '.range-input rule must exist');
+    assert.ok(cssContent.includes('border: var(--border-std);'), 'range-input standardized border must exist');
+    assert.ok(cssContent.includes('.range-input:focus-visible {'), 'range-input:focus-visible rule must exist');
+    assert.ok(cssContent.includes('.position-card {'), '.position-card rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 1.5px 1.5px 0 var(--black);'), 'position-card base shadow must exist');
+    assert.ok(cssContent.includes('.position-card:hover {'), '.position-card:hover rule must exist');
+    assert.ok(cssContent.includes('.position-card:focus-visible {'), '.position-card:focus-visible rule must exist');
+    assert.ok(cssContent.includes('.position-card.active {'), '.position-card.active rule must exist');
+  });
+});

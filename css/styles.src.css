@@ -777,11 +777,13 @@ textarea {
   background: var(--white);
   border: var(--border-std);
   border-radius: var(--radius-md);
+  box-shadow: 4px 4px 0 var(--black);
   padding: 24px;
   display: flex;
   gap: 32px;
   flex-wrap: wrap;
   align-items: flex-start;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .option-group {
   display: flex;
@@ -789,11 +791,12 @@ textarea {
   gap: 10px;
 }
 .option-label {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #555;
+  letter-spacing: 0.05em;
+  color: var(--black);
+  margin-bottom: 2px;
 }
 .option-pills {
   display: flex;
@@ -882,7 +885,7 @@ textarea {
 }
 .range-input {
   background: var(--white);
-  border: 1.5px solid var(--black);
+  border: var(--border-std);
   border-radius: var(--radius-sm);
   padding: 8px 14px;
   font-size: 14px;
@@ -890,9 +893,17 @@ textarea {
   font-weight: 500;
   outline: none;
   min-width: 200px;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
 }
-.range-input:focus {
+.range-input:focus,
+.range-input:focus-visible {
+  outline: none;
   box-shadow: 3px 3px 0 var(--black);
+  border-color: var(--black);
+  background: #ffffff;
 }
 .option-group-page-numbering {
   min-width: 260px;
@@ -906,20 +917,29 @@ textarea {
   background: var(--white);
   border: var(--border-std);
   border-radius: var(--radius-sm);
+  box-shadow: 1.5px 1.5px 0 var(--black);
   width: 110px;
   padding: 8px;
   cursor: pointer;
+  will-change: transform, box-shadow;
   transition:
-    transform 0.1s ease,
-    box-shadow 0.1s ease,
-    background 0.1s ease;
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
 }
 .position-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-hard);
+  box-shadow: 3.5px 3.5px 0 var(--black);
+}
+.position-card:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 2px;
+  box-shadow: 3.5px 3.5px 0 var(--black);
 }
 .position-card.active {
   background: var(--yellow);
+  box-shadow: 2.5px 2.5px 0 var(--black);
+  font-weight: bold;
 }
 .position-preview {
   display: block;
