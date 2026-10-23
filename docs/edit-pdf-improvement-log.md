@@ -75,3 +75,18 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 390 passing unit tests (0 failures), Playwright frontend verification screenshot (`/home/jules/verification/screenshots/edit_pdf_sidebar_verification.png`).
 - **Known Limitations:** Page reordering via drag-and-drop thumbnails can be added in a future update.
 - **Next Recommended Improvement:** `EDIT-PDF-005` — Visual Drag & Drop Page Thumbnail Reordering in Workspace Sidebar.
+
+### EDIT-PDF-005: Visual Drag & Drop Page Reordering in Sidebar & Accessible Page Reordering Controls
+- **Priority:** P2 (Advanced Workflows & Page Management)
+- **User Problem:** In multi-page PDF documents, users could not reorder pages directly within the editing workspace. Reordering required leaving the editing workspace and using a separate tool. Furthermore, mobile/touchscreen users and screen-reader users needed accessible non-drag controls to move pages up or down easily.
+- **Status:** Completed
+- **Technical Rationale:** Added `pageOrder` (Array) state tracking to `js/pdf-editor.js`, initialized on PDF load (`loadPdfFromBytes`) and reset in `resetEditor`. Updated `getActivePages()` to return non-deleted pages ordered by `pageOrder`. Implemented `reorderPage(fromActiveIndex, toActiveIndex)` with history stack integration (`saveState`, `undoAction`, `redoAction`). Updated `renderSidebarThumbnails()` to make `.thumb-card` elements draggable (`draggable="true"`) with HTML5 drag-and-drop event handlers (`dragstart`, `dragover`, `dragleave`, `drop`, `dragend`) and added accessible Move Up (⬆️) / Move Down (⬇️) control buttons with ARIA labels in `.thumb-card-actions`. Enhanced `generateEditedPdfBlob()` to clone pages in `pageOrder` sequence during PDF export. Compiled minified CSS with drag-over and dragging state visual cues.
+- **Files Changed:**
+  - `js/pdf-editor.js`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 395 passing unit tests (0 failures), Playwright frontend verification screenshot/video (`/home/jules/verification/screenshots/edit_pdf_reorder_verification.png`).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-006` — Multi-touch Pinch-to-Zoom Gesture Support on Workspace Canvas.
