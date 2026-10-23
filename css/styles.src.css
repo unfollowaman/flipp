@@ -3022,6 +3022,48 @@ for Dynamic UI Sections */
   margin-bottom: 24px;
 }
 
+/* PDF Editor Quick Color Swatches */
+.color-swatches-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--black);
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  flex-shrink: 0;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.active,
+.color-swatch[aria-pressed="true"] {
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 1px var(--white);
+}
+
+@media (max-width: 600px) {
+  .color-swatches-wrap {
+    gap: 3px;
+  }
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 /* ==============================
    PDF Editor Page Thumbnails Sidebar & Page Actions
    ============================== */

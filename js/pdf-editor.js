@@ -930,7 +930,61 @@ function updatePropsBarVisibility() {
   if (propsBar) {
     propsBar.style.display = hasVisibleProps ? "flex" : "none";
   }
+
+  syncColorSwatches();
 }
+
+export function syncColorSwatches() {
+  document.querySelectorAll(".color-swatches-wrap").forEach((wrap) => {
+    const targetId = wrap.dataset.target;
+    if (!targetId) return;
+    const targetInput = document.getElementById(targetId);
+    if (!targetInput) return;
+
+    let isTransparent = false;
+    if (targetId === "prop-text-bg-color" && propTextBgTransparent) {
+      isTransparent = propTextBgTransparent.classList.contains("active");
+    } else if (targetId === "prop-fill-color" && propTransparentFill) {
+      isTransparent = propTransparentFill.dataset.none === "true" || propTransparentFill.getAttribute("aria-pressed") === "true";
+    }
+
+    const currentVal = targetInput.value ? targetInput.value.toLowerCase() : "";
+
+    wrap.querySelectorAll(".color-swatch").forEach((swatch) => {
+      const swatchColor = swatch.dataset.color ? swatch.dataset.color.toLowerCase() : "";
+      const isActive = !isTransparent && swatchColor === currentVal;
+      swatch.classList.toggle("active", isActive);
+      if (swatch.setAttribute) {
+        swatch.setAttribute("aria-pressed", isActive ? "true" : "false");
+      }
+    });
+  });
+}
+
+document.querySelectorAll(".color-swatch").forEach((swatch) => {
+  swatch.addEventListener("click", () => {
+    const wrap = swatch.closest(".color-swatches-wrap");
+    const targetId = wrap ? wrap.dataset.target : null;
+    const targetInput = targetId ? document.getElementById(targetId) : null;
+    const chosenColor = swatch.dataset.color;
+
+    if (targetInput && chosenColor) {
+      targetInput.value = chosenColor;
+
+      if (targetId === "prop-text-bg-color" && propTextBgTransparent) {
+        propTextBgTransparent.classList.remove("active");
+        if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
+      }
+      if (targetId === "prop-fill-color" && propTransparentFill) {
+        propTransparentFill.dataset.none = "false";
+        if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", "false");
+      }
+
+      applyPropChangesToSelected();
+      syncColorSwatches();
+    }
+  });
+});
 
 if (propLayerFront) {
   propLayerFront.addEventListener("click", () => {
@@ -968,6 +1022,7 @@ if (propTextBgColor) {
       if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
     }
     applyPropChangesToSelected();
+    syncColorSwatches();
   });
   propTextBgColor.addEventListener("change", () => {
     if (propTextBgTransparent) {
@@ -975,6 +1030,7 @@ if (propTextBgColor) {
       if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
     }
     applyPropChangesToSelected();
+    syncColorSwatches();
   });
 }
 
@@ -983,6 +1039,7 @@ if (propTextBgTransparent) {
     const isActive = propTextBgTransparent.classList.toggle("active");
     if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", isActive ? "true" : "false");
     applyPropChangesToSelected();
+    syncColorSwatches();
   });
 }
 
@@ -1008,6 +1065,7 @@ if (propFillColor) {
       propTransparentFill.dataset.none = "false";
       if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", "false");
     }
+    syncColorSwatches();
   });
 }
 
@@ -1019,6 +1077,7 @@ if (propTransparentFill) {
     propTransparentFill.dataset.none = newNone ? "true" : "false";
     if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", newNone ? "true" : "false");
     applyPropChangesToSelected();
+    syncColorSwatches();
   });
 }
 

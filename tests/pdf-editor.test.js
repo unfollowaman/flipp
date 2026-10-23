@@ -2027,4 +2027,37 @@ test('pdf-editor high-DPI canvas overlay resolution scaling', async (t) => {
 
     mockWindow.devicePixelRatio = 1;
   });
+
+  await t.test('syncColorSwatches synchronizes active state on .color-swatch elements matching target input values', () => {
+    if (typeof editorModule.syncColorSwatches === 'function') {
+      const targetInput = mockDocument.createElement('input');
+      targetInput.id = 'prop-color';
+      targetInput.value = '#ef4444';
+      mockDocument.appendChild(targetInput);
+
+      const wrap = mockDocument.createElement('div');
+      wrap.className = 'color-swatches-wrap';
+      wrap.dataset.target = 'prop-color';
+
+      const swatch1 = mockDocument.createElement('button');
+      swatch1.className = 'color-swatch';
+      swatch1.dataset.color = '#000000';
+
+      const swatch2 = mockDocument.createElement('button');
+      swatch2.className = 'color-swatch';
+      swatch2.dataset.color = '#ef4444';
+
+      wrap.appendChild(swatch1);
+      wrap.appendChild(swatch2);
+      mockDocument.appendChild(wrap);
+
+      editorModule.syncColorSwatches();
+
+      assert.strictEqual(swatch1.classList.contains('active'), false);
+      assert.strictEqual(swatch1.getAttribute('aria-pressed'), 'false');
+
+      assert.strictEqual(swatch2.classList.contains('active'), true);
+      assert.strictEqual(swatch2.getAttribute('aria-pressed'), 'true');
+    }
+  });
 });
