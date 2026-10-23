@@ -90,3 +90,16 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 395 passing unit tests (0 failures), Playwright frontend verification screenshot/video (`/home/jules/verification/screenshots/edit_pdf_reorder_verification.png`).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-006` — Multi-touch Pinch-to-Zoom Gesture Support on Workspace Canvas.
+
+### EDIT-PDF-006: Multi-Touch Pinch-to-Zoom Gesture Support on PDF Workspace Canvas
+- **Priority:** P1 (Mobile Usability & Workspace Navigation)
+- **User Problem:** Users on touchscreen devices (smartphones, tablets, touch monitors) could only change document zoom by tapping zoom buttons in the bottom control bar. Standard multi-touch pinch-to-zoom gestures directly on the document pages canvas were unsupported, causing awkward navigation on mobile screens.
+- **Status:** Completed
+- **Technical Rationale:** Implemented multi-touch pinch gesture handling (`handlePinchStart`, `handlePinchMove`, `handlePinchEnd`) on `pagesScrollArea` in `js/pdf-editor.js`. On 2-finger `touchstart`, initial Euclidean distance (`Math.hypot(dx, dy)`) and starting zoom level are calculated. On `touchmove`, relative distance ratio updates document zoom level dynamically via `updateZoom()` bounded within `[0.25, 3.0]`, and `e.preventDefault()` prevents browser viewport scrolling during pinch gestures. Added comprehensive unit tests in `tests/pdf-editor.test.js`.
+- **Files Changed:**
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 398 passing unit tests (0 failures).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-007` — Touch Gesture Image Resizing & Object Manipulation Polish on Canvas.

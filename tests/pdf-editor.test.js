@@ -52,6 +52,10 @@ src += `\nreturn {
   makeObjectDraggable,
   makeObjectResizable,
   getZoomLevel: () => zoomLevel,
+  getPinchDistance,
+  handlePinchStart,
+  handlePinchMove,
+  handlePinchEnd,
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
   getSelectedObjId: () => selectedObjId,
@@ -918,6 +922,74 @@ test('pdf-editor renderAllPages performance', async (t) => {
 
     mockDocument.querySelectorAll = prevQuerySelectorAll;
     assert.ok(duration < 5000, `Expected benchmark to run quickly, took ${duration}ms`);
+  });
+});
+
+test('pdf-editor pinch-to-zoom multi-touch gesture handling', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('getPinchDistance calculates Euclidean distance between two touch points', () => {
+    const touches = [
+      { clientX: 0, clientY: 0 },
+      { clientX: 30, clientY: 40 }
+    ];
+    const dist = editorModule.getPinchDistance(touches);
+    assert.strictEqual(dist, 50);
+
+    assert.strictEqual(editorModule.getPinchDistance([]), 0);
+    assert.strictEqual(editorModule.getPinchDistance([{ clientX: 10, clientY: 10 }]), 0);
+  });
+
+  await t.test('two-finger pinch gesture updates zoom level proportionally and enforces min/max bounds', () => {
+    // Initial zoom is 1.0
+    assert.strictEqual(editorModule.getZoomLevel(), 1.0);
+
+    // 1. Simulate pinch start with distance 100
+    const startTouches = [
+      { clientX: 0, clientY: 0 },
+      { clientX: 100, clientY: 0 }
+    ];
+    editorModule.handlePinchStart({ touches: startTouches });
+
+    // 2. Pinch spread out (move to distance 150) -> scale 1.5 -> target zoom 1.5
+    let defaultPrevented = false;
+    const moveTouchesSpread = [
+      { clientX: 0, clientY: 0 },
+      { clientX: 150, clientY: 0 }
+    ];
+    editorModule.handlePinchMove({
+      touches: moveTouchesSpread,
+      cancelable: true,
+      preventDefault: () => { defaultPrevented = true; }
+    });
+
+    assert.strictEqual(defaultPrevented, true);
+    assert.strictEqual(editorModule.getZoomLevel(), 1.5);
+
+    // 3. Pinch spread even further beyond max bound (distance 400) -> scale 4.0 -> target zoom bounded to 3.0
+    const moveTouchesMax = [
+      { clientX: 0, clientY: 0 },
+      { clientX: 400, clientY: 0 }
+    ];
+    editorModule.handlePinchMove({ touches: moveTouchesMax, cancelable: true, preventDefault: () => {} });
+    assert.strictEqual(editorModule.getZoomLevel(), 3.0);
+
+    // 4. Pinch in below min bound (distance 10) -> scale 0.1 -> target zoom bounded to 0.25
+    const moveTouchesMin = [
+      { clientX: 0, clientY: 0 },
+      { clientX: 10, clientY: 0 }
+    ];
+    editorModule.handlePinchMove({ touches: moveTouchesMin, cancelable: true, preventDefault: () => {} });
+    assert.strictEqual(editorModule.getZoomLevel(), 0.25);
+
+    // 5. Pinch end clears pinch distance tracking
+    editorModule.handlePinchEnd({ touches: [] });
+
+    // Moving with single finger after pinch end does not change zoom
+    editorModule.handlePinchMove({ touches: [{ clientX: 0, clientY: 0 }] });
+    assert.strictEqual(editorModule.getZoomLevel(), 0.25);
   });
 });
 
