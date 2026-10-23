@@ -1108,8 +1108,11 @@ function createObjectForTool(tool, pageNum, x, y) {
 
 function createTempDrawingCanvas(overlay) {
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = overlay.offsetWidth;
-  tempCanvas.height = overlay.offsetHeight;
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
+  tempCanvas.width = overlay.offsetWidth * dpr;
+  tempCanvas.height = overlay.offsetHeight * dpr;
+  tempCanvas.style.width = `${overlay.offsetWidth}px`;
+  tempCanvas.style.height = `${overlay.offsetHeight}px`;
   tempCanvas.style.position = "absolute";
   tempCanvas.style.top = "0";
   tempCanvas.style.left = "0";
@@ -1122,7 +1125,11 @@ function updateDrawingPath(tempCanvas, currentPath, x, y) {
   currentPath.push({ x, y });
 
   const ctx = tempCanvas.getContext("2d");
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
   ctx.strokeStyle = propColor.value || "#000000";
   ctx.lineWidth = parseInt(propStrokeWidth.value, 10) || 2;
   ctx.lineCap = "round";
@@ -1134,6 +1141,7 @@ function updateDrawingPath(tempCanvas, currentPath, x, y) {
     else ctx.lineTo(pt.x, pt.y);
   });
   ctx.stroke();
+  ctx.restore();
 }
 
 function finishDrawingPath(currentPath, pageNum) {
@@ -1326,6 +1334,7 @@ function applyStrokeDashStyle(ctx, strokeStyle, strokeWidth) {
 
 function drawCanvasPath(canvas, properties) {
   const ctx = canvas.getContext("2d");
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.strokeStyle = properties.color || "#000000";
   ctx.lineWidth = properties.strokeWidth || 2;
@@ -1333,13 +1342,15 @@ function drawCanvasPath(canvas, properties) {
   ctx.lineJoin = "round";
   applyStrokeDashStyle(ctx, properties.strokeStyle, properties.strokeWidth);
 
-  const initW = properties.initialWidth || canvas.width;
-  const initH = properties.initialHeight || canvas.height;
-  const scaleX = initW > 0 ? canvas.width / initW : 1;
-  const scaleY = initH > 0 ? canvas.height / initH : 1;
+  const cssWidth = canvas.width / dpr;
+  const cssHeight = canvas.height / dpr;
+  const initW = properties.initialWidth || cssWidth;
+  const initH = properties.initialHeight || cssHeight;
+  const scaleX = initW > 0 ? cssWidth / initW : 1;
+  const scaleY = initH > 0 ? cssHeight / initH : 1;
 
   ctx.save();
-  ctx.scale(scaleX, scaleY);
+  ctx.scale(dpr * scaleX, dpr * scaleY);
 
   ctx.beginPath();
   (properties.path || []).forEach((pt, idx) => {
@@ -1352,7 +1363,12 @@ function drawCanvasPath(canvas, properties) {
 
 function drawCanvasShape(canvas, width, height, properties) {
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, width, height);
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
   ctx.strokeStyle = properties.strokeColor || "#000000";
   ctx.lineWidth = properties.strokeWidth || 2;
   applyStrokeDashStyle(ctx, properties.strokeStyle, properties.strokeWidth);
@@ -1386,21 +1402,23 @@ function drawCanvasShape(canvas, width, height, properties) {
       ctx.stroke();
     }
   }
+  ctx.restore();
 }
 
 function updateObjectInternalDimensions(el, obj) {
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
   if (obj.type === "draw") {
     const canvas = el.querySelector("canvas");
     if (canvas) {
-      canvas.width = obj.width;
-      canvas.height = obj.height;
+      canvas.width = obj.width * dpr;
+      canvas.height = obj.height * dpr;
       drawCanvasPath(canvas, obj.properties);
     }
   } else if (obj.type === "shape") {
     const canvas = el.querySelector("canvas");
     if (canvas) {
-      canvas.width = obj.width;
-      canvas.height = obj.height;
+      canvas.width = obj.width * dpr;
+      canvas.height = obj.height * dpr;
       drawCanvasShape(canvas, obj.width, obj.height, obj.properties);
     }
   }
@@ -1431,8 +1449,9 @@ function renderObjectContent(obj, el) {
     el.style.borderRadius = "3px";
   } else if (obj.type === "draw") {
     const canvas = document.createElement("canvas");
-    canvas.width = obj.width;
-    canvas.height = obj.height;
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = obj.width * dpr;
+    canvas.height = obj.height * dpr;
     canvas.style.width = "100%";
     canvas.style.height = "100%";
 
@@ -1443,8 +1462,9 @@ function renderObjectContent(obj, el) {
     el.appendChild(canvas);
   } else if (obj.type === "shape") {
     const canvas = document.createElement("canvas");
-    canvas.width = obj.width;
-    canvas.height = obj.height;
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = obj.width * dpr;
+    canvas.height = obj.height * dpr;
     canvas.style.width = "100%";
     canvas.style.height = "100%";
 

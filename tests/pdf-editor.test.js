@@ -76,7 +76,9 @@ src += `\nreturn {
   getCurrentPageIndex: () => currentPageIndex,
   setCurrentPageIndex: (idx) => { currentPageIndex = idx; },
   getRevokedUrls: () => revokedUrls,
-  getPageOverlayMap: () => pageOverlayMap
+  getPageOverlayMap: () => pageOverlayMap,
+  createTempDrawingCanvas,
+  renderObjectContent
 };\n`;
 
 const elementMap = {};
@@ -1939,5 +1941,64 @@ test('pdf-editor strokeStyle property & stroke dash canvas rendering', async (t)
     editorModule.renderObjectToCanvasDataUrl(dottedShape);
     ctx = lastCreatedCanvas.getContext('2d');
     assert.ok(ctx.calls.some((c) => c.method === 'setLineDash' && Array.isArray(c.args[0]) && c.args[0][0] === 2 && c.args[0][1] === 3));
+  });
+});
+
+test('pdf-editor high-DPI canvas overlay resolution scaling', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('createTempDrawingCanvas scales canvas backing store dimensions by devicePixelRatio', () => {
+    mockWindow.devicePixelRatio = 2;
+    const mockOverlay = {
+      offsetWidth: 300,
+      offsetHeight: 200,
+      appendChild: () => {}
+    };
+
+    const tempCanvas = editorModule.createTempDrawingCanvas(mockOverlay);
+    assert.strictEqual(tempCanvas.width, 600); // 300 * 2
+    assert.strictEqual(tempCanvas.height, 400); // 200 * 2
+    assert.strictEqual(tempCanvas.style.width, '300px');
+    assert.strictEqual(tempCanvas.style.height, '200px');
+
+    mockWindow.devicePixelRatio = 1;
+  });
+
+  await t.test('renderObjectContent scales draw and shape canvas backing store dimensions by devicePixelRatio', () => {
+    mockWindow.devicePixelRatio = 2;
+
+    // Draw object
+    const drawObj = {
+      id: 'd1',
+      type: 'draw',
+      width: 150,
+      height: 100,
+      properties: { path: [{ x: 0, y: 0 }, { x: 50, y: 50 }], color: '#000000', strokeWidth: 2 }
+    };
+    const drawContainer = mockDocument.createElement('div');
+    editorModule.renderObjectContent(drawObj, drawContainer);
+
+    assert.ok(lastCreatedCanvas);
+    assert.strictEqual(lastCreatedCanvas.width, 300); // 150 * 2
+    assert.strictEqual(lastCreatedCanvas.height, 200); // 100 * 2
+
+    // Shape object
+    const shapeObj = {
+      id: 's1',
+      type: 'shape',
+      width: 120,
+      height: 80,
+      properties: { shapeType: 'rect', strokeColor: '#000000', fillColor: '#ffffff', strokeWidth: 2 }
+    };
+    const shapeContainer = mockDocument.createElement('div');
+    editorModule.renderObjectContent(shapeObj, shapeContainer);
+
+    assert.ok(lastCreatedCanvas);
+    assert.strictEqual(lastCreatedCanvas.width, 240); // 120 * 2
+    assert.strictEqual(lastCreatedCanvas.height, 160); // 80 * 2
+
+    mockWindow.devicePixelRatio = 1;
   });
 });
