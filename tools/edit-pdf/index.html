@@ -869,10 +869,16 @@
               <button class="editor-btn" id="prop-transparent-fill" style="padding: 2px 6px; font-size: 11px;" aria-label="No fill" aria-pressed="false">No Fill</button>
             </div>
 
-            <!-- Stroke width options -->
+            <!-- Stroke options -->
             <div class="editor-prop-item prop-group-stroke" style="display: none;">
               <label for="prop-stroke-width">Stroke</label>
               <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 50px;" />
+              <label for="prop-stroke-style" style="margin-left: 4px;">Style</label>
+              <select id="prop-stroke-style" aria-label="Stroke style">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+              </select>
             </div>
 
             <!-- Opacity options -->

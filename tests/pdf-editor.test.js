@@ -112,6 +112,7 @@ function createMockElement(id = '') {
     stroke: () => contextCalls.push({ method: 'stroke' }),
     fill: () => contextCalls.push({ method: 'fill' }),
     ellipse: (x, y, rx, ry, rot, sa, ea) => contextCalls.push({ method: 'ellipse', args: [x, y, rx, ry, rot, sa, ea] }),
+    setLineDash: (dash) => contextCalls.push({ method: 'setLineDash', args: [dash] }),
     measureText: (txt) => ({ width: txt ? txt.length * 10 : 100 })
   };
 
@@ -1818,5 +1819,52 @@ test('pdf-editor page reordering, undo/redo state restoration & sidebar controls
 
     editorModule.resetEditor();
     assert.strictEqual(editorModule.getPageOrder().length, 0);
+  });
+});
+
+test('pdf-editor strokeStyle property & stroke dash canvas rendering', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('createObjectForTool initializes shape with default strokeStyle solid', () => {
+    const shapeObj = editorModule.createObjectForTool('shape', 1, 100, 100);
+    assert.ok(shapeObj);
+    assert.strictEqual(shapeObj.properties.strokeStyle, 'solid');
+  });
+
+  await t.test('renderObjectToCanvasDataUrl applies setLineDash for dashed and dotted strokeStyles', () => {
+    // Solid shape (default: setLineDash([]))
+    const solidShape = {
+      type: 'shape',
+      width: 100,
+      height: 100,
+      properties: { shapeType: 'rect', strokeColor: '#000000', strokeWidth: 2, strokeStyle: 'solid' }
+    };
+    editorModule.renderObjectToCanvasDataUrl(solidShape);
+    let ctx = lastCreatedCanvas.getContext('2d');
+    assert.ok(ctx.calls.some((c) => c.method === 'setLineDash' && Array.isArray(c.args[0]) && c.args[0].length === 0));
+
+    // Dashed shape (setLineDash([6, 4]))
+    const dashedShape = {
+      type: 'shape',
+      width: 100,
+      height: 100,
+      properties: { shapeType: 'rect', strokeColor: '#000000', strokeWidth: 2, strokeStyle: 'dashed' }
+    };
+    editorModule.renderObjectToCanvasDataUrl(dashedShape);
+    ctx = lastCreatedCanvas.getContext('2d');
+    assert.ok(ctx.calls.some((c) => c.method === 'setLineDash' && Array.isArray(c.args[0]) && c.args[0][0] === 6 && c.args[0][1] === 4));
+
+    // Dotted shape (setLineDash([2, 3]))
+    const dottedShape = {
+      type: 'shape',
+      width: 100,
+      height: 100,
+      properties: { shapeType: 'rect', strokeColor: '#000000', strokeWidth: 2, strokeStyle: 'dotted' }
+    };
+    editorModule.renderObjectToCanvasDataUrl(dottedShape);
+    ctx = lastCreatedCanvas.getContext('2d');
+    assert.ok(ctx.calls.some((c) => c.method === 'setLineDash' && Array.isArray(c.args[0]) && c.args[0][0] === 2 && c.args[0][1] === 3));
   });
 });

@@ -93,6 +93,7 @@ const propShapeType = document.getElementById("prop-shape-type");
 const propFillColor = document.getElementById("prop-fill-color");
 const propTransparentFill = document.getElementById("prop-transparent-fill");
 const propStrokeWidth = document.getElementById("prop-stroke-width");
+const propStrokeStyle = document.getElementById("prop-stroke-style");
 const propOpacity = document.getElementById("prop-opacity");
 
 const propTextGroup = document.querySelectorAll(".prop-group-text");
@@ -798,11 +799,15 @@ function updatePropsBarVisibility() {
   } else if (activeTool === "draw") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    if (propStrokeWidth) propStrokeWidth.value = "2";
+    if (propStrokeStyle) propStrokeStyle.value = "solid";
     hasVisibleProps = true;
   } else if (activeTool === "shape") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propShapeGroup.forEach((el) => (el.style.display = "flex"));
     propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+    if (propStrokeWidth) propStrokeWidth.value = "2";
+    if (propStrokeStyle) propStrokeStyle.value = "solid";
     hasVisibleProps = true;
   } else if (activeTool === "select" && selectedObjId) {
     const obj = editorObjects.find((o) => o.id === selectedObjId);
@@ -832,8 +837,11 @@ function updatePropsBarVisibility() {
       } else if (obj.type === "draw" || obj.type === "shape") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
         propStrokeGroup.forEach((el) => (el.style.display = "flex"));
+        if (propStrokeWidth) propStrokeWidth.value = String(obj.properties.strokeWidth || 2);
+        if (propStrokeStyle) propStrokeStyle.value = obj.properties.strokeStyle || "solid";
         if (obj.type === "shape") {
           propShapeGroup.forEach((el) => (el.style.display = "flex"));
+          if (propShapeType) propShapeType.value = obj.properties.shapeType || "rect";
         }
         hasVisibleProps = true;
       }
@@ -846,7 +854,7 @@ function updatePropsBarVisibility() {
 }
 
 // Property change listeners
-[propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propOpacity].forEach((input) => {
+[propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propStrokeStyle, propOpacity].forEach((input) => {
   if (input) {
     input.addEventListener("input", applyPropChangesToSelected);
     input.addEventListener("change", applyPropChangesToSelected);
@@ -909,11 +917,13 @@ function applyPropChangesToSelected() {
   } else if (obj.type === "draw") {
     obj.properties.color = propColor.value;
     obj.properties.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
+    if (propStrokeStyle) obj.properties.strokeStyle = propStrokeStyle.value || "solid";
   } else if (obj.type === "shape") {
     obj.properties.shapeType = propShapeType.value;
     obj.properties.strokeColor = propColor.value;
     obj.properties.fillColor = propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value;
     obj.properties.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
+    if (propStrokeStyle) obj.properties.strokeStyle = propStrokeStyle.value || "solid";
   }
 
   renderAllObjects();
@@ -991,6 +1001,7 @@ function createObjectForTool(tool, pageNum, x, y) {
         strokeColor: propColor.value || "#000000",
         fillColor: propTransparentFill && propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value || "#ffffff",
         strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
+        strokeStyle: propStrokeStyle ? propStrokeStyle.value || "solid" : "solid",
       },
     };
   }
@@ -1074,6 +1085,7 @@ function finishDrawingPath(currentPath, pageNum) {
       path: normalizedPath,
       color: propColor.value || "#000000",
       strokeWidth: parseInt(propStrokeWidth.value, 10) || 2,
+      strokeStyle: propStrokeStyle ? propStrokeStyle.value || "solid" : "solid",
       initialWidth: w,
       initialHeight: h,
     },
@@ -1217,6 +1229,18 @@ function triggerImageUploadForPage(pageNum, clickX, clickY) {
 
 // ── Canvas Helper Drawing Functions ───────────────────────────────
 
+function applyStrokeDashStyle(ctx, strokeStyle, strokeWidth) {
+  const w = strokeWidth || 2;
+  if (typeof ctx.setLineDash !== "function") return;
+  if (strokeStyle === "dashed") {
+    ctx.setLineDash([w * 3, w * 2]);
+  } else if (strokeStyle === "dotted") {
+    ctx.setLineDash([w, w * 1.5]);
+  } else {
+    ctx.setLineDash([]);
+  }
+}
+
 function drawCanvasPath(canvas, properties) {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1224,6 +1248,7 @@ function drawCanvasPath(canvas, properties) {
   ctx.lineWidth = properties.strokeWidth || 2;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  applyStrokeDashStyle(ctx, properties.strokeStyle, properties.strokeWidth);
 
   const initW = properties.initialWidth || canvas.width;
   const initH = properties.initialHeight || canvas.height;
@@ -1247,6 +1272,7 @@ function drawCanvasShape(canvas, width, height, properties) {
   ctx.clearRect(0, 0, width, height);
   ctx.strokeStyle = properties.strokeColor || "#000000";
   ctx.lineWidth = properties.strokeWidth || 2;
+  applyStrokeDashStyle(ctx, properties.strokeStyle, properties.strokeWidth);
 
   if (properties.fillColor && properties.fillColor !== "none") {
     ctx.fillStyle = properties.fillColor;
@@ -1744,6 +1770,7 @@ function renderDrawObject(ctx, obj) {
   ctx.lineWidth = obj.properties.strokeWidth || 2;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  applyStrokeDashStyle(ctx, obj.properties.strokeStyle, obj.properties.strokeWidth);
 
   ctx.beginPath();
   (obj.properties.path || []).forEach((pt, idx) => {
@@ -1756,6 +1783,7 @@ function renderDrawObject(ctx, obj) {
 function renderShapeObject(ctx, obj) {
   ctx.strokeStyle = obj.properties.strokeColor || "#000000";
   ctx.lineWidth = obj.properties.strokeWidth || 2;
+  applyStrokeDashStyle(ctx, obj.properties.strokeStyle, obj.properties.strokeWidth);
 
   if (obj.properties.fillColor && obj.properties.fillColor !== "none") {
     ctx.fillStyle = obj.properties.fillColor;
