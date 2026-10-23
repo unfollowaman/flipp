@@ -79,3 +79,29 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-004` — Tool Option Pill Selector Component Consistency & Keyboard Focus State Polish.
+
+### DESIGN-004: Tool Option Pill Selector Tactile Styling & Keyboard Focus State Polish
+- **Task ID:** DESIGN-004
+- **Priority:** P1 (Shared Option Pill Selector Component Consistency & Keyboard Accessibility)
+- **Problem:** Shared option pill buttons (`.opt-pill`) across tools (such as PDF to PNG, Images to PDF, Add Watermark, Sign PDF, and Edit PDF) lacked tactile offset shadows (`box-shadow`), hover state feedback, and visible keyboard focus outlines (`:focus-visible`). Inactive pills only had a muted background change (`var(--cream)`), making option selection controls across tool settings panels feel visually flat and inconsistent with Flipp's tactile neo-brutalist button styling.
+- **Change:**
+  1. Refined `.opt-pill` base CSS in `css/styles.src.css` with smooth transitions for background, transform, shadow, and color.
+  2. Added tactile hover feedback for inactive pills (`.opt-pill:hover`) with bright yellow highlight (`var(--yellow)`), 2px offset shadow (`box-shadow: 2px 2px 0 var(--black)`), and 1px vertical lift (`translateY(-1px)`).
+  3. Added explicit keyboard navigation focus styling (`.opt-pill:focus-visible`) with a high-contrast 3px solid outline (`3px solid var(--black)`) and `outline-offset: 2px`.
+  4. Strengthened active state styling (`.opt-pill.active`) with black background and crisp 2px offset shadow (`box-shadow: 2px 2px 0 var(--black)`), plus active-hover feedback (`.opt-pill.active:hover`) with yellow text accent and 3px offset shadow.
+  5. Recompiled minified production stylesheet `css/styles.css` using `npm run minify:css`.
+  6. Added automated unit tests in `tests/drag-drop.test.js` verifying option pill CSS rules and tactile states.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/drag-drop.test.js`
+  - `tests/capture_design_004.js`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-004/after/desktop_normal.png`, `desktop_hover.png`, `desktop_focus.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-004/after/tablet_normal.png`, `tablet_hover.png`, `tablet_focus.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-004/after/mobile_normal.png`, `mobile_hover.png`, `mobile_focus.png`)
+  - **Functional Tests:** 409 passing tests across 108 test suites (0 failures).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-005` — Shared Tool Result Card & Download Primary Action Tactile Styling Alignment.
