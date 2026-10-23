@@ -771,3 +771,19 @@ test('setupDragReorder', async (t) => {
     assert.strictEqual(card1.style.zIndex, '');
   });
 });
+
+test('drop zone CSS rules', async (t) => {
+  await t.test('css/styles.src.css contains neo-brutalist drop zone tactile styling', () => {
+    const cssPath = path.join(__dirname, '../css/styles.src.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    assert.ok(cssContent.includes('.drop-zone {'), '.drop-zone rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 3px 3px 0 var(--black);'), 'drop-zone base shadow must be defined');
+    assert.ok(cssContent.includes('.drop-zone:hover {'), '.drop-zone:hover rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 6px 6px 0 var(--black);'), 'drop-zone hover shadow must be defined');
+    assert.ok(cssContent.includes('.drop-zone:focus-visible {'), '.drop-zone:focus-visible rule must exist');
+    assert.ok(cssContent.includes('.drop-zone.drag-over {'), '.drop-zone.drag-over rule must exist');
+    assert.ok(cssContent.includes('border-style: solid;'), 'drag-over border-style must become solid');
+    assert.ok(cssContent.includes('.drop-zone:hover .dz-upload-icon {'), 'upload icon hover elevation must exist');
+  });
+});

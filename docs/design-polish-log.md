@@ -52,3 +52,30 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-003` — Shared Tool Drop Zone Hover & Drag-Active State Polish across Tool Upload Areas.
+
+### DESIGN-003: Shared Tool Drop Zone Hover, Drag-Active & Keyboard Focus State Polish
+- **Task ID:** DESIGN-003
+- **Priority:** P1 (Shared Upload Drop Zone Component Consistency & Tactile Feedback)
+- **Problem:** Shared upload drop zones (`.drop-zone`) lacked Flipp's signature neo-brutalist tactile shadows (`box-shadow`), hover state elevation, clear drag-active feedback, and explicit `:focus-visible` keyboard focus indicators. This made file upload areas across all tool pages feel flat and visually disconnected from the rest of Flipp's tactile UI components (such as buttons and tool cards).
+- **Change:**
+  1. Refined `.drop-zone` base CSS in `css/styles.src.css` with a tactile 3px offset shadow (`box-shadow: 3px 3px 0 var(--black);`).
+  2. Enhanced hover feedback (`.drop-zone:hover`) with background highlight (`var(--yellow)`), expanded 6px offset shadow (`6px 6px 0 var(--black)`), and slight vertical lift (`translateY(-2px)`).
+  3. Added subtle upload icon float elevation on hover (`.drop-zone:hover .dz-upload-icon` with `translateY(-4px) scale(1.08)`).
+  4. Strengthened drag-over state (`.drop-zone.drag-over`) with solid border transition (`border-style: solid`), prominent shadow (`8px 8px 0 var(--black)`), and tactile lift (`translateY(-3px) scale(1.01)`).
+  5. Added explicit keyboard navigation support (`.drop-zone:focus-visible`) with thick high-contrast focus outline (`3px solid var(--black)`).
+  6. Recompiled minified production stylesheet `css/styles.css` using `npm run minify:css`.
+  7. Added unit tests in `tests/drag-drop.test.js` verifying CSS rules and states.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/drag-drop.test.js`
+  - `tests/capture_design_003.js`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-003/after/desktop_normal.png`, `desktop_hover.png`, `desktop_dragover.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-003/after/tablet_normal.png`, `tablet_hover.png`, `tablet_dragover.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-003/after/mobile_normal.png`, `mobile_hover.png`, `mobile_dragover.png`)
+  - **Functional Tests:** 443 passing tests across unit test suites (0 regressions).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-004` — Tool Option Pill Selector Component Consistency & Keyboard Focus State Polish.
