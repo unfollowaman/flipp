@@ -703,25 +703,36 @@ textarea {
 } /* ============================== Drop Zone
 ============================== */
 .drop-zone {
-  will-change: transform;
+  will-change: transform, box-shadow;
   background: var(--white);
   border: 2.5px dashed var(--black);
   border-radius: var(--radius-lg);
   padding: 64px 32px;
   text-align: center;
   cursor: pointer;
+  box-shadow: 3px 3px 0 var(--black);
   transition:
     background 0.15s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
   position: relative;
 }
 .drop-zone:hover {
   background: var(--yellow);
-  transform: scale(1.01);
+  box-shadow: 6px 6px 0 var(--black);
+  transform: translateY(-2px);
+}
+.drop-zone:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 4px;
+  box-shadow: 6px 6px 0 var(--black);
 }
 .drop-zone.drag-over {
   background: var(--yellow);
-  transform: scale(1.01);
+  border-style: solid;
+  box-shadow: 8px 8px 0 var(--black);
+  transform: translateY(-3px) scale(1.01);
   animation: pulse-shadow 1.5s ease-in-out infinite alternate;
 }
 .dz-upload-icon {
@@ -729,6 +740,10 @@ textarea {
   margin-bottom: 16px;
   display: block;
   animation: float-icon 2.5s ease-in-out infinite alternate;
+  transition: transform 0.2s ease;
+}
+.drop-zone:hover .dz-upload-icon {
+  transform: translateY(-4px) scale(1.08);
 }
 .dz-headline {
   font-size: 22px;
