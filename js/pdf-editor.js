@@ -38,6 +38,10 @@ export let pageOrder = [];
 // Dragged Card Index for Sidebar Drag & Drop Reordering
 let draggedCardIndex = null;
 
+// Pinch-to-Zoom Gesture State
+let initialPinchDistance = null;
+let initialPinchZoom = 1.0;
+
 // Page metrics cache: pageNum -> { pageViewport, pdfWidth, pdfHeight, userRotation }
 const pageMetricsCache = new Map();
 
@@ -673,14 +677,55 @@ if (pagesScrollArea) {
   });
 }
 
-// ── Zoom Controls ──────────────────────────────────────────────────
+// ── Zoom Controls & Pinch Gesture ──────────────────────────────────
 
-function updateZoom(newZoom) {
+export function updateZoom(newZoom) {
   zoomLevel = Math.max(0.25, Math.min(3.0, newZoom));
   if (zoomValLabel) {
     zoomValLabel.textContent = `${Math.round(zoomLevel * 100)}%`;
   }
   renderAllPages();
+}
+
+export function getZoomLevel() {
+  return zoomLevel;
+}
+
+export function getPinchDistance(touches) {
+  if (!touches || touches.length < 2) return 0;
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+export function handlePinchStart(e) {
+  if (e.touches && e.touches.length === 2) {
+    initialPinchDistance = getPinchDistance(e.touches);
+    initialPinchZoom = zoomLevel;
+  }
+}
+
+export function handlePinchMove(e) {
+  if (e.touches && e.touches.length === 2 && initialPinchDistance && initialPinchDistance > 0) {
+    if (e.cancelable) e.preventDefault();
+    const currentDistance = getPinchDistance(e.touches);
+    const scale = currentDistance / initialPinchDistance;
+    const targetZoom = initialPinchZoom * scale;
+    updateZoom(targetZoom);
+  }
+}
+
+export function handlePinchEnd(e) {
+  if (!e.touches || e.touches.length < 2) {
+    initialPinchDistance = null;
+  }
+}
+
+if (pagesScrollArea) {
+  pagesScrollArea.addEventListener("touchstart", handlePinchStart, { passive: true });
+  pagesScrollArea.addEventListener("touchmove", handlePinchMove, { passive: false });
+  pagesScrollArea.addEventListener("touchend", handlePinchEnd);
+  pagesScrollArea.addEventListener("touchcancel", handlePinchEnd);
 }
 
 if (zoomInBtn) {
