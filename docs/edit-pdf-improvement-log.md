@@ -135,3 +135,17 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 404 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-008/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-009` — Interactive Object Layering & Z-Order Management (Bring Forward / Send Backward).
+
+### EDIT-PDF-009: Interactive Object Layering & Z-Order Management (Bring to Front, Bring Forward, Send Backward, Send to Back)
+- **Priority:** P1 (Workspace Ergonomics & Object Manipulation)
+- **User Problem:** When inserting multiple overlapping elements (such as text over highlight boxes, callout shapes behind images, signatures over stamps, or drawings over shapes), users had no control over the z-order stacking of elements on a page. Newly added objects always rendered above older ones without any option to adjust ordering.
+- **Status:** Completed
+- **Technical Rationale:** Introduced layer arrangement property group `.prop-group-layer` in `tools/edit-pdf/index.html` featuring `#prop-layer-front` (Bring to Front 🔝), `#prop-layer-forward` (Bring Forward 🔼), `#prop-layer-backward` (Send Backward 🔽), and `#prop-layer-back` (Send to Back 🔚) with screen reader ARIA labels and tooltips. Implemented `moveObjectZOrder(objId, action)` in `js/pdf-editor.js` which reorders object positions in `editorObjects` for the active page, preserves multi-page object isolation, updates visual canvas overlay DOM z-indexes, records state via `saveState()` for full undo/redo history, and accurately translates z-indexes to PDF-Lib export rendering sequence. Added comprehensive unit tests in `tests/pdf-editor.test.js`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 411 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-009/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-010` — Canvas Overlay High-DPI Resolution Scaling on High Pixel Ratio Displays.

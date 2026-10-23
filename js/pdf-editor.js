@@ -101,6 +101,12 @@ const propColorGroup = document.querySelectorAll(".prop-group-color");
 const propShapeGroup = document.querySelectorAll(".prop-group-shape");
 const propStrokeGroup = document.querySelectorAll(".prop-group-stroke");
 const propOpacityGroup = document.querySelectorAll(".prop-group-opacity");
+const propLayerGroup = document.querySelectorAll(".prop-group-layer");
+
+const propLayerFront = document.getElementById("prop-layer-front");
+const propLayerForward = document.getElementById("prop-layer-forward");
+const propLayerBackward = document.getElementById("prop-layer-backward");
+const propLayerBack = document.getElementById("prop-layer-back");
 
 // Signature Modal
 const sigModal = document.getElementById("editor-sig-modal");
@@ -244,6 +250,56 @@ export async function loadPdfFromBytes(arrayBuffer) {
 }
 
 // ── Page Management Actions ───────────────────────────────────────
+
+// ── Object Z-Order & Layer Management ─────────────────────────────
+
+export function getEditorObjects() {
+  return editorObjects;
+}
+
+export function moveObjectZOrder(objId, action) {
+  const targetObj = editorObjects.find((o) => o.id === objId);
+  if (!targetObj) return false;
+
+  const samePageObjects = editorObjects.filter((o) => o.pageNum === targetObj.pageNum);
+  if (samePageObjects.length <= 1) return false;
+
+  const currentIdxOnPage = samePageObjects.indexOf(targetObj);
+  let newIdxOnPage = currentIdxOnPage;
+
+  if (action === "front") {
+    newIdxOnPage = samePageObjects.length - 1;
+  } else if (action === "back") {
+    newIdxOnPage = 0;
+  } else if (action === "forward") {
+    newIdxOnPage = Math.min(samePageObjects.length - 1, currentIdxOnPage + 1);
+  } else if (action === "backward") {
+    newIdxOnPage = Math.max(0, currentIdxOnPage - 1);
+  }
+
+  if (newIdxOnPage === currentIdxOnPage) return false;
+
+  saveState();
+
+  const reorderedSamePage = [...samePageObjects];
+  reorderedSamePage.splice(currentIdxOnPage, 1);
+  reorderedSamePage.splice(newIdxOnPage, 0, targetObj);
+
+  const updatedObjects = [];
+  let samePagePointer = 0;
+
+  for (let i = 0; i < editorObjects.length; i++) {
+    if (editorObjects[i].pageNum === targetObj.pageNum) {
+      updatedObjects.push(reorderedSamePage[samePagePointer++]);
+    } else {
+      updatedObjects.push(editorObjects[i]);
+    }
+  }
+
+  editorObjects = updatedObjects;
+  renderAllObjects();
+  return true;
+}
 
 export function getActivePages() {
   const active = [];
@@ -773,6 +829,7 @@ function updatePropsBarVisibility() {
   propShapeGroup.forEach((el) => (el.style.display = "none"));
   propStrokeGroup.forEach((el) => (el.style.display = "none"));
   propOpacityGroup.forEach((el) => (el.style.display = "none"));
+  propLayerGroup.forEach((el) => (el.style.display = "none"));
 
   let hasVisibleProps = false;
 
@@ -848,9 +905,35 @@ function updatePropsBarVisibility() {
     }
   }
 
+  if (selectedObjId) {
+    propLayerGroup.forEach((el) => (el.style.display = "flex"));
+    hasVisibleProps = true;
+  }
+
   if (propsBar) {
     propsBar.style.display = hasVisibleProps ? "flex" : "none";
   }
+}
+
+if (propLayerFront) {
+  propLayerFront.addEventListener("click", () => {
+    if (selectedObjId) moveObjectZOrder(selectedObjId, "front");
+  });
+}
+if (propLayerForward) {
+  propLayerForward.addEventListener("click", () => {
+    if (selectedObjId) moveObjectZOrder(selectedObjId, "forward");
+  });
+}
+if (propLayerBackward) {
+  propLayerBackward.addEventListener("click", () => {
+    if (selectedObjId) moveObjectZOrder(selectedObjId, "backward");
+  });
+}
+if (propLayerBack) {
+  propLayerBack.addEventListener("click", () => {
+    if (selectedObjId) moveObjectZOrder(selectedObjId, "back");
+  });
 }
 
 // Property change listeners
