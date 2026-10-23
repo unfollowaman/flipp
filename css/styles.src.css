@@ -1446,6 +1446,7 @@ Results ============================== */
   border-radius: var(--radius-md);
   padding: 16px 24px;
   flex-wrap: wrap;
+  box-shadow: 3px 3px 0 var(--black);
 }
 .results-title {
   font-size: 16px;
@@ -1463,13 +1464,14 @@ Results ============================== */
   border: var(--border-std);
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: 2px 2px 0 var(--black);
   transition:
     transform 0.12s ease,
     box-shadow 0.12s ease;
 }
 .result-img-card:hover {
   transform: translateY(-3px);
-  box-shadow: var(--shadow-hard);
+  box-shadow: 5px 5px 0 var(--black);
 }
 .result-img-card img {
   width: 100%;
@@ -1500,7 +1502,9 @@ Results ============================== */
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 1px 1px 0 var(--black);
   transition:
+    background-color 0.1s ease,
     transform 0.1s ease,
     box-shadow 0.1s ease;
   flex-shrink: 0;
@@ -1513,7 +1517,15 @@ Results ============================== */
 }
 .result-download-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 2px 2px 0 var(--black);
+  box-shadow: 2.5px 2.5px 0 var(--black);
+}
+.result-download-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 0 var(--black);
+}
+.result-download-btn:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 2px;
 }
 .img-result-info {
   background: var(--white);

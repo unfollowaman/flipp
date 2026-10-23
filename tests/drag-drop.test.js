@@ -802,3 +802,19 @@ test('option pill CSS rules', async (t) => {
     assert.ok(cssContent.includes('.opt-pill.active:hover {'), '.opt-pill.active:hover rule must exist');
   });
 });
+
+test('result area and download button CSS rules', async (t) => {
+  await t.test('css/styles.src.css contains result header, result card, and download button tactile styling', () => {
+    const cssPath = path.join(__dirname, '../css/styles.src.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    assert.ok(cssContent.includes('.results-header {'), '.results-header rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 3px 3px 0 var(--black);'), 'results-header tactile shadow must exist');
+    assert.ok(cssContent.includes('.result-img-card {'), '.result-img-card rule must exist');
+    assert.ok(cssContent.includes('box-shadow: 2px 2px 0 var(--black);'), 'result-img-card base shadow must exist');
+    assert.ok(cssContent.includes('.result-download-btn {'), '.result-download-btn rule must exist');
+    assert.ok(cssContent.includes('.result-download-btn:active {'), '.result-download-btn:active rule must exist');
+    assert.ok(cssContent.includes('.result-download-btn:focus-visible {'), '.result-download-btn:focus-visible rule must exist');
+    assert.ok(cssContent.includes('outline: 3px solid var(--black);'), 'download btn focus outline must exist');
+  });
+});
