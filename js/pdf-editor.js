@@ -927,6 +927,10 @@ function updatePropsBarVisibility() {
     hasVisibleProps = true;
   }
 
+  syncColorSwatches("prop-color", propColor ? propColor.value : "#000000");
+  syncColorSwatches("prop-text-bg-color", propTextBgTransparent && propTextBgTransparent.classList.contains("active") ? "transparent" : (propTextBgColor ? propTextBgColor.value : "#ffffff"));
+  syncColorSwatches("prop-fill-color", propTransparentFill && propTransparentFill.dataset.none === "true" ? "none" : (propFillColor ? propFillColor.value : "#ffffff"));
+
   if (propsBar) {
     propsBar.style.display = hasVisibleProps ? "flex" : "none";
   }
@@ -953,11 +957,73 @@ if (propLayerBack) {
   });
 }
 
+export function syncColorSwatches(targetInputId, colorValue) {
+  const wrap = document.querySelector(`.color-swatches-wrap[data-target="${targetInputId}"]`);
+  if (!wrap) return;
+  const swatches = wrap.querySelectorAll(".color-swatch");
+  const normColor = (colorValue || "").toLowerCase();
+  swatches.forEach((swatch) => {
+    const swColor = (swatch.dataset.color || "").toLowerCase();
+    const isActive = swColor === normColor;
+    swatch.classList.toggle("active", isActive);
+  });
+}
+
+function setupColorSwatches() {
+  document.querySelectorAll(".color-swatches-wrap").forEach((wrap) => {
+    const targetId = wrap.dataset.target;
+    const targetInput = document.getElementById(targetId);
+    if (!targetInput) return;
+
+    wrap.querySelectorAll(".color-swatch").forEach((swatch) => {
+      const handleSelect = (e) => {
+        e.preventDefault();
+        const color = swatch.dataset.color;
+        if (!color) return;
+
+        targetInput.value = color;
+
+        if (targetId === "prop-text-bg-color" && propTextBgTransparent) {
+          propTextBgTransparent.classList.remove("active");
+          if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
+        } else if (targetId === "prop-fill-color" && propTransparentFill) {
+          propTransparentFill.dataset.none = "false";
+          if (propTransparentFill.setAttribute) propTransparentFill.setAttribute("aria-pressed", "false");
+        }
+
+        syncColorSwatches(targetId, color);
+        applyPropChangesToSelected();
+      };
+
+      swatch.addEventListener("click", handleSelect);
+      swatch.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleSelect(e);
+        }
+      });
+    });
+  });
+}
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupColorSwatches);
+  } else {
+    setupColorSwatches();
+  }
+}
+
 // Property change listeners
 [propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propStrokeStyle, propOpacity, propTextPadding].forEach((input) => {
   if (input) {
-    input.addEventListener("input", applyPropChangesToSelected);
-    input.addEventListener("change", applyPropChangesToSelected);
+    input.addEventListener("input", (e) => {
+      if (input.id) syncColorSwatches(input.id, input.value);
+      applyPropChangesToSelected();
+    });
+    input.addEventListener("change", (e) => {
+      if (input.id) syncColorSwatches(input.id, input.value);
+      applyPropChangesToSelected();
+    });
   }
 });
 
@@ -967,6 +1033,7 @@ if (propTextBgColor) {
       propTextBgTransparent.classList.remove("active");
       if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
     }
+    syncColorSwatches("prop-text-bg-color", propTextBgColor.value);
     applyPropChangesToSelected();
   });
   propTextBgColor.addEventListener("change", () => {
@@ -974,6 +1041,7 @@ if (propTextBgColor) {
       propTextBgTransparent.classList.remove("active");
       if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
     }
+    syncColorSwatches("prop-text-bg-color", propTextBgColor.value);
     applyPropChangesToSelected();
   });
 }

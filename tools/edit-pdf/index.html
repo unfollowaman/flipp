@@ -363,6 +363,32 @@
         padding: 0;
         background: transparent;
       }
+      /* Color Swatches Palette */
+      .color-swatches-wrap {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-left: 2px;
+      }
+      .color-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1.5px solid var(--black, #000000);
+        cursor: pointer;
+        padding: 0;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+        box-sizing: border-box;
+        flex-shrink: 0;
+      }
+      .color-swatch:hover {
+        transform: scale(1.15);
+      }
+      .color-swatch.active {
+        outline: 2px solid var(--black, #000000);
+        outline-offset: 1px;
+        transform: scale(1.1);
+      }
       .editor-prop-item select,
       .editor-prop-item input[type="number"],
       .editor-prop-item input[type="range"] {
@@ -849,6 +875,14 @@
             <div class="editor-prop-item prop-group-text" style="display: none;">
               <label for="prop-text-bg-color">Bg</label>
               <input type="color" id="prop-text-bg-color" value="#ffffff" aria-label="Text background color" />
+              <div class="color-swatches-wrap" data-target="prop-text-bg-color" role="group" aria-label="Quick text background color swatches">
+                <button class="color-swatch" data-color="#000000" style="background:#000000" title="Black background" aria-label="Black background"></button>
+                <button class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="Red background" aria-label="Red background"></button>
+                <button class="color-swatch" data-color="#3b82f6" style="background:#3b82f6" title="Blue background" aria-label="Blue background"></button>
+                <button class="color-swatch" data-color="#22c55e" style="background:#22c55e" title="Green background" aria-label="Green background"></button>
+                <button class="color-swatch" data-color="#fef08a" style="background:#fef08a" title="Yellow background" aria-label="Yellow background"></button>
+                <button class="color-swatch active" data-color="#ffffff" style="background:#ffffff" title="White background" aria-label="White background"></button>
+              </div>
               <button class="editor-btn" id="prop-text-bg-transparent" style="padding: 2px 6px; font-size: 11px;" aria-label="No text background fill" aria-pressed="true">No Bg</button>
             </div>
             <div class="editor-prop-item prop-group-text" style="display: none;">
@@ -860,6 +894,14 @@
             <div class="editor-prop-item prop-group-color" style="display: none;">
               <label for="prop-color">Color</label>
               <input type="color" id="prop-color" value="#000000" />
+              <div class="color-swatches-wrap" data-target="prop-color" role="group" aria-label="Quick color swatches">
+                <button class="color-swatch active" data-color="#000000" style="background:#000000" title="Black color" aria-label="Black color"></button>
+                <button class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="Red color" aria-label="Red color"></button>
+                <button class="color-swatch" data-color="#3b82f6" style="background:#3b82f6" title="Blue color" aria-label="Blue color"></button>
+                <button class="color-swatch" data-color="#22c55e" style="background:#22c55e" title="Green color" aria-label="Green color"></button>
+                <button class="color-swatch" data-color="#eab308" style="background:#eab308" title="Yellow color" aria-label="Yellow color"></button>
+                <button class="color-swatch" data-color="#ffffff" style="background:#ffffff" title="White color" aria-label="White color"></button>
+              </div>
             </div>
 
             <!-- Shape options -->
@@ -875,6 +917,14 @@
             <div class="editor-prop-item prop-group-shape" style="display: none;">
               <label for="prop-fill-color">Fill</label>
               <input type="color" id="prop-fill-color" value="#ffffff" />
+              <div class="color-swatches-wrap" data-target="prop-fill-color" role="group" aria-label="Quick shape fill swatches">
+                <button class="color-swatch" data-color="#000000" style="background:#000000" title="Black fill" aria-label="Black fill"></button>
+                <button class="color-swatch" data-color="#ef4444" style="background:#ef4444" title="Red fill" aria-label="Red fill"></button>
+                <button class="color-swatch" data-color="#3b82f6" style="background:#3b82f6" title="Blue fill" aria-label="Blue fill"></button>
+                <button class="color-swatch" data-color="#22c55e" style="background:#22c55e" title="Green fill" aria-label="Green fill"></button>
+                <button class="color-swatch" data-color="#fef08a" style="background:#fef08a" title="Yellow fill" aria-label="Yellow fill"></button>
+                <button class="color-swatch active" data-color="#ffffff" style="background:#ffffff" title="White fill" aria-label="White fill"></button>
+              </div>
               <button class="editor-btn" id="prop-transparent-fill" style="padding: 2px 6px; font-size: 11px;" aria-label="No fill" aria-pressed="false">No Fill</button>
             </div>
 

@@ -178,3 +178,21 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 417 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-011/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-012` — Preset Quick-Color Swatches for Workspace Formatting Controls.
+
+### EDIT-PDF-012: Preset Quick-Color Swatches for Workspace Formatting Controls
+- **Priority:** P1 (Workspace Ergonomics & Color Selection Efficiency)
+- **User Problem:** When formatting text color, text background color, freehand drawings, highlights, or shape fills, users were forced to use native OS color pickers (`<input type="color">`), which required multiple clicks or taps on desktop and mobile. There were no quick preset color swatches for standard document colors (Black, Red, Blue, Green, Yellow, White).
+- **Status:** Completed
+- **Technical Rationale:** Introduced responsive quick color swatch containers (`.color-swatches-wrap`) in `.prop-group-color`, `.prop-group-text`, and `.prop-group-shape` within `tools/edit-pdf/index.html`. Swatches feature touch-friendly targets, Neo-Brutalist 1.5px black borders, active selection outline rings, and ARIA labels. Implemented `syncColorSwatches(targetInputId, colorValue)` and swatch event listeners in `js/pdf-editor.js` to update corresponding color input values, sync active ring indicators, reset transparent background/fill toggles when appropriate, and record state via `saveState()` with undo/redo history stack support. Defined CSS rules in `css/styles.src.css` and recompiled minified `css/styles.css`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `js/pdf-editor.js`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/pdf-editor.test.js`
+  - `tests/capture_baseline_012.py`
+  - `tests/capture_after_012.py`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 421 passing unit subtests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-012/after/` (desktop, tablet, mobile).
+- **Known Limitations:** Custom color pickers can be expanded with additional themes in future iterations.
+- **Next Recommended Improvement:** `EDIT-PDF-013` — Multi-Page Document Search & Highlight Filtering in Workspace.

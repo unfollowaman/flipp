@@ -78,7 +78,8 @@ src += `\nreturn {
   getRevokedUrls: () => revokedUrls,
   getPageOverlayMap: () => pageOverlayMap,
   createTempDrawingCanvas,
-  renderObjectContent
+  renderObjectContent,
+  syncColorSwatches
 };\n`;
 
 const elementMap = {};
@@ -130,9 +131,14 @@ function createMockElement(id = '') {
       add: (cls) => classes.add(cls),
       remove: (cls) => classes.delete(cls),
       contains: (cls) => classes.has(cls),
-      toggle: (cls) => {
-        if (classes.has(cls)) classes.delete(cls);
-        else classes.add(cls);
+      toggle: (cls, force) => {
+        if (typeof force === 'boolean') {
+          if (force) classes.add(cls);
+          else classes.delete(cls);
+        } else {
+          if (classes.has(cls)) classes.delete(cls);
+          else classes.add(cls);
+        }
       }
     },
     setAttribute: (attr, val) => { attributes[attr] = String(val); },
@@ -2026,5 +2032,40 @@ test('pdf-editor high-DPI canvas overlay resolution scaling', async (t) => {
     assert.strictEqual(lastCreatedCanvas.height, 160); // 80 * 2
 
     mockWindow.devicePixelRatio = 1;
+  });
+});
+
+test('pdf-editor preset color swatches synchronization and interaction', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('syncColorSwatches toggles active class on target swatches based on hex color', () => {
+    const wrap = mockDocument.createElement('div');
+    wrap.className = 'color-swatches-wrap';
+    wrap.dataset.target = 'prop-color';
+
+    const s1 = mockDocument.createElement('button');
+    s1.className = 'color-swatch';
+    s1.dataset.color = '#000000';
+
+    const s2 = mockDocument.createElement('button');
+    s2.className = 'color-swatch';
+    s2.dataset.color = '#ef4444';
+
+    wrap.querySelectorAll = (sel) => [s1, s2];
+
+    const prevQuerySelector = mockDocument.querySelector;
+    mockDocument.querySelector = (sel) => {
+      if (sel.includes('prop-color')) return wrap;
+      return null;
+    };
+
+    editorModule.syncColorSwatches('prop-color', '#ef4444');
+
+    assert.strictEqual(s1.classList.contains('active'), false);
+    assert.strictEqual(s2.classList.contains('active'), true);
+
+    mockDocument.querySelector = prevQuerySelector;
   });
 });

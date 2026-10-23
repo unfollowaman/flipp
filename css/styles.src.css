@@ -3215,6 +3215,33 @@ for Dynamic UI Sections */
   }
 }
 
+/* Color Swatches Palette */
+.color-swatches-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 2px;
+}
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--black, #000000);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+.color-swatch.active {
+  outline: 2px solid var(--black, #000000);
+  outline-offset: 1px;
+  transform: scale(1.1);
+}
+
 /* ==============================
    Protect PDF Preview Styles
    ============================== */
