@@ -178,3 +178,22 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 417 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-011/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-012` — Preset Quick-Color Swatches for Workspace Formatting Controls.
+
+### EDIT-PDF-012: Preset Quick-Color Swatches for Workspace Formatting Controls
+- **Priority:** P1 (Workspace Ergonomics & Formatting Efficiency)
+- **User Problem:** When modifying colors for text, highlights, drawings, shapes, or background fills, users were forced to open the native browser color picker popup every time. This made rapid color switching slow and tedious, especially on mobile devices.
+- **Status:** Completed
+- **Technical Rationale:** Added quick-color swatch containers (`.color-swatches-wrap`) with accessible swatch buttons (`.color-swatch`) alongside color pickers for primary color (`#prop-color`), text background color (`#prop-text-bg-color`), and shape fill color (`#prop-fill-color`) in `tools/edit-pdf/index.html`. Styled swatches following Flipp's Candy Brutalism design language (20x20px circles, 1.5px solid black borders, scale-on-hover effects, and active ring indicators) in `css/styles.src.css` and recompiled `css/styles.css`. Implemented `syncColorSwatches()` in `js/pdf-editor.js` to highlight active swatches, clear transparent fill/background toggles when active, update selected object properties or tool defaults, and record state for undo/redo history tracking. Added unit and accessibility tests in `tests/pdf-editor.test.js` and `tests/pdf_editor_a11y.test.js`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `tests/pdf_editor_a11y.test.js`
+  - `tests/capture_baseline_012.py`
+  - `tests/capture_after_012.py`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 423 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-012/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-013` — Multi-Object Drag Selection & Group Transformation Controls.

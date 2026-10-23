@@ -142,3 +142,20 @@ test("PDF Editor object handles have accessibility attributes in js/pdf-editor.j
     "deleteHandle must have role='button', aria-label='Delete object', and tabindex='0'"
   );
 });
+
+test("PDF Editor quick-color swatches have accessibility attributes", () => {
+  const htmlPath = path.join(__dirname, "..", "tools", "edit-pdf", "index.html");
+  const htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+  const swatchesRegex = /<button[^>]*class="color-swatch[^"]*"[^>]*>/gi;
+  const matches = htmlContent.match(swatchesRegex);
+
+  assert.ok(matches && matches.length >= 15, "There should be at least 15 quick-color swatches in edit-pdf/index.html");
+
+  matches.forEach((swatchTag) => {
+    assert.ok(swatchTag.includes('role="button"'), `Swatch ${swatchTag} should have role="button"`);
+    assert.ok(swatchTag.includes('aria-label="'), `Swatch ${swatchTag} should have aria-label`);
+    assert.ok(swatchTag.includes('aria-pressed="'), `Swatch ${swatchTag} should have aria-pressed`);
+    assert.ok(swatchTag.includes('data-color="'), `Swatch ${swatchTag} should have data-color`);
+  });
+});
