@@ -787,3 +787,18 @@ test('drop zone CSS rules', async (t) => {
     assert.ok(cssContent.includes('.drop-zone:hover .dz-upload-icon {'), 'upload icon hover elevation must exist');
   });
 });
+
+test('option pill CSS rules', async (t) => {
+  await t.test('css/styles.src.css contains neo-brutalist option pill tactile styling', () => {
+    const cssPath = path.join(__dirname, '../css/styles.src.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    assert.ok(cssContent.includes('.opt-pill {'), '.opt-pill rule must exist');
+    assert.ok(cssContent.includes('.opt-pill:hover {'), '.opt-pill:hover rule must exist');
+    assert.ok(cssContent.includes('background: var(--yellow);'), 'opt-pill hover yellow background must exist');
+    assert.ok(cssContent.includes('.opt-pill:focus-visible {'), '.opt-pill:focus-visible rule must exist');
+    assert.ok(cssContent.includes('outline: 3px solid var(--black);'), 'opt-pill focus outline must exist');
+    assert.ok(cssContent.includes('.opt-pill.active {'), '.opt-pill.active rule must exist');
+    assert.ok(cssContent.includes('.opt-pill.active:hover {'), '.opt-pill.active:hover rule must exist');
+  });
+});

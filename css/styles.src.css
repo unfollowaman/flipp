@@ -808,20 +808,37 @@ textarea {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  will-change: transform, box-shadow;
   transition:
-    background 0.1s ease,
-    transform 0.15s ease-out,
-    box-shadow 0.1s ease;
+    background 0.12s ease,
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    color 0.12s ease;
 }
 .opt-pill:hover {
-  background: var(--cream);
+  background: var(--yellow);
+  box-shadow: 2px 2px 0 var(--black);
+  transform: translateY(-1px);
+}
+.opt-pill:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 2px;
+  box-shadow: 2px 2px 0 var(--black);
 }
 .opt-pill:active {
-  transform: scale(1.05);
+  transform: translateY(0);
+  box-shadow: 1px 1px 0 var(--black);
 }
 .opt-pill.active {
   background: var(--black);
   color: var(--white);
+  box-shadow: 2px 2px 0 var(--black);
+}
+.opt-pill.active:hover {
+  background: var(--black);
+  color: var(--yellow);
+  box-shadow: 3px 3px 0 var(--black);
+  transform: translateY(-1px);
 } /* Color Pills */
 .color-pill-black {
   color: #000;
