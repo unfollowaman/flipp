@@ -120,3 +120,18 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 402 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-007/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-008` — Advanced Shape Styling & Custom Border Dash Options in Workspace.
+
+### EDIT-PDF-008: Advanced Shape & Freehand Drawing Line Style Options (Solid, Dashed, Dotted) in Workspace
+- **Priority:** P2 (Advanced Workspace Styling & Annotation Capabilities)
+- **User Problem:** Users could only draw or place shapes with solid borders/lines. There was no way to create dashed or dotted outlines for shapes, rectangles, circles, lines, arrows, or freehand drawing markups, limiting expressive document annotations and diagramming capabilities.
+- **Status:** Completed
+- **Technical Rationale:** Added `#prop-stroke-style` selector dropdown control inside `.prop-group-stroke` in `tools/edit-pdf/index.html` with options for Solid (`solid`), Dashed (`dashed`), and Dotted (`dotted`). Updated `js/pdf-editor.js` object property model, event listeners, and property syncing (`applyPropChangesToSelected`) to persist `strokeStyle` on `shape` and `draw` objects with full undo/redo history stack support. Implemented `applyStrokeDashStyle` helper to apply `ctx.setLineDash(...)` based on stroke style (`solid`: `[]`, `dashed`: `[strokeWidth * 3, strokeWidth * 2]`, `dotted`: `[strokeWidth, strokeWidth * 1.5]`) across overlay canvas preview routines (`drawCanvasPath`, `drawCanvasShape`) and PDFLib export canvas flatteners (`renderDrawObject`, `renderShapeObject`). Recompiled minified stylesheet `css/styles.css`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `js/pdf-editor.js`
+  - `css/styles.css`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 404 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-008/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-009` — Interactive Object Layering & Z-Order Management (Bring Forward / Send Backward).
