@@ -1644,6 +1644,9 @@ Results ============================== */
 }
 .cta-sky {
   background: var(--sky-blue);
+}
+.cta-cream {
+  background: var(--cream);
 } /* ============================== Trust Section
 ============================== */
 .trust-section {
