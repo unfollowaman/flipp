@@ -48,6 +48,7 @@ src += `\nreturn {
   finishDrawingPath,
   sanitizeFilename,
   checkShareSupport,
+  moveObjectZOrder,
   makeObjectDraggableAndResizable,
   makeObjectDraggable,
   makeObjectResizable,
@@ -1819,6 +1820,78 @@ test('pdf-editor page reordering, undo/redo state restoration & sidebar controls
 
     editorModule.resetEditor();
     assert.strictEqual(editorModule.getPageOrder().length, 0);
+  });
+});
+
+test('pdf-editor object Z-order layering and history restoration', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('moveObjectZOrder brings object to front, forward, backward, and back', () => {
+    const o1 = { id: 'o1', pageNum: 1, type: 'shape' };
+    const o2 = { id: 'o2', pageNum: 1, type: 'text' };
+    const o3 = { id: 'o3', pageNum: 1, type: 'highlight' };
+
+    editorModule.setEditorObjects([o1, o2, o3]);
+
+    // 1. Bring o1 forward (swap o1 and o2) -> [o2, o1, o3]
+    let moved = editorModule.moveObjectZOrder('o1', 'forward');
+    assert.strictEqual(moved, true);
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o2', 'o1', 'o3']);
+
+    // 2. Bring o1 to front -> [o2, o3, o1]
+    moved = editorModule.moveObjectZOrder('o1', 'front');
+    assert.strictEqual(moved, true);
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o2', 'o3', 'o1']);
+
+    // 3. Send o1 to back -> [o1, o2, o3]
+    moved = editorModule.moveObjectZOrder('o1', 'back');
+    assert.strictEqual(moved, true);
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o1', 'o2', 'o3']);
+
+    // 4. Send o3 backward -> [o1, o3, o2]
+    moved = editorModule.moveObjectZOrder('o3', 'backward');
+    assert.strictEqual(moved, true);
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o1', 'o3', 'o2']);
+  });
+
+  await t.test('moveObjectZOrder respects boundary conditions and multi-page object isolation', () => {
+    const o1 = { id: 'o1', pageNum: 1 };
+    const o2 = { id: 'o2', pageNum: 1 };
+    const o3 = { id: 'o3', pageNum: 2 };
+
+    editorModule.setEditorObjects([o1, o2, o3]);
+
+    // o2 is already at front on page 1 -> forward / front return false
+    assert.strictEqual(editorModule.moveObjectZOrder('o2', 'forward'), false);
+    assert.strictEqual(editorModule.moveObjectZOrder('o2', 'front'), false);
+
+    // o1 is already at back on page 1 -> backward / back return false
+    assert.strictEqual(editorModule.moveObjectZOrder('o1', 'backward'), false);
+    assert.strictEqual(editorModule.moveObjectZOrder('o1', 'back'), false);
+
+    // o3 is the only object on page 2 -> any move returns false
+    assert.strictEqual(editorModule.moveObjectZOrder('o3', 'front'), false);
+
+    // Non-existent object returns false
+    assert.strictEqual(editorModule.moveObjectZOrder('non_existent', 'front'), false);
+  });
+
+  await t.test('moveObjectZOrder integrates with undoAction and redoAction', () => {
+    const o1 = { id: 'o1', pageNum: 1 };
+    const o2 = { id: 'o2', pageNum: 1 };
+
+    editorModule.setEditorObjects([o1, o2]);
+
+    editorModule.moveObjectZOrder('o1', 'front'); // -> [o2, o1]
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o2', 'o1']);
+
+    editorModule.undoAction(); // -> [o1, o2]
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o1', 'o2']);
+
+    editorModule.redoAction(); // -> [o2, o1]
+    assert.deepStrictEqual(editorModule.getEditorObjects().map((o) => o.id), ['o2', 'o1']);
   });
 });
 
