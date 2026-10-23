@@ -162,3 +162,19 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 414 passing unit tests (0 failures), Playwright high-DPI visual verification in `artifacts/design-review/EDIT-PDF-010/after/` (desktop, tablet, mobile with `device_scale_factor=2`).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-011` — Background Color & Padding Formatting Controls for Text Annotations.
+
+### EDIT-PDF-011: Background Color & Padding Formatting Controls for Text Annotations in Workspace
+- **Priority:** P1 (Essential Editing Workspace & Formatting Precision)
+- **User Problem:** When adding text callouts, labels, or notes over PDF content, users could not set a background fill (e.g. solid white to cover underlying document text, yellow or pastel callout boxes) or adjust internal padding. As a result, text boxes blended into dark or busy document backgrounds and appeared cramped against selection borders.
+- **Status:** Completed
+- **Technical Rationale:** Added `#prop-text-bg-color`, `#prop-text-bg-transparent` toggle button, and `#prop-text-padding` controls in `.prop-group-text` within `tools/edit-pdf/index.html`. Updated `js/pdf-editor.js` property listeners, property bar synchronization (`updatePropsBar`), state history recording (`saveState`), DOM overlay textarea styling (`textarea.style.backgroundColor`, `textarea.style.padding`), and PDF-Lib PDF export (`applyTextObject`). On PDF export, if `bgColor` is specified and non-transparent, a background rectangle is drawn on the PDF page (`page.drawRectangle`), and text wrapping/line positioning applies scaled padding offsets. Added comprehensive unit tests in `tests/pdf-editor.test.js` and `tests/pdf_editor_a11y.test.js`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `tests/pdf_editor_a11y.test.js`
+  - `tests/capture_after_011.py`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 417 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-011/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-012` — Preset Quick-Color Swatches for Workspace Formatting Controls.
