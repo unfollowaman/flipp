@@ -1463,6 +1463,9 @@ function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
     }
 
     isDragging = true;
+    if (el.classList) el.classList.add("is-dragging");
+    if (moveHandle && moveHandle.classList) moveHandle.classList.add("is-active");
+
     const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
     const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
@@ -1512,6 +1515,9 @@ function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
       saveState();
     }
     isDragging = false;
+    if (el.classList) el.classList.remove("is-dragging");
+    if (moveHandle && moveHandle.classList) moveHandle.classList.remove("is-active");
+
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("touchmove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
@@ -1527,6 +1533,9 @@ function makeObjectResizable(el, obj, resizeHandle) {
   const startResize = (e) => {
     e.stopPropagation();
     isResizing = true;
+    if (el.classList) el.classList.add("is-resizing");
+    if (resizeHandle && resizeHandle.classList) resizeHandle.classList.add("is-active");
+
     const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
     const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
@@ -1555,8 +1564,18 @@ function makeObjectResizable(el, obj, resizeHandle) {
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    obj.width = Math.max(20, startWidth + dx);
-    obj.height = Math.max(20, startHeight + dy);
+    // Preserve aspect ratio for image and signature objects, or when Shift key is held
+    const keepRatio = obj.type === "image" || obj.type === "signature" || (e.shiftKey === true);
+
+    if (keepRatio && startWidth > 0 && startHeight > 0) {
+      const aspectRatio = startWidth / startHeight;
+      const targetW = Math.max(20, startWidth + dx);
+      obj.width = targetW;
+      obj.height = targetW / aspectRatio;
+    } else {
+      obj.width = Math.max(20, startWidth + dx);
+      obj.height = Math.max(20, startHeight + dy);
+    }
 
     el.style.width = `${obj.width}px`;
     el.style.height = `${obj.height}px`;
@@ -1571,6 +1590,9 @@ function makeObjectResizable(el, obj, resizeHandle) {
       saveState();
     }
     isResizing = false;
+    if (el.classList) el.classList.remove("is-resizing");
+    if (resizeHandle && resizeHandle.classList) resizeHandle.classList.remove("is-active");
+
     document.removeEventListener("mousemove", onResizeMove);
     document.removeEventListener("touchmove", onResizeMove);
     document.removeEventListener("mouseup", onResizeEnd);
@@ -2175,6 +2197,36 @@ window.addEventListener("keydown", (e) => {
     e.target.isContentEditable
   ) {
     return;
+  }
+
+  if (e.key === "Escape") {
+    if (selectedObjId) {
+      selectedObjId = null;
+      updateSelectedObjectUI();
+      updatePropsBarVisibility();
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if (selectedObjId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    const obj = editorObjects.find((o) => o.id === selectedObjId);
+    if (obj) {
+      const step = e.shiftKey ? 10 : 1;
+      const overlay = pageOverlayMap.get(obj.pageNum);
+      const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
+      const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
+
+      saveState();
+      if (e.key === "ArrowUp") obj.y = Math.max(0, obj.y - step);
+      if (e.key === "ArrowDown") obj.y = Math.min(maxTop, obj.y + step);
+      if (e.key === "ArrowLeft") obj.x = Math.max(0, obj.x - step);
+      if (e.key === "ArrowRight") obj.x = Math.min(maxLeft, obj.x + step);
+
+      renderAllObjects();
+      e.preventDefault();
+      return;
+    }
   }
 
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {

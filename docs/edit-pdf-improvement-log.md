@@ -102,4 +102,21 @@
   - `docs/edit-pdf-improvement-log.md`
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 398 passing unit tests (0 failures).
 - **Known Limitations:** None.
-- **Next Recommended Improvement:** `EDIT-PDF-007` — Touch Gesture Image Resizing & Object Manipulation Polish on Canvas.
+- **Next Recommended Improvement:** `EDIT-PDF-007` — Object Manipulation Ergonomics: Aspect-Ratio Lock, Keyboard Nudging, Escape Deselection & Visual State Feedback.
+
+### EDIT-PDF-007: Object Manipulation Ergonomics: Aspect-Ratio Lock, Keyboard Nudging, Escape Deselection & Visual State Feedback
+- **Priority:** P1 (Workspace Ergonomics & Object Manipulation)
+- **User Problem:** When resizing inserted images, logos, or signatures, objects could be easily distorted or stretched out of proportion unless the user manually held equal dimensions. Furthermore, keyboard users and precision editors had no direct way to nudge selected objects pixel-by-pixel using arrow keys or deselect objects via `Escape`, and handles lacked distinct active states during drag/resize interactions.
+- **Status:** Completed
+- **Technical Rationale:** Updated `makeObjectResizable` in `js/pdf-editor.js` to preserve aspect ratio proportionally during resizing for `image` and `signature` objects by default (and for all objects when holding `Shift`). Enhanced global keydown listener to support `Escape` key deselection and `ArrowUp`/`ArrowDown`/`ArrowLeft`/`ArrowRight` key nudging (1px step, 10px step when holding `Shift`) within page overlay bounds. Added `.is-dragging`, `.is-resizing`, and handle `.is-active` visual feedback state classes during interaction in `js/pdf-editor.js` and `css/styles.src.css`. Recompiled `css/styles.css`.
+- **Files Changed:**
+  - `js/pdf-editor.js`
+  - `tools/edit-pdf/index.html`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/pdf-editor.test.js`
+  - `tests/capture_visuals.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 402 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-007/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-008` — Advanced Shape Styling & Custom Border Dash Options in Workspace.

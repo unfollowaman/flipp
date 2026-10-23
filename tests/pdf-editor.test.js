@@ -202,11 +202,13 @@ const mockConsole = {
   log: () => {}
 };
 
+const mockWindowListeners = {};
+
 const mockWindow = {
   devicePixelRatio: 1,
   SignaturePad: MockSignaturePad,
-  addEventListener: () => {},
-  removeEventListener: () => {},
+  addEventListener: (type, handler) => { mockWindowListeners[type] = handler; },
+  removeEventListener: (type, handler) => { delete mockWindowListeners[type]; },
   'pdfjs-dist/build/pdf': {
     getDocument: ({ data }) => ({
       promise: Promise.resolve({
@@ -1166,6 +1168,77 @@ test('pdf-editor updateSelectedObjectUI selection toggling', async (t) => {
 
     assert.strictEqual(el1.classList.contains('selected'), false);
     assert.strictEqual(el2.classList.contains('selected'), false);
+  });
+});
+
+test('pdf-editor object manipulation ergonomics (aspect-ratio, nudging, escape, active states)', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('makeObjectResizable preserves aspect ratio for image and signature objects', () => {
+    const resizeListeners = {};
+    const resizeHandle = { addEventListener: (type, handler) => { resizeListeners[type] = handler; } };
+    const el = { style: {}, querySelector: () => null, classList: { add: () => {}, remove: () => {} } };
+
+    const imgObj = { type: 'image', width: 200, height: 100, properties: {} };
+    editorModule.makeObjectResizable(el, imgObj, resizeHandle);
+
+    resizeListeners['mousedown']({ stopPropagation: () => {}, clientX: 100, clientY: 100 });
+    if (mockDocListeners['mousemove']) {
+      mockDocListeners['mousemove']({ clientX: 150, clientY: 180 }); // dx = +50
+    }
+
+    // Since initial ratio is 200/100 = 2.0, target width becomes 250, target height becomes 250 / 2 = 125
+    assert.strictEqual(imgObj.width, 250);
+    assert.strictEqual(imgObj.height, 125);
+    if (mockDocListeners['mouseup']) mockDocListeners['mouseup']();
+  });
+
+  await t.test('makeObjectResizable preserves aspect ratio when Shift key is pressed during resize', () => {
+    const resizeListeners = {};
+    const resizeHandle = { addEventListener: (type, handler) => { resizeListeners[type] = handler; } };
+    const el = { style: {}, querySelector: () => null, classList: { add: () => {}, remove: () => {} } };
+
+    const shapeObj = { type: 'shape', width: 100, height: 100, properties: {} };
+    editorModule.makeObjectResizable(el, shapeObj, resizeHandle);
+
+    resizeListeners['mousedown']({ stopPropagation: () => {}, clientX: 100, clientY: 100 });
+    if (mockDocListeners['mousemove']) {
+      mockDocListeners['mousemove']({ clientX: 140, clientY: 180, shiftKey: true }); // dx = +40
+    }
+
+    assert.strictEqual(shapeObj.width, 140);
+    assert.strictEqual(shapeObj.height, 140);
+    if (mockDocListeners['mouseup']) mockDocListeners['mouseup']();
+  });
+
+  await t.test('global keydown listener handles Escape key deselection and Arrow key nudging', () => {
+    const keydownHandler = mockWindowListeners['keydown'];
+    assert.ok(typeof keydownHandler === 'function', 'Window keydown listener should be registered');
+
+    const obj = { id: 'obj_nudge', pageNum: 1, x: 50, y: 50, width: 100, height: 40, properties: {} };
+    editorModule.setEditorObjects([obj]);
+    editorModule.setSelectedObjId('obj_nudge');
+
+    // Arrow keys step by 1px
+    keydownHandler({ key: 'ArrowRight', target: { tagName: 'DIV' }, preventDefault: () => {} });
+    assert.strictEqual(obj.x, 51);
+
+    keydownHandler({ key: 'ArrowDown', target: { tagName: 'DIV' }, preventDefault: () => {} });
+    assert.strictEqual(obj.y, 51);
+
+    // Shift + Arrow keys step by 10px
+    keydownHandler({ key: 'ArrowLeft', shiftKey: true, target: { tagName: 'DIV' }, preventDefault: () => {} });
+    assert.strictEqual(obj.x, 41);
+
+    keydownHandler({ key: 'ArrowUp', shiftKey: true, target: { tagName: 'DIV' }, preventDefault: () => {} });
+    assert.strictEqual(obj.y, 41);
+
+    // Escape key deselects object
+    assert.strictEqual(editorModule.getSelectedObjId(), 'obj_nudge');
+    keydownHandler({ key: 'Escape', target: { tagName: 'DIV' }, preventDefault: () => {} });
+    assert.strictEqual(editorModule.getSelectedObjId(), null);
   });
 });
 
