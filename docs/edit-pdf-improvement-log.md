@@ -149,3 +149,16 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 411 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-009/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-010` — Canvas Overlay High-DPI Resolution Scaling on High Pixel Ratio Displays.
+
+### EDIT-PDF-010: High-DPI Canvas Overlay Resolution Scaling on Retina / High-Pixel-Ratio Displays
+- **Priority:** P2 (Visual Quality & High-DPI Display Precision)
+- **User Problem:** On high-DPI displays (Retina screens, high-density laptops/phones with `window.devicePixelRatio > 1`), freehand drawing paths and vector shapes rendered on workspace HTML5 canvas overlays appeared pixelated, soft, or blurry compared to rendered PDF page text.
+- **Status:** Completed
+- **Technical Rationale:** Updated canvas overlay creation and path/shape rendering functions in `js/pdf-editor.js` (`createTempDrawingCanvas`, `updateDrawingPath`, `drawCanvasPath`, `drawCanvasShape`, `renderObjectContent`, `updateObjectInternalDimensions`) to retrieve `dpr = Math.max(window.devicePixelRatio || 1, 1)`. Backing canvas pixel dimensions (`canvas.width` / `canvas.height`) are multiplied by `dpr`, while CSS dimensions (`canvas.style.width` / `canvas.style.height`) remain locked to logical display dimensions. Context rendering operations apply `ctx.scale(dpr, dpr)` so drawing commands operate in logical coordinates while rendering crisp pixel-dense bitmap backing stores. Added unit tests in `tests/pdf-editor.test.js` under `devicePixelRatio = 2`.
+- **Files Changed:**
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 414 passing unit tests (0 failures), Playwright high-DPI visual verification in `artifacts/design-review/EDIT-PDF-010/after/` (desktop, tablet, mobile with `device_scale_factor=2`).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-011` — Background Color & Padding Formatting Controls for Text Annotations.
