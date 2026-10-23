@@ -670,43 +670,11 @@ textarea {
   padding: 80px 0;
 }
 .converter-header {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-}
-.converter-title {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin-bottom: 12px;
-  width: 100%;
-}
-@media (min-width: 768px) {
-  .converter-header {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    column-gap: 24px;
-  }
-  .converter-badge {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: start;
-  }
-  .converter-title {
-    grid-column: 1;
-    grid-row: 2;
-    margin-bottom: 0;
-    width: auto;
-  }
-  .merge-result-illustration {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: end;
-  }
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 .converter-badge {
   display: inline-block;
