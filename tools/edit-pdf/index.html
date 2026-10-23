@@ -622,6 +622,17 @@
       .editor-obj.selected .editor-obj-handle.delete {
         display: flex;
       }
+      .editor-obj.is-dragging {
+        opacity: 0.85;
+      }
+      .editor-obj.is-resizing {
+        border-style: solid;
+        border-color: var(--black);
+      }
+      .editor-obj-handle.is-active {
+        transform: scale(1.25);
+        background: var(--pink);
+      }
       /* Text Object Inside */
       .editor-text-input {
         width: 100%;
