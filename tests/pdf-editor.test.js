@@ -1635,6 +1635,32 @@ test('pdf-editor applyTextObject detailed assertions', async (t) => {
     assert.strictEqual(page.drawTextCalls[1].line, 'brown fox');
     assert.strictEqual(page.drawTextCalls[2].line, 'jumps');
   });
+
+  await t.test('draws background rectangle when bgColor is specified and not transparent', () => {
+    const drawRectCalls = [];
+    const page = {
+      drawTextCalls: [],
+      drawText(line, opts) { this.drawTextCalls.push({ line, opts }); },
+      drawRectangle(opts) { drawRectCalls.push(opts); }
+    };
+
+    const bgObj = { properties: { text: 'Callout', fontSize: 18, bgColor: '#ffff00', padding: 8 } };
+    const boxCoords = { x: 50, y: 100, width: 200, height: 60 };
+    const pMetrics = { pdfWidth: 300, pageViewport: { width: 300 } };
+
+    editorModule.applyTextObject(page, bgObj, boxCoords, pMetrics, fonts);
+
+    assert.strictEqual(drawRectCalls.length, 1);
+    assert.strictEqual(drawRectCalls[0].x, 50);
+    assert.strictEqual(drawRectCalls[0].y, 100);
+    assert.strictEqual(drawRectCalls[0].width, 200);
+    assert.strictEqual(drawRectCalls[0].height, 60);
+    assert.deepStrictEqual(drawRectCalls[0].color, { r: 1, g: 1, b: 0 });
+
+    assert.strictEqual(page.drawTextCalls.length, 1);
+    // lineX = pdfCoords.x + padding = 50 + 8 = 58
+    assert.strictEqual(page.drawTextCalls[0].opts.x, 58);
+  });
 });
 
 test('pdf-editor page management, rotations, deletion guardrail & rotated coordinate mapping', async (t) => {

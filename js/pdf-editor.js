@@ -88,6 +88,9 @@ const propFontFamily = document.getElementById("prop-font-family");
 const propTextAlign = document.getElementById("prop-text-align");
 const propBold = document.getElementById("prop-bold");
 const propItalic = document.getElementById("prop-italic");
+const propTextBgColor = document.getElementById("prop-text-bg-color");
+const propTextBgTransparent = document.getElementById("prop-text-bg-transparent");
+const propTextPadding = document.getElementById("prop-text-padding");
 const propColor = document.getElementById("prop-color");
 const propShapeType = document.getElementById("prop-shape-type");
 const propFillColor = document.getElementById("prop-fill-color");
@@ -848,6 +851,12 @@ function updatePropsBarVisibility() {
       propItalic.classList.remove("active");
       if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", "false");
     }
+    if (propTextBgColor) propTextBgColor.value = "#ffffff";
+    if (propTextBgTransparent) {
+      propTextBgTransparent.classList.add("active");
+      if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "true");
+    }
+    if (propTextPadding) propTextPadding.value = "4";
     hasVisibleProps = true;
   } else if (activeTool === "highlight") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -886,6 +895,14 @@ function updatePropsBarVisibility() {
           propItalic.classList.toggle("active", isItalic);
           if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", isItalic ? "true" : "false");
         }
+        const bgColor = obj.properties.bgColor || "transparent";
+        const isTransparentBg = bgColor === "transparent";
+        if (propTextBgColor) propTextBgColor.value = isTransparentBg ? "#ffffff" : bgColor;
+        if (propTextBgTransparent) {
+          propTextBgTransparent.classList.toggle("active", isTransparentBg);
+          if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", isTransparentBg ? "true" : "false");
+        }
+        if (propTextPadding) propTextPadding.value = String(obj.properties.padding ?? 4);
         hasVisibleProps = true;
       } else if (obj.type === "highlight") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -937,12 +954,37 @@ if (propLayerBack) {
 }
 
 // Property change listeners
-[propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propStrokeStyle, propOpacity].forEach((input) => {
+[propFontSize, propFontFamily, propTextAlign, propColor, propShapeType, propFillColor, propStrokeWidth, propStrokeStyle, propOpacity, propTextPadding].forEach((input) => {
   if (input) {
     input.addEventListener("input", applyPropChangesToSelected);
     input.addEventListener("change", applyPropChangesToSelected);
   }
 });
+
+if (propTextBgColor) {
+  propTextBgColor.addEventListener("input", () => {
+    if (propTextBgTransparent) {
+      propTextBgTransparent.classList.remove("active");
+      if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
+    }
+    applyPropChangesToSelected();
+  });
+  propTextBgColor.addEventListener("change", () => {
+    if (propTextBgTransparent) {
+      propTextBgTransparent.classList.remove("active");
+      if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "false");
+    }
+    applyPropChangesToSelected();
+  });
+}
+
+if (propTextBgTransparent) {
+  propTextBgTransparent.addEventListener("click", () => {
+    const isActive = propTextBgTransparent.classList.toggle("active");
+    if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", isActive ? "true" : "false");
+    applyPropChangesToSelected();
+  });
+}
 
 if (propBold) {
   propBold.addEventListener("click", () => {
@@ -994,6 +1036,14 @@ function applyPropChangesToSelected() {
     obj.properties.color = propColor.value;
     obj.properties.bold = propBold.classList.contains("active");
     obj.properties.italic = propItalic.classList.contains("active");
+    if (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) {
+      obj.properties.bgColor = "transparent";
+    } else if (propTextBgColor) {
+      obj.properties.bgColor = propTextBgColor.value;
+    }
+    if (propTextPadding) {
+      obj.properties.padding = Math.max(0, parseInt(propTextPadding.value, 10) || 0);
+    }
   } else if (obj.type === "highlight") {
     obj.properties.color = propColor.value;
     obj.properties.opacity = parseFloat(propOpacity.value) || 0.5;
@@ -1050,6 +1100,8 @@ function createObjectForTool(tool, pageNum, x, y) {
         color: propColor.value || "#000000",
         bold: propBold ? propBold.classList.contains("active") : false,
         italic: propItalic ? propItalic.classList.contains("active") : false,
+        bgColor: (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) ? "transparent" : (propTextBgColor ? propTextBgColor.value : "transparent"),
+        padding: propTextPadding ? Math.max(0, parseInt(propTextPadding.value, 10) || 0) : 4,
       },
     };
   }
@@ -1437,6 +1489,8 @@ function renderObjectContent(obj, el) {
     textarea.style.color = obj.properties.color;
     textarea.style.fontWeight = obj.properties.bold ? "bold" : "normal";
     textarea.style.fontStyle = obj.properties.italic ? "italic" : "normal";
+    textarea.style.backgroundColor = obj.properties.bgColor || "transparent";
+    textarea.style.padding = `${obj.properties.padding ?? 4}px`;
 
     textarea.addEventListener("input", (e) => {
       obj.properties.text = e.target.value;
@@ -1957,14 +2011,28 @@ export function renderObjectToCanvasDataUrl(obj) {
 
 export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
   const text = obj.properties.text || "";
-  const size = (obj.properties.fontSize || 18) * (pageMetrics.pdfWidth / pageMetrics.pageViewport.width);
+  const scale = pageMetrics.pdfWidth / pageMetrics.pageViewport.width;
+  const size = (obj.properties.fontSize || 18) * scale;
   const color = hexToPdfRgb(obj.properties.color || "#000000");
   const align = obj.properties.textAlign || "left";
+  const bgColor = obj.properties.bgColor || "transparent";
+  const padding = (obj.properties.padding ?? 0) * scale;
+
+  if (bgColor && bgColor !== "transparent" && page.drawRectangle) {
+    page.drawRectangle({
+      x: pdfCoords.x,
+      y: pdfCoords.y,
+      width: pdfCoords.width,
+      height: pdfCoords.height,
+      color: hexToPdfRgb(bgColor),
+    });
+  }
 
   let font = fonts.fontHelvetica;
   if (obj.properties.bold) font = fonts.fontHelveticaBold;
   else if (obj.properties.italic) font = fonts.fontHelveticaOblique;
 
+  const printableWidth = Math.max(10, pdfCoords.width - padding * 2);
   const rawLines = text.split("\n");
   const wrappedLines = [];
 
@@ -1981,7 +2049,7 @@ export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
       const candidate = currentLine ? `${currentLine} ${word}` : word;
       const candidateWidth = font.widthOfTextAtSize ? font.widthOfTextAtSize(candidate, size) : candidate.length * size * 0.5;
 
-      if (candidateWidth <= pdfCoords.width || !currentLine) {
+      if (candidateWidth <= printableWidth || !currentLine) {
         currentLine = candidate;
       } else {
         wrappedLines.push(currentLine);
@@ -1996,17 +2064,17 @@ export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
 
   wrappedLines.forEach((line, lIdx) => {
     const lineWidth = font.widthOfTextAtSize ? font.widthOfTextAtSize(line, size) : line.length * size * 0.5;
-    let lineX = pdfCoords.x;
+    let lineX = pdfCoords.x + padding;
 
     if (align === "center") {
-      lineX = pdfCoords.x + (pdfCoords.width - lineWidth) / 2;
+      lineX = pdfCoords.x + padding + (printableWidth - lineWidth) / 2;
     } else if (align === "right") {
-      lineX = pdfCoords.x + pdfCoords.width - lineWidth;
+      lineX = pdfCoords.x + pdfCoords.width - padding - lineWidth;
     }
 
     page.drawText(line, {
       x: lineX,
-      y: pdfCoords.y + pdfCoords.height - size * 1.1 * (lIdx + 1),
+      y: pdfCoords.y + pdfCoords.height - padding - size * 1.1 * (lIdx + 1),
       size: size,
       font: font,
       color: color,
@@ -2437,6 +2505,10 @@ export function resetEditor() {
   if (propItalic) {
     propItalic.classList.remove("active");
     if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", "false");
+  }
+  if (propTextBgTransparent) {
+    propTextBgTransparent.classList.add("active");
+    if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "true");
   }
   zoomLevel = 1.0;
   if (zoomValLabel) zoomValLabel.textContent = "100%";
