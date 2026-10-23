@@ -131,3 +131,29 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-006` — Tool Settings Panel Header & Field Legend Label Typography & Tactile Alignment.
+
+### DESIGN-006: Tool Settings Panel Header & Field Legend Label Typography & Tactile Alignment
+- **Task ID:** DESIGN-006
+- **Priority:** P1 (Tool Options Bar Component Consistency, Typography & Focus Feedback)
+- **Problem:** Tool option containers (`.options-bar`), section field labels (`.option-label`), text/number inputs (`.range-input`), and position cards (`.position-card`) across tool settings cards (such as PDF to PNG, Add Page Numbers, Add Watermark, Split PDF, Protect PDF) lacked Flipp's signature neo-brutalist tactile offset shadows (`box-shadow`), crisp label typography, standardized input border widths, and explicit keyboard focus indicators (`:focus-visible`). Specifically, `.options-bar` lacked depth compared to upload drop zones and tool cards, `.option-label` used low-contrast gray `#555`, `.range-input` used a non-standard 1.5px border without smooth focus feedback, and `.position-card` lacked base state offset shadows and focus outlines.
+- **Change:**
+  1. Refined `.options-bar` in `css/styles.src.css` with a tactile 4px offset shadow (`box-shadow: 4px 4px 0 var(--black);`) and smooth transition.
+  2. Upgraded `.option-label` field legends with bold high-contrast typography (`color: var(--black); font-weight: 800; font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 2px;`).
+  3. Standardized `.range-input` border to `border: var(--border-std);` (2.5px solid var(--black)), smooth focus transitions, and enhanced `:focus` / `:focus-visible` styling (`outline: none; box-shadow: 3px 3px 0 var(--black); border-color: var(--black); background: #ffffff;`).
+  4. Updated `.position-card` with base tactile shadow (`box-shadow: 1.5px 1.5px 0 var(--black);`), hover elevation (`transform: translateY(-2px); box-shadow: 3.5px 3.5px 0 var(--black);`), active depth (`background: var(--yellow); box-shadow: 2.5px 2.5px 0 var(--black); font-weight: bold;`), and explicit keyboard focus outline (`:focus-visible` with 3px solid outline).
+  5. Recompiled minified production stylesheet `css/styles.css` using `npm run minify:css`.
+  6. Added automated unit tests in `tests/drag-drop.test.js` verifying tool settings panel CSS rules.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/drag-drop.test.js`
+  - `tests/capture_design_006.py`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-006/after/desktop_normal.png`, `desktop_input_focus.png`, `desktop_card_hover.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-006/after/tablet_normal.png`, `tablet_input_focus.png`, `tablet_card_hover.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-006/after/mobile_normal.png`, `mobile_input_focus.png`, `mobile_card_hover.png`)
+  - **Functional Tests:** 421 passing tests across unit test suites (0 failures).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-007` — Shared FAQ Accordion Card & Focus State Neo-Brutalist Polish across Tool Pages.
