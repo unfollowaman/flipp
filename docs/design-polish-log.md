@@ -105,3 +105,29 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-005` — Shared Tool Result Card & Download Primary Action Tactile Styling Alignment.
+
+### DESIGN-005: Shared Tool Result Card & Download Primary Action Tactile Styling Alignment
+- **Task ID:** DESIGN-005
+- **Priority:** P1 (Shared Result Container & Download Action Component Consistency)
+- **Problem:** Result containers (`.results-header`), individual result grid cards (`.result-img-card`), and card download buttons (`.result-download-btn`) across output screens lacked Flipp's signature neo-brutalist tactile offset shadows (`box-shadow`), hover elevation, pressed active states (`:active`), and explicit keyboard focus outlines (`:focus-visible`). On small mobile viewports (`@media (max-width: 767px)`), primary download buttons in `.results-header` failed to span full width, causing awkward left-aligned sizing.
+- **Change:**
+  1. Updated `.results-header` base CSS in `css/styles.src.css` with a tactile offset shadow (`box-shadow: 3px 3px 0 var(--black);`).
+  2. Enhanced `.result-img-card` base styling with `box-shadow: 2px 2px 0 var(--black);`, hover elevation (`box-shadow: 5px 5px 0 var(--black); translateY(-3px)`), and smooth transitions.
+  3. Added tactile base shadow (`box-shadow: 1px 1px 0 var(--black);`), hover elevation (`box-shadow: 2.5px 2.5px 0 var(--black); translateY(-1px)`), pressed active state (`translateY(1px); box-shadow: 0 0 0 var(--black)`), and explicit keyboard focus indicator (`:focus-visible` outline) to `.result-download-btn`.
+  4. Updated `@media (max-width: 767px)` responsive rule so `.results-header .cta-btn` spans full width (`width: 100%; justify-content: center;`) for mobile touch accessibility.
+  5. Recompiled minified production stylesheet `css/styles.css` using `npx clean-css-cli -O0 css/styles.src.css -o css/styles.css`.
+  6. Added automated unit tests in `tests/drag-drop.test.js` verifying result header, card, and download button CSS rules.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/drag-drop.test.js`
+  - `tests/capture_design_005.py`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-005/after/desktop_normal.png`, `desktop_hover.png`, `desktop_focus.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-005/after/tablet_normal.png`, `tablet_hover.png`, `tablet_focus.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-005/after/mobile_normal.png`, `mobile_hover.png`, `mobile_focus.png`)
+  - **Functional Tests:** 418 passing tests across unit test suites (0 failures).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-006` — Tool Settings Panel Header & Field Legend Label Typography & Tactile Alignment.
