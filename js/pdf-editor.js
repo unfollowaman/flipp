@@ -10,6 +10,44 @@ let fileName = "document.pdf";
 let zoomLevel = 1.0;
 let activeTool = "select"; // 'select', 'text', 'highlight', 'draw', 'shape', 'image', 'note', 'signature'
 let selectedObjId = null;
+let selectedObjIds = new Set();
+
+export function getSelectedObjIds() {
+  return Array.from(selectedObjIds);
+}
+
+export function setSelectedObjId(id) {
+  selectedObjIds.clear();
+  if (id) {
+    selectedObjIds.add(id);
+    selectedObjId = id;
+  } else {
+    selectedObjId = null;
+  }
+}
+
+export function selectObject(id, multi = false) {
+  if (!multi) {
+    selectedObjIds.clear();
+  }
+  if (id) {
+    if (multi && selectedObjIds.has(id)) {
+      selectedObjIds.delete(id);
+    } else {
+      selectedObjIds.add(id);
+    }
+  }
+  selectedObjId = selectedObjIds.size > 0 ? Array.from(selectedObjIds)[selectedObjIds.size - 1] : null;
+  updateSelectedObjectUI();
+  updatePropsBarVisibility();
+}
+
+export function deselectAllObjects() {
+  selectedObjIds.clear();
+  selectedObjId = null;
+  updateSelectedObjectUI();
+  updatePropsBarVisibility();
+}
 
 // Editor Objects Array
 let editorObjects = [];
@@ -878,31 +916,32 @@ function updatePropsBarVisibility() {
   } else if (activeTool === "select" && selectedObjId) {
     const obj = editorObjects.find((o) => o.id === selectedObjId);
     if (obj) {
+      const props = obj.properties || {};
       if (obj.type === "text") {
         propTextGroup.forEach((el) => (el.style.display = "flex"));
         propColorGroup.forEach((el) => (el.style.display = "flex"));
-        if (propFontSize) propFontSize.value = String(obj.properties.fontSize || 18);
-        if (propFontFamily) propFontFamily.value = obj.properties.fontFamily || "sans-serif";
-        if (propTextAlign) propTextAlign.value = obj.properties.textAlign || "left";
-        if (propColor) propColor.value = obj.properties.color || "#000000";
-        if (propBold) {
-          const isBold = !!obj.properties.bold;
+        if (propFontSize) propFontSize.value = String(props.fontSize || 18);
+        if (propFontFamily) propFontFamily.value = props.fontFamily || "sans-serif";
+        if (propTextAlign) propTextAlign.value = props.textAlign || "left";
+        if (propColor) propColor.value = props.color || "#000000";
+        if (propBold && propBold.classList) {
+          const isBold = !!props.bold;
           propBold.classList.toggle("active", isBold);
           if (propBold.setAttribute) propBold.setAttribute("aria-pressed", isBold ? "true" : "false");
         }
-        if (propItalic) {
-          const isItalic = !!obj.properties.italic;
+        if (propItalic && propItalic.classList) {
+          const isItalic = !!props.italic;
           propItalic.classList.toggle("active", isItalic);
           if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", isItalic ? "true" : "false");
         }
-        const bgColor = obj.properties.bgColor || "transparent";
+        const bgColor = props.bgColor || "transparent";
         const isTransparentBg = bgColor === "transparent";
         if (propTextBgColor) propTextBgColor.value = isTransparentBg ? "#ffffff" : bgColor;
-        if (propTextBgTransparent) {
+        if (propTextBgTransparent && propTextBgTransparent.classList) {
           propTextBgTransparent.classList.toggle("active", isTransparentBg);
           if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", isTransparentBg ? "true" : "false");
         }
-        if (propTextPadding) propTextPadding.value = String(obj.properties.padding ?? 4);
+        if (propTextPadding) propTextPadding.value = String(props.padding ?? 4);
         hasVisibleProps = true;
       } else if (obj.type === "highlight") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -911,11 +950,11 @@ function updatePropsBarVisibility() {
       } else if (obj.type === "draw" || obj.type === "shape") {
         propColorGroup.forEach((el) => (el.style.display = "flex"));
         propStrokeGroup.forEach((el) => (el.style.display = "flex"));
-        if (propStrokeWidth) propStrokeWidth.value = String(obj.properties.strokeWidth || 2);
-        if (propStrokeStyle) propStrokeStyle.value = obj.properties.strokeStyle || "solid";
+        if (propStrokeWidth) propStrokeWidth.value = String(props.strokeWidth || 2);
+        if (propStrokeStyle) propStrokeStyle.value = props.strokeStyle || "solid";
         if (obj.type === "shape") {
           propShapeGroup.forEach((el) => (el.style.display = "flex"));
-          if (propShapeType) propShapeType.value = obj.properties.shapeType || "rect";
+          if (propShapeType) propShapeType.value = props.shapeType || "rect";
         }
         hasVisibleProps = true;
       }
@@ -1082,41 +1121,45 @@ if (propTransparentFill) {
 }
 
 function applyPropChangesToSelected() {
-  if (!selectedObjId) return;
-  const obj = editorObjects.find((o) => o.id === selectedObjId);
-  if (!obj) return;
+  if (selectedObjIds.size === 0) return;
 
   saveState();
 
-  if (obj.type === "text") {
-    obj.properties.fontSize = parseInt(propFontSize.value, 10) || 18;
-    obj.properties.fontFamily = propFontFamily.value;
-    if (propTextAlign) obj.properties.textAlign = propTextAlign.value;
-    obj.properties.color = propColor.value;
-    obj.properties.bold = propBold.classList.contains("active");
-    obj.properties.italic = propItalic.classList.contains("active");
-    if (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) {
-      obj.properties.bgColor = "transparent";
-    } else if (propTextBgColor) {
-      obj.properties.bgColor = propTextBgColor.value;
+  selectedObjIds.forEach((id) => {
+    const obj = editorObjects.find((o) => o.id === id);
+    if (!obj) return;
+
+    const props = obj.properties || {};
+    if (obj.type === "text") {
+      props.fontSize = parseInt(propFontSize.value, 10) || 18;
+      props.fontFamily = propFontFamily.value;
+      if (propTextAlign) props.textAlign = propTextAlign.value;
+      props.color = propColor.value;
+      props.bold = propBold.classList.contains("active");
+      props.italic = propItalic.classList.contains("active");
+      if (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) {
+        props.bgColor = "transparent";
+      } else if (propTextBgColor) {
+        props.bgColor = propTextBgColor.value;
+      }
+      if (propTextPadding) {
+        props.padding = Math.max(0, parseInt(propTextPadding.value, 10) || 0);
+      }
+    } else if (obj.type === "highlight") {
+      props.color = propColor.value;
+      props.opacity = parseFloat(propOpacity.value) || 0.5;
+    } else if (obj.type === "draw") {
+      props.color = propColor.value;
+      props.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
+      if (propStrokeStyle) props.strokeStyle = propStrokeStyle.value || "solid";
+    } else if (obj.type === "shape") {
+      props.shapeType = propShapeType.value;
+      props.strokeColor = propColor.value;
+      props.fillColor = propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value;
+      props.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
+      if (propStrokeStyle) props.strokeStyle = propStrokeStyle.value || "solid";
     }
-    if (propTextPadding) {
-      obj.properties.padding = Math.max(0, parseInt(propTextPadding.value, 10) || 0);
-    }
-  } else if (obj.type === "highlight") {
-    obj.properties.color = propColor.value;
-    obj.properties.opacity = parseFloat(propOpacity.value) || 0.5;
-  } else if (obj.type === "draw") {
-    obj.properties.color = propColor.value;
-    obj.properties.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
-    if (propStrokeStyle) obj.properties.strokeStyle = propStrokeStyle.value || "solid";
-  } else if (obj.type === "shape") {
-    obj.properties.shapeType = propShapeType.value;
-    obj.properties.strokeColor = propColor.value;
-    obj.properties.fillColor = propTransparentFill.dataset.none === "true" ? "none" : propFillColor.value;
-    obj.properties.strokeWidth = parseInt(propStrokeWidth.value, 10) || 2;
-    if (propStrokeStyle) obj.properties.strokeStyle = propStrokeStyle.value || "solid";
-  }
+  });
 
   renderAllObjects();
 }
@@ -1125,18 +1168,18 @@ function applyPropChangesToSelected() {
 
 export function updateSelectedObjectUI() {
   document.querySelectorAll(".editor-obj.selected").forEach((node) => {
-    if (node.dataset.objId !== selectedObjId) {
+    if (!selectedObjIds.has(node.dataset.objId)) {
       node.classList.remove("selected");
     }
   });
 
-  if (selectedObjId) {
-    const safeId = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(selectedObjId) : selectedObjId;
+  selectedObjIds.forEach((id) => {
+    const safeId = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id;
     const target = document.querySelector(`.editor-obj[data-obj-id="${safeId}"]`);
     if (target) {
       target.classList.add("selected");
     }
-  }
+  });
 }
 
 function createObjectForTool(tool, pageNum, x, y) {
@@ -1299,6 +1342,11 @@ function setupOverlayEvents(overlay, pageNum) {
   let currentPath = [];
   let tempCanvas = null;
 
+  let isMarquee = false;
+  let marqueeStartX = 0;
+  let marqueeStartY = 0;
+  let marqueeEl = null;
+
   const handlePointerDown = (e) => {
     if (e.target !== overlay) return;
 
@@ -1310,9 +1358,20 @@ function setupOverlayEvents(overlay, pageNum) {
     const clickY = clientY - rect.top;
 
     if (activeTool === "select") {
-      selectedObjId = null;
-      updateSelectedObjectUI();
-      updatePropsBarVisibility();
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        deselectAllObjects();
+      }
+      isMarquee = true;
+      marqueeStartX = clickX;
+      marqueeStartY = clickY;
+
+      marqueeEl = document.createElement("div");
+      marqueeEl.className = "editor-selection-marquee";
+      marqueeEl.style.left = `${clickX}px`;
+      marqueeEl.style.top = `${clickY}px`;
+      marqueeEl.style.width = "0px";
+      marqueeEl.style.height = "0px";
+      overlay.appendChild(marqueeEl);
       return;
     }
 
@@ -1337,14 +1396,32 @@ function setupOverlayEvents(overlay, pageNum) {
   };
 
   const handlePointerMove = (e) => {
-    if (!isDrawing || !tempCanvas) return;
-
     const clientX = e.type && e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
     const clientY = e.type && e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
     const rect = overlay.getBoundingClientRect();
     const x = clientX - rect.left;
     const y = clientY - rect.top;
+
+    if (isMarquee && marqueeEl) {
+      const left = Math.min(marqueeStartX, x);
+      const top = Math.min(marqueeStartY, y);
+      const width = Math.abs(x - marqueeStartX);
+      const height = Math.abs(y - marqueeStartY);
+
+      marqueeEl.style.left = `${left}px`;
+      marqueeEl.style.top = `${top}px`;
+      marqueeEl.style.width = `${width}px`;
+      marqueeEl.style.height = `${height}px`;
+
+      if (e.type && e.type.includes("touch") && e.cancelable) {
+        e.preventDefault();
+      }
+      return;
+    }
+
+    if (!isDrawing || !tempCanvas) return;
+
     updateDrawingPath(tempCanvas, currentPath, x, y);
 
     if (e.type && e.type.includes("touch") && e.cancelable) {
@@ -1353,6 +1430,36 @@ function setupOverlayEvents(overlay, pageNum) {
   };
 
   const finishDrawing = () => {
+    if (isMarquee) {
+      isMarquee = false;
+      if (marqueeEl) {
+        const marqueeRect = {
+          x: parseFloat(marqueeEl.style.left) || 0,
+          y: parseFloat(marqueeEl.style.top) || 0,
+          width: parseFloat(marqueeEl.style.width) || 0,
+          height: parseFloat(marqueeEl.style.height) || 0,
+        };
+        marqueeEl.remove();
+        marqueeEl = null;
+
+        if (marqueeRect.width > 2 || marqueeRect.height > 2) {
+          const pageObjs = editorObjects.filter((o) => o.pageNum === pageNum);
+          pageObjs.forEach((o) => {
+            const intersects =
+              o.x < marqueeRect.x + marqueeRect.width &&
+              o.x + o.width > marqueeRect.x &&
+              o.y < marqueeRect.y + marqueeRect.height &&
+              o.y + o.height > marqueeRect.y;
+
+            if (intersects) {
+              selectObject(o.id, true);
+            }
+          });
+        }
+      }
+      return;
+    }
+
     if (!isDrawing) return;
     isDrawing = false;
 
@@ -1364,7 +1471,7 @@ function setupOverlayEvents(overlay, pageNum) {
     const drawObj = finishDrawingPath(currentPath, pageNum);
     if (drawObj) {
       editorObjects.push(drawObj);
-      selectedObjId = drawObj.id;
+      setSelectedObjId(drawObj.id);
       renderAllObjects();
     }
   };
@@ -1656,10 +1763,9 @@ function renderSingleObject(obj, overlay) {
 
   el.addEventListener("mousedown", (e) => {
     if (e.target === deleteHandle || e.target === resizeHandle) return;
-    if (selectedObjId !== obj.id) {
-      selectedObjId = obj.id;
-      updateSelectedObjectUI();
-      updatePropsBarVisibility();
+    const isMulti = e.shiftKey || e.ctrlKey || e.metaKey;
+    if (!selectedObjIds.has(obj.id) || isMulti) {
+      selectObject(obj.id, isMulti);
     }
   });
 
@@ -1697,6 +1803,7 @@ function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
   let isDragging = false;
   let startX, startY;
   let startLeft, startTop;
+  let initialPositions = new Map();
 
   const startDrag = (e) => {
     if (e.target === deleteHandle || e.target === resizeHandle) return;
@@ -1715,6 +1822,14 @@ function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
     startY = clientY;
     startLeft = obj.x;
     startTop = obj.y;
+
+    initialPositions.clear();
+    selectedObjIds.forEach((id) => {
+      const o = editorObjects.find((item) => item.id === id);
+      if (o) {
+        initialPositions.set(id, { x: o.x, y: o.y });
+      }
+    });
 
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("touchmove", onDragMove, { passive: false });
@@ -1739,15 +1854,37 @@ function makeObjectDraggable(el, obj, resizeHandle, deleteHandle, moveHandle) {
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    const overlay = el.parentElement;
-    const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
-    const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
+    if (selectedObjIds.has(obj.id) && selectedObjIds.size > 1) {
+      selectedObjIds.forEach((id) => {
+        const o = editorObjects.find((item) => item.id === id);
+        const initPos = initialPositions.get(id);
+        if (o && initPos) {
+          const overlay = pageOverlayMap.get(o.pageNum);
+          const maxLeft = overlay ? Math.max(0, overlay.clientWidth - o.width) : 2000;
+          const maxTop = overlay ? Math.max(0, overlay.clientHeight - o.height) : 2000;
 
-    obj.x = Math.max(0, Math.min(maxLeft, startLeft + dx));
-    obj.y = Math.max(0, Math.min(maxTop, startTop + dy));
+          o.x = Math.max(0, Math.min(maxLeft, initPos.x + dx));
+          o.y = Math.max(0, Math.min(maxTop, initPos.y + dy));
 
-    el.style.left = `${obj.x}px`;
-    el.style.top = `${obj.y}px`;
+          const safeId = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(o.id) : o.id;
+          const targetEl = document.querySelector(`.editor-obj[data-obj-id="${safeId}"]`);
+          if (targetEl) {
+            targetEl.style.left = `${o.x}px`;
+            targetEl.style.top = `${o.y}px`;
+          }
+        }
+      });
+    } else {
+      const overlay = el.parentElement;
+      const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
+      const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
+
+      obj.x = Math.max(0, Math.min(maxLeft, startLeft + dx));
+      obj.y = Math.max(0, Math.min(maxTop, startTop + dy));
+
+      el.style.left = `${obj.x}px`;
+      el.style.top = `${obj.y}px`;
+    }
 
     if (e.type && e.type.includes("touch")) e.preventDefault();
   };
@@ -2458,33 +2595,34 @@ window.addEventListener("keydown", (e) => {
   }
 
   if (e.key === "Escape") {
-    if (selectedObjId) {
-      selectedObjId = null;
-      updateSelectedObjectUI();
-      updatePropsBarVisibility();
+    if (selectedObjIds.size > 0) {
+      deselectAllObjects();
       e.preventDefault();
     }
     return;
   }
 
-  if (selectedObjId && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
-    const obj = editorObjects.find((o) => o.id === selectedObjId);
-    if (obj) {
-      const step = e.shiftKey ? 10 : 1;
-      const overlay = pageOverlayMap.get(obj.pageNum);
-      const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
-      const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
+  if (selectedObjIds.size > 0 && (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    const step = e.shiftKey ? 10 : 1;
+    saveState();
 
-      saveState();
-      if (e.key === "ArrowUp") obj.y = Math.max(0, obj.y - step);
-      if (e.key === "ArrowDown") obj.y = Math.min(maxTop, obj.y + step);
-      if (e.key === "ArrowLeft") obj.x = Math.max(0, obj.x - step);
-      if (e.key === "ArrowRight") obj.x = Math.min(maxLeft, obj.x + step);
+    selectedObjIds.forEach((id) => {
+      const obj = editorObjects.find((o) => o.id === id);
+      if (obj) {
+        const overlay = pageOverlayMap.get(obj.pageNum);
+        const maxLeft = overlay ? Math.max(0, overlay.clientWidth - obj.width) : 2000;
+        const maxTop = overlay ? Math.max(0, overlay.clientHeight - obj.height) : 2000;
 
-      renderAllObjects();
-      e.preventDefault();
-      return;
-    }
+        if (e.key === "ArrowUp") obj.y = Math.max(0, obj.y - step);
+        if (e.key === "ArrowDown") obj.y = Math.min(maxTop, obj.y + step);
+        if (e.key === "ArrowLeft") obj.x = Math.max(0, obj.x - step);
+        if (e.key === "ArrowRight") obj.x = Math.min(maxLeft, obj.x + step);
+      }
+    });
+
+    renderAllObjects();
+    e.preventDefault();
+    return;
   }
 
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -2495,24 +2633,35 @@ window.addEventListener("keydown", (e) => {
     redoAction();
     e.preventDefault();
   } else if (e.key === "Delete" || e.key === "Backspace") {
-    if (selectedObjId) {
-      deleteObject(selectedObjId);
+    if (selectedObjIds.size > 0) {
+      deleteSelectedObjects();
       e.preventDefault();
     }
   }
 });
 
+export function deleteSelectedObjects() {
+  if (selectedObjIds.size === 0) return;
+  saveState();
+  editorObjects = editorObjects.filter((o) => !selectedObjIds.has(o.id));
+  deselectAllObjects();
+  renderAllObjects();
+}
+
 function deleteObject(objId) {
   saveState();
   editorObjects = editorObjects.filter((o) => o.id !== objId);
-  selectedObjId = null;
+  selectedObjIds.delete(objId);
+  if (selectedObjId === objId) {
+    selectedObjId = selectedObjIds.size > 0 ? Array.from(selectedObjIds)[selectedObjIds.size - 1] : null;
+  }
   renderAllObjects();
   updatePropsBarVisibility();
 }
 
 if (deleteObjBtn) {
   deleteObjBtn.addEventListener("click", () => {
-    if (selectedObjId) deleteObject(selectedObjId);
+    if (selectedObjIds.size > 0) deleteSelectedObjects();
   });
 }
 

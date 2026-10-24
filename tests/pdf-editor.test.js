@@ -60,7 +60,11 @@ src += `\nreturn {
   getEditorObjects: () => editorObjects,
   setEditorObjects: (objs) => { editorObjects = objs; },
   getSelectedObjId: () => selectedObjId,
-  setSelectedObjId: (id) => { selectedObjId = id; },
+  setSelectedObjId: (id) => { setSelectedObjId(id); },
+  getSelectedObjIds,
+  selectObject,
+  deselectAllObjects,
+  deleteSelectedObjects,
   getHistoryStack: () => historyStack,
   getRedoStack: () => redoStack,
   getPdfjsDocument: () => pdfjsDocument,
@@ -1133,12 +1137,15 @@ test('pdf-editor updateSelectedObjectUI selection toggling', async (t) => {
     mockDocument.querySelectorAll = (selector) => [];
   });
 
-  await t.test('updates selected class on DOM nodes matching selectedObjId', () => {
+  await t.test('updates selected class on DOM nodes matching selectedObjIds', () => {
     const el1 = createMockElement();
     el1.dataset.objId = 'obj_1';
 
     const el2 = createMockElement();
     el2.dataset.objId = 'obj_2';
+
+    const prevQuerySelectorAll = mockDocument.querySelectorAll;
+    const prevQuerySelector = mockDocument.querySelector;
 
     mockDocument.querySelectorAll = (selector) => {
       if (selector === '.editor-obj') return [el1, el2];
@@ -1159,19 +1166,41 @@ test('pdf-editor updateSelectedObjectUI selection toggling', async (t) => {
     assert.strictEqual(el1.classList.contains('selected'), true);
     assert.strictEqual(el2.classList.contains('selected'), false);
 
-    // 2. Select obj_2
-    editorModule.setSelectedObjId('obj_2');
-    editorModule.updateSelectedObjectUI();
+    // 2. Multi-select obj_2 alongside obj_1
+    editorModule.selectObject('obj_2', true);
 
-    assert.strictEqual(el1.classList.contains('selected'), false);
+    assert.strictEqual(el1.classList.contains('selected'), true);
     assert.strictEqual(el2.classList.contains('selected'), true);
+    assert.strictEqual(editorModule.getSelectedObjIds().length, 2);
 
-    // 3. Clear selection (null)
-    editorModule.setSelectedObjId(null);
-    editorModule.updateSelectedObjectUI();
+    // 3. Clear selection
+    editorModule.deselectAllObjects();
 
     assert.strictEqual(el1.classList.contains('selected'), false);
     assert.strictEqual(el2.classList.contains('selected'), false);
+    assert.strictEqual(editorModule.getSelectedObjIds().length, 0);
+
+    mockDocument.querySelectorAll = prevQuerySelectorAll;
+    mockDocument.querySelector = prevQuerySelector;
+  });
+
+  await t.test('deleteSelectedObjects removes all selected objects from editorObjects', () => {
+    const o1 = { id: 'o1', type: 'text', pageNum: 1, x: 10, y: 10 };
+    const o2 = { id: 'o2', type: 'shape', pageNum: 1, x: 50, y: 50 };
+    const o3 = { id: 'o3', type: 'highlight', pageNum: 1, x: 100, y: 100 };
+
+    editorModule.setEditorObjects([o1, o2, o3]);
+    editorModule.selectObject('o1', true);
+    editorModule.selectObject('o2', true);
+
+    assert.strictEqual(editorModule.getSelectedObjIds().length, 2);
+
+    editorModule.deleteSelectedObjects();
+
+    const remaining = editorModule.getEditorObjects();
+    assert.strictEqual(remaining.length, 1);
+    assert.strictEqual(remaining[0].id, 'o3');
+    assert.strictEqual(editorModule.getSelectedObjIds().length, 0);
   });
 });
 
@@ -1242,7 +1271,7 @@ test('pdf-editor object manipulation ergonomics (aspect-ratio, nudging, escape, 
     // Escape key deselects object
     assert.strictEqual(editorModule.getSelectedObjId(), 'obj_nudge');
     keydownHandler({ key: 'Escape', target: { tagName: 'DIV' }, preventDefault: () => {} });
-    assert.strictEqual(editorModule.getSelectedObjId(), null);
+    assert.strictEqual(editorModule.getSelectedObjIds().length, 0);
   });
 });
 
@@ -1284,7 +1313,10 @@ test('pdf-editor draggable and resizable behavior', async (t) => {
       addEventListener: (type, handler) => { eventListeners[type] = handler; }
     };
 
-    const obj = { x: 10, y: 10, width: 100, height: 50 };
+    const obj = { id: 'test_obj', pageNum: 1, x: 10, y: 10, width: 100, height: 50 };
+    editorModule.setEditorObjects([obj]);
+    editorModule.setSelectedObjId('test_obj');
+
     const moveHandle = { addEventListener: () => {} };
     const resizeHandle = { addEventListener: () => {} };
     const deleteHandle = { addEventListener: () => {} };
