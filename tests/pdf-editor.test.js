@@ -2092,4 +2092,20 @@ test('pdf-editor high-DPI canvas overlay resolution scaling', async (t) => {
       assert.strictEqual(swatch2.getAttribute('aria-pressed'), 'true');
     }
   });
+
+  await t.test('multi-object selection tracks multiple object IDs and supports group deletion', () => {
+    const obj1 = { id: 'obj1', pageNum: 1, x: 10, y: 10, width: 100, height: 50, properties: {} };
+    const obj2 = { id: 'obj2', pageNum: 1, x: 150, y: 10, width: 100, height: 50, properties: {} };
+    editorModule.setEditorObjects([obj1, obj2]);
+
+    editorModule.selectObject('obj1', false);
+    assert.deepStrictEqual(editorModule.getSelectedObjIds(), ['obj1']);
+
+    editorModule.selectObject('obj2', true);
+    assert.deepStrictEqual(editorModule.getSelectedObjIds(), ['obj1', 'obj2']);
+
+    editorModule.deleteSelectedObjects();
+    assert.strictEqual(editorModule.getEditorObjects().length, 0);
+    assert.deepStrictEqual(editorModule.getSelectedObjIds(), []);
+  });
 });
