@@ -1,4 +1,5 @@
 import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload, activatePill } from "./drag-drop.js";
+import { hydrateIcons } from "./edit-pdf-icons.js";
 
 // Module State
 let pdfjsDocument = null;
@@ -97,7 +98,6 @@ const shareBtn = document.getElementById("editor-share-btn");
 const pageIndicator = document.getElementById("editor-page-indicator");
 const prevPageBtn = document.getElementById("editor-prev-page");
 const nextPageBtn = document.getElementById("editor-next-page");
-const toggleSidebarBtn = document.getElementById("editor-toggle-sidebar-btn");
 const sidebarEl = document.getElementById("editor-sidebar");
 const sidebarCloseBtn = document.getElementById("editor-sidebar-close");
 const sidebarThumbsContainer = document.getElementById("editor-sidebar-thumbs");
@@ -287,7 +287,8 @@ export async function loadPdfFromBytes(arrayBuffer) {
   editorObjects = [];
   historyStack = [];
   redoStack = [];
-  updateUndoRedoUI();
+  setHistoryState(false, false);
+  hydrateIcons();
 
   await renderAllPages();
 }
@@ -718,25 +719,9 @@ export async function renderSidebarThumbnails() {
   }
 }
 
-if (toggleSidebarBtn && sidebarEl) {
-  toggleSidebarBtn.addEventListener("click", () => {
-    const isHidden = sidebarEl.style.display === "none";
-    sidebarEl.style.display = isHidden ? "flex" : "none";
-    toggleSidebarBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
-    toggleSidebarBtn.classList.toggle("active", isHidden);
-    if (isHidden) {
-      renderSidebarThumbnails();
-    }
-  });
-}
-
 if (sidebarCloseBtn && sidebarEl) {
   sidebarCloseBtn.addEventListener("click", () => {
     sidebarEl.style.display = "none";
-    if (toggleSidebarBtn) {
-      toggleSidebarBtn.setAttribute("aria-expanded", "false");
-      toggleSidebarBtn.classList.remove("active");
-    }
   });
 }
 
@@ -837,15 +822,21 @@ if (zoomOutBtn) {
 
 // ── Toolbar & Tool Selection ───────────────────────────────────────
 
+export function syncToolTrayUI() {
+  if (!toolbar) return;
+  toolbar.querySelectorAll("[data-tool]").forEach((b) => {
+    const isActive = b.dataset.tool === activeTool;
+    b.classList.toggle("is-active", isActive);
+    b.classList.toggle("active", isActive);
+    if (b.setAttribute) b.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+}
+
 if (toolbar) {
   toolbar.querySelectorAll("[data-tool]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      toolbar.querySelectorAll("[data-tool]").forEach((b) => {
-        const isActive = b === btn;
-        b.classList.toggle("active", isActive);
-        if (b.setAttribute) b.setAttribute("aria-pressed", isActive ? "true" : "false");
-      });
       activeTool = btn.dataset.tool;
+      syncToolTrayUI();
 
       if (activeTool !== "select" && selectedObjId) {
         selectedObjId = null;
@@ -2553,9 +2544,17 @@ if (shareBtn) {
 
 // ── State Management & UI Wiring ────────────────────────────────────
 
+export function setHistoryState(canUndo, canRedo) {
+  if (undoBtn && undoBtn.setAttribute) {
+    undoBtn.setAttribute("aria-disabled", canUndo ? "false" : "true");
+  }
+  if (redoBtn && redoBtn.setAttribute) {
+    redoBtn.setAttribute("aria-disabled", canRedo ? "false" : "true");
+  }
+}
+
 function updateUndoRedoUI() {
-  if (undoBtn) undoBtn.disabled = historyStack.length === 0;
-  if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+  setHistoryState(historyStack.length > 0, redoStack.length > 0);
 }
 
 export function saveState() {
@@ -2597,8 +2596,18 @@ function applyStateObject(state) {
   }
 }
 
-if (undoBtn) undoBtn.addEventListener("click", undoAction);
-if (redoBtn) redoBtn.addEventListener("click", redoAction);
+if (undoBtn) {
+  undoBtn.addEventListener("click", () => {
+    if (undoBtn.getAttribute("aria-disabled") === "true") return;
+    undoAction();
+  });
+}
+if (redoBtn) {
+  redoBtn.addEventListener("click", () => {
+    if (redoBtn.getAttribute("aria-disabled") === "true") return;
+    redoAction();
+  });
+}
 
 export function undoAction() {
   if (historyStack.length === 0) return;
@@ -2731,19 +2740,9 @@ export function resetEditor() {
   historyStack = [];
   redoStack = [];
   if (sidebarEl) sidebarEl.style.display = "none";
-  if (toggleSidebarBtn) {
-    toggleSidebarBtn.setAttribute("aria-expanded", "false");
-    toggleSidebarBtn.classList.remove("active");
-  }
   selectedObjId = null;
   activeTool = "select";
-  if (toolbar) {
-    toolbar.querySelectorAll("[data-tool]").forEach((b) => {
-      const isSelect = b.dataset.tool === "select";
-      b.classList.toggle("active", isSelect);
-      if (b.setAttribute) b.setAttribute("aria-pressed", isSelect ? "true" : "false");
-    });
-  }
+  syncToolTrayUI();
   if (filenameInput) {
     filenameInput.value = "document.pdf";
   }
@@ -2771,3 +2770,6 @@ export function resetEditor() {
 }
 
 if (resetBtn) resetBtn.addEventListener("click", resetEditor);
+
+// Hydrate icons initially
+hydrateIcons();
