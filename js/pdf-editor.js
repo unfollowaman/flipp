@@ -425,114 +425,128 @@ export function deletePage(pageNum) {
 export async function renderAllPages() {
   if (!pdfjsDocument) return;
 
+  const pagezoomPill = document.getElementById("editor-pagezoom-pill");
+
   pagesScrollArea.innerHTML = "";
   pageMetricsCache.clear();
   pageOverlayMap.clear();
 
   const activePages = getActivePages();
+  if (activePages.length === 0) return;
+
+  if (!activePages.includes(currentPageIndex)) {
+    currentPageIndex = activePages[0];
+  }
+
+  const activeIdx = activePages.indexOf(currentPageIndex);
+  const displayIdx = activeIdx !== -1 ? activeIdx + 1 : 1;
+
   if (pageIndicator) {
-    const activeIdx = activePages.indexOf(currentPageIndex);
-    const displayIdx = activeIdx !== -1 ? activeIdx + 1 : 1;
     pageIndicator.textContent = `${displayIdx} / ${activePages.length}`;
   }
 
-  const pagePromises = activePages.map((pageNum) => pdfjsDocument.getPage(pageNum));
-  const pages = await Promise.all(pagePromises);
+  if (prevPageBtn) {
+    prevPageBtn.disabled = activeIdx <= 0;
+  }
+  if (nextPageBtn) {
+    nextPageBtn.disabled = activeIdx >= activePages.length - 1;
+  }
+
+  const pageNum = currentPageIndex;
+  const page = await pdfjsDocument.getPage(pageNum);
 
   const scrollAreaW = pagesScrollArea.clientWidth;
   const availableW = scrollAreaW > 48 ? scrollAreaW - 48 : 800;
   const maxContainerW = Math.min(availableW, 900);
   const dpr = window.devicePixelRatio || 1;
 
-  const renderPromises = pages.map((page, index) => {
-    const pageNum = activePages[index];
-    const userRot = pageRotations.get(pageNum) || 0;
-    const totalRotation = (page.rotate + userRot) % 360;
+  const userRot = pageRotations.get(pageNum) || 0;
+  const totalRotation = (page.rotate + userRot) % 360;
 
-    const unscaledViewport = page.getViewport({ scale: 1, rotation: totalRotation });
+  const unscaledViewport = page.getViewport({ scale: 1, rotation: totalRotation });
 
-    const baseScale = maxContainerW / unscaledViewport.width;
-    const finalScale = baseScale * zoomLevel;
+  const baseScale = maxContainerW / unscaledViewport.width;
+  const finalScale = baseScale * zoomLevel;
 
-    const viewport = page.getViewport({ scale: finalScale, rotation: totalRotation });
+  const viewport = page.getViewport({ scale: finalScale, rotation: totalRotation });
 
-    pageMetricsCache.set(pageNum, {
-      pageViewport: viewport,
-      pdfWidth: unscaledViewport.width,
-      pdfHeight: unscaledViewport.height,
-      userRotation: userRot,
-    });
-
-    const pageWrapper = document.createElement("div");
-    pageWrapper.className = "pdf-page-wrapper";
-    pageWrapper.dataset.pageNum = pageNum;
-    pageWrapper.style.width = `${viewport.width}px`;
-    pageWrapper.style.height = `${viewport.height}px`;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width * dpr;
-    canvas.height = viewport.height * dpr;
-    canvas.style.width = `${viewport.width}px`;
-    canvas.style.height = `${viewport.height}px`;
-
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-
-    const overlay = document.createElement("div");
-    overlay.className = "pdf-page-overlay";
-    overlay.dataset.pageNum = pageNum;
-    pageOverlayMap.set(pageNum, overlay);
-
-    const header = document.createElement("div");
-    header.className = "pdf-page-header";
-
-    const badge = document.createElement("span");
-    badge.className = "pdf-page-badge";
-    badge.textContent = `Page ${pageNum}`;
-
-    const rotateBtn = document.createElement("button");
-    rotateBtn.className = "pdf-page-action-btn rotate-btn";
-    rotateBtn.title = "Rotate 90° clockwise";
-    rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
-    rotateBtn.textContent = "🔄";
-    rotateBtn.onclick = (e) => {
-      e.stopPropagation();
-      rotatePage(pageNum, 90);
-    };
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "pdf-page-action-btn delete-btn";
-    deleteBtn.title = "Delete page";
-    deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
-    deleteBtn.textContent = "🗑️";
-    deleteBtn.onclick = (e) => {
-      e.stopPropagation();
-      deletePage(pageNum);
-    };
-
-    header.appendChild(badge);
-    header.appendChild(rotateBtn);
-    header.appendChild(deleteBtn);
-
-    pageWrapper.appendChild(canvas);
-    pageWrapper.appendChild(overlay);
-    pageWrapper.appendChild(header);
-    pagesScrollArea.appendChild(pageWrapper);
-
-    setupOverlayEvents(overlay, pageNum);
-
-    return (async () => {
-      try {
-        await page.render({ canvasContext: ctx, viewport }).promise;
-      } finally {
-        if (page && typeof page.cleanup === "function") {
-          page.cleanup();
-        }
-      }
-    })();
+  pageMetricsCache.set(pageNum, {
+    pageViewport: viewport,
+    pdfWidth: unscaledViewport.width,
+    pdfHeight: unscaledViewport.height,
+    userRotation: userRot,
   });
 
-  await Promise.all(renderPromises);
+  const pageWrapper = document.createElement("div");
+  pageWrapper.className = "pdf-page-wrapper";
+  pageWrapper.dataset.pageNum = pageNum;
+  pageWrapper.style.width = `${viewport.width}px`;
+  pageWrapper.style.height = `${viewport.height}px`;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width * dpr;
+  canvas.height = viewport.height * dpr;
+  canvas.style.width = `${viewport.width}px`;
+  canvas.style.height = `${viewport.height}px`;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const overlay = document.createElement("div");
+  overlay.className = "pdf-page-overlay";
+  overlay.dataset.pageNum = pageNum;
+  pageOverlayMap.set(pageNum, overlay);
+
+  const header = document.createElement("div");
+  header.className = "pdf-page-header";
+
+  const badge = document.createElement("span");
+  badge.className = "pdf-page-badge";
+  badge.textContent = `Page ${pageNum}`;
+
+  const rotateBtn = document.createElement("button");
+  rotateBtn.className = "pdf-page-action-btn rotate-btn";
+  rotateBtn.title = "Rotate 90° clockwise";
+  rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
+  rotateBtn.textContent = "🔄";
+  rotateBtn.onclick = (e) => {
+    e.stopPropagation();
+    rotatePage(pageNum, 90);
+  };
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "pdf-page-action-btn delete-btn";
+  deleteBtn.title = "Delete page";
+  deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
+  deleteBtn.textContent = "🗑️";
+  deleteBtn.onclick = (e) => {
+    e.stopPropagation();
+    deletePage(pageNum);
+  };
+
+  header.appendChild(badge);
+  header.appendChild(rotateBtn);
+  header.appendChild(deleteBtn);
+
+  pageWrapper.appendChild(canvas);
+  pageWrapper.appendChild(overlay);
+  pageWrapper.appendChild(header);
+
+  pagesScrollArea.appendChild(pageWrapper);
+
+  if (pagezoomPill) {
+    pagesScrollArea.appendChild(pagezoomPill);
+  }
+
+  setupOverlayEvents(overlay, pageNum);
+
+  try {
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  } finally {
+    if (page && typeof page.cleanup === "function") {
+      page.cleanup();
+    }
+  }
 
   renderAllObjects();
   renderSidebarThumbnails();
@@ -729,10 +743,10 @@ if (sidebarCloseBtn && sidebarEl) {
 // ── Page Navigation Controls ─────────────────────────────────────
 
 function scrollToPage(pageNum) {
-  if (!pagesScrollArea) return;
-  const target = pagesScrollArea.querySelector(`.pdf-page-wrapper[data-page-num="${pageNum}"]`);
-  if (target) {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  const active = getActivePages();
+  if (active.includes(pageNum)) {
+    currentPageIndex = pageNum;
+    renderAllPages();
   }
 }
 
@@ -741,7 +755,8 @@ if (prevPageBtn) {
     const active = getActivePages();
     const activeIdx = active.indexOf(currentPageIndex);
     if (activeIdx > 0) {
-      scrollToPage(active[activeIdx - 1]);
+      currentPageIndex = active[activeIdx - 1];
+      renderAllPages();
     }
   });
 }
@@ -751,28 +766,8 @@ if (nextPageBtn) {
     const active = getActivePages();
     const activeIdx = active.indexOf(currentPageIndex);
     if (activeIdx !== -1 && activeIdx < active.length - 1) {
-      scrollToPage(active[activeIdx + 1]);
-    }
-  });
-}
-
-if (pagesScrollArea) {
-  pagesScrollArea.addEventListener("scroll", () => {
-    const wrappers = pagesScrollArea.querySelectorAll(".pdf-page-wrapper");
-    if (!wrappers.length) return;
-    const containerTop = pagesScrollArea.getBoundingClientRect().top;
-    let closestPage = 1;
-    let minDiff = Infinity;
-    wrappers.forEach((w) => {
-      const diff = Math.abs(w.getBoundingClientRect().top - containerTop);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestPage = parseInt(w.dataset.pageNum, 10);
-      }
-    });
-    if (closestPage !== currentPageIndex) {
-      currentPageIndex = closestPage;
-      if (pageIndicator) pageIndicator.textContent = `${currentPageIndex} / ${numPages}`;
+      currentPageIndex = active[activeIdx + 1];
+      renderAllPages();
     }
   });
 }
@@ -2426,6 +2421,25 @@ export async function generateEditedPdfBlob() {
     const embeddedImages = new Map();
 
     setProgress(progressBar, progressLabel, 50, "Applying annotations & edits...");
+
+    for (const pageNum of activePages) {
+      if (!pageMetricsCache.has(pageNum)) {
+        const page = await pdfjsDocument.getPage(pageNum);
+        const userRot = pageRotations.get(pageNum) || 0;
+        const totalRotation = (page.rotate + userRot) % 360;
+        const unscaledViewport = page.getViewport({ scale: 1, rotation: totalRotation });
+        const maxContainerW = 800;
+        const baseScale = maxContainerW / unscaledViewport.width;
+        const finalScale = baseScale * zoomLevel;
+        const viewport = page.getViewport({ scale: finalScale, rotation: totalRotation });
+        pageMetricsCache.set(pageNum, {
+          pageViewport: viewport,
+          pdfWidth: unscaledViewport.width,
+          pdfHeight: unscaledViewport.height,
+          userRotation: userRot,
+        });
+      }
+    }
 
     for (let i = 0; i < editorObjects.length; i++) {
       const obj = editorObjects[i];
