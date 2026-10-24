@@ -143,6 +143,8 @@ const propShapeGroup = document.querySelectorAll(".prop-group-shape");
 const propStrokeGroup = document.querySelectorAll(".prop-group-stroke");
 const propOpacityGroup = document.querySelectorAll(".prop-group-opacity");
 const propLayerGroup = document.querySelectorAll(".prop-group-layer");
+const propMultiSelectGroup = document.querySelectorAll(".prop-group-multiselect");
+const propMultiCount = document.getElementById("prop-multi-count");
 
 const propLayerFront = document.getElementById("prop-layer-front");
 const propLayerForward = document.getElementById("prop-layer-forward");
@@ -871,8 +873,26 @@ function updatePropsBarVisibility() {
   propStrokeGroup.forEach((el) => (el.style.display = "none"));
   propOpacityGroup.forEach((el) => (el.style.display = "none"));
   propLayerGroup.forEach((el) => (el.style.display = "none"));
+  propMultiSelectGroup.forEach((el) => (el.style.display = "none"));
 
   let hasVisibleProps = false;
+
+  if (selectedObjIds.size > 1) {
+    propMultiSelectGroup.forEach((el) => (el.style.display = "flex"));
+    if (propMultiCount) propMultiCount.textContent = `${selectedObjIds.size} items selected`;
+    if (deleteObjBtn) {
+      deleteObjBtn.title = `Delete Selected (${selectedObjIds.size})`;
+      deleteObjBtn.setAttribute("aria-label", `Delete ${selectedObjIds.size} selected objects`);
+      const btnText = deleteObjBtn.querySelector(".btn-text");
+      if (btnText) btnText.textContent = `Delete (${selectedObjIds.size})`;
+    }
+    hasVisibleProps = true;
+  } else if (deleteObjBtn) {
+    deleteObjBtn.title = "Delete Selected";
+    deleteObjBtn.setAttribute("aria-label", "Delete selected object");
+    const btnText = deleteObjBtn.querySelector(".btn-text");
+    if (btnText) btnText.textContent = "Delete";
+  }
 
   if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
@@ -1444,6 +1464,7 @@ function setupOverlayEvents(overlay, pageNum) {
 
         if (marqueeRect.width > 2 || marqueeRect.height > 2) {
           const pageObjs = editorObjects.filter((o) => o.pageNum === pageNum);
+          let matchedAny = false;
           pageObjs.forEach((o) => {
             const intersects =
               o.x < marqueeRect.x + marqueeRect.width &&
@@ -1452,9 +1473,15 @@ function setupOverlayEvents(overlay, pageNum) {
               o.y + o.height > marqueeRect.y;
 
             if (intersects) {
-              selectObject(o.id, true);
+              selectedObjIds.add(o.id);
+              matchedAny = true;
             }
           });
+          if (matchedAny) {
+            selectedObjId = Array.from(selectedObjIds)[selectedObjIds.size - 1];
+            updateSelectedObjectUI();
+            updatePropsBarVisibility();
+          }
         }
       }
       return;

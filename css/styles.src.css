@@ -3154,6 +3154,33 @@ for Dynamic UI Sections */
   max-width: 100%;
   height: auto;
 }
+/* Rubber-band Marquee Drag Selection Box */
+.editor-selection-marquee {
+  position: absolute;
+  border: 1.5px dashed #138deb;
+  background: rgba(19, 141, 235, 0.15);
+  pointer-events: none;
+  z-index: 100;
+  box-sizing: border-box;
+  border-radius: 2px;
+}
+
+/* Multi-Select Item Count Badge in Property Bar */
+.multi-select-count-badge {
+  background: #138deb;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--black);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
 .thumb-card-footer {
   display: flex;
   align-items: center;

@@ -197,3 +197,21 @@
 - **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 423 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-012/after/` (desktop, tablet, mobile).
 - **Known Limitations:** None.
 - **Next Recommended Improvement:** `EDIT-PDF-013` — Multi-Object Drag Selection & Group Transformation Controls.
+
+### EDIT-PDF-013: Multi-Object Drag Selection, Rubber-Band Marquee Visuals & Group Selection Info Badge
+- **Priority:** P1 (Workspace Ergonomics & Group Selection Control)
+- **User Problem:** When selecting multiple annotations or objects on a PDF page, users lacked visual marquee drag feedback (rubber-band selection box) while dragging across the page canvas. Furthermore, when multiple objects were selected, the property bar offered no visual item count indicator or group selection status badge, making it unclear how many items were currently selected for group dragging, nudging, or bulk deletion.
+- **Status:** Completed
+- **Technical Rationale:** Added `.editor-selection-marquee` styling in `css/styles.src.css` (1.5px dashed border in `#138deb`, semi-transparent fill `rgba(19, 141, 235, 0.15)`, `pointer-events: none`, `z-index: 100`) and recompiled minified `css/styles.css`. Introduced `#prop-multiselect-info` and `#prop-multi-count` badge element in `tools/edit-pdf/index.html`. Enhanced `setupOverlayEvents` in `js/pdf-editor.js` to union intersecting objects directly into `selectedObjIds` on marquee drag release. Updated `updatePropsBarVisibility()` to toggle the multi-selection item count badge ("N items selected") and dynamically update the delete button label ("Delete (N)") when `selectedObjIds.size > 1`. Added comprehensive unit tests in `tests/pdf-editor.test.js`.
+- **Files Changed:**
+  - `tools/edit-pdf/index.html`
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `js/pdf-editor.js`
+  - `tests/pdf-editor.test.js`
+  - `tests/capture_baseline_013.py`
+  - `tests/capture_after_013.py`
+  - `docs/edit-pdf-improvement-log.md`
+- **Tests Executed:** Node.js native test runner (`node --test tests/*.test.js`) — 425 passing unit tests (0 failures), Playwright visual verification in `artifacts/design-review/EDIT-PDF-013/after/` (desktop, tablet, mobile).
+- **Known Limitations:** None.
+- **Next Recommended Improvement:** `EDIT-PDF-014` — Keyboard Shortcuts Guide Modal & Visual Hotkey Indicators in Editor Workspace.
