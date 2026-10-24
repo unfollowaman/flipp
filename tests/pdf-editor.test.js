@@ -825,7 +825,7 @@ test('pdf-editor resource cleanup', async (t) => {
     const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
     await editorModule.loadPdfFromBytes(fakeBuffer);
 
-    assert.strictEqual(cleanupCalledCount, 2, 'page.cleanup() should be called for each page');
+    assert.strictEqual(cleanupCalledCount, 1, 'page.cleanup() should be called for the rendered active page');
   });
 
   await t.test('loadPdfFromBytes and resetEditor invoke pdfjsDocument.destroy()', async () => {
@@ -1000,6 +1000,58 @@ test('pdf-editor pinch-to-zoom multi-touch gesture handling', async (t) => {
     // Moving with single finger after pinch end does not change zoom
     editorModule.handlePinchMove({ touches: [{ clientX: 0, clientY: 0 }] });
     assert.strictEqual(editorModule.getZoomLevel(), 0.25);
+  });
+});
+
+test('pdf-editor single page view & page turner controls', async (t) => {
+  t.beforeEach(() => {
+    editorModule.resetEditor();
+  });
+
+  await t.test('renderAllPages renders single active page and positions page turner pill below wrapper', async () => {
+    const pageIndicator = mockDocument.getElementById('editor-page-indicator');
+    const prevPageBtn = mockDocument.getElementById('editor-prev-page');
+    const nextPageBtn = mockDocument.getElementById('editor-next-page');
+
+    const mockDoc = {
+      numPages: 3,
+      getPage: async (pageNum) => ({
+        getViewport: ({ scale }) => ({ width: 600 * scale, height: 800 * scale }),
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {}
+      })
+    };
+
+    mockWindow['pdfjs-dist/build/pdf'].getDocument = () => ({
+      promise: Promise.resolve(mockDoc)
+    });
+
+    const fakeBuffer = new Uint8Array([1, 2, 3]).buffer;
+    await editorModule.loadPdfFromBytes(fakeBuffer);
+
+    // Initial page 1
+    assert.strictEqual(editorModule.getCurrentPageIndex(), 1);
+    assert.strictEqual(pageIndicator.textContent, '1 / 3');
+    assert.strictEqual(prevPageBtn.disabled, true);
+    assert.strictEqual(nextPageBtn.disabled, false);
+
+    // Navigate next -> page 2
+    editorModule.setCurrentPageIndex(2);
+    await editorModule.renderAllPages();
+
+    assert.strictEqual(editorModule.getCurrentPageIndex(), 2);
+    assert.strictEqual(pageIndicator.textContent, '2 / 3');
+    assert.strictEqual(prevPageBtn.disabled, false);
+    assert.strictEqual(nextPageBtn.disabled, false);
+
+    // Navigate next -> page 3
+    editorModule.setCurrentPageIndex(3);
+    await editorModule.renderAllPages();
+
+    assert.strictEqual(editorModule.getCurrentPageIndex(), 3);
+    assert.strictEqual(pageIndicator.textContent, '3 / 3');
+    assert.strictEqual(prevPageBtn.disabled, false);
+    assert.strictEqual(nextPageBtn.disabled, true);
   });
 });
 
