@@ -3022,6 +3022,30 @@ for Dynamic UI Sections */
   margin-bottom: 24px;
 }
 
+/* ==============================
+   Edit PDF Top Section Redesign
+   ============================== */
+.ep-header { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; }
+.ep-title-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.ep-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-title-edit { display: flex; flex-shrink: 0; color: rgba(13, 13, 13, 0.6); }
+.ep-history { display: flex; align-items: center; flex-shrink: 0; border: 1.5px solid var(--black); border-radius: 8px; overflow: hidden; background: var(--white); }
+.ep-history-btn { appearance: none; -webkit-appearance: none; border: 0; background: transparent; margin: 0; padding: 0; width: 40px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--black); cursor: pointer; transition: background 0.12s ease; -webkit-tap-highlight-color: transparent; }
+.ep-history-btn[aria-disabled="true"] { color: rgba(13, 13, 13, 0.3); cursor: default; }
+.ep-history-btn:not([aria-disabled="true"]):hover { background: var(--yellow); }
+.ep-history-btn:focus-visible { outline: 2px solid var(--black); outline-offset: -4px; }
+.ep-history-divider { width: 1.5px; align-self: stretch; background: var(--black); }
+.ep-tray { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1.5px solid var(--black); border-radius: 10px; overflow: hidden; background: var(--cream); }
+.ep-tool { appearance: none; -webkit-appearance: none; border: 0; border-right: 1px solid rgba(13, 13, 13, 0.2); border-radius: 0; background: transparent; margin: 0; padding: 0; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--black); font-family: inherit; cursor: pointer; transition: background 0.12s ease, color 0.12s ease; -webkit-tap-highlight-color: transparent; }
+.ep-tool:last-child { border-right: 0; }
+.ep-tool:hover:not(.is-active) { background: rgba(13, 13, 13, 0.06); }
+.ep-tool.is-active { background: var(--black); color: var(--white); }
+.ep-tool:focus-visible { outline: 2px solid var(--black); outline-offset: -4px; }
+.ep-tool.is-active:focus-visible { outline-color: var(--white); }
+.ep-tool [data-icon] { display: flex; }
+.ep-tool-label { font-size: 11px; font-weight: 500; line-height: 1; }
+@media (prefers-reduced-motion: reduce) { .ep-tool, .ep-history-btn { transition: none; } }
+
 /* PDF Editor Quick Color Swatches */
 .color-swatches-wrap {
   display: flex;

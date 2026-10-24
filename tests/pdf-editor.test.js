@@ -267,6 +267,8 @@ const mockWindow = {
 
 let revokedUrls = [];
 
+const mockHydrateIcons = () => {};
+
 const wrapper = new Function(
   'document',
   'window',
@@ -275,6 +277,7 @@ const wrapper = new Function(
   'setProgress',
   'fileToDataUrl',
   'triggerDownload',
+  'hydrateIcons',
   'Blob',
   'URL',
   'console',
@@ -290,6 +293,7 @@ const editorModule = wrapper(
   mockSetProgress,
   async () => 'data:image/png;base64,mock',
   () => {},
+  mockHydrateIcons,
   class Blob {},
   {
     createObjectURL: () => 'blob:mock',
@@ -420,8 +424,10 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     assert.strictEqual(editorModule.getHistoryStack().length, 0);
     assert.strictEqual(editorModule.getRedoStack().length, 1);
     assert.deepStrictEqual(editorModule.getEditorObjects(), [obj1]);
-    assert.strictEqual(undoBtn.disabled, true);
-    assert.strictEqual(redoBtn.disabled, false);
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'true');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'false');
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'true');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'false');
   });
 
   await t.test('handles sequential multi-step undo and redo operations accurately', () => {
@@ -510,8 +516,10 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     assert.strictEqual(editorModule.getHistoryStack().length, 1);
     assert.deepStrictEqual(JSON.parse(editorModule.getHistoryStack()[0]).objects, stateInitial);
     assert.strictEqual(editorModule.getRedoStack().length, 0);
-    assert.strictEqual(undoBtn.disabled, false);
-    assert.strictEqual(redoBtn.disabled, true);
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'false');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'true');
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'false');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'true');
   });
 
   await t.test('saveState pushes current state to historyStack, resets redoStack, and updates UI', () => {
