@@ -3046,6 +3046,146 @@ for Dynamic UI Sections */
 .ep-tool-label { font-size: 11px; font-weight: 500; line-height: 1; }
 @media (prefers-reduced-motion: reduce) { .ep-tool, .ep-history-btn { transition: none; } }
 
+/* Edit PDF Page Zoom Control Pill Base Styles */
+.pagezoom-pill {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 8px 20px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-top: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.pagezoom-pill button {
+  border: none;
+  background: none;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--black);
+  transition: background 0.15s ease, opacity 0.15s ease;
+  min-height: 36px;
+  min-width: 36px;
+}
+.pagezoom-pill button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+.pagezoom-pill button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.pz-count {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  min-width: 50px;
+  text-align: center;
+}
+.pz-zoom {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 45px;
+  text-align: center;
+}
+.pz-divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Edit PDF Mobile Responsiveness Media Queries */
+@media (max-width: 600px) {
+  .ep-header {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .ep-title-wrap {
+    gap: 4px;
+  }
+  .ep-history-btn {
+    width: 36px;
+    height: 34px;
+  }
+  .ep-tray {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+  }
+  .ep-tray::-webkit-scrollbar {
+    display: none;
+  }
+  .ep-tool {
+    flex: 1 0 54px;
+    min-width: 54px;
+    height: 52px;
+    border-right: 1px solid rgba(13, 13, 13, 0.15);
+  }
+  .ep-tool-label {
+    font-size: 10px;
+  }
+
+  .pagezoom-pill {
+    padding: 6px 12px;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  .pagezoom-pill button {
+    padding: 4px 6px;
+    min-height: 36px;
+    min-width: 32px;
+  }
+  .pz-count {
+    min-width: 40px;
+    font-size: 13px;
+  }
+  .pz-zoom {
+    min-width: 38px;
+    font-size: 13px;
+  }
+  .pz-divider {
+    margin: 0 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .ep-tool {
+    flex: 1 0 48px;
+    min-width: 48px;
+    height: 48px;
+  }
+  .ep-tool-label {
+    font-size: 9px;
+  }
+
+  .pagezoom-pill {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .pz-count, .pz-zoom {
+    font-size: 12px;
+    min-width: 32px;
+  }
+}
+
 /* PDF Editor Quick Color Swatches */
 .color-swatches-wrap {
   display: flex;

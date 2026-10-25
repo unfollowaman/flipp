@@ -506,8 +506,8 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     editorModule.undoAction();
     assert.strictEqual(editorModule.getHistoryStack().length, 0);
     assert.strictEqual(editorModule.getRedoStack().length, 1);
-    assert.strictEqual(undoBtn.disabled, true);
-    assert.strictEqual(redoBtn.disabled, false);
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'true');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'false');
 
     // Perform redo -> restores stateUpdated, historyStack gets stateInitial, redoStack becomes empty
     editorModule.redoAction();
@@ -516,8 +516,6 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     assert.strictEqual(editorModule.getHistoryStack().length, 1);
     assert.deepStrictEqual(JSON.parse(editorModule.getHistoryStack()[0]).objects, stateInitial);
     assert.strictEqual(editorModule.getRedoStack().length, 0);
-    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'false');
-    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'true');
     assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'false');
     assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'true');
   });
@@ -545,8 +543,8 @@ test('pdf-editor object state management and Undo/Redo', async (t) => {
     assert.strictEqual(editorModule.getRedoStack().length, 0);
 
     // Verify updateUndoRedoUI enabled undo button (historyStack.length > 0) and disabled redo button (redoStack.length === 0)
-    assert.strictEqual(undoBtn.disabled, false);
-    assert.strictEqual(redoBtn.disabled, true);
+    assert.strictEqual(undoBtn.getAttribute('aria-disabled'), 'false');
+    assert.strictEqual(redoBtn.getAttribute('aria-disabled'), 'true');
   });
 
   await t.test('saveState clears redoStack when new modification occurs after undo', () => {
