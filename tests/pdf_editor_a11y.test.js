@@ -27,7 +27,7 @@ test("PDF Editor toolbar and control buttons have aria-label attributes", () => 
     assert.ok(match[1] && match[1].trim().length > 0, `Button #${id} aria-label should not be empty`);
   });
 
-  const tools = ["select", "text", "highlight", "draw", "shape", "image", "note"];
+  const tools = ["select", "text", "highlight", "draw", "shape", "image", "watermark"];
   tools.forEach((tool) => {
     const regex = new RegExp(`<button[^>]*data-tool="${tool}"[^>]*aria-label="([^"]+)"`, "i");
     const match = htmlContent.match(regex);
@@ -47,7 +47,7 @@ test("PDF Editor toolbar container and toggle buttons have proper ARIA attribute
     "Editor toolbar must have role='toolbar' and aria-label='PDF editing tools'"
   );
 
-  const tools = ["select", "text", "highlight", "draw", "shape", "image", "note"];
+  const tools = ["select", "text", "highlight", "draw", "shape", "image", "watermark"];
   tools.forEach((tool) => {
     const regex = new RegExp(`<button[^>]*data-tool="${tool}"[^>]*aria-pressed="(true|false)"`, "i");
     const match = htmlContent.match(regex);

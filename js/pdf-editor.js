@@ -9,7 +9,7 @@ let currentPageIndex = 1;
 let fileName = "document.pdf";
 
 let zoomLevel = 1.0;
-let activeTool = "select"; // 'select', 'text', 'highlight', 'draw', 'shape', 'image', 'note', 'signature'
+let activeTool = "select"; // 'select', 'text', 'highlight', 'draw', 'shape', 'image', 'watermark', 'signature'
 let selectedObjId = null;
 let selectedObjIds = new Set();
 
@@ -902,6 +902,28 @@ function updatePropsBarVisibility() {
     }
     if (propTextPadding) propTextPadding.value = "4";
     hasVisibleProps = true;
+  } else if (activeTool === "watermark") {
+    propTextGroup.forEach((el) => (el.style.display = "flex"));
+    propColorGroup.forEach((el) => (el.style.display = "flex"));
+    propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+    if (propFontSize) propFontSize.value = "36";
+    if (propFontFamily) propFontFamily.value = "sans-serif";
+    if (propTextAlign) propTextAlign.value = "center";
+    if (propColor) propColor.value = "#000000";
+    if (propOpacity) propOpacity.value = "0.3";
+    if (propBold) {
+      propBold.classList.add("active");
+      if (propBold.setAttribute) propBold.setAttribute("aria-pressed", "true");
+    }
+    if (propItalic) {
+      propItalic.classList.remove("active");
+      if (propItalic.setAttribute) propItalic.setAttribute("aria-pressed", "false");
+    }
+    if (propTextBgTransparent) {
+      propTextBgTransparent.classList.add("active");
+      if (propTextBgTransparent.setAttribute) propTextBgTransparent.setAttribute("aria-pressed", "true");
+    }
+    hasVisibleProps = true;
   } else if (activeTool === "highlight") {
     propColorGroup.forEach((el) => (el.style.display = "flex"));
     propOpacityGroup.forEach((el) => (el.style.display = "flex"));
@@ -923,12 +945,16 @@ function updatePropsBarVisibility() {
     const obj = editorObjects.find((o) => o.id === selectedObjId);
     if (obj) {
       const props = obj.properties || {};
-      if (obj.type === "text") {
+      if (obj.type === "text" || obj.type === "watermark") {
         propTextGroup.forEach((el) => (el.style.display = "flex"));
         propColorGroup.forEach((el) => (el.style.display = "flex"));
-        if (propFontSize) propFontSize.value = String(props.fontSize || 18);
+        if (obj.type === "watermark") {
+          propOpacityGroup.forEach((el) => (el.style.display = "flex"));
+          if (propOpacity) propOpacity.value = String(props.opacity ?? 0.3);
+        }
+        if (propFontSize) propFontSize.value = String(props.fontSize || (obj.type === "watermark" ? 36 : 18));
         if (propFontFamily) propFontFamily.value = props.fontFamily || "sans-serif";
-        if (propTextAlign) propTextAlign.value = props.textAlign || "left";
+        if (propTextAlign) propTextAlign.value = props.textAlign || (obj.type === "watermark" ? "center" : "left");
         if (propColor) propColor.value = props.color || "#000000";
         if (propBold && propBold.classList) {
           const isBold = !!props.bold;
@@ -1136,13 +1162,16 @@ function applyPropChangesToSelected() {
     if (!obj) return;
 
     const props = obj.properties || {};
-    if (obj.type === "text") {
-      props.fontSize = parseInt(propFontSize.value, 10) || 18;
+    if (obj.type === "text" || obj.type === "watermark") {
+      props.fontSize = parseInt(propFontSize.value, 10) || (obj.type === "watermark" ? 36 : 18);
       props.fontFamily = propFontFamily.value;
       if (propTextAlign) props.textAlign = propTextAlign.value;
       props.color = propColor.value;
       props.bold = propBold.classList.contains("active");
       props.italic = propItalic.classList.contains("active");
+      if (obj.type === "watermark") {
+        props.opacity = parseFloat(propOpacity.value) || 0.3;
+      }
       if (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) {
         props.bgColor = "transparent";
       } else if (propTextBgColor) {
@@ -1210,6 +1239,28 @@ function createObjectForTool(tool, pageNum, x, y) {
         italic: propItalic ? propItalic.classList.contains("active") : false,
         bgColor: (propTextBgTransparent && propTextBgTransparent.classList.contains("active")) ? "transparent" : (propTextBgColor ? propTextBgColor.value : "transparent"),
         padding: propTextPadding ? Math.max(0, parseInt(propTextPadding.value, 10) || 0) : 4,
+      },
+    };
+  }
+  if (tool === "watermark") {
+    return {
+      id,
+      type: "watermark",
+      pageNum,
+      x,
+      y,
+      width: 240,
+      height: 80,
+      rotation: 0,
+      properties: {
+        text: "WATERMARK",
+        fontSize: parseInt(propFontSize.value, 10) || 36,
+        fontFamily: propFontFamily.value || "sans-serif",
+        textAlign: propTextAlign ? propTextAlign.value || "center" : "center",
+        color: propColor.value || "#000000",
+        opacity: parseFloat(propOpacity.value) || 0.3,
+        bold: propBold ? propBold.classList.contains("active") : true,
+        italic: propItalic ? propItalic.classList.contains("active") : false,
       },
     };
   }
@@ -1658,18 +1709,24 @@ function updateObjectInternalDimensions(el, obj) {
 // ── Render Objects on DOM Overlay ───────────────────────────────────
 
 function renderObjectContent(obj, el) {
-  if (obj.type === "text") {
+  if (obj.type === "text" || obj.type === "watermark") {
     const textarea = document.createElement("textarea");
     textarea.className = "editor-text-input";
     textarea.value = obj.properties.text;
     textarea.style.fontSize = `${obj.properties.fontSize}px`;
     textarea.style.fontFamily = obj.properties.fontFamily;
-    textarea.style.textAlign = obj.properties.textAlign || "left";
+    textarea.style.textAlign = obj.properties.textAlign || (obj.type === "watermark" ? "center" : "left");
     textarea.style.color = obj.properties.color;
     textarea.style.fontWeight = obj.properties.bold ? "bold" : "normal";
     textarea.style.fontStyle = obj.properties.italic ? "italic" : "normal";
     textarea.style.backgroundColor = obj.properties.bgColor || "transparent";
-    textarea.style.padding = `${obj.properties.padding ?? 4}px`;
+    textarea.style.padding = `${obj.properties.padding ?? (obj.type === "watermark" ? 0 : 4)}px`;
+
+    if (obj.type === "watermark") {
+      textarea.style.opacity = obj.properties.opacity ?? 0.3;
+      textarea.style.letterSpacing = "2px";
+      textarea.style.textTransform = "uppercase";
+    }
 
     textarea.addEventListener("input", (e) => {
       obj.properties.text = e.target.value;
@@ -2221,11 +2278,12 @@ export function renderObjectToCanvasDataUrl(obj) {
 export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
   const text = obj.properties.text || "";
   const scale = pageMetrics.pdfWidth / pageMetrics.pageViewport.width;
-  const size = (obj.properties.fontSize || 18) * scale;
+  const size = (obj.properties.fontSize || (obj.type === "watermark" ? 36 : 18)) * scale;
   const color = hexToPdfRgb(obj.properties.color || "#000000");
-  const align = obj.properties.textAlign || "left";
+  const align = obj.properties.textAlign || (obj.type === "watermark" ? "center" : "left");
   const bgColor = obj.properties.bgColor || "transparent";
-  const padding = (obj.properties.padding ?? 0) * scale;
+  const padding = (obj.properties.padding ?? (obj.type === "watermark" ? 0 : 0)) * scale;
+  const opacity = obj.type === "watermark" ? (obj.properties.opacity ?? 0.3) : 1.0;
 
   if (bgColor && bgColor !== "transparent" && page.drawRectangle) {
     page.drawRectangle({
@@ -2287,6 +2345,7 @@ export function applyTextObject(page, obj, pdfCoords, pageMetrics, fonts) {
       size: size,
       font: font,
       color: color,
+      opacity: opacity,
     });
   });
 }
@@ -2347,7 +2406,7 @@ export async function applyEditorObjectToPage(page, obj, pageMetrics, fonts, pdf
     userRot
   );
 
-  if (obj.type === "text") {
+  if (obj.type === "text" || obj.type === "watermark") {
     applyTextObject(page, obj, pdfCoords, pageMetrics, fonts);
   } else if (obj.type === "highlight") {
     applyHighlightObject(page, obj, pdfCoords);
