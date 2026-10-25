@@ -157,3 +157,30 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-007` — Shared FAQ Accordion Card & Focus State Neo-Brutalist Polish across Tool Pages.
+
+### DESIGN-007: Shared FAQ Accordion Card, Badge Toggle Indicator & Focus State Neo-Brutalist Polish
+- **Task ID:** DESIGN-007
+- **Priority:** P1 (Shared FAQ Accordion Component Consistency, Typography & Accessibility)
+- **Problem:** Shared FAQ accordion cards (`.tcs-faq`, `.tcs-faq-item`, `.tcs-faq-q`, `.tcs-faq-a`) across tool SEO content sections lacked Flipp's signature neo-brutalist tactile offset shadows (`box-shadow: 4px 4px 0 var(--black);`), explicit `:focus-visible` keyboard focus indicators, tactile indicator toggle buttons, high-contrast answer typography, and active item background highlighting. This made FAQ accordions across tool pages feel flat and visually inconsistent with Flipp's tactile neo-brutalist component language.
+- **Change:**
+  1. Updated `.tcs-faq` base container in `css/styles.src.css` with a tactile 4px offset shadow (`box-shadow: 4px 4px 0 var(--black);`).
+  2. Upgraded `.tcs-faq-q` question button typography (`font-size: 16px; font-weight: 800; letter-spacing: -0.01em;`) and added explicit keyboard focus styling (`:focus-visible` with 3px solid outline).
+  3. Replaced standard text `+` indicator on `.tcs-faq-q::after` with a tactile circular badge icon featuring a 1.5px black border, yellow background (`var(--yellow)`), and 1.5px offset shadow (`box-shadow: 1.5px 1.5px 0 var(--black)`).
+  4. Enhanced open state styling (`.tcs-faq-item.open`) with cream background accent (`var(--cream)`), pink toggle badge (`var(--pink)`), and crisp solid black top divider (`border-top-color: var(--black)`).
+  5. High-contrast answer typography (`color: #222222; font-size: 14.5px; line-height: 1.7; font-weight: 500;`).
+  6. Recompiled minified production stylesheet `css/styles.css` using `npx clean-css-cli -O0 css/styles.src.css -o css/styles.css`.
+  7. Added automated unit tests in `tests/faq.test.js` verifying FAQ accordion CSS rules.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `tests/faq.test.js`
+  - `tests/capture_design_007.py`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-007/after/desktop_normal.png`, `desktop_hover.png`, `desktop_focus.png`, `desktop_open.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-007/after/tablet_normal.png`, `tablet_hover.png`, `tablet_focus.png`, `tablet_open.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-007/after/mobile_normal.png`, `mobile_hover.png`, `mobile_focus.png`, `mobile_open.png`)
+  - **Functional Tests:** 458 passing tests across unit test suites (0 failures).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-008` — Tool Content Section Use Case Card & Privacy Callout Box Tactile Alignment.
