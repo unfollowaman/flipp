@@ -160,3 +160,26 @@ test('FAQ handles missing button or answer element gracefully', () => {
   assert.strictEqual(itemValid.classList.contains('open'), true);
   assert.strictEqual(itemValid.button.getAttribute('aria-expanded'), 'true');
 });
+
+test('FAQ CSS contains neo-brutalist tactile shadows, badge indicators, and focus styling', () => {
+  const cssPath = path.join(__dirname, '../css/styles.src.css');
+  const css = fs.readFileSync(cssPath, 'utf8');
+
+  // Verify .tcs-faq tactile shadow
+  assert.ok(css.includes('.tcs-faq {') || css.includes('.tcs-faq{'), '.tcs-faq rule should exist');
+  assert.ok(css.includes('box-shadow: 4px 4px 0 var(--black);'), '.tcs-faq should have tactile 4px offset shadow');
+
+  // Verify .tcs-faq-q focus-visible
+  assert.ok(css.includes('.tcs-faq-q:focus-visible'), '.tcs-faq-q:focus-visible rule should exist');
+  assert.ok(css.includes('outline: 3px solid var(--black);'), '.tcs-faq-q should have visible 3px focus outline');
+
+  // Verify .tcs-faq-q::after tactile badge indicator
+  assert.ok(css.includes('.tcs-faq-q::after'), '.tcs-faq-q::after rule should exist');
+  assert.ok(css.includes('border: 1.5px solid var(--black);'), 'toggle badge should have 1.5px black border');
+  assert.ok(css.includes('background: var(--yellow);'), 'toggle badge should have yellow background in collapsed state');
+  assert.ok(css.includes('background: var(--pink);'), 'toggle badge should have pink background in open state');
+
+  // Verify open item styling
+  assert.ok(css.includes('.tcs-faq-item.open'), '.tcs-faq-item.open rule should exist');
+  assert.ok(css.includes('border-top-color: var(--black);'), 'open answer section should have solid black top divider');
+});

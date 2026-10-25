@@ -2234,16 +2234,22 @@ Results ============================== */
   display: flex;
   flex-direction: column;
   gap: 0;
+  background: var(--white);
   border: var(--border-std);
   border-radius: var(--radius-lg);
+  box-shadow: 4px 4px 0 var(--black);
   overflow: hidden;
 }
 .tcs-faq-item {
   border-bottom: var(--border-std);
   background: var(--white);
+  transition: background-color 0.15s ease;
 }
 .tcs-faq-item:last-child {
   border-bottom: none;
+}
+.tcs-faq-item.open {
+  background: var(--cream);
 }
 .tcs-faq-q {
   width: 100%;
@@ -2252,27 +2258,49 @@ Results ============================== */
   padding: 20px 24px;
   text-align: left;
   font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.01em;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  transition: background 0.12s ease;
+  transition: background-color 0.12s ease;
 }
 .tcs-faq-q:hover {
   background: var(--cream);
 }
+.tcs-faq-q:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: -3px;
+  background: var(--cream);
+}
 .tcs-faq-q::after {
   content: "+";
-  font-size: 20px;
-  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--black);
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 1.5px 1.5px 0 var(--black);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .tcs-faq-item.open .tcs-faq-q::after {
   transform: rotate(45deg);
+  background: var(--pink);
+  box-shadow: 1px 1px 0 var(--black);
 }
 .tcs-faq-a {
   max-height: 0;
@@ -2284,16 +2312,17 @@ Results ============================== */
     opacity 0.3s ease,
     padding 0.3s ease,
     border-top-color 0.3s ease;
-  font-size: 14px;
-  line-height: 1.75;
-  color: #555;
-  border-top: 1px solid transparent;
+  font-size: 14.5px;
+  line-height: 1.7;
+  font-weight: 500;
+  color: #222222;
+  border-top: 1.5px solid transparent;
 }
 .tcs-faq-item.open .tcs-faq-a {
   max-height: 500px;
   opacity: 1;
-  padding: 0 24px 20px;
-  border-top-color: #eee;
+  padding: 16px 24px 22px;
+  border-top-color: var(--black);
 }
 /* Privacy callout */
 .tcs-privacy-box {
