@@ -20,6 +20,7 @@ src += `\nreturn {
   handlePdfSelect,
   loadPdfFromBytes,
   getActivePages,
+  duplicatePage,
   rotatePage,
   deletePage,
   reorderPage,
@@ -1938,6 +1939,23 @@ test('pdf-editor page reordering, undo/redo state restoration & sidebar controls
 
     editorModule.resetEditor();
     assert.strictEqual(editorModule.getPageOrder().length, 0);
+  });
+
+  await t.test('duplicatePage inserts duplicate entry in pageOrder and integrates with undo/redo', () => {
+    editorModule.setNumPages(2);
+    editorModule.setPageOrder([1, 2]);
+
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 2]);
+
+    const result = editorModule.duplicatePage(1);
+    assert.strictEqual(result, true);
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 1, 2]);
+
+    editorModule.undoAction();
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 2]);
+
+    editorModule.redoAction();
+    assert.deepStrictEqual(editorModule.getActivePages(), [1, 1, 2]);
   });
 });
 
