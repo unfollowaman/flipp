@@ -3025,12 +3025,65 @@ for Dynamic UI Sections */
 /* ==============================
    Edit PDF Top Section Redesign
    ============================== */
-.ep-header { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; }
-.ep-title-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
-.ep-title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ep-title-edit { display: flex; flex-shrink: 0; color: rgba(13, 13, 13, 0.6); }
-.ep-history { display: flex; align-items: center; flex-shrink: 0; border: 1.5px solid var(--black); border-radius: 8px; overflow: hidden; background: var(--white); }
-.ep-history-btn { appearance: none; -webkit-appearance: none; border: 0; background: transparent; margin: 0; padding: 0; width: 40px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--black); cursor: pointer; transition: background 0.12s ease; -webkit-tap-highlight-color: transparent; }
+.ep-header { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.ep-title-wrap {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  background: var(--cream);
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.ep-title-wrap:focus-within {
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+}
+.ep-title {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  margin: 0;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--black);
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ep-title-divider {
+  width: 1.5px;
+  align-self: stretch;
+  background: var(--black);
+  flex-shrink: 0;
+}
+.ep-title-edit {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--black);
+  cursor: pointer;
+  transition: background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ep-title-edit:hover {
+  background: var(--yellow);
+}
+.ep-history { display: flex; align-items: center; flex-shrink: 0; border: 1.5px solid var(--black); border-radius: 8px; overflow: hidden; background: var(--white); height: 36px; box-sizing: border-box; }
+.ep-history-btn { appearance: none; -webkit-appearance: none; border: 0; background: transparent; margin: 0; padding: 0; width: 40px; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--black); cursor: pointer; transition: background 0.12s ease; -webkit-tap-highlight-color: transparent; }
 .ep-history-btn[aria-disabled="true"] { color: rgba(13, 13, 13, 0.3); cursor: default; }
 .ep-history-btn:not([aria-disabled="true"]):hover { background: var(--yellow); }
 .ep-history-btn:focus-visible { outline: 2px solid var(--black); outline-offset: -4px; }
@@ -3113,14 +3166,25 @@ for Dynamic UI Sections */
 @media (max-width: 600px) {
   .ep-header {
     gap: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .ep-title-wrap {
-    gap: 4px;
+    height: 36px;
+  }
+  .ep-title {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+  .ep-title-edit {
+    width: 32px;
+    height: 36px;
+  }
+  .ep-history {
+    height: 36px;
   }
   .ep-history-btn {
     width: 36px;
-    height: 34px;
+    height: 100%;
   }
   .ep-tray {
     display: flex;
