@@ -53,6 +53,7 @@
     <meta name="twitter:site" content="@unfollowaman" />
     <link rel="modulepreload" href="../../js/pdf-editor.js" />
     <link rel="modulepreload" href="../../js/drag-drop.js" />
+    <link rel="modulepreload" href="/js/edit-pdf-icons.js" />
     <link rel="icon" type="image/svg+xml" href="../../assets/icons/favicon.svg" />
     <link
       rel="icon"
@@ -831,31 +832,28 @@
 
         <!-- STATE B: PDF Editor Workspace -->
         <div class="editor-workspace-container" id="editor-workspace">
-          <!-- Top Toolbar (Merged filename bar and tool palette) -->
-          <div class="editor-single-toolbar" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
-            <div class="fname-edit">
-              <input type="text" value="document.pdf" id="editor-filename-input" aria-label="Rename file" />
-              <span class="edit-ic">✏️</span>
+          <!-- File-Name Row & Undo/Redo -->
+          <div class="ep-header">
+            <div class="ep-title-wrap">
+              <input type="text" value="document.pdf" id="editor-filename-input" class="ep-title" aria-label="Rename file" />
+              <span class="ep-title-edit" data-icon="edit" data-icon-size="16" aria-hidden="true"></span>
             </div>
+            <div class="ep-history" role="group" aria-label="History">
+              <button type="button" class="ep-history-btn" id="editor-undo-btn" aria-label="Undo" title="Undo" aria-disabled="true" data-icon="undo" data-icon-size="20"></button>
+              <span class="ep-history-divider" aria-hidden="true"></span>
+              <button type="button" class="ep-history-btn" id="editor-redo-btn" aria-label="Redo" title="Redo" aria-disabled="true" data-icon="undo" data-icon-size="20" data-icon-flip="true"></button>
+            </div>
+          </div>
 
-            <div class="tool-group">
-              <button class="tool-pill active" data-tool="select" title="Select Object" aria-label="Select tool" aria-pressed="true">↖</button>
-              <button class="tool-pill" data-tool="text" title="Add Text" aria-label="Text tool" aria-pressed="false">T</button>
-              <button class="tool-pill" data-tool="highlight" title="Highlight" aria-label="Highlight tool" aria-pressed="false">🖍</button>
-              <button class="tool-pill" data-tool="draw" title="Freehand Draw" aria-label="Draw tool" aria-pressed="false">✏️</button>
-              <button class="tool-pill" data-tool="shape" title="Add Shape" aria-label="Shape tool" aria-pressed="false">▭</button>
-              <button class="tool-pill" data-tool="image" title="Add Image" aria-label="Image tool" aria-pressed="false">🖼</button>
-              <button class="tool-pill" data-tool="note" title="Sticky Note" aria-label="Note tool" aria-pressed="false">📌</button>
-              <button class="tool-pill" data-tool="signature" title="Signature" aria-label="Signature tool" aria-pressed="false">✍️</button>
-            </div>
-
-            <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-              <button class="editor-btn" id="editor-toggle-sidebar-btn" title="Toggle Page Sidebar" aria-label="Toggle Page Sidebar" aria-expanded="false" aria-controls="editor-sidebar" style="padding: 4px 8px; font-size: 12px;">
-                📋 <span class="btn-text">Pages</span>
-              </button>
-              <button class="tool-pill undo-redo-btn" id="editor-undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↩</button>
-              <button class="tool-pill undo-redo-btn" id="editor-redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>↪</button>
-            </div>
+          <!-- Tool Tray -->
+          <div class="ep-tray" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
+            <button type="button" class="ep-tool is-active" data-tool="select" aria-pressed="true" aria-label="Select and move" title="Select and move"><span data-icon="select" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Select</span></button>
+            <button type="button" class="ep-tool" data-tool="text" aria-pressed="false" aria-label="Add text" title="Add text"><span data-icon="text" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Text</span></button>
+            <button type="button" class="ep-tool" data-tool="highlight" aria-pressed="false" aria-label="Highlight" title="Highlight"><span data-icon="mark" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Mark</span></button>
+            <button type="button" class="ep-tool" data-tool="draw" aria-pressed="false" aria-label="Draw freehand" title="Draw freehand"><span data-icon="draw" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Draw</span></button>
+            <button type="button" class="ep-tool" data-tool="shape" aria-pressed="false" aria-label="Add shape" title="Add shape"><span data-icon="shape" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Shape</span></button>
+            <button type="button" class="ep-tool" data-tool="image" aria-pressed="false" aria-label="Add image" title="Add image"><span data-icon="image" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Image</span></button>
+            <button type="button" class="ep-tool" data-tool="note" aria-pressed="false" aria-label="Add pin" title="Add pin"><span data-icon="pin" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Pin</span></button>
           </div>
 
           <!-- Property Bar (Dynamic based on selected tool) -->
