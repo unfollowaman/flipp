@@ -60,3 +60,31 @@ test("PDF Editor mobile layout contains flexible filename wrap and touch control
     "Mobile editor buttons must specify minimum height of at least 36px"
   );
 });
+
+test("PDF Editor mobile styles contain responsive rules for redesigned ep-tray/ep-header and pagezoom-pill", () => {
+  const cssSrcPath = path.join(__dirname, "..", "css", "styles.src.css");
+  const cssDistPath = path.join(__dirname, "..", "css", "styles.css");
+
+  const cssSrcContent = fs.readFileSync(cssSrcPath, "utf8");
+  const cssDistContent = fs.readFileSync(cssDistPath, "utf8");
+
+  // Verify .ep-tray horizontal scrolling and touch-action rules on mobile
+  assert.ok(
+    cssSrcContent.includes(".ep-tray") && cssSrcContent.includes("overflow-x: auto"),
+    "Mobile styles must allow horizontal overflow scrolling on .ep-tray"
+  );
+  assert.ok(
+    cssSrcContent.includes(".ep-tool") && cssSrcContent.includes("min-width: 54px"),
+    "Mobile .ep-tool buttons must enforce flexible min-width for mobile viewports"
+  );
+
+  // Verify .pagezoom-pill mobile rules
+  assert.ok(
+    cssSrcContent.includes(".pagezoom-pill") && cssSrcContent.includes("padding: 6px 12px"),
+    "Mobile .pagezoom-pill must specify compact padding on narrow viewports"
+  );
+  assert.ok(
+    cssDistContent.includes(".pagezoom-pill") && cssDistContent.includes(".ep-tray"),
+    "Minified css/styles.css must contain rules for .pagezoom-pill and .ep-tray"
+  );
+});
