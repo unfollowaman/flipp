@@ -7,6 +7,7 @@ export const ICON_PATHS = {
   box: '<path d="M4 6h16v12H4z"/>',
   image: '<path d="M4 5h16v14H4z"/><path d="M4 16l5-5 4 4 3-3 4 4"/><circle cx="9" cy="9.5" r="1.5"/>',
   pin: '<path d="M8 4h8l-1 6 3 3H6l3-3z"/><path d="M12 13v8"/>',
+  watermark: '<path d="M12 2v6"/><path d="M6 8h12a2 2 0 0 1 2 2v4H4v-4a2 2 0 0 1 2-2z"/><path d="M3 18h18v3H3z"/>',
   undo: '<path d="M9 4L4 9l5 5"/><path d="M4 9h10a5 5 0 010 10H9"/>',
   edit: '<path d="M4 20l1-4L16 5l3 3L8 19z"/>'
 };

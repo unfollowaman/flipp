@@ -574,7 +574,7 @@ test('pdf-editor PDF export process', async (t) => {
     editorModule.resetEditor();
   });
 
-  await t.test('renderObjectToCanvasDataUrl renders draw, shape, and note objects correctly', async () => {
+  await t.test('renderObjectToCanvasDataUrl renders draw, shape, and watermark objects correctly', async () => {
     // 1. Freehand draw object
     const drawObj = {
       type: 'draw',
@@ -666,7 +666,7 @@ test('pdf-editor PDF export process', async (t) => {
     const arrowCtx = lastCreatedCanvas.getContext('2d');
     assert.ok(arrowCtx.calls.some((c) => c.method === 'moveTo' && c.args[0] === 88 && c.args[1] === 4));
 
-    // 5. Sticky note object (single & multi-line)
+    // 5. Note object (single & multi-line)
     const noteObj = {
       type: 'note',
       width: 150,
@@ -1166,8 +1166,8 @@ test('pdf-editor overlay event interactions and object creation', async (t) => {
     const shapeObj = editorModule.createObjectForTool('shape', 1, 200, 200);
     assert.strictEqual(shapeObj.type, 'shape');
 
-    const noteObj = editorModule.createObjectForTool('note', 1, 300, 300);
-    assert.strictEqual(noteObj.type, 'note');
+    const watermarkObj = editorModule.createObjectForTool('watermark', 1, 300, 300);
+    assert.strictEqual(watermarkObj.type, 'watermark');
 
     const unknown = editorModule.createObjectForTool('unknown', 1, 0, 0);
     assert.strictEqual(unknown, null);
