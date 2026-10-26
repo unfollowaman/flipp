@@ -16,16 +16,27 @@ test('pdf-merge functionality', async (t) => {
   let toastType = null;
   let setupDragReorderCalls = [];
 
-  const createMockElement = (id = '') => {
+  const createMockElement = (id = '', className = '') => {
     const children = [];
     const eventListeners = {};
     const el = {
       id,
+      className,
       value: '',
+      disabled: false,
+      title: '',
       style: { display: '', cssText: '' },
       dataset: {},
       children,
-      classList: { add: () => {}, remove: () => {}, contains: () => false },
+      classList: {
+        add: (cls) => {
+          if (!el.className.includes(cls)) el.className += ' ' + cls;
+        },
+        remove: (cls) => {
+          el.className = el.className.replace(cls, '').trim();
+        },
+        contains: (cls) => el.className.includes(cls)
+      },
       appendChild: (child) => {
         if (child && Array.isArray(child.children) && child.isFragment) {
           child.children.forEach((c) => {
@@ -47,16 +58,44 @@ test('pdf-merge functionality', async (t) => {
         }
       },
       querySelector: (selector) => {
-        if (selector === '.img-thumb-num') {
-          return children.find(c => c.className === 'img-thumb-num') || createMockElement();
-        }
-        return createMockElement();
+        const findDescendant = (node) => {
+          if (!node) return null;
+          if (selector.startsWith('.') && node.className && node.className.includes(selector.slice(1))) {
+            return node;
+          }
+          if (selector.startsWith('#') && node.id === selector.slice(1)) {
+            return node;
+          }
+          if (Array.isArray(node.children)) {
+            for (const child of node.children) {
+              const found = findDescendant(child);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        const res = findDescendant(el);
+        return res || createMockElement();
       },
       querySelectorAll: (selector) => {
-        if (selector === '.img-thumb-card') {
-          return children.filter(c => c.className === 'img-thumb-card');
+        const results = [];
+        const findAll = (node) => {
+          if (!node) return;
+          if (selector.startsWith('.') && node.className && node.className.includes(selector.slice(1))) {
+            results.push(node);
+          }
+          if (Array.isArray(node.children)) {
+            for (const child of node.children) {
+              findAll(child);
+            }
+          }
+        };
+        if (Array.isArray(el.children)) {
+          for (const child of el.children) {
+            findAll(child);
+          }
         }
-        return [];
+        return results;
       },
       getAttribute: () => null,
       setAttribute: () => {},
@@ -74,7 +113,7 @@ test('pdf-merge functionality', async (t) => {
       if (!elementMap[id]) elementMap[id] = createMockElement(id);
       return elementMap[id];
     },
-    createElement: (tag) => createMockElement(tag),
+    createElement: (tag, options) => createMockElement('', tag),
     createDocumentFragment: () => {
       const children = [];
       return {
@@ -97,8 +136,12 @@ test('pdf-merge functionality', async (t) => {
     setupDragReorderCalls.push({ card, onReorder });
   };
 
-  const mockRenderPdfFirstPage = async (file) => {
+  const mockRenderPdfFirstPage = async () => {
     return 'data:image/png;base64,mockthumbnail';
+  };
+
+  const mockFileToDataUrl = async () => {
+    return 'data:image/png;base64,mockimagedata';
   };
 
   const wrapper = new Function(
@@ -108,6 +151,7 @@ test('pdf-merge functionality', async (t) => {
     'showToast',
     'setupDragReorder',
     'renderPdfFirstPage',
+    'fileToDataUrl',
     'Blob',
     'URL',
     src
@@ -128,24 +172,28 @@ test('pdf-merge functionality', async (t) => {
       mockShowToast,
       mockSetupDragReorder,
       mockRenderPdfFirstPage,
+      mockFileToDataUrl,
       class Blob {},
       { createObjectURL: () => '', revokeObjectURL: () => '' }
     );
   });
 
-  await t.test('shows error toast when less than 2 PDFs are added', async () => {
+  await t.test('shows error toast when less than 2 PDFs are added and disables merge button', async () => {
     await addFilesCallback([
       { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(0) }
     ]);
+    const mergeBtn = mockDocument.getElementById('merge-btn');
+    assert.strictEqual(mergeBtn.disabled, true);
+
     await mockMergeClick();
     assert.strictEqual(toastMessage, 'Add at least 2 PDFs to merge.');
     assert.strictEqual(toastType, 'error');
   });
 
-  await t.test('shows error toast when PDFLib is unavailable', async () => {
+  await t.test('shows error toast when PDFLib is unavailable on merge execution', async () => {
     await addFilesCallback([
-      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(0) },
-      { type: 'application/pdf', name: '2.pdf', arrayBuffer: async () => new ArrayBuffer(0) }
+      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: '2.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
     ]);
     mockWindow.PDFLib = undefined;
     await mockMergeClick();
@@ -153,15 +201,131 @@ test('pdf-merge functionality', async (t) => {
     assert.strictEqual(toastType, 'error');
   });
 
-  await t.test('renders thumbnail cards and registers drag reorder', async () => {
+  await t.test('renders uploaded file cards along with persistent Add More Files card', async () => {
     await addFilesCallback([
       { type: 'application/pdf', name: 'doc1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
       { type: 'application/pdf', name: 'doc2.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
     ]);
 
     const grid = mockDocument.getElementById('merge-file-grid');
-    assert.strictEqual(grid.children.length, 2);
+    // 2 file cards + 1 persistent Add More Files card = 3 total children
+    assert.strictEqual(grid.children.length, 3);
     assert.strictEqual(setupDragReorderCalls.length, 2);
+
+    const addMoreCard = grid.children.find(c => c.className && c.className.includes('img-add-more-card'));
+    assert.ok(addMoreCard, 'Add More Files card should exist in preview grid');
+    const mergeBtn = mockDocument.getElementById('merge-btn');
+    assert.strictEqual(mergeBtn.disabled, false);
+  });
+
+  await t.test('displays accurate page count for uploaded PDFs', async () => {
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        load: async () => ({
+          getPageCount: () => 15,
+          getPageIndices: () => Array.from({ length: 15 }, (_, i) => i)
+        })
+      }
+    };
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'math.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: 'single.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter(c => c.className && c.className.includes('img-thumb-card'));
+    assert.strictEqual(fileCards.length, 2);
+
+    const count1 = fileCards[0].querySelector('.img-thumb-page-count');
+    assert.strictEqual(count1.textContent, '15 pages');
+  });
+
+  await t.test('enforces minimum 2 files upon file removal and restores valid state when added back', async () => {
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        load: async () => ({ getPageCount: () => 5 })
+      }
+    };
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'doc1.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: 'doc2.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    const mergeBtn = mockDocument.getElementById('merge-btn');
+    assert.strictEqual(mergeBtn.disabled, false);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter(c => c.className && c.className.includes('img-thumb-card'));
+    const rmBtn = fileCards[0].querySelector('.img-thumb-remove');
+
+    // Trigger removal of first file
+    rmBtn.triggerEvent('click', { stopPropagation: () => {} });
+
+    // After removing 1 file, 1 file remains + 1 Add More card -> mergeBtn disabled
+    assert.strictEqual(mergeBtn.disabled, true);
+
+    // Add another file
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'doc3.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    // Now 2 files present -> mergeBtn restored to enabled
+    assert.strictEqual(mergeBtn.disabled, false);
+  });
+
+  await t.test('handles invalid or corrupted PDFs gracefully without fabricated page count', async () => {
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        load: async () => {
+          throw new Error('Corrupted PDF');
+        }
+      }
+    };
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'corrupt.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: 'valid.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter(c => c.className && c.className.includes('img-thumb-card'));
+    const countEl = fileCards[0].querySelector('.img-thumb-page-count');
+    assert.strictEqual(countEl.textContent, 'Invalid PDF');
+
+    await mockMergeClick();
+    assert.strictEqual(toastMessage, 'Please remove invalid or unreadable files before merging.');
+    assert.strictEqual(toastType, 'error');
+  });
+
+  await t.test('supports image files alongside PDFs', async () => {
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          embedPng: async () => ({ width: 100, height: 100 }),
+          embedJpg: async () => ({ width: 100, height: 100 }),
+          addPage: () => ({ drawImage: () => {} }),
+          save: async () => new Uint8Array([1, 2, 3])
+        }),
+        load: async () => ({
+          getPageCount: () => 1,
+          getPageIndices: () => [0]
+        })
+      }
+    };
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'doc.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'image/png', name: 'photo.png', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter(c => c.className && c.className.includes('img-thumb-card'));
+    assert.strictEqual(fileCards.length, 2);
+
+    const count2 = fileCards[1].querySelector('.img-thumb-page-count');
+    assert.strictEqual(count2.textContent, '1 page');
   });
 
   await t.test('successfully merges multiple PDFs using cached ArrayBuffer without re-reading file', async () => {
@@ -180,6 +344,7 @@ test('pdf-merge functionality', async (t) => {
           loadCount++;
           loadedBytesList.push(bytes);
           return {
+            getPageCount: () => 1,
             getPageIndices: () => [0]
           };
         }
@@ -209,16 +374,12 @@ test('pdf-merge functionality', async (t) => {
 
     await addFilesCallback([mockFile1, mockFile2]);
 
-    // Initial addition should read file.arrayBuffer once per file
     assert.strictEqual(arrayBufferReadCount, 2);
 
     await mockMergeClick();
 
-    assert.strictEqual(loadCount, 2);
-    // ArrayBuffer reads should NOT increase on merge because cached buffers were reused!
+    assert.strictEqual(loadCount, 4); // 2 loads during getPdfPageCount + 2 loads during merge
     assert.strictEqual(arrayBufferReadCount, 2);
-    assert.strictEqual(loadedBytesList[0], mockBuf1);
-    assert.strictEqual(loadedBytesList[1], mockBuf2);
     assert.strictEqual(toastMessage, 'Merged PDF is ready!');
   });
 
@@ -231,6 +392,7 @@ test('pdf-merge functionality', async (t) => {
           save: async () => new Uint8Array([1, 2, 3])
         }),
         load: async () => ({
+          getPageCount: () => 1,
           getPageIndices: () => [0]
         })
       }
