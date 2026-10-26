@@ -2357,6 +2357,7 @@ Results ============================== */
   align-items: center;
   gap: 16px;
   transition: background-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .tcs-faq-q:hover {
   background: var(--cream);
