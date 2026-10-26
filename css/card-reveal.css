@@ -62,17 +62,17 @@
 
 /* Accessibility: no motion, everything visible immediately */
 @media (prefers-reduced-motion: reduce) {
-  .card-reveal-ready .tool-card:not(.is-visible),
-  .card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
+  .card-reveal-ready :is(.tool-card, .blog-card):not(.is-visible),
+  .card-reveal-ready :is(.tool-card, .blog-card):not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     opacity: 1;
     transform: none;
   }
-  .card-reveal-ready .tool-card.is-visible,
-  .card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
+  .card-reveal-ready :is(.tool-card, .blog-card).is-visible,
+  .card-reveal-ready :is(.tool-card, .blog-card).is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     animation: none;
   }
-  .card-reveal-ready .tool-card:not(.is-settled),
-  .card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
+  .card-reveal-ready :is(.tool-card, .blog-card):not(.is-settled),
+  .card-reveal-ready :is(.tool-card, .blog-card):not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     transition: revert-layer;
   }
 }
