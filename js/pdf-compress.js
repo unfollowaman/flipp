@@ -15,6 +15,11 @@ const downloadsDiv = document.getElementById("compress-downloads");
 const fileChipName = document.getElementById("compress-file-chip-name");
 const fileChipSize = document.getElementById("compress-file-chip-size");
 
+const estRecommendedSize = document.getElementById("cmc-est-recommended-size");
+const estRecommendedBadge = document.getElementById("cmc-est-recommended-badge");
+const estMaximumSize = document.getElementById("cmc-est-maximum-size");
+const estMaximumBadge = document.getElementById("cmc-est-maximum-badge");
+
 const progressContainer = document.getElementById(
   "compress-progress-container",
 );
@@ -97,6 +102,15 @@ initDropZone(dropZone, fileInput, (files) => {
   previewArea.classList.add("is-visible");
   if (fileChipName) fileChipName.textContent = file.name;
   if (fileChipSize) fileChipSize.textContent = formatBytes(file.size);
+
+  // Update estimated file sizes and savings badges
+  const recEstBytes = Math.round(file.size * 0.85);
+  const maxEstBytes = Math.round(file.size * 0.40);
+
+  if (estRecommendedSize) estRecommendedSize.textContent = formatBytes(recEstBytes);
+  if (estRecommendedBadge) estRecommendedBadge.textContent = "~15% smaller";
+  if (estMaximumSize) estMaximumSize.textContent = formatBytes(maxEstBytes);
+  if (estMaximumBadge) estMaximumBadge.textContent = "~60% smaller";
 });
 
 function createDownloadButton(blob, filename, label) {
@@ -389,6 +403,9 @@ resetBtn.addEventListener("click", () => {
   if (sizeBarCurr) sizeBarCurr.textContent = "";
   if (downloadFilename) downloadFilename.textContent = "";
   if (downloadsDiv) downloadsDiv.innerHTML = "";
+
+  if (estRecommendedSize) estRecommendedSize.textContent = "--";
+  if (estMaximumSize) estMaximumSize.textContent = "--";
 
   modeCards.forEach((c) => {
     c.classList.remove("selected");

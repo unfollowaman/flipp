@@ -3896,68 +3896,135 @@ for Dynamic UI Sections */
 }
 
 .compress-mode-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .compress-mode-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 .compress-mode-card {
   border: var(--border-std);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  padding: 20px;
   position: relative;
   background: var(--white);
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s ease, border-width 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 2px 2px 0 var(--black);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.compress-mode-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--black);
 }
 .compress-mode-card.selected {
   background: var(--cream);
+  box-shadow: var(--shadow-hard);
 }
 .cmc-check {
   display: none;
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 24px;
-  height: 24px;
+  top: 16px;
+  right: 16px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--mint);
   border: var(--border-std);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
   align-items: center;
   justify-content: center;
   color: var(--black);
+  box-shadow: 1px 1px 0 var(--black);
 }
 .compress-mode-card.selected .cmc-check {
   display: flex;
 }
+.cmc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
 .cmc-icon {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  margin-bottom: 12px;
+  font-size: 20px;
   border: var(--border-std);
+  flex-shrink: 0;
+  box-shadow: 1px 1px 0 var(--black);
 }
 .cmc-title {
   display: block;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--black);
-  margin-bottom: 4px;
 }
 .cmc-desc {
   display: block;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.45;
+  font-size: 13.5px;
+  color: #555;
+  line-height: 1.5;
   font-weight: 500;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+.cmc-est-box {
+  background: var(--white);
+  border: var(--border-std);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  box-shadow: 1.5px 1.5px 0 var(--black);
+}
+.compress-mode-card.selected .cmc-est-box {
+  background: var(--white);
+}
+.cmc-est-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cmc-est-size {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--black);
+  line-height: 1.1;
+}
+.cmc-est-badge {
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--mint);
+  border: 1.5px solid var(--black);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--black);
+}
+.cmc-est-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .compress-results-area {
