@@ -2753,6 +2753,7 @@ Results ============================== */
   border-radius: var(--radius-lg);
   padding: 28px 32px;
   margin: 48px 0;
+  box-shadow: 4px 4px 0 var(--black);
 }
 .blog-cta-box p {
   margin-bottom: 16px;
@@ -2776,12 +2777,36 @@ Results ============================== */
   font-size: 18px;
   line-height: 1;
   margin-bottom: 12px;
+  border: 1.5px solid var(--black);
+  box-shadow: 1.5px 1.5px 0 var(--black);
+  transition: transform 0.15s ease;
 }
 
 .blog-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  box-shadow: 3.5px 3.5px 0 var(--black);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.blog-card:hover .blog-card-icon {
+  transform: scale(1.08) rotate(2deg);
+}
+
+.blog-card:active {
+  transform: translateY(0);
+  box-shadow: 1.5px 1.5px 0 var(--black);
+}
+
+.blog-card:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 3px;
 }
 
 .blog-card-badge {
@@ -3055,6 +3080,7 @@ for Dynamic UI Sections */
   border-radius: var(--radius-lg);
   padding: 36px;
   margin: 48px 0;
+  box-shadow: 4px 4px 0 var(--black);
 }
 .blog-tools-cta-title {
   font-size: 24px;
@@ -3106,6 +3132,12 @@ for Dynamic UI Sections */
 .blog-tools-cta-item:hover .blog-tools-cta-icon-wrapper img {
   transform: scale(1.05) rotate(2deg);
 }
+.blog-tools-cta-item:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
 .blog-tools-cta-pill {
   display: inline-block;
   padding: 4px 12px;
@@ -3114,7 +3146,7 @@ for Dynamic UI Sections */
   font-size: 13px;
   font-weight: 700;
   text-align: center;
-  box-shadow: 1px 1px 0 var(--black);
+  box-shadow: 2px 2px 0 var(--black);
 }
 .pill-mint {
   background: var(--mint);
@@ -4041,14 +4073,17 @@ for Dynamic UI Sections */
    Blog Pull Quote & Flowchart Components
    ============================== */
 .pull-quote {
-  border-left: 5px solid var(--black);
+  border: var(--border-std);
+  border-left: 6px solid var(--black);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0 var(--black);
   background: var(--cream);
-  padding: 16px 20px;
-  margin: 28px 0;
+  padding: 18px 22px;
+  margin: 32px 0;
   font-size: 17px;
   font-weight: 700;
   font-style: italic;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .flowchart { margin: 28px 0; border: 2px solid var(--black); border-radius: 14px; padding: 20px; background: #fbfbf6; }

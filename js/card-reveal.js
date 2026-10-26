@@ -3,10 +3,10 @@
   window.__cardRevealLoaded = true;
 
   var root = document.documentElement;
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.tool-card'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.tool-card, .blog-card'));
   if (!cards.length) return;
 
-  var ANIMATED = '.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow';
+  var ANIMATED = '.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow';
 
   function showInstantly(card) {
     card.classList.add('is-visible', 'is-settled');
