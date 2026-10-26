@@ -1,30 +1,30 @@
 /* Hidden pre-reveal state. Only applies when html has .card-reveal-ready */
-.card-reveal-ready .tool-card:not(.is-visible) {
+.card-reveal-ready :is(.tool-card, .blog-card):not(.is-visible) {
   opacity: 0;
   transform-origin: 50% 100%;
   transform: perspective(1400px) rotateX(22deg) translateY(48px) scale(0.97);
 }
-.card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+.card-reveal-ready :is(.tool-card, .blog-card):not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
   opacity: 0;
   transform-origin: 50% 100%;
   transform: perspective(900px) rotateX(35deg) translateY(28px) scale(0.94);
 }
 
 /* Disable existing hover transitions until the whole reveal has finished, otherwise the transition overrides the animation */
-.card-reveal-ready .tool-card:not(.is-settled),
-.card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+.card-reveal-ready :is(.tool-card, .blog-card):not(.is-settled),
+.card-reveal-ready :is(.tool-card, .blog-card):not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
   transition: none;
 }
 
 /* Per-element stagger offsets (added on top of the card's own --card-delay) */
-.tool-card .tool-card-icon-wrapper { --el-delay: 100ms; }
-.tool-card .tool-card-badge { --el-delay: 170ms; }
-.tool-card .tool-card-title { --el-delay: 240ms; }
-.tool-card .tool-card-desc { --el-delay: 310ms; }
-.tool-card .tool-card-arrow { --el-delay: 380ms; }
+:is(.tool-card, .blog-card) :is(.tool-card-icon-wrapper, .blog-card-icon) { --el-delay: 100ms; }
+:is(.tool-card, .blog-card) :is(.tool-card-badge, .blog-card-badge) { --el-delay: 170ms; }
+:is(.tool-card, .blog-card) :is(.tool-card-title, .blog-card-title) { --el-delay: 240ms; }
+:is(.tool-card, .blog-card) :is(.tool-card-desc, .blog-card-desc) { --el-delay: 310ms; }
+:is(.tool-card, .blog-card) :is(.tool-card-arrow, .blog-card-arrow) { --el-delay: 380ms; }
 
 /* Card unfold (runs once when JS adds .is-visible). animation-fill-mode is backwards only, so after it ends the card returns to its natural state and the existing hover lift keeps working */
-.card-reveal-ready .tool-card.is-visible {
+.card-reveal-ready :is(.tool-card, .blog-card).is-visible {
   transform-origin: 50% 100%;
   animation:
     card-fade 0.7s ease-out backwards,
@@ -33,7 +33,7 @@
 }
 
 /* Inner element unfold, same motion language as the card but smaller travel and a steeper tilt, starting after the card */
-.card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+.card-reveal-ready :is(.tool-card, .blog-card).is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
   transform-origin: 50% 100%;
   animation:
     card-el-fade 0.6s ease-out backwards,
@@ -63,16 +63,16 @@
 /* Accessibility: no motion, everything visible immediately */
 @media (prefers-reduced-motion: reduce) {
   .card-reveal-ready .tool-card:not(.is-visible),
-  .card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  .card-reveal-ready .tool-card:not(.is-visible) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     opacity: 1;
     transform: none;
   }
   .card-reveal-ready .tool-card.is-visible,
-  .card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  .card-reveal-ready .tool-card.is-visible :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     animation: none;
   }
   .card-reveal-ready .tool-card:not(.is-settled),
-  .card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow) {
+  .card-reveal-ready .tool-card:not(.is-settled) :is(.tool-card-icon-wrapper, .tool-card-badge, .tool-card-title, .tool-card-desc, .tool-card-arrow, .blog-card-icon, .blog-card-badge, .blog-card-title, .blog-card-desc, .blog-card-arrow) {
     transition: revert-layer;
   }
 }

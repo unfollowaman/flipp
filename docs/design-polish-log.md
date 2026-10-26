@@ -184,3 +184,32 @@ This log tracks progressive design, typography, layout, component consistency, a
   - **Console/Page Errors:** 0 errors.
 - **Limitations:** None.
 - **Next Priority:** `DESIGN-008` — Tool Content Section Use Case Card & Privacy Callout Box Tactile Alignment.
+
+### DESIGN-008: Blog Section & Blog Pages Component Polish, Tactile Neo-Brutalist Alignment & Reveal Animation Fix
+- **Task ID:** DESIGN-008
+- **Priority:** P1 (Blog Section Component Polish & Tactile Alignment)
+- **Problem:** Blog index cards (`.blog-card`) on `/blog/` and blog post pages lacked Flipp's signature neo-brutalist tactile offset shadows (`box-shadow`), hover elevation (`transform: translateY(-3px)`), pressed active state, and explicit keyboard focus indicators (`:focus-visible`). Additionally, blog card icons (`.blog-card-icon`) lacked 1.5px black borders and shadows, pull quotes (`.pull-quote`) lacked complete border framing, blog tools CTA containers (`.blog-tools-cta`, `.blog-cta-box`) lacked 4px offset shadows, and scroll reveal animations in `css/card-reveal.css` and `js/card-reveal.js` failed to query `.blog-card` elements, leaving blog cards unrevealed or plain.
+- **Change:**
+  1. Updated `css/card-reveal.css` and `js/card-reveal.js` to query `:is(.tool-card, .blog-card)` and match inner blog card elements (`.blog-card-icon`, `.blog-card-badge`, `.blog-card-title`, `.blog-card-desc`, `.blog-card-arrow`), enabling 3D unfold reveal animations on scroll.
+  2. Enhanced `.blog-card` base styling in `css/styles.src.css` with a tactile 3.5px offset shadow (`box-shadow: 3.5px 3.5px 0 var(--black);`), hover lift (`transform: translateY(-3px); box-shadow: 6px 6px 0 var(--black);`), active press, and high-contrast `:focus-visible` outline (`3px solid var(--black)`).
+  3. Added 1.5px black border, 1.5px shadow, and subtle scale/rotation micro-interaction on hover to `.blog-card-icon`.
+  4. Applied 4px tactile offset shadow (`box-shadow: 4px 4px 0 var(--black);`) to `.blog-tools-cta` and `.blog-cta-box` callout containers.
+  5. Refined `.pull-quote` with complete 2.5px solid black border, cream background, and 3.3px offset shadow (`box-shadow: 3.3px 3.3px 0 var(--black);`).
+  6. Consolidated duplicate `.blog-tools-cta` rules in `css/styles.src.css` and recompiled `css/styles.css`.
+  7. Added 6 unit tests in `tests/blog.test.js` verifying blog card CSS rules, CTA container shadows, pull quotes, and scroll reveal selectors.
+- **Files Changed:**
+  - `css/styles.src.css`
+  - `css/styles.css`
+  - `css/card-reveal.css`
+  - `js/card-reveal.js`
+  - `tests/blog.test.js`
+  - `tests/capture_design_008.py`
+  - `docs/design-polish-log.md`
+- **Verification Results:**
+  - **Desktop (1440x900):** Pass (`artifacts/design-review/DESIGN-008/after/blog_index_desktop_normal.png`, `blog_post_desktop_normal.png`, `blog_card_hover.png`, `blog_card_focus.png`)
+  - **Tablet (768x1024):** Pass (`artifacts/design-review/DESIGN-008/after/blog_index_tablet_normal.png`, `blog_post_tablet_normal.png`)
+  - **Mobile (390x844):** Pass (`artifacts/design-review/DESIGN-008/after/blog_index_mobile_normal.png`, `blog_post_mobile_normal.png`)
+  - **Functional Tests:** 469 passing tests across unit test suites (0 failures).
+  - **Console/Page Errors:** 0 errors.
+- **Limitations:** None.
+- **Next Priority:** `DESIGN-009` — Tool Content Section Use Case Card & Privacy Callout Box Tactile Alignment.
