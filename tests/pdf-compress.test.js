@@ -492,6 +492,10 @@ test('pdf-compress UI redesign updates', async (t) => {
 
     assert.strictEqual(localElementMap['compress-file-chip-name'].textContent, 'sample.pdf');
     assert.strictEqual(localElementMap['compress-file-chip-size'].textContent, '100 Bytes');
+    assert.strictEqual(localElementMap['cmc-est-recommended-size'].textContent, '85 Bytes');
+    assert.strictEqual(localElementMap['cmc-est-recommended-badge'].textContent, '~15% smaller');
+    assert.strictEqual(localElementMap['cmc-est-maximum-size'].textContent, '40 Bytes');
+    assert.strictEqual(localElementMap['cmc-est-maximum-badge'].textContent, '~60% smaller');
 
     const compressBtnLocal = localElementMap['compress-btn'];
     await compressBtnLocal.click();
