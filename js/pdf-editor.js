@@ -101,6 +101,7 @@ const nextPageBtn = document.getElementById("editor-next-page");
 const sidebarEl = document.getElementById("editor-sidebar");
 const sidebarCloseBtn = document.getElementById("editor-sidebar-close");
 const sidebarThumbsContainer = document.getElementById("editor-sidebar-thumbs");
+const toggleSidebarBtn = document.getElementById("editor-toggle-sidebar-btn");
 const zoomValLabel = document.getElementById("editor-zoom-val");
 const zoomInBtn = document.getElementById("editor-zoom-in");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
@@ -290,6 +291,10 @@ export async function loadPdfFromBytes(arrayBuffer) {
   setHistoryState(false, false);
   hydrateIcons();
 
+  if (sidebarEl && window.innerWidth > 600) {
+    sidebarEl.style.display = "flex";
+  }
+
   await renderAllPages();
 }
 
@@ -388,6 +393,30 @@ export function reorderPage(fromActiveIndex, toActiveIndex) {
     pageOrder.splice(fullToIdx, 0, movedPageNum);
   }
 
+  renderAllPages();
+  return true;
+}
+
+export function duplicatePage(pageNum) {
+  saveState();
+  const activePages = getActivePages();
+  const index = activePages.indexOf(pageNum);
+  if (index === -1) return false;
+
+  const fullIdx = pageOrder.indexOf(pageNum);
+  if (fullIdx !== -1) {
+    pageOrder.splice(fullIdx + 1, 0, pageNum);
+  } else {
+    pageOrder.push(pageNum);
+  }
+
+  // Copy rotation if present
+  const existingRot = pageRotations.get(pageNum);
+  if (existingRot !== undefined) {
+    // If needed in future per-entry rotation mapping
+  }
+
+  currentPageIndex = pageNum;
   renderAllPages();
   return true;
 }
@@ -634,76 +663,51 @@ export async function renderSidebarThumbnails() {
     const ctx = canvas.getContext("2d");
     wrap.appendChild(canvas);
 
-    const footer = document.createElement("div");
-    footer.className = "thumb-card-footer";
+    // Floating action bar overlay matching target screenshot
+    const floatingToolbar = document.createElement("div");
+    floatingToolbar.className = "thumb-floating-toolbar";
 
-    const label = document.createElement("span");
-    label.textContent = `P. ${pageNum}`;
-
-    const actions = document.createElement("div");
-    actions.className = "thumb-card-actions";
-
-    const moveUpBtn = document.createElement("button");
-    moveUpBtn.className = "thumb-card-btn move-up-btn";
-    moveUpBtn.title = "Move page up";
-    moveUpBtn.setAttribute("aria-label", `Move page ${pageNum} up`);
-    moveUpBtn.textContent = "⬆️";
-    if (index === 0) {
-      moveUpBtn.disabled = true;
-      moveUpBtn.style.opacity = "0.4";
-      moveUpBtn.style.cursor = "not-allowed";
-    } else {
-      moveUpBtn.onclick = (e) => {
-        e.stopPropagation();
-        reorderPage(index, index - 1);
-      };
-    }
-
-    const moveDownBtn = document.createElement("button");
-    moveDownBtn.className = "thumb-card-btn move-down-btn";
-    moveDownBtn.title = "Move page down";
-    moveDownBtn.setAttribute("aria-label", `Move page ${pageNum} down`);
-    moveDownBtn.textContent = "⬇️";
-    if (index === pages.length - 1) {
-      moveDownBtn.disabled = true;
-      moveDownBtn.style.opacity = "0.4";
-      moveDownBtn.style.cursor = "not-allowed";
-    } else {
-      moveDownBtn.onclick = (e) => {
-        e.stopPropagation();
-        reorderPage(index, index + 1);
-      };
-    }
+    const duplicateBtn = document.createElement("button");
+    duplicateBtn.className = "thumb-action-btn dup-btn";
+    duplicateBtn.title = "Duplicate page";
+    duplicateBtn.setAttribute("aria-label", `Duplicate page ${pageNum}`);
+    duplicateBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+    duplicateBtn.onclick = (e) => {
+      e.stopPropagation();
+      duplicatePage(pageNum);
+    };
 
     const rotateBtn = document.createElement("button");
-    rotateBtn.className = "thumb-card-btn";
-    rotateBtn.title = "Rotate";
+    rotateBtn.className = "thumb-action-btn rot-btn";
+    rotateBtn.title = "Rotate page";
     rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
-    rotateBtn.textContent = "🔄";
+    rotateBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>`;
     rotateBtn.onclick = (e) => {
       e.stopPropagation();
       rotatePage(pageNum, 90);
     };
 
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "thumb-card-btn";
-    deleteBtn.title = "Delete";
+    deleteBtn.className = "thumb-action-btn del-btn";
+    deleteBtn.title = "Delete page";
     deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
-    deleteBtn.textContent = "🗑️";
+    deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     deleteBtn.onclick = (e) => {
       e.stopPropagation();
       deletePage(pageNum);
     };
 
-    actions.appendChild(moveUpBtn);
-    actions.appendChild(moveDownBtn);
-    actions.appendChild(rotateBtn);
-    actions.appendChild(deleteBtn);
-    footer.appendChild(label);
-    footer.appendChild(actions);
+    floatingToolbar.appendChild(duplicateBtn);
+    floatingToolbar.appendChild(rotateBtn);
+    floatingToolbar.appendChild(deleteBtn);
+    wrap.appendChild(floatingToolbar);
+
+    const numBadge = document.createElement("div");
+    numBadge.className = "thumb-num-badge";
+    numBadge.textContent = `${index + 1}`;
 
     card.appendChild(wrap);
-    card.appendChild(footer);
+    card.appendChild(numBadge);
 
     card.onclick = () => {
       currentPageIndex = pageNum;
@@ -712,6 +716,18 @@ export async function renderSidebarThumbnails() {
     };
 
     sidebarThumbsContainer.appendChild(card);
+
+    // Inline Add / Duplicate Page Plus Button between/under thumbnails
+    const addPageBtn = document.createElement("button");
+    addPageBtn.className = "thumb-add-page-btn";
+    addPageBtn.title = "Duplicate current page";
+    addPageBtn.setAttribute("aria-label", `Duplicate page ${pageNum}`);
+    addPageBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+    addPageBtn.onclick = (e) => {
+      e.stopPropagation();
+      duplicatePage(pageNum);
+    };
+    sidebarThumbsContainer.appendChild(addPageBtn);
 
     page.render({ canvasContext: ctx, viewport: thumbViewport }).promise.then(() => {
       if (page && typeof page.cleanup === "function") page.cleanup();
@@ -722,6 +738,16 @@ export async function renderSidebarThumbnails() {
 if (sidebarCloseBtn && sidebarEl) {
   sidebarCloseBtn.addEventListener("click", () => {
     sidebarEl.style.display = "none";
+  });
+}
+
+if (toggleSidebarBtn && sidebarEl) {
+  toggleSidebarBtn.addEventListener("click", () => {
+    const isHidden = sidebarEl.style.display === "none" || getComputedStyle(sidebarEl).display === "none";
+    sidebarEl.style.display = isHidden ? "flex" : "none";
+    if (isHidden) {
+      renderSidebarThumbnails();
+    }
   });
 }
 

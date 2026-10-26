@@ -3334,13 +3334,13 @@ for Dynamic UI Sections */
 .editor-sidebar {
   width: 180px;
   flex-shrink: 0;
-  background: #f7f7f5;
+  background: #eef2f6;
   border: var(--border-std);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-hard);
   display: flex;
   flex-direction: column;
-  max-height: 70vh;
+  max-height: 75vh;
   overflow: hidden;
 }
 .editor-sidebar-header {
@@ -3348,7 +3348,7 @@ for Dynamic UI Sections */
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #eceae2;
+  background: #dbe0e6;
   border-bottom: 1.5px solid var(--black);
   font-weight: 800;
   font-size: 13px;
@@ -3364,27 +3364,29 @@ for Dynamic UI Sections */
 .editor-sidebar-thumbs {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
-  padding: 12px 8px;
+  padding: 14px 8px;
   overflow-y: auto;
 }
 .thumb-card {
-  background: var(--white);
-  border: 1.5px solid var(--black);
-  border-radius: 6px;
+  background: #eef2f6;
+  border: 2px solid transparent;
+  border-radius: 8px;
   padding: 6px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+  gap: 6px;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
   position: relative;
+  width: 130px;
 }
 .thumb-card.active {
-  border-color: var(--black);
-  box-shadow: 2px 2px 0 var(--black);
-  background: #fffbeb;
+  background: #dbe4f0;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
 }
 .thumb-card.dragging {
   opacity: 0.5;
@@ -3398,18 +3400,82 @@ for Dynamic UI Sections */
 }
 .thumb-card-canvas-wrap {
   width: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #e5e7eb;
+  background: var(--white);
+  border: 1px solid #d1d5db;
   border-radius: 4px;
-  min-height: 80px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 .thumb-card canvas {
   display: block;
   max-width: 100%;
   height: auto;
+}
+.thumb-floating-toolbar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 3px 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+.thumb-action-btn {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4b5563;
+  transition: background 0.1s ease, color 0.1s ease;
+  padding: 0;
+}
+.thumb-action-btn:hover {
+  background: #f3f4f6;
+  color: var(--black);
+}
+.thumb-action-btn.del-btn:hover {
+  color: #ef4444;
+}
+.thumb-num-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+}
+.thumb-add-page-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: var(--white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: transform 0.12s ease, background 0.12s ease;
+  margin: 2px 0 8px 0;
+  flex-shrink: 0;
+}
+.thumb-add-page-btn:hover {
+  background: #2563eb;
+  transform: scale(1.1);
 }
 /* Rubber-band Marquee Drag Selection Box */
 .editor-selection-marquee {
