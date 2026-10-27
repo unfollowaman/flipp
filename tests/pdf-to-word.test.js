@@ -595,14 +595,9 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(partialControls.modeSelect.disabled, true);
   });
 
-  it("showConversionSuccessUI populates source card and word master title", async () => {
-    const sourcesGrid = {
-      innerHTML: "",
-      appendChild: function(child) { this.children = this.children || []; this.children.push(child); }
-    };
+  it("showConversionSuccessUI populates word master title", async () => {
     const masterTitle = { textContent: "" };
 
-    pdfToWordModule.elementsMap["p2w-sources-grid"] = sourcesGrid;
     pdfToWordModule.elementsMap["p2w-master-title"] = masterTitle;
 
     const mockElements = {
@@ -618,7 +613,6 @@ describe("pdf-to-word unit and integration tests", () => {
     pdfToWordModule.showConversionSuccessUI(mockElements, mockState);
 
     assert.strictEqual(masterTitle.textContent, "my_report.docx");
-    assert.notStrictEqual(sourcesGrid.innerHTML, undefined);
   });
 
   describe("handleFileSelected", () => {
