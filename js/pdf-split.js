@@ -232,6 +232,124 @@ function addFiles(files) {
   loadPdfMetadataAndPreviews(first);
 }
 
+async function renderCardThumbnail(blob, container) {
+  const iconSpan = document.createElement("span");
+  iconSpan.className = "split-master-icon";
+  iconSpan.textContent = "📄";
+  container.appendChild(iconSpan);
+
+  const pdfjsLib = window["pdfjs-dist/build/pdf"];
+  if (!pdfjsLib || !blob || typeof blob.arrayBuffer !== "function") return;
+
+  try {
+    const arrayBuffer = await blob.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdfDoc = await loadingTask.promise;
+    const page = await pdfDoc.getPage(1);
+    const viewport = page.getViewport({ scale: 0.3 });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.objectFit = "contain";
+
+    const ctx = canvas.getContext("2d");
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    container.innerHTML = "";
+    container.appendChild(canvas);
+
+    if (typeof page.cleanup === "function") page.cleanup();
+    if (typeof pdfDoc.destroy === "function") {
+      try {
+        await pdfDoc.destroy();
+      } catch (e) {
+        console.warn("Error destroying card thumbnail PDF document:", e);
+      }
+    }
+  } catch (err) {
+    // Keep fallback icon if rendering fails
+  }
+}
+
+async function displaySplitResults(baseName) {
+  previewArea.classList.remove("is-visible");
+  resultsArea.classList.add("is-visible");
+  downloadsEl.innerHTML = "";
+
+  const zipContainer = document.getElementById("split-zip-container");
+  if (zipContainer) zipContainer.innerHTML = "";
+
+  splitBlobs.forEach((entry, index) => {
+    const card = document.createElement("div");
+    card.className = "split-master-card";
+
+    const badge = document.createElement("div");
+    badge.className = "split-master-badge";
+    badge.textContent = `PDF ${index + 1} READY!`;
+
+    const preview = document.createElement("div");
+    preview.className = "split-master-preview";
+
+    renderCardThumbnail(entry.blob, preview);
+
+    const title = document.createElement("div");
+    title.className = "split-master-title";
+    title.title = entry.name;
+    title.textContent = entry.name;
+
+    const btn = document.createElement("button");
+    btn.className = "cta-btn cta-yellow split-card-btn";
+    btn.textContent = "Download ⬇";
+    btn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(entry.blob);
+      a.download = entry.name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    card.appendChild(badge);
+    card.appendChild(preview);
+    card.appendChild(title);
+    card.appendChild(btn);
+
+    downloadsEl.appendChild(card);
+  });
+
+  if (splitBlobs.length > 1 && window.JSZip && zipContainer) {
+    const zipBtn = document.createElement("button");
+    zipBtn.className = "cta-btn cta-mint";
+    zipBtn.textContent = "Download All as ZIP 📦";
+    zipBtn.addEventListener("click", async () => {
+      zipBtn.textContent = "Zipping…";
+      zipBtn.disabled = true;
+      try {
+        const zip = new window.JSZip();
+        splitBlobs.forEach((entry) => {
+          zip.file(entry.name, entry.blob);
+        });
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(zipBlob);
+        a.download = `${baseName}-split.zip`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast("ZIP downloaded!");
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to create ZIP file.", "error");
+      } finally {
+        zipBtn.textContent = "Download All as ZIP 📦";
+        zipBtn.disabled = false;
+      }
+    });
+    zipContainer.appendChild(zipBtn);
+  }
+}
+
 let startInputTimeout = null;
 let endInputTimeout = null;
 
@@ -296,54 +414,7 @@ splitBtn.addEventListener("click", async () => {
         chunkIndex++;
       }
 
-      previewArea.classList.remove("is-visible");
-      resultsArea.classList.add("is-visible");
-      downloadsEl.innerHTML = "";
-
-      splitBlobs.forEach((entry) => {
-        const btn = document.createElement("button");
-        btn.className = "cta-btn cta-yellow";
-        btn.textContent = `Download ${entry.name}`;
-        btn.addEventListener("click", () => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(entry.blob);
-          a.download = entry.name;
-          a.click();
-          URL.revokeObjectURL(a.href);
-        });
-        downloadsEl.appendChild(btn);
-      });
-
-      if (splitBlobs.length > 1 && window.JSZip) {
-        const zipBtn = document.createElement("button");
-        zipBtn.className = "cta-btn cta-mint";
-        zipBtn.textContent = "Download All as ZIP 📦";
-        zipBtn.addEventListener("click", async () => {
-          zipBtn.textContent = "Zipping…";
-          zipBtn.disabled = true;
-          try {
-            const zip = new window.JSZip();
-            splitBlobs.forEach((entry) => {
-              zip.file(entry.name, entry.blob);
-            });
-            const zipBlob = await zip.generateAsync({ type: "blob" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(zipBlob);
-            a.download = `${baseName}-split.zip`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            showToast("ZIP downloaded!");
-          } catch (err) {
-            console.error(err);
-            showToast("Failed to create ZIP file.", "error");
-          } finally {
-            zipBtn.textContent = "Download All as ZIP 📦";
-            zipBtn.disabled = false;
-          }
-        });
-        downloadsEl.appendChild(zipBtn);
-      }
-
+      await displaySplitResults(baseName);
       showToast(`Split into ${splitBlobs.length} PDF file${splitBlobs.length !== 1 ? "s" : ""}.`);
     } else {
       if (totalPages < 2)
@@ -397,23 +468,7 @@ splitBtn.addEventListener("click", async () => {
         blob: new Blob([await secondOut.save()], { type: "application/pdf" }),
       });
 
-      previewArea.classList.remove("is-visible");
-      resultsArea.classList.add("is-visible");
-      downloadsEl.innerHTML = "";
-      splitBlobs.forEach((entry) => {
-        const btn = document.createElement("button");
-        btn.className = "cta-btn cta-yellow";
-        btn.textContent = `Download ${entry.name}`;
-        btn.addEventListener("click", () => {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(entry.blob);
-          a.download = entry.name;
-          a.click();
-          URL.revokeObjectURL(a.href);
-        });
-        downloadsEl.appendChild(btn);
-      });
-
+      await displaySplitResults(baseName);
       showToast(
         `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
       );
@@ -442,6 +497,8 @@ resetBtn.addEventListener("click", () => {
   resultsArea.classList.remove("is-visible");
   infoEl.textContent = "";
   downloadsEl.innerHTML = "";
+  const zipContainer = document.getElementById("split-zip-container");
+  if (zipContainer) zipContainer.innerHTML = "";
   rangeStartEl.value = "";
   rangeEndEl.value = "";
   const startCanvas = previewStartEl.querySelector("canvas");

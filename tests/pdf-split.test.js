@@ -624,6 +624,126 @@ test('pdf-split N-page splitting logic', async (t) => {
   });
 });
 
+test('pdf-split renders visual result cards when split completes', async (t) => {
+  const elementMap = {};
+
+  const createMockElement = (id = '', tag = 'div') => {
+    if (!elementMap[id]) {
+      elementMap[id] = {
+        id,
+        tag,
+        className: '',
+        value: '',
+        checked: false,
+        disabled: false,
+        style: { display: '', opacity: '', pointerEvents: '' },
+        classList: {
+          _classes: new Set(),
+          add(c) { this._classes.add(c); },
+          remove(c) { this._classes.delete(c); },
+          contains(c) { return this._classes.has(c); }
+        },
+        children: [],
+        appendChild(child) { this.children.push(child); },
+        innerHTML: '',
+        textContent: '',
+        title: '',
+        listeners: {},
+        addEventListener(event, handler) {
+          this.listeners[event] = handler;
+        },
+        querySelector: () => createMockElement(),
+        querySelectorAll: () => [],
+      };
+    }
+    return elementMap[id];
+  };
+
+  const mockDocument = {
+    getElementById: (id) => createMockElement(id),
+    createElement: (tag) => {
+      const el = createMockElement(`created-${tag}-${Math.random()}`, tag);
+      el.tag = tag;
+      return el;
+    }
+  };
+
+  class MockPDFDocument {
+    constructor(pageCount) {
+      this._pageCount = pageCount;
+      this.pages = Array.from({ length: pageCount }, (_, i) => ({ id: i + 1 }));
+    }
+    getPageCount() { return this._pageCount; }
+    async copyPages(srcPdf, pageIndexes) { return pageIndexes.map((idx) => srcPdf.pages[idx]); }
+    addPage(page) {}
+    async save() { return new Uint8Array([1, 2, 3]); }
+  }
+
+  const mockWindow = {
+    PDFLib: {
+      PDFDocument: {
+        load: async (buffer) => new MockPDFDocument(buffer.mockPageCount || 4),
+        create: async () => new MockPDFDocument(0)
+      }
+    },
+    'pdfjs-dist/build/pdf': {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          getPage: async (num) => ({
+            getViewport: () => ({ width: 100, height: 100 }),
+            render: () => ({ promise: Promise.resolve() })
+          })
+        })
+      })
+    }
+  };
+
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'Blob', 'URL', 'console', src);
+
+  const { loadPdfMetadataAndPreviews, addFiles } = wrapper(
+    mockDocument,
+    mockWindow,
+    () => {},
+    () => {},
+    class Blob { constructor(content, opts) { this.content = content; this.opts = opts; } },
+    { createObjectURL: () => 'blob:test', revokeObjectURL: () => {} },
+    { error: () => {}, warn: () => {} }
+  );
+
+  const splitBtn = mockDocument.getElementById('split-btn');
+  const downloadsContainer = mockDocument.getElementById('split-downloads');
+
+  const buffer = new ArrayBuffer(8);
+  buffer.mockPageCount = 4;
+  const fakeFile = {
+    name: 'test_document.pdf',
+    type: 'application/pdf',
+    arrayBuffer: async () => buffer
+  };
+
+  addFiles([fakeFile]);
+  await loadPdfMetadataAndPreviews(fakeFile);
+
+  await splitBtn.listeners['click']();
+
+  const cards = downloadsContainer.children.filter((child) => child.className.includes('split-master-card'));
+  assert.strictEqual(cards.length, 2, 'Should create 2 result cards for a 2-part split');
+
+  const card1 = cards[0];
+  const badge = card1.children.find((c) => c.className.includes('split-master-badge'));
+  const preview = card1.children.find((c) => c.className.includes('split-master-preview'));
+  const title = card1.children.find((c) => c.className.includes('split-master-title'));
+  const btn = card1.children.find((c) => c.className.includes('split-card-btn'));
+
+  assert.ok(badge, 'Card should contain badge element');
+  assert.strictEqual(badge.textContent, 'PDF 1 READY!');
+  assert.ok(preview, 'Card should contain preview element');
+  assert.ok(title, 'Card should contain title element');
+  assert.strictEqual(title.textContent, 'test_document 1.pdf');
+  assert.ok(btn, 'Card should contain download button element');
+  assert.strictEqual(btn.textContent, 'Download ⬇');
+});
+
 test('tools/split-pdf/index.html includes aria-labels for split range inputs', async (t) => {
   const htmlPath = path.join(__dirname, '../tools/split-pdf/index.html');
   const htmlContent = fs.readFileSync(htmlPath, 'utf8');

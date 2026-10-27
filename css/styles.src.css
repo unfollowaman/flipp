@@ -1355,7 +1355,8 @@ Results ============================== */
 .merged-stage-container,
 .protect-stage-container,
 .watermark-stage-container,
-.delete-stage-container {
+.delete-stage-container,
+.split-stage-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1363,6 +1364,16 @@ Results ============================== */
   max-width: 800px;
   margin: 0 auto 24px auto;
   position: relative;
+}
+
+.split-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+  padding: 8px 12px;
 }
 
 .merged-sources-grid {
@@ -1464,7 +1475,8 @@ Results ============================== */
 .merged-master-card,
 .protect-master-card,
 .watermark-master-card,
-.delete-master-card {
+.delete-master-card,
+.split-master-card {
   width: 180px;
   background: var(--cream);
   border: 2px solid var(--black);
@@ -1477,12 +1489,19 @@ Results ============================== */
   box-shadow: var(--shadow-hard), 0 0 20px rgba(61, 214, 140, 0.35);
   position: relative;
   z-index: 2;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.split-master-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hard), 0 0 26px rgba(61, 214, 140, 0.55);
 }
 
 .merged-master-badge,
 .protect-master-badge,
 .watermark-master-badge,
-.delete-master-badge {
+.delete-master-badge,
+.split-master-badge {
   background: var(--mint);
   color: var(--black);
   font-size: 10px;
@@ -1497,7 +1516,8 @@ Results ============================== */
 .merged-master-preview,
 .protect-master-preview,
 .watermark-master-preview,
-.delete-master-preview {
+.delete-master-preview,
+.split-master-preview {
   width: 90px;
   height: 110px;
   background: var(--white);
@@ -1519,14 +1539,16 @@ Results ============================== */
 .merged-master-icon,
 .protect-master-icon,
 .watermark-master-icon,
-.delete-master-icon {
+.delete-master-icon,
+.split-master-icon {
   font-size: 36px;
 }
 
 .merged-master-title,
 .protect-master-title,
 .watermark-master-title,
-.delete-master-title {
+.delete-master-title,
+.split-master-title {
   font-size: 14px;
   font-weight: 800;
   color: var(--black);
@@ -1534,6 +1556,15 @@ Results ============================== */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+.split-card-btn {
+  margin-top: auto;
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 12px;
+  justify-content: center;
 }
 
 .results-area {
