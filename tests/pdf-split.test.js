@@ -615,6 +615,14 @@ test('pdf-split N-page splitting logic', async (t) => {
     assert.strictEqual(docs[0].addedPages.length, 1);
   });
 
+  await t.test('Yields event loop periodically during multi-chunk N-mode split', async () => {
+    const docs = await runSplit(12, true, 1);
+    assert.strictEqual(docs.length, 12);
+    docs.forEach((doc) => {
+      assert.strictEqual(doc.addedPages.length, 1);
+    });
+  });
+
   await t.test('Default 2-part split behavior remains unchanged when checkbox is OFF', async () => {
     const docs = await runSplit(10, false, 1);
     // Note: loadPdfMetadataAndPreviews automatically sets rangeStartEl to "1" and rangeEndEl to Math.max(1, totalPages - 1) = "9"
