@@ -615,6 +615,62 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(masterTitle.textContent, "my_report.docx");
   });
 
+  describe("handleConversionError", () => {
+    it("handles conversion error by displaying toast, re-enabling controls, and updating UI areas", () => {
+      pdfToWordModule.lastToast.message = null;
+      pdfToWordModule.lastToast.type = null;
+
+      const mockElements = {
+        progressArea: { style: { display: "block" } },
+        optionsArea: { style: { display: "none" } },
+        modeSelect: { disabled: true },
+        languageSelect: { disabled: true },
+        convertBtn: { disabled: true }
+      };
+
+      const originalError = console.error;
+      let loggedError = null;
+      console.error = (...args) => {
+        loggedError = args;
+      };
+
+      try {
+        const testError = new Error("Test conversion failure");
+        pdfToWordModule.handleConversionError(testError, mockElements);
+
+        assert.strictEqual(loggedError[0], "Error converting PDF to Word:");
+        assert.strictEqual(loggedError[1], testError);
+        assert.strictEqual(
+          pdfToWordModule.lastToast.message,
+          "Couldn't convert this PDF. The file may be damaged or unsupported."
+        );
+        assert.strictEqual(pdfToWordModule.lastToast.type, "error");
+        assert.strictEqual(mockElements.progressArea.style.display, "none");
+        assert.strictEqual(mockElements.optionsArea.style.display, "block");
+        assert.strictEqual(mockElements.modeSelect.disabled, false);
+        assert.strictEqual(mockElements.languageSelect.disabled, false);
+        assert.strictEqual(mockElements.convertBtn.disabled, false);
+      } finally {
+        console.error = originalError;
+      }
+    });
+
+    it("handles conversion error gracefully when optional DOM elements are absent", () => {
+      const minimalElements = {};
+
+      const originalError = console.error;
+      console.error = () => {};
+
+      try {
+        assert.doesNotThrow(() => {
+          pdfToWordModule.handleConversionError(new Error("Another error"), minimalElements);
+        });
+      } finally {
+        console.error = originalError;
+      }
+    });
+  });
+
   describe("handleFileSelected", () => {
     it("rejects non-PDF files and shows error toast without updating state", () => {
       pdfToWordModule.lastToast.message = null;
