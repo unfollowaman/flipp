@@ -569,6 +569,16 @@ test('add-watermark resource cleanup', async (t) => {
   });
 });
 
+test('add-watermark dead code elimination check', async (t) => {
+  await t.test('activeHandle is not declared or referenced in js/add-watermark.js', () => {
+    assert.strictEqual(
+      /\bactiveHandle\b/.test(src),
+      false,
+      'activeHandle should be completely removed from js/add-watermark.js'
+    );
+  });
+});
+
 test('add-watermark mode pills accessibility attributes', async (t) => {
   const htmlPath = path.join(__dirname, '../tools/add-watermark/index.html');
   const html = fs.readFileSync(htmlPath, 'utf8');
