@@ -24,7 +24,6 @@ let globalWatermarkConfig = {
 let isSelected = true;
 let isDragging = false;
 let isResizing = false;
-let activeHandle = null;
 let dragOffset = { x: 0, y: 0 };
 let initialLocalDist = 1;
 let initialFontSize = 48;
@@ -551,7 +550,6 @@ previewCanvas.addEventListener("pointerdown", (e) => {
 
   if (hitHandle) {
     isResizing = true;
-    activeHandle = hitHandle;
     initialLocalDist = Math.sqrt(lx * lx + ly * ly) || 1;
     initialFontSize = config.fontSize;
     initialScale = config.scale;
@@ -643,7 +641,6 @@ function handlePointerEnd(e) {
   if (isDragging || isResizing) {
     isDragging = false;
     isResizing = false;
-    activeHandle = null;
     pendingChangePage = currentPage;
     if (applyScopePrompt) applyScopePrompt.style.display = "flex";
   }
