@@ -694,7 +694,7 @@ export function showConversionSuccessUI(elements, state) {
   }, 500);
 }
 
-export function handleConversionError(err, elements, state) {
+export function handleConversionError(err, elements) {
   console.error("Error converting PDF to Word:", err);
   showToast("Couldn't convert this PDF. The file may be damaged or unsupported.", "error");
   setConfigurationControlsDisabled(elements, false);
@@ -745,7 +745,7 @@ export async function startConversion(elements, state) {
 
     showConversionSuccessUI(elements, state);
   } catch (err) {
-    handleConversionError(err, elements, state);
+    handleConversionError(err, elements);
   } finally {
     if (pdfDoc && typeof pdfDoc.destroy === "function") {
       try {
