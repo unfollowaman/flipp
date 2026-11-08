@@ -24,7 +24,10 @@ test("pdf-editor native text extraction and editing integration", async (mainSui
     getOriginalExtractedText,
     updateTextEditorStats,
     exportEditedTextPdf,
-    resetEditor
+    resetEditor,
+    parsePagesFromText,
+    renderTextDocumentPages,
+    getDocumentTextFromPages
   };\n`;
 
   const elementMap = {};
@@ -35,12 +38,14 @@ test("pdf-editor native text extraction and editing integration", async (mainSui
     const classes = new Set();
     const attributes = {};
     const listeners = {};
+    const children = [];
 
     const el = {
       id,
       value: "",
       style: {},
       dataset: {},
+      children,
       classList: {
         add: (cls) => classes.add(cls),
         remove: (cls) => classes.delete(cls),
@@ -50,9 +55,20 @@ test("pdf-editor native text extraction and editing integration", async (mainSui
         attributes[attr] = String(val);
       },
       getAttribute: (attr) => attributes[attr] || null,
-      appendChild: () => {},
-      removeChild: () => {},
-      innerHTML: "",
+      appendChild: (c) => { children.push(c); },
+      removeChild: (c) => {
+        const idx = children.indexOf(c);
+        if (idx !== -1) children.splice(idx, 1);
+      },
+      get innerHTML() {
+        return attributes["innerHTML"] || "";
+      },
+      set innerHTML(val) {
+        attributes["innerHTML"] = val;
+        if (val === "") {
+          children.length = 0;
+        }
+      },
       textContent: "",
       getContext: () => ({
         fillRect: () => {},
@@ -258,5 +274,50 @@ test("pdf-editor native text extraction and editing integration", async (mainSui
     assert.strictEqual(editorTextContent.value, "");
     assert.strictEqual(editorModule.getExtractedDocumentData(), null);
     assert.strictEqual(editorModule.getOriginalExtractedText(), "");
+  });
+
+  await mainSuite.test("parsePagesFromText extracts pages correctly from delimited text", () => {
+    const raw = `--- Page 1 ---
+
+First page content
+
+--- Page 2 ---
+
+Second page content
+
+--- Page 3 ---
+
+Third page content`;
+
+    const pages = editorModule.parsePagesFromText(raw);
+    assert.strictEqual(pages.length, 3);
+    assert.strictEqual(pages[0].pageNum, 1);
+    assert.strictEqual(pages[0].text, "First page content");
+    assert.strictEqual(pages[1].pageNum, 2);
+    assert.strictEqual(pages[1].text, "Second page content");
+    assert.strictEqual(pages[2].pageNum, 3);
+    assert.strictEqual(pages[2].text, "Third page content");
+  });
+
+  await mainSuite.test("parsePagesFromText handles single-page text without delimiters", () => {
+    const raw = "Single page document without any delimiters.";
+    const pages = editorModule.parsePagesFromText(raw);
+    assert.strictEqual(pages.length, 1);
+    assert.strictEqual(pages[0].pageNum, 1);
+    assert.strictEqual(pages[0].text, "Single page document without any delimiters.");
+  });
+
+  await mainSuite.test("renderTextDocumentPages creates page sheets for all pages in container", () => {
+    const pagesContainer = createMockElement("editor-text-pages-container");
+    const testPages = [
+      { pageNum: 1, text: "Page 1 body" },
+      { pageNum: 2, text: "Page 2 body" },
+      { pageNum: 3, text: "Page 3 body" },
+      { pageNum: 4, text: "Page 4 body" },
+      { pageNum: 5, text: "Page 5 body" }
+    ];
+
+    editorModule.renderTextDocumentPages(testPages);
+    assert.strictEqual(pagesContainer.children.length, 5);
   });
 });

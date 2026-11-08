@@ -147,6 +147,10 @@ const textEditorNotice = document.getElementById("text-editor-notice");
 const textPageCount = document.getElementById("text-page-count");
 const textWordCount = document.getElementById("text-word-count");
 const textCharCount = document.getElementById("text-char-count");
+const textPagesContainer = document.getElementById("editor-text-pages-container");
+const textPagesScrollArea = document.getElementById("editor-text-pages-scroll");
+const textPageJumpSelect = document.getElementById("text-page-jump-select");
+const textEditorPageJumper = document.getElementById("text-editor-page-jumper");
 
 let currentEditorMode = "text";
 let extractedDocumentData = null;
@@ -162,6 +166,167 @@ export function getExtractedDocumentData() {
 
 export function getOriginalExtractedText() {
   return originalExtractedText;
+}
+
+export function parsePagesFromText(text) {
+  if (!text || typeof text !== "string") return [];
+  const regex = /(?:^|\n)---+\s*Page\s*(\d+)\s*---+(?:\n|$)/gi;
+  const matches = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    matches.push({
+      index: match.index,
+      length: match[0].length,
+      pageNum: parseInt(match[1], 10),
+    });
+  }
+
+  if (matches.length === 0) {
+    return [{ pageNum: 1, text: text.trim() }];
+  }
+
+  const parts = [];
+  for (let i = 0; i < matches.length; i++) {
+    const cur = matches[i];
+    const startIndex = cur.index + cur.length;
+    const endIndex = i + 1 < matches.length ? matches[i + 1].index : text.length;
+    const pageText = text.substring(startIndex, endIndex).trim();
+    parts.push({
+      pageNum: cur.pageNum,
+      text: pageText === "[Empty Page]" ? "" : pageText,
+    });
+  }
+
+  return parts;
+}
+
+export function getDocumentTextFromPages() {
+  if (typeof document === "undefined") return "";
+  const pageSheets = document.querySelectorAll(".pdf-text-page-sheet");
+  if (!pageSheets || pageSheets.length === 0) {
+    return editorTextContent ? editorTextContent.value : "";
+  }
+  const chunks = [];
+  pageSheets.forEach((sheet) => {
+    const pageNum = sheet.dataset.pageNum || "1";
+    const body = sheet.querySelector(".pdf-text-page-body");
+    const rawText = body ? (body.innerText !== undefined ? body.innerText : (body.textContent || "")) : "";
+    const cleanText = rawText.replace(/\r\n/g, "\n").trim();
+    const pageBody = cleanText ? cleanText : "[Empty Page]";
+    chunks.push(`--- Page ${pageNum} ---\n\n${pageBody}`);
+  });
+  return chunks.join("\n\n\n");
+}
+
+export function renderTextDocumentPages(pages = []) {
+  if (!textPagesContainer) return;
+
+  textPagesContainer.innerHTML = "";
+
+  if (!pages || pages.length === 0) {
+    const totalP = extractedDocumentData?.numPages || numPages || 1;
+    pages = [];
+    for (let p = 1; p <= totalP; p++) {
+      pages.push({ pageNum: p, text: "" });
+    }
+  }
+
+  const totalPages = pages.length;
+
+  if (textPageJumpSelect) {
+    textPageJumpSelect.innerHTML = "";
+    if (totalPages > 1) {
+      if (textEditorPageJumper) textEditorPageJumper.style.display = "flex";
+      pages.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.pageNum;
+        opt.textContent = `Page ${p.pageNum}`;
+        textPageJumpSelect.appendChild(opt);
+      });
+    } else if (textEditorPageJumper) {
+      textEditorPageJumper.style.display = "none";
+    }
+  }
+
+  pages.forEach((p) => {
+    const sheet = document.createElement("div");
+    sheet.className = "pdf-text-page-sheet";
+    sheet.dataset.pageNum = p.pageNum;
+    sheet.id = `text-page-${p.pageNum}`;
+
+    // Header
+    const header = document.createElement("div");
+    header.className = "pdf-text-page-header";
+
+    const badge = document.createElement("div");
+    badge.className = "pdf-text-page-badge";
+    badge.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Page ${p.pageNum} of ${totalPages}`;
+
+    const meta = document.createElement("div");
+    meta.className = "pdf-text-page-meta";
+    meta.textContent = "Click to edit text directly on page";
+
+    header.appendChild(badge);
+    header.appendChild(meta);
+    sheet.appendChild(header);
+
+    // Body (Editable Page Surface)
+    const body = document.createElement("div");
+    body.className = "pdf-text-page-body";
+    body.setAttribute("contenteditable", "plaintext-only");
+    if (body.contentEditable !== "plaintext-only") {
+      body.setAttribute("contenteditable", "true");
+    }
+    body.setAttribute("role", "textbox");
+    body.setAttribute("aria-multiline", "true");
+    body.setAttribute("aria-label", `Document text for page ${p.pageNum}`);
+    body.dataset.pageNum = p.pageNum;
+    body.setAttribute("spellcheck", "true");
+    body.setAttribute("placeholder", `Click to enter text on page ${p.pageNum}...`);
+
+    body.textContent = (p.text && p.text !== "[Empty Page]") ? p.text : "";
+
+    body.addEventListener("input", () => {
+      const full = getDocumentTextFromPages();
+      if (editorTextContent) {
+        editorTextContent.value = full;
+      }
+      updateTextEditorStats();
+    });
+
+    body.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const pasteText = (e.clipboardData || window.clipboardData).getData("text/plain");
+      if (document.queryCommandSupported && document.queryCommandSupported("insertText")) {
+        document.execCommand("insertText", false, pasteText);
+      } else {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount) {
+          selection.deleteFromDocument();
+          selection.getRangeAt(0).insertNode(document.createTextNode(pasteText));
+          selection.collapseToEnd();
+        }
+      }
+      const full = getDocumentTextFromPages();
+      if (editorTextContent) {
+        editorTextContent.value = full;
+      }
+      updateTextEditorStats();
+    });
+
+    sheet.appendChild(body);
+
+    // Footer
+    const footer = document.createElement("div");
+    footer.className = "pdf-text-page-footer";
+    const footerText = document.createElement("span");
+    footerText.textContent = `— Page ${p.pageNum} —`;
+    footer.appendChild(footerText);
+    sheet.appendChild(footer);
+
+    textPagesContainer.appendChild(sheet);
+  });
 }
 
 export function switchEditorMode(mode) {
@@ -196,8 +361,21 @@ export function switchEditorMode(mode) {
 }
 
 export function updateTextEditorStats() {
-  if (!editorTextContent) return;
-  const val = editorTextContent.value || "";
+  let val = "";
+  if (typeof document !== "undefined") {
+    const pageBodies = document.querySelectorAll(".pdf-text-page-body");
+    if (pageBodies && pageBodies.length > 0) {
+      const parts = [];
+      pageBodies.forEach((b) => {
+        const t = (b.innerText !== undefined ? b.innerText : (b.textContent || "")).trim();
+        if (t && t !== "[Empty Page]") parts.push(t);
+      });
+      val = parts.join("\n\n");
+    }
+  }
+  if (!val && editorTextContent) {
+    val = editorTextContent.value || "";
+  }
   const chars = val.length;
   const words = val.trim() ? val.trim().split(/\s+/).length : 0;
   const pagesCount = extractedDocumentData?.numPages || numPages || 1;
@@ -393,6 +571,7 @@ export async function loadPdfFromBytes(arrayBuffer) {
       if (editorTextContent) {
         editorTextContent.value = originalExtractedText;
       }
+      renderTextDocumentPages(extractedDocumentData?.pages || parsePagesFromText(originalExtractedText));
       updateTextEditorStats();
 
       if (textEditorNotice) {
@@ -876,7 +1055,17 @@ function scrollToPage(pageNum) {
   const active = getActivePages();
   if (active.includes(pageNum)) {
     currentPageIndex = pageNum;
-    renderAllPages();
+    if (currentEditorMode === "text") {
+      const pageEl = document.getElementById(`text-page-${pageNum}`);
+      if (pageEl) {
+        pageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        const bodyEl = pageEl.querySelector(".pdf-text-page-body");
+        if (bodyEl) bodyEl.focus();
+      }
+      if (textPageJumpSelect) textPageJumpSelect.value = pageNum;
+    } else {
+      renderAllPages();
+    }
   }
 }
 
@@ -2696,7 +2885,7 @@ export async function exportEditedPdf() {
 if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
 
 export async function exportEditedTextPdf() {
-  const content = editorTextContent ? editorTextContent.value : originalExtractedText;
+  const content = getDocumentTextFromPages() || (editorTextContent ? editorTextContent.value : originalExtractedText);
   if (!content || !content.trim()) {
     showToast("The document contains no text to export.", "error");
     return;
@@ -2761,23 +2950,67 @@ if (textResetContentBtn) {
   textResetContentBtn.addEventListener("click", () => {
     if (editorTextContent) {
       editorTextContent.value = originalExtractedText;
-      updateTextEditorStats();
-      showToast("Document text restored to original extracted content.");
     }
+    if (extractedDocumentData?.pages && extractedDocumentData.pages.length > 0) {
+      renderTextDocumentPages(extractedDocumentData.pages);
+    } else {
+      renderTextDocumentPages(parsePagesFromText(originalExtractedText));
+    }
+    updateTextEditorStats();
+    showToast("Document text restored to original extracted content.");
   });
 }
 
 if (textCopyBtn) {
   textCopyBtn.addEventListener("click", () => {
-    const textToCopy = editorTextContent ? editorTextContent.value : originalExtractedText;
+    const textToCopy = getDocumentTextFromPages() || (editorTextContent ? editorTextContent.value : originalExtractedText);
     if (textToCopy && typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(textToCopy).then(() => {
-        showToast("Text copied to clipboard!");
+        showToast("Full document text copied to clipboard!");
       }).catch(() => {
         showToast("Failed to copy text", "error");
       });
     }
   });
+}
+
+if (textPageJumpSelect) {
+  textPageJumpSelect.addEventListener("change", (e) => {
+    const targetPageNum = e.target.value;
+    const targetSheet = document.getElementById(`text-page-${targetPageNum}`);
+    if (targetSheet) {
+      targetSheet.scrollIntoView({ behavior: "smooth", block: "start" });
+      const targetBody = targetSheet.querySelector(".pdf-text-page-body");
+      if (targetBody) targetBody.focus();
+    }
+  });
+}
+
+if (textPagesScrollArea && textPageJumpSelect) {
+  let isScrollDebounce = null;
+  textPagesScrollArea.addEventListener(
+    "scroll",
+    () => {
+      if (isScrollDebounce) clearTimeout(isScrollDebounce);
+      isScrollDebounce = setTimeout(() => {
+        if (!textPagesScrollArea) return;
+        const sheets = textPagesScrollArea.querySelectorAll(".pdf-text-page-sheet");
+        if (!sheets || sheets.length === 0) return;
+        const containerTop = textPagesScrollArea.getBoundingClientRect().top;
+        let activeNum = "1";
+        for (const sheet of sheets) {
+          const rect = sheet.getBoundingClientRect();
+          if (rect.top - containerTop <= 160) {
+            activeNum = sheet.dataset.pageNum || "1";
+          }
+        }
+        if (textPageJumpSelect.value !== activeNum) {
+          textPageJumpSelect.value = activeNum;
+        }
+      }, 60);
+    },
+    { passive: true }
+  );
 }
 
 export function checkShareSupport() {
@@ -3053,6 +3286,8 @@ export function resetEditor() {
   extractedDocumentData = null;
   originalExtractedText = "";
   if (editorTextContent) editorTextContent.value = "";
+  if (textPagesContainer) textPagesContainer.innerHTML = "";
+  if (textEditorPageJumper) textEditorPageJumper.style.display = "none";
   if (textEditorNotice) textEditorNotice.style.display = "none";
   updateTextEditorStats();
   switchEditorMode("text");
