@@ -1,5 +1,17 @@
 import { initDropZone, showToast, setProgress, fileToDataUrl, triggerDownload, activatePill } from "./drag-drop.js";
 import { hydrateIcons } from "./edit-pdf-icons.js";
+import {
+  extractDocumentText,
+  generatePdfFromText,
+} from "./native-text-extractor.js";
+
+const _extractDocumentText = typeof extractDocumentText !== "undefined"
+  ? extractDocumentText
+  : (typeof window !== "undefined" && window.extractDocumentText ? window.extractDocumentText : null);
+
+const _generatePdfFromText = typeof generatePdfFromText !== "undefined"
+  ? generatePdfFromText
+  : (typeof window !== "undefined" && window.generatePdfFromText ? window.generatePdfFromText : null);
 
 // Module State
 let pdfjsDocument = null;
@@ -120,6 +132,80 @@ const resultsArea = document.getElementById("editor-results");
 const downloadFinalBtn = document.getElementById("editor-download-final-btn");
 const resetBtn = document.getElementById("editor-reset-btn");
 const deleteObjBtn = document.getElementById("editor-delete-obj");
+
+// Native Text Editor Controls & State
+const modeTabText = document.getElementById("mode-tab-text");
+const modeTabAnnotate = document.getElementById("mode-tab-annotate");
+const textWorkspace = document.getElementById("editor-text-workspace");
+const annotateWorkspace = document.getElementById("editor-annotate-workspace");
+const editorTextContent = document.getElementById("editor-text-content");
+const exportTextPdfBtn = document.getElementById("editor-export-text-pdf-btn");
+const textResetFileBtn = document.getElementById("editor-text-reset-file-btn");
+const textCopyBtn = document.getElementById("text-copy-btn");
+const textResetContentBtn = document.getElementById("text-reset-content-btn");
+const textEditorNotice = document.getElementById("text-editor-notice");
+const textPageCount = document.getElementById("text-page-count");
+const textWordCount = document.getElementById("text-word-count");
+const textCharCount = document.getElementById("text-char-count");
+
+let currentEditorMode = "text";
+let extractedDocumentData = null;
+let originalExtractedText = "";
+
+export function getCurrentEditorMode() {
+  return currentEditorMode;
+}
+
+export function getExtractedDocumentData() {
+  return extractedDocumentData;
+}
+
+export function getOriginalExtractedText() {
+  return originalExtractedText;
+}
+
+export function switchEditorMode(mode) {
+  currentEditorMode = mode;
+  if (mode === "text") {
+    if (modeTabText) {
+      modeTabText.classList.add("is-active");
+      if (modeTabText.setAttribute) modeTabText.setAttribute("aria-selected", "true");
+    }
+    if (modeTabAnnotate) {
+      modeTabAnnotate.classList.remove("is-active");
+      if (modeTabAnnotate.setAttribute) modeTabAnnotate.setAttribute("aria-selected", "false");
+    }
+    if (textWorkspace) textWorkspace.style.display = "flex";
+    if (annotateWorkspace) annotateWorkspace.style.display = "none";
+    if (toolbar) toolbar.style.display = "none";
+    if (propsBar) propsBar.style.display = "none";
+  } else {
+    if (modeTabAnnotate) {
+      modeTabAnnotate.classList.add("is-active");
+      if (modeTabAnnotate.setAttribute) modeTabAnnotate.setAttribute("aria-selected", "true");
+    }
+    if (modeTabText) {
+      modeTabText.classList.remove("is-active");
+      if (modeTabText.setAttribute) modeTabText.setAttribute("aria-selected", "false");
+    }
+    if (textWorkspace) textWorkspace.style.display = "none";
+    if (annotateWorkspace) annotateWorkspace.style.display = "flex";
+    if (toolbar) toolbar.style.display = "flex";
+    updatePropsBarVisibility();
+  }
+}
+
+export function updateTextEditorStats() {
+  if (!editorTextContent) return;
+  const val = editorTextContent.value || "";
+  const chars = val.length;
+  const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+  const pagesCount = extractedDocumentData?.numPages || numPages || 1;
+
+  if (textPageCount) textPageCount.textContent = `${pagesCount} Page${pagesCount !== 1 ? "s" : ""}`;
+  if (textWordCount) textWordCount.textContent = `${words.toLocaleString()} Word${words !== 1 ? "s" : ""}`;
+  if (textCharCount) textCharCount.textContent = `${chars.toLocaleString()} Character${chars !== 1 ? "s" : ""}`;
+}
 
 // Property Controls
 const propFontSize = document.getElementById("prop-font-size");
@@ -290,6 +376,39 @@ export async function loadPdfFromBytes(arrayBuffer) {
   redoStack = [];
   setHistoryState(false, false);
   hydrateIcons();
+
+  // Automatically extract native text from PDF
+  try {
+    if (_extractDocumentText) {
+      extractedDocumentData = await _extractDocumentText(pdfjsDocument, ({ current, total, percent }) => {
+        setProgress(
+          progressBar,
+          progressLabel,
+          20 + Math.floor(percent * 0.4),
+          `Extracting native text... (${current} of ${total} pages)`
+        );
+      });
+      originalExtractedText = extractedDocumentData?.fullText || "";
+
+      if (editorTextContent) {
+        editorTextContent.value = originalExtractedText;
+      }
+      updateTextEditorStats();
+
+      if (textEditorNotice) {
+        if (extractedDocumentData?.isEmpty) {
+          textEditorNotice.textContent = "No native text could be extracted from this PDF. It may be scanned or image-based. You can type your own text here or switch to Annotate & Markup.";
+          textEditorNotice.style.display = "block";
+        } else {
+          textEditorNotice.style.display = "none";
+        }
+      }
+    }
+  } catch (extractErr) {
+    console.warn("Native text extraction warning:", extractErr);
+  }
+
+  switchEditorMode("text");
 
   if (sidebarEl && window.innerWidth > 600) {
     sidebarEl.style.display = "flex";
@@ -2576,6 +2695,91 @@ export async function exportEditedPdf() {
 
 if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
 
+export async function exportEditedTextPdf() {
+  const content = editorTextContent ? editorTextContent.value : originalExtractedText;
+  if (!content || !content.trim()) {
+    showToast("The document contains no text to export.", "error");
+    return;
+  }
+
+  if (workspaceContainer) workspaceContainer.style.display = "none";
+  if (progressArea) progressArea.style.display = "block";
+  setProgress(progressBar, progressLabel, 20, "Generating new PDF document...");
+
+  try {
+    const generateFn = _generatePdfFromText;
+    if (!generateFn) {
+      throw new Error("generatePdfFromText function is not available.");
+    }
+
+    setProgress(progressBar, progressLabel, 60, "Formatting pages and line wraps...");
+    const blob = await generateFn(content);
+
+    const userFileName = filenameInput ? filenameInput.value : fileName;
+    const safeName = sanitizeFilename(userFileName);
+
+    setProgress(progressBar, progressLabel, 100, "Done!");
+
+    setTimeout(() => {
+      if (progressArea) progressArea.style.display = "none";
+      if (resultsArea) resultsArea.classList.add("is-visible");
+
+      if (currentDownloadUrl) {
+        URL.revokeObjectURL(currentDownloadUrl);
+      }
+      currentDownloadUrl = URL.createObjectURL(blob);
+
+      if (downloadFinalBtn) {
+        downloadFinalBtn.onclick = () => {
+          triggerDownload(currentDownloadUrl, safeName, true);
+          currentDownloadUrl = null;
+        };
+      }
+    }, 400);
+  } catch (err) {
+    console.error("Export text PDF error:", err);
+    showToast("We couldn't generate the PDF from edited text.", "error");
+    if (progressArea) progressArea.style.display = "none";
+    if (workspaceContainer) workspaceContainer.style.display = "flex";
+  }
+}
+
+if (exportTextPdfBtn) exportTextPdfBtn.addEventListener("click", exportEditedTextPdf);
+
+if (modeTabText) modeTabText.addEventListener("click", () => switchEditorMode("text"));
+if (modeTabAnnotate) modeTabAnnotate.addEventListener("click", () => switchEditorMode("annotate"));
+
+if (editorTextContent) {
+  editorTextContent.addEventListener("input", updateTextEditorStats);
+}
+
+if (textResetFileBtn) {
+  textResetFileBtn.addEventListener("click", resetEditor);
+}
+
+if (textResetContentBtn) {
+  textResetContentBtn.addEventListener("click", () => {
+    if (editorTextContent) {
+      editorTextContent.value = originalExtractedText;
+      updateTextEditorStats();
+      showToast("Document text restored to original extracted content.");
+    }
+  });
+}
+
+if (textCopyBtn) {
+  textCopyBtn.addEventListener("click", () => {
+    const textToCopy = editorTextContent ? editorTextContent.value : originalExtractedText;
+    if (textToCopy && typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast("Text copied to clipboard!");
+      }).catch(() => {
+        showToast("Failed to copy text", "error");
+      });
+    }
+  });
+}
+
 export function checkShareSupport() {
   if (
     typeof navigator !== "undefined" &&
@@ -2845,6 +3049,13 @@ export function resetEditor() {
   }
   zoomLevel = 1.0;
   if (zoomValLabel) zoomValLabel.textContent = "100%";
+
+  extractedDocumentData = null;
+  originalExtractedText = "";
+  if (editorTextContent) editorTextContent.value = "";
+  if (textEditorNotice) textEditorNotice.style.display = "none";
+  updateTextEditorStats();
+  switchEditorMode("text");
 
   if (editorHeader) editorHeader.style.display = "block";
   if (dropZone) dropZone.style.display = "flex";

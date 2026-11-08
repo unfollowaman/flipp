@@ -52,6 +52,7 @@
     />
     <meta name="twitter:site" content="@unfollowaman" />
     <link rel="modulepreload" href="../../js/pdf-editor.js" />
+    <link rel="modulepreload" href="../../js/native-text-extractor.js" />
     <link rel="modulepreload" href="../../js/drag-drop.js" />
     <link rel="modulepreload" href="/js/edit-pdf-icons.js" />
     <link rel="icon" type="image/svg+xml" href="../../assets/icons/favicon.svg" />
@@ -225,6 +226,99 @@
         gap: 12px;
         margin-top: 16px;
         position: relative;
+      }
+      .editor-mode-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 2px 0 6px 0;
+      }
+      .mode-tab {
+        border: 1.5px solid var(--black);
+        background: var(--white);
+        border-radius: var(--radius-sm);
+        padding: 8px 18px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .mode-tab:hover {
+        background: #f3f4f6;
+      }
+      .mode-tab.is-active,
+      .mode-tab[aria-selected="true"] {
+        background: var(--yellow);
+        box-shadow: 2px 2px 0 var(--black);
+      }
+      .editor-text-workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+      .text-editor-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        background: #f7f7f5;
+        border: 1.5px solid var(--black);
+        border-radius: var(--radius-sm);
+        padding: 8px 14px;
+      }
+      .text-editor-stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .stat-badge {
+        background: var(--white);
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #374151;
+      }
+      .text-editor-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .text-editor-container {
+        position: relative;
+        width: 100%;
+      }
+      .editor-text-textarea {
+        width: 100%;
+        min-height: 480px;
+        padding: 16px;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.6;
+        border: 2px solid var(--black);
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        resize: vertical;
+        box-sizing: border-box;
+        background: var(--white);
+        color: #111;
+      }
+      .editor-text-textarea:focus {
+        outline: none;
+        border-color: #138deb;
+        box-shadow: 0 0 0 3px rgba(19, 141, 235, 0.2);
+      }
+      .text-editor-footer-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
       }
       .editor-single-toolbar {
         display: flex;
@@ -868,6 +962,54 @@
             </div>
           </div>
 
+          <!-- Editor Mode Selector -->
+          <div class="editor-mode-selector" id="editor-mode-selector" role="tablist" aria-label="Editing mode">
+            <button type="button" class="mode-tab is-active" id="mode-tab-text" role="tab" aria-selected="true" aria-controls="editor-text-workspace">
+              📝 Edit Text Content
+            </button>
+            <button type="button" class="mode-tab" id="mode-tab-annotate" role="tab" aria-selected="false" aria-controls="editor-annotate-workspace">
+              🎨 Annotate & Markup
+            </button>
+          </div>
+
+          <!-- Native Document Text Editor Workspace -->
+          <div class="editor-text-workspace" id="editor-text-workspace" role="tabpanel" aria-labelledby="mode-tab-text">
+            <div class="text-editor-toolbar">
+              <div class="text-editor-stats" id="text-editor-stats">
+                <span class="stat-badge" id="text-page-count">0 Pages</span>
+                <span class="stat-badge" id="text-word-count">0 Words</span>
+                <span class="stat-badge" id="text-char-count">0 Characters</span>
+              </div>
+              <div class="text-editor-actions">
+                <button type="button" class="editor-btn" id="text-copy-btn" title="Copy text to clipboard">📋 Copy All</button>
+                <button type="button" class="editor-btn" id="text-reset-content-btn" title="Reset to original extracted text">↺ Reset Text</button>
+              </div>
+            </div>
+
+            <div class="text-editor-notice" id="text-editor-notice" style="display: none; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 600;"></div>
+
+            <div class="text-editor-container">
+              <textarea
+                id="editor-text-content"
+                class="editor-text-textarea"
+                aria-label="Editable PDF document text"
+                placeholder="Extracting text from PDF..."
+                spellcheck="true"
+              ></textarea>
+            </div>
+
+            <div class="text-editor-footer-actions">
+              <button type="button" class="dl-btn" id="editor-export-text-pdf-btn">
+                ⬇ Download Modified PDF
+              </button>
+              <button type="button" class="editor-btn" id="editor-text-reset-file-btn">
+                Edit another file ↺
+              </button>
+            </div>
+          </div>
+
+          <!-- Annotate & Markup Workspace -->
+          <div class="editor-annotate-workspace" id="editor-annotate-workspace" role="tabpanel" aria-labelledby="mode-tab-annotate" style="display: none; flex-direction: column; gap: 12px; width: 100%;">
           <!-- Tool Tray -->
           <div class="ep-tray" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
             <button type="button" class="ep-tool is-active" data-tool="select" aria-pressed="true" aria-label="Select and move" title="Select and move"><span data-icon="select" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Select</span></button>
@@ -1041,6 +1183,7 @@
             <button class="dl-btn" id="editor-export-btn">⬇ Download</button>
             <button class="share-btn" id="editor-share-btn">🔗 Share</button>
           </div>
+          </div><!-- /editor-annotate-workspace -->
         </div>
 
         <!-- Progress Area -->

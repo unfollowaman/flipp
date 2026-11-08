@@ -5,7 +5,7 @@ const path = require('node:path');
 
 test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
   const srcPath = path.join(__dirname, '../js/pdf-to-text.js');
-  let src = fs.readFileSync(srcPath, 'utf8');
+  let src = fs.readFileSync(srcPath, 'utf8').replace(/\r\n/g, '\n');
 
   // Strip imports and export statements for sandbox Function evaluation
   src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
