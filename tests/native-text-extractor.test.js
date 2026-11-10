@@ -1,5 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert");
+const fs = require("node:fs");
+const path = require("node:path");
 
 test("native-text-extractor suite", async (mainSuite) => {
   const {
@@ -102,6 +104,53 @@ test("native-text-extractor suite", async (mainSuite) => {
       assert.deepStrictEqual(extractPageTextItems({}, null), []);
       assert.deepStrictEqual(extractPageTextItems({ items: [] }, null), []);
     });
+
+    await t.test("correctly calculates font size for condensed fonts using vertical matrix scale", () => {
+      const textContent = {
+        items: [
+          {
+            str: "Condensed Text",
+            transform: [6, 0, 0, 14, 54, 700], // sx=6, sy=14
+            width: 80,
+            height: 14,
+            fontName: "Condensed-Font",
+          },
+        ],
+      };
+      const viewport = {
+        width: 595,
+        height: 842,
+        convertToViewportPoint: (x, y) => [x, 842 - y],
+      };
+      const items = extractPageTextItems(textContent, viewport, 0);
+      assert.strictEqual(items.length, 1);
+      assert.strictEqual(items[0].fontSize, 14);
+    });
+
+    await t.test("identifies malformed NUL characters, records warnings, and replaces with fallback glyph", () => {
+      const textContent = {
+        items: [
+          {
+            str: "Malformed \u0000text\u0000 sample",
+            transform: [12, 0, 0, 12, 54, 700],
+            width: 100,
+            height: 12,
+            fontName: "Regular",
+          },
+        ],
+      };
+      const viewport = {
+        width: 595,
+        height: 842,
+        convertToViewportPoint: (x, y) => [x, 842 - y],
+      };
+      const items = extractPageTextItems(textContent, viewport, 0);
+      assert.strictEqual(items.length, 1);
+      assert.ok(items[0].str.includes("\uFFFD"));
+      assert.ok(!items[0].str.includes("\u0000"));
+      assert.strictEqual(items.warnings.hasMalformedGlyphs, true);
+      assert.strictEqual(items.warnings.malformedCount, 2);
+    });
   });
 
   await mainSuite.test("sortAndDetectReadingOrder multi-column and single-column sorting", async (t) => {
@@ -134,6 +183,55 @@ test("native-text-extractor suite", async (mainSuite) => {
       assert.strictEqual(sorted[0].str, "Line 1");
       assert.strictEqual(sorted[1].str, "Line 2");
       assert.strictEqual(sorted[2].str, "Line 3");
+    });
+
+    await t.test("preserves reading order for three-column layout (Col 1 -> Col 2 -> Col 3)", () => {
+      const pageWidth = 600;
+      const items = [
+        // Column 1
+        { str: "Col 1 Line 1", leftX: 40, topY: 100, width: 120 },
+        { str: "Col 1 Line 2", leftX: 40, topY: 140, width: 120 },
+        // Column 2
+        { str: "Col 2 Line 1", leftX: 230, topY: 100, width: 120 },
+        { str: "Col 2 Line 2", leftX: 230, topY: 140, width: 120 },
+        // Column 3
+        { str: "Col 3 Line 1", leftX: 420, topY: 100, width: 120 },
+        { str: "Col 3 Line 2", leftX: 420, topY: 140, width: 120 },
+      ];
+
+      const sorted = sortAndDetectReadingOrder(items, pageWidth);
+      assert.strictEqual(sorted.length, 6);
+      assert.strictEqual(sorted[0].str, "Col 1 Line 1");
+      assert.strictEqual(sorted[1].str, "Col 1 Line 2");
+      assert.strictEqual(sorted[2].str, "Col 2 Line 1");
+      assert.strictEqual(sorted[3].str, "Col 2 Line 2");
+      assert.strictEqual(sorted[4].str, "Col 3 Line 1");
+      assert.strictEqual(sorted[5].str, "Col 3 Line 2");
+    });
+
+    await t.test("handles mid-page section headings spanning across columns without dumping to bottom", () => {
+      const pageWidth = 600;
+      const items = [
+        // Full width header
+        { str: "Main Document Title", leftX: 50, topY: 50, width: 500, fontSize: 18 },
+        // Top 2-column block
+        { str: "Top Col 1", leftX: 50, topY: 100, width: 180, fontSize: 11 },
+        { str: "Top Col 2", leftX: 340, topY: 100, width: 180, fontSize: 11 },
+        // Mid-page heading
+        { str: "Mid-Page Section Heading", leftX: 50, topY: 200, width: 500, fontSize: 15 },
+        // Bottom 2-column block
+        { str: "Bottom Col 1", leftX: 50, topY: 260, width: 180, fontSize: 11 },
+        { str: "Bottom Col 2", leftX: 340, topY: 260, width: 180, fontSize: 11 },
+      ];
+
+      const sorted = sortAndDetectReadingOrder(items, pageWidth);
+      assert.strictEqual(sorted.length, 6);
+      assert.strictEqual(sorted[0].str, "Main Document Title");
+      assert.strictEqual(sorted[1].str, "Top Col 1");
+      assert.strictEqual(sorted[2].str, "Top Col 2");
+      assert.strictEqual(sorted[3].str, "Mid-Page Section Heading");
+      assert.strictEqual(sorted[4].str, "Bottom Col 1");
+      assert.strictEqual(sorted[5].str, "Bottom Col 2");
     });
   });
 
@@ -170,9 +268,69 @@ test("native-text-extractor suite", async (mainSuite) => {
       assert.strictEqual(lines[0].text, "First Line");
       assert.strictEqual(lines[1].text, "Second Line");
     });
+
+    await t.test("reconstructs Hindi words split across items without injecting false spaces", () => {
+      // Devanagari dependent vowel signs (matras) and consonants
+      const items = [
+        { str: "\u0915", leftX: 50, topY: 100, width: 10, fontSize: 12 }, // क
+        { str: "\u093F", leftX: 62, topY: 100, width: 8, fontSize: 12 },  // ि
+        { str: "\u0924", leftX: 72, topY: 100, width: 10, fontSize: 12 }, // त
+        { str: "\u093E", leftX: 84, topY: 100, width: 8, fontSize: 12 },  // ा
+        { str: "\u092C", leftX: 94, topY: 100, width: 10, fontSize: 12 }, // ब
+      ];
+      const lines = groupItemsIntoLines(items);
+      assert.strictEqual(lines.length, 1);
+      assert.strictEqual(lines[0].text, "\u0915\u093F\u0924\u093E\u092C"); // किताब
+    });
+
+    await t.test("handles Devanagari conjuncts with virama without space injection", () => {
+      // फ् + लिप्प = फ्लिप्प
+      const items = [
+        { str: "\u092B\u094D", leftX: 50, topY: 100, width: 15, fontSize: 12 }, // फ्
+        { str: "\u0932\u093F\u092A\u094D\u092A", leftX: 67, topY: 100, width: 35, fontSize: 12 }, // लिप्प
+      ];
+      const lines = groupItemsIntoLines(items);
+      assert.strictEqual(lines.length, 1);
+      assert.strictEqual(lines[0].text, "\u092B\u094D\u0932\u093F\u092A\u094D\u092A"); // फ्लिप्प
+    });
+
+    await t.test("inserts spaces between distinct Hindi words when genuine word gap exists", () => {
+      // नमस्ते + दुनिया (with gap = 12 > 3.8)
+      const items = [
+        { str: "\u0928\u092E\u0938\u094D\u0924\u0947", leftX: 50, topY: 100, width: 45, fontSize: 12 }, // नमस्ते
+        { str: "\u0926\u0941\u0928\u093F\u092F\u093E", leftX: 107, topY: 100, width: 45, fontSize: 12 }, // दुनिया (gap = 12)
+      ];
+      const lines = groupItemsIntoLines(items);
+      assert.strictEqual(lines.length, 1);
+      assert.strictEqual(lines[0].text, "\u0928\u092E\u0938\u094D\u0924\u0947 \u0926\u0941\u0928\u093F\u092F\u093E");
+    });
+
+    await t.test("preserves correct spacing around opening and closing punctuation", () => {
+      const items = [
+        { str: "(", leftX: 50, topY: 100, width: 6, fontSize: 12 },
+        { str: "example", leftX: 58, topY: 100, width: 45, fontSize: 12 },
+        { str: ")", leftX: 105, topY: 100, width: 6, fontSize: 12 },
+        { str: ",", leftX: 113, topY: 100, width: 4, fontSize: 12 },
+        { str: "next", leftX: 125, topY: 100, width: 30, fontSize: 12 }, // gap = 125 - 117 = 8 -> space
+      ];
+      const lines = groupItemsIntoLines(items);
+      assert.strictEqual(lines.length, 1);
+      assert.strictEqual(lines[0].text, "(example), next");
+    });
   });
 
   await mainSuite.test("groupLinesIntoParagraphs detection of headings and paragraph breaks", async (t) => {
+    await t.test("does not break a paragraph when an inline word is bolded", () => {
+      const lines = [
+        { topY: 50, bottomY: 62, fontSize: 11, isBold: false, text: "This is a sentence with an", leftX: 54 },
+        { topY: 64, bottomY: 76, fontSize: 11, isBold: true, text: "inline bold word phrase", leftX: 54 },
+        { topY: 78, bottomY: 90, fontSize: 11, isBold: false, text: "continuing in the same paragraph.", leftX: 54 },
+      ];
+      const paras = groupLinesIntoParagraphs(lines, 595);
+      assert.strictEqual(paras.length, 1);
+      assert.strictEqual(paras[0].text, "This is a sentence with an inline bold word phrase continuing in the same paragraph.");
+      assert.strictEqual(paras[0].isHeading, false);
+    });
     await t.test("detects headings and separates paragraphs by spacing gaps", () => {
       const lines = [
         { topY: 50, bottomY: 68, fontSize: 18, isBold: true, text: "Chapter 1: Getting Started", leftX: 54 },
@@ -220,7 +378,8 @@ test("native-text-extractor suite", async (mainSuite) => {
 
       const result = await extractSinglePage(mockPage, 1);
       assert.strictEqual(result.pageNum, 1);
-      assert.ok(result.text.includes("# Title"));
+      assert.ok(result.text.includes("Title"));
+      assert.strictEqual(result.paragraphs[0].isHeading, true);
       assert.ok(result.text.includes("Body paragraph."));
       assert.strictEqual(result.paragraphs.length, 2);
     });
@@ -294,13 +453,38 @@ test("native-text-extractor suite", async (mainSuite) => {
     });
   });
 
-  await mainSuite.test("sanitizeForPdfFont sanitizes unsupported unicode characters", () => {
-    const input = "Hello \u0000World! \tTab \r\nNewline 👍 Emoji";
-    const output = sanitizeForPdfFont(input);
-    assert.ok(!output.includes("\u0000"));
-    assert.ok(!output.includes("👍"));
-    assert.ok(output.includes("Hello"));
-    assert.ok(output.includes("World!"));
+  await mainSuite.test("sanitizeForPdfFont sanitizes unsupported unicode characters", async (t) => {
+    await t.test("strips control characters and emojis while preserving English text", () => {
+      const input = "Hello \u0000World! \tTab \r\nNewline 👍 Emoji";
+      const output = sanitizeForPdfFont(input);
+      assert.ok(!output.includes("\u0000"));
+      assert.ok(!output.includes("👍"));
+      assert.ok(output.includes("Hello"));
+      assert.ok(output.includes("World!"));
+    });
+
+    await t.test("preserves Hindi, Unicode punctuation, mathematical symbols, and currency symbols", () => {
+      const input = "Hindi: \u0928\u092E\u0938\u094D\u0924\u0947 | Symbols: \u20B91,500 \u00B1 5% \u2264 100 \u20AC | Quotes: \u201CHello\u201D \u2018World\u2019 \u2014 \u2026";
+      const output = sanitizeForPdfFont(input);
+      assert.ok(output.includes("\u0928\u092E\u0938\u094D\u0924\u0947")); // नमस्ते
+      assert.ok(output.includes("\u20B91,500")); // ₹1,500
+      assert.ok(output.includes("\u00B1")); // ±
+      assert.ok(output.includes("\u2264")); // ≤
+      assert.ok(output.includes("\u20AC")); // €
+      assert.ok(output.includes("\u201CHello\u201D")); // “Hello”
+      assert.ok(output.includes("\u2014")); // —
+      assert.ok(output.includes("\u2026")); // …
+    });
+
+    await t.test("maps typography and symbols to WinAnsi equivalents when strictWinAnsi is enabled", () => {
+      const input = "\u201CHello\u201D \u2018World\u2019 \u2014 test\u2026 \u20B9500 \u20AC100";
+      const output = sanitizeForPdfFont(input, { strictWinAnsi: true });
+      assert.ok(output.includes('"Hello"'));
+      assert.ok(output.includes("'World'"));
+      assert.ok(output.includes("- test..."));
+      assert.ok(output.includes("INR500"));
+      assert.ok(output.includes("EUR100"));
+    });
   });
 
   await mainSuite.test("generatePdfFromText generates valid new PDF with overflow page breaks", async (t) => {
@@ -367,6 +551,66 @@ test("native-text-extractor suite", async (mainSuite) => {
       await generatePdfFromText(text, { pdfLib: mockPdfLib, pageHeight: 400, marginBottom: 50, marginTop: 50 });
 
       assert.ok(mockPages.length > 1, `Expected multiple pages on overflow, got ${mockPages.length}`);
+    });
+
+    await t.test("embeds Unicode TrueType font via fontkit when available and preserves Hindi text", async () => {
+      const fontPath = path.join(__dirname, "../assets/fonts/Poppins-Regular.ttf");
+      const fontBytes = fs.readFileSync(fontPath);
+
+      let registeredFontkit = null;
+      let embeddedFontOptions = null;
+
+      const mockUnicodePdfDoc = {
+        registerFontkit: (fk) => {
+          registeredFontkit = fk;
+        },
+        embedFont: async (bytes, opts) => {
+          embeddedFontOptions = opts;
+          return {
+            widthOfTextAtSize: (str, size) => str.length * size * 0.5,
+          };
+        },
+        addPage: (dims) => {
+          const page = {
+            dims,
+            drawCalls: [],
+            drawText: (text, opts) => {
+              page.drawCalls.push({ text, opts });
+            },
+          };
+          mockPages.push(page);
+          return page;
+        },
+        getPages: () => mockPages,
+        save: async () => new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x55]),
+      };
+
+      const mockUnicodePdfLib = {
+        PDFDocument: {
+          create: async () => mockUnicodePdfDoc,
+        },
+        StandardFonts: mockPdfLib.StandardFonts,
+        rgb: mockPdfLib.rgb,
+      };
+
+      const mockFk = { id: "fontkit-mock" };
+      mockPages.length = 0;
+
+      const text = `--- Page 1 ---\n\n\u0928\u092E\u0938\u094D\u0924\u0947 \u092D\u093E\u0930\u0924 \u20B9500 \u201CQuotes\u201D`;
+      const result = await generatePdfFromText(text, {
+        pdfLib: mockUnicodePdfLib,
+        fontkit: mockFk,
+        fontBytes,
+      });
+
+      assert.ok(result);
+      assert.strictEqual(registeredFontkit, mockFk);
+      assert.deepStrictEqual(embeddedFontOptions, { subset: true });
+
+      const pageTexts = mockPages[0].drawCalls.map((c) => c.text);
+      assert.ok(pageTexts.some((t) => t.includes("\u0928\u092E\u0938\u094D\u0924\u0947")));
+      assert.ok(pageTexts.some((t) => t.includes("\u20B9500")));
+      assert.ok(pageTexts.some((t) => t.includes("\u201CQuotes\u201D")));
     });
   });
 });

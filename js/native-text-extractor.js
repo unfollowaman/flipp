@@ -5,6 +5,9 @@
  * Preserves reading order, font information, lines, paragraphs,
  * page numbers, and rotations using transformation matrices and coordinate mapping.
  *
+ * Supports English, Hindi, Devanagari, Unicode punctuation, mathematical
+ * symbols, and currency symbols.
+ *
  * Zero OCR. Zero external server calls. Runs 100% in-browser.
  */
 
@@ -12,6 +15,12 @@ const IS_BOLD_REGEX = /bold|black|heavy|medium|semibold/i;
 const IS_ITALIC_REGEX = /italic|oblique/i;
 const IS_LIST_REGEX = /^([•\-\*▪]|(\d+|[a-zA-Z])[\.\)])\s+/;
 const HAS_NON_WHITESPACE_REGEX = /\S/;
+
+const DEVANAGARI_COMBINING_REGEX = /^[\u0901-\u0903\u093A-\u094F\u0951-\u0957\u0962-\u0963]/;
+const DEVANAGARI_VIRAMA_END_REGEX = /\u094D$/;
+const IS_DEVANAGARI_REGEX = /[\u0900-\u097F]/;
+const NO_SPACE_BEFORE_PUNCT_REGEX = /^[,.!?:;\)\]\}”’»।॥%]/;
+const NO_SPACE_AFTER_PUNCT_REGEX = /[(\[{“‘«]$/;
 
 /**
  * Normalizes coordinates from PDF user space to top-down viewport space,
@@ -42,14 +51,34 @@ export function convertPdfPointToViewport(pdfX, pdfY, viewport, pageRotate = 0) 
 /**
  * Extracts and normalizes text items from PDF.js textContent.
  * Extracts font sizes, transformation matrices, positions, and styling.
+ * Distinguishes genuine Unicode content from malformed extraction output
+ * and records warnings for invalid control characters.
  */
 export function extractPageTextItems(textContent, viewport, pageRotate = 0) {
-  if (!textContent || !Array.isArray(textContent.items)) return [];
+  if (!textContent || !Array.isArray(textContent.items) || textContent.items.length === 0) {
+    return [];
+  }
 
   const items = [];
+  let hasMalformedGlyphs = false;
+  let malformedCount = 0;
 
   for (const item of textContent.items) {
-    if (!item || typeof item.str !== "string" || !HAS_NON_WHITESPACE_REGEX.test(item.str)) {
+    if (!item || typeof item.str !== "string") {
+      continue;
+    }
+
+    let itemStr = item.str;
+
+    // Detect and handle malformed NUL bytes safely
+    if (itemStr.includes("\u0000")) {
+      hasMalformedGlyphs = true;
+      const nulMatches = itemStr.match(/\u0000/g);
+      malformedCount += nulMatches ? nulMatches.length : 1;
+      itemStr = itemStr.replace(/\u0000/g, "\uFFFD");
+    }
+
+    if (!HAS_NON_WHITESPACE_REGEX.test(itemStr)) {
       continue;
     }
 
@@ -60,22 +89,24 @@ export function extractPageTextItems(textContent, viewport, pageRotate = 0) {
     // Convert PDF baseline coords to top-down viewport coords
     const [vx, vy] = convertPdfPointToViewport(pdfX, pdfY, viewport, pageRotate);
 
-    // Font size: hypotenuse of matrix scale components, or explicit height
-    const scaleX = Math.abs(transform[0]) || 12;
-    const scaleY = Math.abs(transform[3]) || 12;
-    const fontSize = Math.hypot(transform[0], transform[1]) || scaleY || item.height || 12;
+    // Font size: vertical matrix scale (hypot of transform[2], transform[3]), or fallback to scaleX/height
+    const scaleX = Math.hypot(transform[0], transform[1]) || Math.abs(transform[0]) || 12;
+    const scaleY = Math.hypot(transform[2], transform[3]) || Math.abs(transform[3]) || 12;
+    const fontSize = scaleY || item.height || scaleX || 12;
 
-    const width = item.width || (item.str.length * fontSize * 0.5);
+    const width = item.width || (itemStr.length * fontSize * 0.5);
     const height = item.height || fontSize;
     const topY = vy - height; // top-down coordinate
+    const baselineY = vy;
     const fontName = item.fontName || "";
     const isBold = IS_BOLD_REGEX.test(fontName);
     const isItalic = IS_ITALIC_REGEX.test(fontName);
 
     items.push({
-      str: item.str,
+      str: itemStr,
       leftX: vx,
       topY,
+      baselineY,
       pdfX,
       pdfY,
       width,
@@ -89,12 +120,23 @@ export function extractPageTextItems(textContent, viewport, pageRotate = 0) {
     });
   }
 
+  Object.defineProperty(items, "warnings", {
+    value: {
+      hasMalformedGlyphs,
+      malformedCount,
+    },
+    enumerable: false,
+    configurable: true,
+  });
+
   return items;
 }
 
 /**
  * Orders text items preserving natural reading order.
- * Detects multi-column document layouts to avoid interleaving columns.
+ * Uses Banded Reading Order: partitions the page into vertical bands delimited
+ * by full-width or spanning items (titles, headers, banners), then clusters items
+ * horizontally into columns (1, 2, or 3 columns) within each band, avoiding interleaving.
  */
 export function sortAndDetectReadingOrder(items, pageWidth = 595.28) {
   if (!items || items.length === 0) return [];
@@ -102,46 +144,122 @@ export function sortAndDetectReadingOrder(items, pageWidth = 595.28) {
   // Sort items top-to-bottom, then left-to-right
   const sorted = [...items].sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
 
-  const midPoint = pageWidth / 2;
-  const margin = pageWidth * 0.08;
+  // Helper to identify spanning items (headers, footers, full-width section breaks)
+  const isSpanningItem = (item) => {
+    const w = item.width || 0;
+    if (w >= pageWidth * 0.55) return true;
+    if (item.fontSize >= 14 && w >= pageWidth * 0.40) return true;
+    return false;
+  };
 
-  const leftCol = [];
-  const rightCol = [];
-  const fullWidth = [];
+  // Partition into vertical bands
+  const bands = [];
+  let currentBand = [];
 
   for (const item of sorted) {
-    const itemRight = item.leftX + item.width;
-    if (itemRight < midPoint + margin && item.leftX < midPoint - margin) {
-      leftCol.push(item);
-    } else if (item.leftX > midPoint - margin && itemRight > midPoint + margin) {
-      rightCol.push(item);
+    if (isSpanningItem(item)) {
+      if (currentBand.length > 0) {
+        bands.push({ type: "content", items: currentBand });
+        currentBand = [];
+      }
+      bands.push({ type: "spanning", items: [item] });
     } else {
-      fullWidth.push(item);
+      currentBand.push(item);
     }
   }
-
-  // If both columns have significant content (>15% each), treat as multi-column
-  const isMultiColumn =
-    leftCol.length > items.length * 0.15 && rightCol.length > items.length * 0.15;
-
-  if (isMultiColumn) {
-    leftCol.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
-    rightCol.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
-    fullWidth.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
-
-    const firstColTop = Math.min(leftCol[0]?.topY || Infinity, rightCol[0]?.topY || Infinity);
-    const topHeaders = fullWidth.filter((i) => i.topY < firstColTop);
-    const bottomFooters = fullWidth.filter((i) => i.topY >= firstColTop);
-
-    return [...topHeaders, ...leftCol, ...rightCol, ...bottomFooters];
+  if (currentBand.length > 0) {
+    bands.push({ type: "content", items: currentBand });
   }
 
-  return sorted;
+  const result = [];
+
+  for (const band of bands) {
+    if (band.type === "spanning" || band.items.length <= 1) {
+      result.push(...band.items);
+      continue;
+    }
+
+    const bandItems = band.items;
+
+    // Detect column clusters using horizontal intervals
+    const intervals = bandItems
+      .map((it) => ({
+        left: it.leftX,
+        right: it.leftX + (it.width || 1),
+      }))
+      .sort((a, b) => a.left - b.left);
+
+    // Merge overlapping/near intervals
+    const merged = [];
+    const gutterThreshold = Math.max(pageWidth * 0.04, 20);
+
+    for (const inv of intervals) {
+      if (merged.length === 0) {
+        merged.push({ left: inv.left, right: inv.right });
+      } else {
+        const prevInv = merged[merged.length - 1];
+        if (inv.left <= prevInv.right + gutterThreshold) {
+          prevInv.right = Math.max(prevInv.right, inv.right);
+        } else {
+          merged.push({ left: inv.left, right: inv.right });
+        }
+      }
+    }
+
+    // If 2 or more distinct column intervals are found
+    if (merged.length >= 2) {
+      const columns = merged.map((col) => ({
+        left: col.left,
+        right: col.right,
+        items: [],
+      }));
+
+      for (const it of bandItems) {
+        const itMid = it.leftX + (it.width || 1) / 2;
+        let bestCol = columns[0];
+        let bestDist = Infinity;
+        for (const col of columns) {
+          if (itMid >= col.left && itMid <= col.right) {
+            bestCol = col;
+            bestDist = 0;
+            break;
+          }
+          const dist = Math.min(Math.abs(itMid - col.left), Math.abs(itMid - col.right));
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestCol = col;
+          }
+        }
+        bestCol.items.push(it);
+      }
+
+      const significantCols = columns.filter((col) => col.items.length > 0);
+      const hasMultiCols =
+        significantCols.length >= 2 &&
+        significantCols.filter((col) => col.items.length >= Math.max(2, bandItems.length * 0.1)).length >= 2;
+
+      if (hasMultiCols) {
+        // Sort each column top-to-bottom, left-to-right
+        for (const col of significantCols) {
+          col.items.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
+          result.push(...col.items);
+        }
+        continue;
+      }
+    }
+
+    // Default single column order for band
+    bandItems.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
+    result.push(...bandItems);
+  }
+
+  return result;
 }
 
 /**
  * Groups horizontal text items sharing nearly the same vertical line into single lines.
- * Reconstructs accurate inter-word spacing using positional gaps.
+ * Reconstructs accurate inter-word spacing using positional gaps while preventing
+ * artificial space injection inside words, Devanagari matras/viramas, and punctuation.
  */
 export function groupItemsIntoLines(items) {
   if (!items || items.length === 0) return [];
@@ -153,10 +271,17 @@ export function groupItemsIntoLines(items) {
 
     for (const line of lines) {
       const threshold = Math.max(line.fontSize * 0.45, 3.5);
-      if (Math.abs(item.topY - line.topY) <= threshold) {
+      const lineY = line.baselineY != null ? line.baselineY : line.topY;
+      const itemY = item.baselineY != null ? item.baselineY : item.topY;
+
+      if (Math.abs(itemY - lineY) <= threshold) {
         line.items.push(item);
         line.sumTopY += item.topY;
         line.topY = line.sumTopY / line.items.length;
+        if (item.baselineY != null) {
+          line.sumBaselineY = (line.sumBaselineY || 0) + item.baselineY;
+          line.baselineY = line.sumBaselineY / line.items.length;
+        }
         if (item.fontSize > line.fontSize) line.fontSize = item.fontSize;
         if (item.isBold) line.isBold = true;
         if (item.isItalic) line.isItalic = true;
@@ -169,6 +294,8 @@ export function groupItemsIntoLines(items) {
       lines.push({
         topY: item.topY,
         sumTopY: item.topY,
+        baselineY: item.baselineY,
+        sumBaselineY: item.baselineY,
         fontSize: item.fontSize,
         isBold: !!item.isBold,
         isItalic: !!item.isItalic,
@@ -193,8 +320,29 @@ export function groupItemsIntoLines(items) {
         const prev = line.items[i - 1];
         const gap = cur.leftX - (prev.leftX + prev.width);
 
-        // Gap threshold: if greater than 20% of previous font size, insert space
-        if (gap > prev.fontSize * 0.2 && !endsWithSpace && !cur.str.startsWith(" ")) {
+        const prevStr = prev.str || "";
+        const curStr = cur.str || "";
+
+        const isDevanagari = IS_DEVANAGARI_REGEX.test(prevStr) || IS_DEVANAGARI_REGEX.test(curStr);
+        const isCombining = DEVANAGARI_COMBINING_REGEX.test(curStr);
+        const isHalantJoin = DEVANAGARI_VIRAMA_END_REGEX.test(prevStr);
+        const isClosingPunct = NO_SPACE_BEFORE_PUNCT_REGEX.test(curStr);
+        const isOpeningPunct = NO_SPACE_AFTER_PUNCT_REGEX.test(prevStr);
+
+        const spacingThreshold = isDevanagari
+          ? Math.max(prev.fontSize * 0.35, 3.8)
+          : Math.max(prev.fontSize * 0.22, 2.4);
+
+        const shouldInsertSpace =
+          gap > spacingThreshold &&
+          !endsWithSpace &&
+          !curStr.startsWith(" ") &&
+          !isCombining &&
+          !isHalantJoin &&
+          !isClosingPunct &&
+          !isOpeningPunct;
+
+        if (shouldInsertSpace) {
           parts.push(" ");
           endsWithSpace = true;
         }
@@ -214,7 +362,7 @@ export function groupItemsIntoLines(items) {
 
 /**
  * Groups lines into logical paragraphs, preserving headings, list items,
- * and vertical paragraph breaks.
+ * and vertical paragraph breaks without fragmenting paragraphs on inline bold text.
  */
 export function groupLinesIntoParagraphs(lines, pageWidth = 595.28) {
   if (!lines || lines.length === 0) return [];
@@ -234,6 +382,7 @@ export function groupLinesIntoParagraphs(lines, pageWidth = 595.28) {
     const isHeading =
       (firstLine.fontSize >= 14 || (firstLine.isBold && firstLine.fontSize > medianFontSize * 1.15)) &&
       text.length < 120 &&
+      !text.endsWith(".") &&
       para.lines.length <= 2;
 
     const isList = IS_LIST_REGEX.test(firstLine.text);
@@ -265,15 +414,17 @@ export function groupLinesIntoParagraphs(lines, pageWidth = 595.28) {
 
     const prevLine = currentPara.lines[currentPara.lines.length - 1];
     const lineGap = line.topY - prevLine.bottomY;
-    const expectedGap = prevLine.fontSize * 0.7;
+    const expectedGap = prevLine.fontSize * 0.75;
 
-    const isFontChanged = Math.abs(line.fontSize - prevLine.fontSize) > 2.0;
-    const isStyleChanged = line.isBold !== prevLine.isBold;
+    const isFontChanged = Math.abs(line.fontSize - prevLine.fontSize) > 2.5;
     const isExcessiveGap = lineGap > expectedGap;
-    const isHeading = (line.fontSize >= 14 || line.isBold) && line.text.length < 100;
+    const isHeading =
+      (line.fontSize >= 14 || (line.isBold && line.fontSize > medianFontSize * 1.15)) &&
+      line.text.length < 100 &&
+      !line.text.endsWith(".");
     const isList = IS_LIST_REGEX.test(line.text);
 
-    if (isExcessiveGap || isFontChanged || isStyleChanged || isHeading || isList) {
+    if (isExcessiveGap || isFontChanged || isHeading || isList) {
       finalizeParagraph(currentPara);
       currentPara = {
         lines: [line],
@@ -295,10 +446,17 @@ export function groupLinesIntoParagraphs(lines, pageWidth = 595.28) {
 
 /**
  * Extracts structured text from a single PDF.js page.
+ * Reconstructs readable plain text without markdown (#) pollution.
  */
 export async function extractSinglePage(page, pageNum) {
   if (!page) {
-    return { pageNum, text: "", paragraphs: [], lines: [] };
+    return {
+      pageNum,
+      text: "",
+      paragraphs: [],
+      lines: [],
+      warnings: { hasMalformedGlyphs: false, malformedCount: 0 },
+    };
   }
 
   const rotation = page.rotate || 0;
@@ -325,6 +483,7 @@ export async function extractSinglePage(page, pageNum) {
       width: viewport.width,
       height: viewport.height,
       rotation,
+      warnings: { hasMalformedGlyphs: false, malformedCount: 0 },
     };
   }
 
@@ -333,8 +492,9 @@ export async function extractSinglePage(page, pageNum) {
   const lines = groupItemsIntoLines(orderedItems);
   const paragraphs = groupLinesIntoParagraphs(lines, viewport.width);
 
+  // Clean plain text without markdown prefix pollution
   const pageText = paragraphs
-    .map((p) => (p.isHeading ? `# ${p.text}` : p.text))
+    .map((p) => p.text)
     .join("\n\n")
     .trim();
 
@@ -346,6 +506,7 @@ export async function extractSinglePage(page, pageNum) {
     width: viewport.width,
     height: viewport.height,
     rotation,
+    warnings: rawItems.warnings || { hasMalformedGlyphs: false, malformedCount: 0 },
   };
 }
 
@@ -356,7 +517,13 @@ export async function extractSinglePage(page, pageNum) {
  */
 export async function extractDocumentText(pdfDoc, onProgress = null) {
   if (!pdfDoc || !pdfDoc.numPages) {
-    return { pages: [], fullText: "", isEmpty: true, numPages: 0 };
+    return {
+      pages: [],
+      fullText: "",
+      isEmpty: true,
+      numPages: 0,
+      warnings: { hasMalformedGlyphs: false, malformedCount: 0 },
+    };
   }
 
   const numPages = pdfDoc.numPages;
@@ -371,7 +538,13 @@ export async function extractDocumentText(pdfDoc, onProgress = null) {
       pages.push(pageData);
     } catch (err) {
       console.warn(`Error extracting page ${i}:`, err);
-      pages.push({ pageNum: i, text: "", paragraphs: [], lines: [] });
+      pages.push({
+        pageNum: i,
+        text: "",
+        paragraphs: [],
+        lines: [],
+        warnings: { hasMalformedGlyphs: false, malformedCount: 0 },
+      });
     } finally {
       if (page && typeof page.cleanup === "function") {
         try {
@@ -402,29 +575,60 @@ export async function extractDocumentText(pdfDoc, onProgress = null) {
 
   const fullText = pageSeparators.join("\n\n\n");
   const totalLength = pages.reduce((acc, p) => acc + p.text.length, 0);
+  const hasMalformed = pages.some((p) => p.warnings?.hasMalformedGlyphs);
+  const totalMalformed = pages.reduce((acc, p) => acc + (p.warnings?.malformedCount || 0), 0);
 
   return {
     pages,
     fullText,
     isEmpty: totalLength === 0,
     numPages,
+    warnings: {
+      hasMalformedGlyphs: hasMalformed,
+      malformedCount: totalMalformed,
+    },
   };
 }
 
 /**
- * Sanitizes text to characters supported by standard PDF Helvetica font.
+ * Sanitizes and normalizes text for PDF rendering.
+ * Normalizes newlines and tabs, removes unprintable C0 control characters (preserving newlines).
+ *
+ * If strictWinAnsi is enabled (only when falling back to standard Helvetica without fontkit),
+ * smart typography is gracefully mapped to ASCII/WinAnsi equivalents rather than deleted.
+ * When strictWinAnsi is false (default, for Unicode font rendering), all valid Unicode
+ * characters including Hindi, mathematical symbols, and currency symbols are preserved.
  */
-export function sanitizeForPdfFont(text) {
+export function sanitizeForPdfFont(text, options = {}) {
   if (!text) return "";
-  return text
+  const strictWinAnsi = options.strictWinAnsi === true;
+
+  let cleaned = String(text)
     .replace(/\r\n?/g, "\n")
     .replace(/\t/g, "    ")
-    .replace(/[^\x20-\x7E\xA0-\xFF\n]/g, " ");
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
+    .replace(/\p{Extended_Pictographic}/gu, "");
+
+  if (strictWinAnsi) {
+    cleaned = cleaned
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/\u2026/g, "...")
+      .replace(/[\u2022\u25AA]/g, "*")
+      .replace(/\u20AC/g, "EUR")
+      .replace(/\u20B9/g, "INR")
+      .replace(/[^\x20-\x7E\xA0-\xFF\n]/g, " ");
+  }
+
+  return cleaned;
 }
 
 /**
  * Generates a clean new PDF containing the edited text using pdf-lib.
  * Handles headings, paragraphs, word wrapping, page breaks, and text overflow.
+ * When fontkit and custom fontBytes (e.g. Poppins-Regular) are provided,
+ * embeds Unicode font with font subsetting, fully supporting Hindi and extended Unicode.
  * The original PDF document is completely untouched.
  */
 export async function generatePdfFromText(content, options = {}) {
@@ -436,9 +640,28 @@ export async function generatePdfFromText(content, options = {}) {
   const { PDFDocument, StandardFonts, rgb } = pdfLib;
   const pdfDoc = await PDFDocument.create();
 
-  const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const italicFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+  // Check for fontkit and custom font (e.g. Poppins-Regular for Unicode & Hindi support)
+  const fontkit = options.fontkit || (typeof window !== "undefined" ? window.fontkit : null);
+  let regularFont = null;
+  let boldFont = null;
+  let hasUnicodeFont = false;
+
+  if (fontkit && options.fontBytes) {
+    try {
+      pdfDoc.registerFontkit(fontkit);
+      const customFont = await pdfDoc.embedFont(options.fontBytes, { subset: true });
+      regularFont = customFont;
+      boldFont = customFont;
+      hasUnicodeFont = true;
+    } catch (fontErr) {
+      console.warn("Failed to embed custom fontkit font, falling back to standard fonts:", fontErr);
+    }
+  }
+
+  if (!regularFont) {
+    regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  }
 
   const pageWidth = options.pageWidth || 595.28; // A4
   const pageHeight = options.pageHeight || 841.89; // A4
@@ -450,14 +673,11 @@ export async function generatePdfFromText(content, options = {}) {
   // Split into pages if page delimiters exist
   const rawPages = content.split(/(?:^|\n)---+\s*Page\s*\d+\s*---+/i);
   const pageChunks = rawPages.filter((chunk) => chunk.trim().length > 0);
-
-  // If no page delimiters were found, treat entire content as single chunk
   const chunksToRender = pageChunks.length > 0 ? pageChunks : [content];
 
   for (let cIdx = 0; cIdx < chunksToRender.length; cIdx++) {
     const chunk = chunksToRender[cIdx];
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
-
     let curY = pageHeight - marginTop;
 
     const rawParagraphs = chunk.split(/\n\s*\n/);
@@ -467,17 +687,15 @@ export async function generatePdfFromText(content, options = {}) {
       if (!trimmedPara || trimmedPara === "[Empty Page]") continue;
 
       const isHeading = trimmedPara.startsWith("# ") || trimmedPara.startsWith("## ");
-      const displayText = isHeading
-        ? trimmedPara.replace(/^#+\s*/, "")
-        : trimmedPara;
+      const displayText = isHeading ? trimmedPara.replace(/^#+\s*/, "") : trimmedPara;
 
       const fontSize = isHeading ? 15 : 11;
       const lineHeight = isHeading ? 20 : 15;
       const font = isHeading ? boldFont : regularFont;
       const textColor = isHeading ? rgb(0.1, 0.1, 0.1) : rgb(0.15, 0.15, 0.15);
 
-      // Sanitize for standard Helvetica
-      const safeText = sanitizeForPdfFont(displayText);
+      // Sanitize text: if standard Helvetica, use strictWinAnsi mapping; if Unicode font, preserve Unicode
+      const safeText = sanitizeForPdfFont(displayText, { strictWinAnsi: !hasUnicodeFont });
 
       // Word-wrap paragraph lines
       const words = safeText.split(/\s+/).filter(Boolean);
@@ -507,7 +725,6 @@ export async function generatePdfFromText(content, options = {}) {
       // Render lines with overflow check
       for (const line of wrappedLines) {
         if (curY - lineHeight < marginBottom) {
-          // Automatic page break on text overflow!
           page = pdfDoc.addPage([pageWidth, pageHeight]);
           curY = pageHeight - marginTop;
         }
@@ -521,13 +738,25 @@ export async function generatePdfFromText(content, options = {}) {
             color: textColor,
           });
         } catch (drawErr) {
-          console.warn("Character draw fallback:", drawErr);
+          if (!hasUnicodeFont) {
+            try {
+              const fallbackLine = sanitizeForPdfFont(line, { strictWinAnsi: true });
+              page.drawText(fallbackLine, {
+                x: marginX,
+                y: curY - fontSize,
+                size: fontSize,
+                font,
+                color: textColor,
+              });
+            } catch (_) {}
+          } else {
+            console.warn("Character draw fallback:", drawErr);
+          }
         }
 
         curY -= lineHeight;
       }
 
-      // Paragraph spacing
       curY -= isHeading ? 8 : 6;
     }
   }

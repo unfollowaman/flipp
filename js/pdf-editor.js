@@ -540,7 +540,12 @@ export async function loadPdfFromBytes(arrayBuffer) {
   }
 
   const pdfjsBuffer = arrayBuffer.slice(0);
-  const loadingTask = pdfjsLib.getDocument({ data: pdfjsBuffer });
+  const loadingTask = pdfjsLib.getDocument({
+    data: pdfjsBuffer,
+    cMapUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.3.136/cmaps/",
+    cMapPacked: true,
+    standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.3.136/standard_fonts/",
+  });
   pdfjsDocument = await loadingTask.promise;
 
   numPages = pdfjsDocument.numPages;
@@ -577,6 +582,9 @@ export async function loadPdfFromBytes(arrayBuffer) {
       if (textEditorNotice) {
         if (extractedDocumentData?.isEmpty) {
           textEditorNotice.textContent = "No native text could be extracted from this PDF. It may be scanned or image-based. You can type your own text here or switch to Annotate & Markup.";
+          textEditorNotice.style.display = "block";
+        } else if (extractedDocumentData?.warnings?.hasMalformedGlyphs) {
+          textEditorNotice.textContent = "Some text characters in this PDF could not be decoded cleanly and were preserved with fallback representations. Review before exporting.";
           textEditorNotice.style.display = "block";
         } else {
           textEditorNotice.style.display = "none";
@@ -2884,6 +2892,31 @@ export async function exportEditedPdf() {
 
 if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
 
+let cachedFontBytesPromise = null;
+export function getEditorFontBytes() {
+  if (!cachedFontBytesPromise) {
+    if (typeof window === "undefined" || !window.location || !window.location.href || typeof fetch !== "function") {
+      return Promise.resolve(null);
+    }
+    try {
+      const fontUrl = new URL("../../assets/fonts/Poppins-Regular.ttf", window.location.href).href;
+      cachedFontBytesPromise = fetch(fontUrl)
+        .then((res) => {
+          if (!res.ok) throw new Error("Could not load font");
+          return res.arrayBuffer();
+        })
+        .catch((err) => {
+          cachedFontBytesPromise = null;
+          console.warn("Failed to load Poppins font for export:", err);
+          return null;
+        });
+    } catch (_) {
+      return Promise.resolve(null);
+    }
+  }
+  return cachedFontBytesPromise;
+}
+
 export async function exportEditedTextPdf() {
   const content = getDocumentTextFromPages() || (editorTextContent ? editorTextContent.value : originalExtractedText);
   if (!content || !content.trim()) {
@@ -2902,7 +2935,15 @@ export async function exportEditedTextPdf() {
     }
 
     setProgress(progressBar, progressLabel, 60, "Formatting pages and line wraps...");
-    const blob = await generateFn(content);
+    let fontBytes = null;
+    try {
+      fontBytes = await getEditorFontBytes();
+    } catch (_) {}
+
+    const blob = await generateFn(content, {
+      fontkit: typeof window !== "undefined" ? window.fontkit : null,
+      fontBytes,
+    });
 
     const userFileName = filenameInput ? filenameInput.value : fileName;
     const safeName = sanitizeFilename(userFileName);
