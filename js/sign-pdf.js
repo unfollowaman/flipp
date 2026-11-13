@@ -254,6 +254,7 @@ async function renderPage(pageNum) {
     };
 
     await page.render(renderContext).promise;
+    updateOverlayVisibility();
   } catch (err) {
     showToast("Error rendering page preview.", "error");
   } finally {
@@ -277,6 +278,71 @@ nextPageBtn.addEventListener("click", () => {
     renderPage(currentPage);
   }
 });
+
+// Centralized Coordinate Conversion & Placement Helper
+export function getPdfSignaturePlacement({
+  normX,
+  normY,
+  normW,
+  normH,
+  pageWidth,
+  pageHeight,
+  pageRotation = 0,
+  originX = 0,
+  originY = 0,
+}) {
+  const rot = ((pageRotation % 360) + 360) % 360;
+  let x, y, width, height, rotateDegrees;
+
+  if (rot === 90) {
+    x = originX + (normY + normH) * pageWidth;
+    y = originY + normX * pageHeight;
+    width = normW * pageHeight;
+    height = normH * pageWidth;
+    rotateDegrees = 90;
+  } else if (rot === 180) {
+    x = originX + (1 - normX) * pageWidth;
+    y = originY + (normY + normH) * pageHeight;
+    width = normW * pageWidth;
+    height = normH * pageHeight;
+    rotateDegrees = 180;
+  } else if (rot === 270) {
+    x = originX + (1 - normY - normH) * pageWidth;
+    y = originY + (1 - normX) * pageHeight;
+    width = normW * pageHeight;
+    height = normH * pageWidth;
+    rotateDegrees = 270;
+  } else {
+    // 0 degrees
+    x = originX + normX * pageWidth;
+    y = originY + pageHeight - (normY + normH) * pageHeight;
+    width = normW * pageWidth;
+    height = normH * pageHeight;
+    rotateDegrees = 0;
+  }
+
+  return { x, y, width, height, rotateDegrees };
+}
+
+export function updateOverlayPixelPosition(overlay, sig, cW, cH) {
+  if (!overlay || !sig || !cW || !cH) return;
+  const left = sig.normX * cW;
+  const top = sig.normY * cH;
+  const width = sig.normW * cW;
+  const height = sig.normH * cH;
+
+  overlay.style.left = `${left}px`;
+  overlay.style.top = `${top}px`;
+  overlay.style.width = `${width}px`;
+  overlay.style.height = `${height}px`;
+}
+
+// Signature State Management
+const signatures = new Map();
+
+export function getSignatures() {
+  return signatures;
+}
 
 // Signature Overlay Logic
 let overlayIdCounter = 0;
@@ -338,8 +404,9 @@ document.addEventListener("click", (e) => {
 function createSignatureOverlay(src) {
   const overlay = document.createElement("div");
   overlay.className = "signature-overlay";
-  overlay.dataset.id = `sig-${overlayIdCounter++}`;
-  overlay.dataset.page = currentPage; // Remember which page it was placed on
+  const id = `sig-${overlayIdCounter++}`;
+  overlay.dataset.id = id;
+  overlay.dataset.page = String(currentPage); // Remember which page it was placed on
 
   selectSignature(overlay);
 
@@ -364,6 +431,7 @@ function createSignatureOverlay(src) {
 
   const removeHandler = (e) => {
     e.stopPropagation();
+    signatures.delete(id);
     overlay.remove();
   };
   deleteBtn.addEventListener("click", removeHandler);
@@ -380,27 +448,69 @@ function createSignatureOverlay(src) {
 
   canvasContainer.appendChild(overlay);
 
-  // Set initial position
-  img.onload = () => {
-    let w = img.naturalWidth;
-    let h = img.naturalHeight;
+  // Initialize immediately with default normalized geometry
+  const cWInit = previewCanvas.clientWidth || previewCanvas.offsetWidth || 800;
+  const cHInit = previewCanvas.clientHeight || previewCanvas.offsetHeight || 600;
+  const defaultW = Math.min(200, cWInit * 0.5);
+  const defaultH = defaultW * 0.5;
+  const initLeft = Math.max(0, (cWInit - defaultW) / 2);
+  const initTop = Math.max(0, (cHInit - defaultH) / 2);
 
-    // Scale down if too big
-    const maxW = previewCanvas.offsetWidth * 0.5;
+  const sig = {
+    id,
+    pageNum: currentPage,
+    src,
+    normX: initLeft / cWInit,
+    normY: initTop / cHInit,
+    normW: defaultW / cWInit,
+    normH: defaultH / cHInit,
+    aspectRatio: defaultW / defaultH,
+  };
+  signatures.set(id, sig);
+
+  overlay.dataset.normX = String(sig.normX);
+  overlay.dataset.normY = String(sig.normY);
+  overlay.dataset.normW = String(sig.normW);
+  overlay.dataset.normH = String(sig.normH);
+
+  updateOverlayPixelPosition(overlay, sig, cWInit, cHInit);
+
+  // Refine geometry once natural dimensions load
+  img.onload = () => {
+    const currentCW = previewCanvas.clientWidth || previewCanvas.offsetWidth || 800;
+    const currentCH = previewCanvas.clientHeight || previewCanvas.offsetHeight || 600;
+
+    let naturalW = img.naturalWidth || 200;
+    let naturalH = img.naturalHeight || 100;
+    const aspect = naturalW / naturalH;
+
+    const maxW = currentCW * 0.5;
+    let w = naturalW;
+    let h = naturalH;
     if (w > maxW) {
-      const ratio = maxW / w;
       w = maxW;
-      h = h * ratio;
+      h = w / aspect;
+    }
+    if (h > currentCH * 0.8) {
+      h = currentCH * 0.8;
+      w = h * aspect;
     }
 
-    overlay.style.width = `${w}px`;
-    overlay.style.height = `${h}px`;
+    const left = Math.max(0, (currentCW - w) / 2);
+    const top = Math.max(0, (currentCH - h) / 2);
 
-    // Center initially
-    const cW = previewCanvas.offsetWidth;
-    const cH = previewCanvas.offsetHeight;
-    overlay.style.left = `${(cW - w) / 2}px`;
-    overlay.style.top = `${(cH - h) / 2}px`;
+    sig.normX = left / currentCW;
+    sig.normY = top / currentCH;
+    sig.normW = w / currentCW;
+    sig.normH = h / currentCH;
+    sig.aspectRatio = aspect;
+
+    overlay.dataset.normX = String(sig.normX);
+    overlay.dataset.normY = String(sig.normY);
+    overlay.dataset.normW = String(sig.normW);
+    overlay.dataset.normH = String(sig.normH);
+
+    updateOverlayPixelPosition(overlay, sig, currentCW, currentCH);
   };
 
   makeDraggableAndResizable(overlay, resizeHandle);
@@ -454,16 +564,16 @@ function makeDraggable(overlay, resizeHandle) {
     let newLeft = startLeft + dx;
     let newTop = startTop + dy;
 
-    // Constrain to container
-    const cW = canvasContainer.offsetWidth;
-    const cH = canvasContainer.offsetHeight;
+    // Constrain strictly to preview canvas content bounds
+    const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+    const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
     const oW = overlay.offsetWidth;
     const oH = overlay.offsetHeight;
 
     if (newLeft < 0) newLeft = 0;
     if (newTop < 0) newTop = 0;
-    if (newLeft + oW > cW) newLeft = cW - oW;
-    if (newTop + oH > cH) newTop = cH - oH;
+    if (newLeft + oW > cW) newLeft = Math.max(0, cW - oW);
+    if (newTop + oH > cH) newTop = Math.max(0, cH - oH);
 
     overlay.style.left = `${newLeft}px`;
     overlay.style.top = `${newTop}px`;
@@ -477,6 +587,25 @@ function makeDraggable(overlay, resizeHandle) {
     document.removeEventListener("touchmove", drag);
     document.removeEventListener("mouseup", endDrag);
     document.removeEventListener("touchend", endDrag);
+
+    const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+    const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
+    if (cW > 0 && cH > 0) {
+      const curLeft = parseFloat(overlay.style.left) || 0;
+      const curTop = parseFloat(overlay.style.top) || 0;
+      const id = overlay.dataset ? overlay.dataset.id : null;
+      if (id) {
+        const sig = signatures.get(id);
+        if (sig) {
+          sig.normX = curLeft / cW;
+          sig.normY = curTop / cH;
+        }
+      }
+      if (overlay.dataset) {
+        overlay.dataset.normX = String(curLeft / cW);
+        overlay.dataset.normY = String(curTop / cH);
+      }
+    }
   }
 }
 
@@ -515,10 +644,24 @@ function makeResizable(overlay, resizeHandle) {
 
     const dx = clientX - startX;
 
-    // Maintain aspect ratio based on width change
-    const ratio = startHeight / startWidth;
+    const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+    const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
+    const curLeft = parseFloat(overlay.style.left) || 0;
+    const curTop = parseFloat(overlay.style.top) || 0;
+
+    const id = overlay.dataset ? overlay.dataset.id : null;
+    const sig = id ? signatures.get(id) : null;
+    const aspect = (sig && sig.aspectRatio) ? sig.aspectRatio : (startWidth / startHeight);
+
     let newWidth = Math.max(30, startWidth + dx);
-    let newHeight = newWidth * ratio;
+    if (newWidth + curLeft > cW) {
+      newWidth = Math.max(30, cW - curLeft);
+    }
+    let newHeight = newWidth / aspect;
+    if (newHeight + curTop > cH) {
+      newHeight = Math.max(15, cH - curTop);
+      newWidth = newHeight * aspect;
+    }
 
     overlay.style.width = `${newWidth}px`;
     overlay.style.height = `${newHeight}px`;
@@ -532,20 +675,78 @@ function makeResizable(overlay, resizeHandle) {
     document.removeEventListener("touchmove", resize);
     document.removeEventListener("mouseup", endResize);
     document.removeEventListener("touchend", endResize);
+
+    const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+    const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
+    if (cW > 0 && cH > 0) {
+      const curW = parseFloat(overlay.style.width) || 30;
+      const curH = parseFloat(overlay.style.height) || 15;
+      const id = overlay.dataset ? overlay.dataset.id : null;
+      if (id) {
+        const sig = signatures.get(id);
+        if (sig) {
+          sig.normW = curW / cW;
+          sig.normH = curH / cH;
+        }
+      }
+      if (overlay.dataset) {
+        overlay.dataset.normW = String(curW / cW);
+        overlay.dataset.normH = String(curH / cH);
+      }
+    }
   }
 }
 
-// Ensure overlays are only visible on their respective pages
+// Ensure overlays are only visible on their respective pages and positioned accurately
 function updateOverlayVisibility() {
+  const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+  const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
+
   const overlays = document.querySelectorAll(".signature-overlay");
   overlays.forEach((overlay) => {
     const page = parseInt(overlay.dataset.page, 10);
     if (page === currentPage) {
       overlay.style.display = "block";
+      const sig = signatures.get(overlay.dataset.id);
+      if (sig && cW > 0 && cH > 0) {
+        updateOverlayPixelPosition(overlay, sig, cW, cH);
+      }
     } else {
       overlay.style.display = "none";
     }
   });
+}
+
+export function syncActiveOverlays() {
+  if (!previewCanvas || !canvasContainer) return;
+  const cW = previewCanvas.clientWidth || previewCanvas.offsetWidth;
+  const cH = previewCanvas.clientHeight || previewCanvas.offsetHeight;
+  if (!cW || !cH) return;
+
+  const overlays = document.querySelectorAll(".signature-overlay");
+  overlays.forEach((overlay) => {
+    const page = parseInt(overlay.dataset.page, 10);
+    if (page === currentPage) {
+      const sig = signatures.get(overlay.dataset.id);
+      if (sig) {
+        updateOverlayPixelPosition(overlay, sig, cW, cH);
+      }
+    }
+  });
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("resize", syncActiveOverlays);
+}
+if (typeof ResizeObserver !== "undefined" && canvasContainer) {
+  try {
+    const resizeObserver = new ResizeObserver(() => {
+      syncActiveOverlays();
+    });
+    if (typeof resizeObserver.observe === "function") {
+      resizeObserver.observe(canvasContainer);
+    }
+  } catch (_) {}
 }
 
 const observer = new MutationObserver(updateOverlayVisibility);
@@ -561,25 +762,36 @@ nextPageBtn.addEventListener("click", updateOverlayVisibility);
 // Download Process
 downloadBtn.addEventListener("click", async () => {
   const overlays = document.querySelectorAll(".signature-overlay");
-  if (overlays.length === 0) {
+  if (signatures.size === 0 && overlays.length === 0) {
     showToast("Please place at least one signature on the PDF.", "error");
     return;
   }
 
-  // Pre-calculate dimensions before hiding the preview area
-  const canvasW = previewCanvas.offsetWidth;
-  const canvasH = previewCanvas.offsetHeight;
+  // Collect signature data from state or DOM dataset fallback
+  const overlayData = [];
+  if (signatures.size > 0) {
+    signatures.forEach((sig) => {
+      overlayData.push({ ...sig });
+    });
+  } else {
+    overlays.forEach((overlay) => {
+      const img = overlay.querySelector("img");
+      overlayData.push({
+        id: overlay.dataset.id || "sig-0",
+        pageNum: parseInt(overlay.dataset.page, 10) || 1,
+        src: img ? img.src : "",
+        normX: parseFloat(overlay.dataset.normX) || 0,
+        normY: parseFloat(overlay.dataset.normY) || 0,
+        normW: parseFloat(overlay.dataset.normW) || 0.2,
+        normH: parseFloat(overlay.dataset.normH) || 0.1,
+      });
+    });
+  }
 
-  const overlayData = Array.from(overlays).map((overlay) => {
-    return {
-      pageNum: parseInt(overlay.dataset.page, 10),
-      src: overlay.querySelector("img").src,
-      oLeft: parseFloat(overlay.style.left) || 0,
-      oTop: parseFloat(overlay.style.top) || 0,
-      oWidth: overlay.offsetWidth,
-      oHeight: overlay.offsetHeight,
-    };
-  });
+  if (overlayData.length === 0) {
+    showToast("Please place at least one signature on the PDF.", "error");
+    return;
+  }
 
   optionsBar.classList.remove("is-visible");
   previewArea.classList.remove("is-visible");
@@ -587,7 +799,7 @@ downloadBtn.addEventListener("click", async () => {
   setProgress(progressBar, progressLabel, 10, "Loading PDF...");
 
   try {
-    const { PDFDocument } = window.PDFLib;
+    const { PDFDocument, degrees } = window.PDFLib || {};
     // Load fresh from original bytes
     const pdfDoc = await PDFDocument.load(pdfBytesOriginal, { ignoreEncryption: true });
     const pages = pdfDoc.getPages();
@@ -603,13 +815,14 @@ downloadBtn.addEventListener("click", async () => {
 
       const targetPage = pages[data.pageNum - 1];
       const src = data.src;
+      if (!src) continue;
 
       let pdfImage;
       if (embeddedImages.has(src)) {
         pdfImage = embeddedImages.get(src);
       } else {
         // Embed image based on type
-        if (src.startsWith("data:image/jpeg")) {
+        if (src.startsWith("data:image/jpeg") || src.startsWith("data:image/jpg")) {
           pdfImage = await pdfDoc.embedJpg(src);
         } else {
           pdfImage = await pdfDoc.embedPng(src);
@@ -617,29 +830,44 @@ downloadBtn.addEventListener("click", async () => {
         embeddedImages.set(src, pdfImage);
       }
 
-      // Calculate coordinates
-      // HTML canvas size vs PDF page size
-      // We must render the page at scale 1 to get its actual PDF points size to find the ratio correctly,
-      // but actually pdf.js page.getViewport({ scale: 1 }) width is closely matching targetPage.getWidth().
+      const cropBox = typeof targetPage.getCropBox === "function" ? targetPage.getCropBox() : null;
+      const mediaBox = typeof targetPage.getMediaBox === "function" ? targetPage.getMediaBox() : null;
+      const box = cropBox || mediaBox;
 
-      const pdfW = targetPage.getWidth();
-      const pdfH = targetPage.getHeight();
+      const pdfW = box ? box.width : targetPage.getWidth();
+      const pdfH = box ? box.height : targetPage.getHeight();
 
-      const scaleX = pdfW / canvasW;
-      const scaleY = pdfH / canvasH;
+      let pageRotation = 0;
+      if (typeof targetPage.getRotation === "function") {
+        const rotObj = targetPage.getRotation();
+        pageRotation = (rotObj && typeof rotObj.angle === "number") ? rotObj.angle : (typeof rotObj === "number" ? rotObj : 0);
+      }
 
-      const drawW = data.oWidth * scaleX;
-      const drawH = data.oHeight * scaleY;
-      const drawX = data.oLeft * scaleX;
+      const originX = box ? box.x : ((typeof targetPage.getX === "function") ? targetPage.getX() : 0);
+      const originY = box ? box.y : ((typeof targetPage.getY === "function") ? targetPage.getY() : 0);
 
-      // PDF y-axis is inverted (0 is bottom)
-      const drawY = pdfH - data.oTop * scaleY - drawH;
+      const placement = getPdfSignaturePlacement({
+        normX: data.normX,
+        normY: data.normY,
+        normW: data.normW,
+        normH: data.normH,
+        pageWidth: pdfW,
+        pageHeight: pdfH,
+        pageRotation,
+        originX,
+        originY,
+      });
+
+      const rotateOption = degrees
+        ? degrees(placement.rotateDegrees)
+        : { angle: placement.rotateDegrees, type: "degrees" };
 
       targetPage.drawImage(pdfImage, {
-        x: drawX,
-        y: drawY,
-        width: drawW,
-        height: drawH,
+        x: placement.x,
+        y: placement.y,
+        width: placement.width,
+        height: placement.height,
+        rotate: rotateOption,
       });
 
       setProgress(
@@ -686,6 +914,8 @@ function resetTool() {
     URL.revokeObjectURL(currentDownloadUrl);
     currentDownloadUrl = null;
   }
+
+  signatures.clear();
 
   pdfBytesOriginal = null;
   if (pdfjsDocument && typeof pdfjsDocument.destroy === "function") {

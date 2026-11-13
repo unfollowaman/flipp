@@ -12,7 +12,7 @@ src = src.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
 src = src.replace(/export\s+function/g, 'function');
 
 // Append return statement exposing internal variables and functions for testing
-src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, createSignatureOverlay, makeDraggableAndResizable, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; } };\n';
+src += '\nreturn { renderPage, handlePdfSelect, handleImageSelect, resetTool, createSignatureOverlay, makeDraggableAndResizable, getPdfSignaturePlacement, updateOverlayPixelPosition, getSignatures, syncActiveOverlays, getPdfjsDocument: () => pdfjsDocument, setPdfjsDocument: (doc) => { pdfjsDocument = doc; }, setNumPages: (n) => { numPages = n; }, setCurrentPage: (p) => { currentPage = p; }, setPdfBytesOriginal: (b) => { pdfBytesOriginal = b; }, getPdfBytesOriginal: () => pdfBytesOriginal };\n';
 
 const elementMap = {};
 
@@ -20,6 +20,7 @@ function createMockElement(id = '') {
   if (!elementMap[id]) {
     const classes = new Set();
     const attrs = {};
+    const listeners = {};
     elementMap[id] = {
       id,
       value: '',
@@ -44,8 +45,16 @@ function createMockElement(id = '') {
       clientHeight: 600,
       offsetWidth: 800,
       offsetHeight: 600,
-      addEventListener: () => {},
-      removeEventListener: () => {},
+      scrollIntoView: () => {},
+      addEventListener: (type, fn) => {
+        if (!listeners[type]) listeners[type] = [];
+        listeners[type].push(fn);
+      },
+      removeEventListener: (type, fn) => {
+        if (listeners[type]) {
+          listeners[type] = listeners[type].filter((l) => l !== fn);
+        }
+      },
       querySelector: () => createMockElement(),
       querySelectorAll: () => [],
       getContext: () => ({
@@ -55,7 +64,11 @@ function createMockElement(id = '') {
         measureText: () => ({ width: 100 })
       }),
       toDataURL: () => 'data:image/png;base64,fake',
-      click: () => {}
+      click: () => {
+        if (listeners['click']) {
+          listeners['click'].forEach((fn) => fn({ type: 'click', target: elementMap[id], preventDefault: () => {}, stopPropagation: () => {} }));
+        }
+      }
     };
   }
   return elementMap[id];
@@ -134,9 +147,17 @@ const mockWindow = {
     })
   },
   PDFLib: {
+    degrees: (angle) => ({ type: 'degrees', angle }),
     PDFDocument: {
       load: async () => ({
-        getPages: () => [{ getWidth: () => 612, getHeight: () => 792, drawImage: () => {} }],
+        getPages: () => [{
+          getWidth: () => 612,
+          getHeight: () => 792,
+          getRotation: () => ({ type: 'degrees', angle: 0 }),
+          getX: () => 0,
+          getY: () => 0,
+          drawImage: () => {}
+        }],
         embedPng: async () => ({}),
         embedJpg: async () => ({}),
         save: async () => new Uint8Array([1, 2, 3])
@@ -167,10 +188,17 @@ const {
   handleImageSelect,
   resetTool,
   createSignatureOverlay,
+  makeDraggableAndResizable,
+  getPdfSignaturePlacement,
+  updateOverlayPixelPosition,
+  getSignatures,
+  syncActiveOverlays,
   getPdfjsDocument,
   setPdfjsDocument,
   setNumPages,
-  setCurrentPage
+  setCurrentPage,
+  setPdfBytesOriginal,
+  getPdfBytesOriginal
 } = wrapper(
   mockDocument,
   mockWindow,
@@ -710,5 +738,460 @@ test('sign-pdf and edit-pdf option pills ARIA radiogroup attributes', async (t) 
     for (const btn of colorPillButtons) {
       assert.match(btn, /role="radio"/, 'Each button in sig-color-pills should have role="radio"');
     }
+  });
+});
+
+test('sign-pdf getPdfSignaturePlacement coordinate transformations across all rotations', async (t) => {
+  await t.test('0 degree rotation correctly maps top-left normalized to bottom-left PDF coordinates', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.1,
+      normY: 0.2,
+      normW: 0.3,
+      normH: 0.15,
+      pageWidth: 600,
+      pageHeight: 800,
+      pageRotation: 0,
+    });
+
+    assert.strictEqual(placement.x, 60); // 0.1 * 600
+    assert.strictEqual(placement.y, 520); // 800 - (0.2 + 0.15) * 800
+    assert.strictEqual(placement.width, 180); // 0.3 * 600
+    assert.strictEqual(placement.height, 120); // 0.15 * 800
+    assert.strictEqual(placement.rotateDegrees, 0);
+  });
+
+  await t.test('90 degree rotation swaps axes and applies counter-clockwise rotation', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.1,
+      normY: 0.2,
+      normW: 0.3,
+      normH: 0.15,
+      pageWidth: 600,
+      pageHeight: 800,
+      pageRotation: 90,
+    });
+
+    assert.strictEqual(placement.x, 210); // (0.2 + 0.15) * 600
+    assert.strictEqual(placement.y, 80); // 0.1 * 800
+    assert.strictEqual(placement.width, 240); // 0.3 * 800 (visual width scaled along page height)
+    assert.strictEqual(placement.height, 90); // 0.15 * 600 (visual height scaled along page width)
+    assert.strictEqual(placement.rotateDegrees, 90);
+  });
+
+  await t.test('180 degree rotation inverts both axes and applies 180 degree rotation', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.1,
+      normY: 0.2,
+      normW: 0.3,
+      normH: 0.15,
+      pageWidth: 600,
+      pageHeight: 800,
+      pageRotation: 180,
+    });
+
+    assert.strictEqual(placement.x, 540); // (1 - 0.1) * 600
+    assert.strictEqual(placement.y, 280); // (0.2 + 0.15) * 800
+    assert.strictEqual(placement.width, 180); // 0.3 * 600
+    assert.strictEqual(placement.height, 120); // 0.15 * 800
+    assert.strictEqual(placement.rotateDegrees, 180);
+  });
+
+  await t.test('270 degree rotation swaps axes and applies 270 degree rotation', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.1,
+      normY: 0.2,
+      normW: 0.3,
+      normH: 0.15,
+      pageWidth: 600,
+      pageHeight: 800,
+      pageRotation: 270,
+    });
+
+    assert.strictEqual(placement.x, 390); // (1 - 0.2 - 0.15) * 600
+    assert.strictEqual(placement.y, 720); // (1 - 0.1) * 800
+    assert.strictEqual(placement.width, 240); // 0.3 * 800
+    assert.strictEqual(placement.height, 90); // 0.15 * 600
+    assert.strictEqual(placement.rotateDegrees, 270);
+  });
+
+  await t.test('handles non-zero CropBox/MediaBox origins accurately across rotations', () => {
+    const placement0 = getPdfSignaturePlacement({
+      normX: 0.2,
+      normY: 0.1,
+      normW: 0.4,
+      normH: 0.2,
+      pageWidth: 500,
+      pageHeight: 700,
+      pageRotation: 0,
+      originX: 50,
+      originY: 100,
+    });
+    assert.strictEqual(placement0.x, 150); // 50 + 0.2 * 500
+    assert.strictEqual(placement0.y, 590); // 100 + 700 - 0.3 * 700 = 100 + 490 = 590
+
+    const placement90 = getPdfSignaturePlacement({
+      normX: 0.2,
+      normY: 0.1,
+      normW: 0.4,
+      normH: 0.2,
+      pageWidth: 500,
+      pageHeight: 700,
+      pageRotation: 90,
+      originX: 50,
+      originY: 100,
+    });
+    assert.ok(Math.abs(placement90.x - 200) < 0.001); // 50 + (0.1 + 0.2) * 500
+    assert.ok(Math.abs(placement90.y - 240) < 0.001); // 100 + 0.2 * 700 = 100 + 140 = 240
+  });
+
+  await t.test('wraps arbitrary rotation angles (negative and > 360) correctly', () => {
+    const p1 = getPdfSignaturePlacement({
+      normX: 0.1, normY: 0.2, normW: 0.3, normH: 0.15,
+      pageWidth: 600, pageHeight: 800, pageRotation: 450,
+    });
+    assert.strictEqual(p1.rotateDegrees, 90);
+
+    const p2 = getPdfSignaturePlacement({
+      normX: 0.1, normY: 0.2, normW: 0.3, normH: 0.15,
+      pageWidth: 600, pageHeight: 800, pageRotation: -90,
+    });
+    assert.strictEqual(p2.rotateDegrees, 270);
+  });
+});
+
+test('sign-pdf page dimension variations (A4, Letter, Portrait, Landscape)', async (t) => {
+  await t.test('calculates accurate coordinates for A4 portrait (595.28 x 841.89)', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.5,
+      normY: 0.8,
+      normW: 0.3,
+      normH: 0.1,
+      pageWidth: 595.28,
+      pageHeight: 841.89,
+      pageRotation: 0,
+    });
+
+    assert.ok(Math.abs(placement.x - 297.64) < 0.01);
+    assert.ok(Math.abs(placement.y - (841.89 - 0.9 * 841.89)) < 0.01);
+    assert.ok(Math.abs(placement.width - 178.584) < 0.01);
+    assert.ok(Math.abs(placement.height - 84.189) < 0.01);
+  });
+
+  await t.test('calculates accurate coordinates for A4 landscape (841.89 x 595.28)', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.25,
+      normY: 0.75,
+      normW: 0.2,
+      normH: 0.1,
+      pageWidth: 841.89,
+      pageHeight: 595.28,
+      pageRotation: 0,
+    });
+
+    assert.ok(Math.abs(placement.x - 0.25 * 841.89) < 0.01);
+    assert.ok(Math.abs(placement.y - (595.28 - 0.85 * 595.28)) < 0.01);
+    assert.ok(Math.abs(placement.width - 0.2 * 841.89) < 0.01);
+    assert.ok(Math.abs(placement.height - 0.1 * 595.28) < 0.01);
+  });
+
+  await t.test('calculates accurate coordinates for Letter portrait (612 x 792)', () => {
+    const placement = getPdfSignaturePlacement({
+      normX: 0.1,
+      normY: 0.5,
+      normW: 0.25,
+      normH: 0.125,
+      pageWidth: 612,
+      pageHeight: 792,
+      pageRotation: 0,
+    });
+
+    assert.strictEqual(placement.x, 61.2);
+    assert.strictEqual(placement.y, 792 - 0.625 * 792);
+    assert.strictEqual(placement.width, 153);
+    assert.strictEqual(placement.height, 99);
+  });
+});
+
+test('sign-pdf normalized geometry & responsive synchronization', async (t) => {
+  await t.test('updateOverlayPixelPosition converts normalized values to display pixels', () => {
+    const mockOverlay = { style: {} };
+    const sig = { normX: 0.25, normY: 0.5, normW: 0.2, normH: 0.1 };
+
+    updateOverlayPixelPosition(mockOverlay, sig, 800, 600);
+
+    assert.strictEqual(mockOverlay.style.left, '200px');
+    assert.strictEqual(mockOverlay.style.top, '300px');
+    assert.strictEqual(mockOverlay.style.width, '160px');
+    assert.strictEqual(mockOverlay.style.height, '60px');
+  });
+
+  await t.test('resizing viewport recalculates display pixels while preserving normalized geometry', () => {
+    const mockOverlay = { style: {} };
+    const sig = { normX: 0.25, normY: 0.5, normW: 0.2, normH: 0.1 };
+
+    // Initial scale at 800px width
+    updateOverlayPixelPosition(mockOverlay, sig, 800, 1000);
+    assert.strictEqual(mockOverlay.style.left, '200px');
+    assert.strictEqual(mockOverlay.style.top, '500px');
+
+    // Viewport shrunk to 400px width
+    updateOverlayPixelPosition(mockOverlay, sig, 400, 500);
+    assert.strictEqual(mockOverlay.style.left, '100px');
+    assert.strictEqual(mockOverlay.style.top, '250px');
+    assert.strictEqual(mockOverlay.style.width, '80px');
+    assert.strictEqual(mockOverlay.style.height, '50px');
+
+    // Normalized geometry remains unchanged
+    assert.strictEqual(sig.normX, 0.25);
+    assert.strictEqual(sig.normY, 0.5);
+    assert.strictEqual(sig.normW, 0.2);
+    assert.strictEqual(sig.normH, 0.1);
+  });
+});
+
+test('sign-pdf multi-page signature persistence & PDF export', async (t) => {
+  let docListeners = {};
+  const activeOverlays = [];
+  const capturedDrawCalls = [];
+
+  const localDoc = {
+    getElementById: (id) => createMockElement(id),
+    querySelectorAll: (selector) => {
+      if (selector === ".signature-overlay") return activeOverlays;
+      if (selector === ".signature-overlay.selected") {
+        return activeOverlays.filter((o) => o.classList.contains("selected"));
+      }
+      return [];
+    },
+    createElement: (tagName) => createMockElement(`el-${tagName}`),
+    addEventListener: (type, fn) => {
+      if (!docListeners[type]) docListeners[type] = [];
+      docListeners[type].push(fn);
+    },
+    removeEventListener: (type, fn) => {
+      if (docListeners[type]) {
+        docListeners[type] = docListeners[type].filter((l) => l !== fn);
+      }
+    },
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  const mockPdfLib = {
+    degrees: (angle) => ({ type: 'degrees', angle }),
+    PDFDocument: {
+      load: async () => ({
+        getPages: () => [
+          {
+            getWidth: () => 595,
+            getHeight: () => 842,
+            getRotation: () => ({ type: 'degrees', angle: 0 }),
+            getX: () => 0,
+            getY: () => 0,
+            drawImage: (img, opts) => capturedDrawCalls.push({ pageNum: 1, img, opts })
+          },
+          {
+            getWidth: () => 612,
+            getHeight: () => 792,
+            getRotation: () => ({ type: 'degrees', angle: 90 }),
+            getX: () => 0,
+            getY: () => 0,
+            drawImage: (img, opts) => capturedDrawCalls.push({ pageNum: 2, img, opts })
+          },
+          {
+            getWidth: () => 600,
+            getHeight: () => 800,
+            getCropBox: () => ({ x: 50, y: 100, width: 400, height: 500 }),
+            getRotation: () => ({ type: 'degrees', angle: 0 }),
+            getX: () => 0,
+            getY: () => 0,
+            drawImage: (img, opts) => capturedDrawCalls.push({ pageNum: 3, img, opts })
+          }
+        ],
+        embedPng: async () => ({ width: 100, height: 50 }),
+        embedJpg: async () => ({ width: 100, height: 50 }),
+        save: async () => new Uint8Array([1, 2, 3])
+      })
+    }
+  };
+
+  const localWindow = {
+    devicePixelRatio: 1,
+    SignaturePad: MockSignaturePad,
+    MutationObserver: MockMutationObserver,
+    PDFLib: mockPdfLib,
+    'pdfjs-dist/build/pdf': mockWindow['pdfjs-dist/build/pdf']
+  };
+
+  const localWrapper = new Function(
+    'document',
+    'window',
+    'initDropZone',
+    'showToast',
+    'setProgress',
+    'activatePill',
+    'Blob',
+    'URL',
+    'console',
+    'MutationObserver',
+    src
+  );
+
+  const localSignPdf = localWrapper(
+    localDoc,
+    localWindow,
+    mockInitDropZone,
+    mockShowToast,
+    mockSetProgress,
+    mockActivatePill,
+    class Blob {},
+    { createObjectURL: () => 'blob:mock', revokeObjectURL: () => {} },
+    mockConsole,
+    MockMutationObserver
+  );
+
+  await t.test('signatures placed across multiple pages survive page switching and hidden display:none', async () => {
+    activeOverlays.length = 0;
+    capturedDrawCalls.length = 0;
+    localSignPdf.resetTool();
+
+    // 1. On Page 1: Place a signature
+    localSignPdf.setCurrentPage(1);
+    localSignPdf.setNumPages(2);
+    localSignPdf.setPdfBytesOriginal(new ArrayBuffer(16));
+
+    const sigOverlay1 = createMockElement('sig-overlay-1');
+    sigOverlay1.className = 'signature-overlay';
+    sigOverlay1.dataset.page = '1';
+    sigOverlay1.dataset.id = 'sig-p1';
+    sigOverlay1.dataset.normX = '0.2';
+    sigOverlay1.dataset.normY = '0.3';
+    sigOverlay1.dataset.normW = '0.25';
+    sigOverlay1.dataset.normH = '0.1';
+    sigOverlay1.style.display = 'block';
+    sigOverlay1.querySelector = () => ({ src: 'data:image/png;base64,sig1' });
+
+    // Register in signatures state map
+    const sigs = localSignPdf.getSignatures();
+    sigs.set('sig-p1', {
+      id: 'sig-p1',
+      pageNum: 1,
+      src: 'data:image/png;base64,sig1',
+      normX: 0.2,
+      normY: 0.3,
+      normW: 0.25,
+      normH: 0.1,
+      aspectRatio: 2.5
+    });
+    activeOverlays.push(sigOverlay1);
+
+    // 2. Switch to Page 2: Page 1 overlay becomes display: none
+    localSignPdf.setCurrentPage(2);
+    sigOverlay1.style.display = 'none';
+
+    // Place signature on Page 2
+    const sigOverlay2 = createMockElement('sig-overlay-2');
+    sigOverlay2.className = 'signature-overlay';
+    sigOverlay2.dataset.page = '2';
+    sigOverlay2.dataset.id = 'sig-p2';
+    sigOverlay2.dataset.normX = '0.4';
+    sigOverlay2.dataset.normY = '0.5';
+    sigOverlay2.dataset.normW = '0.3';
+    sigOverlay2.dataset.normH = '0.12';
+    sigOverlay2.style.display = 'block';
+    sigOverlay2.querySelector = () => ({ src: 'data:image/png;base64,sig2' });
+
+    sigs.set('sig-p2', {
+      id: 'sig-p2',
+      pageNum: 2,
+      src: 'data:image/png;base64,sig2',
+      normX: 0.4,
+      normY: 0.5,
+      normW: 0.3,
+      normH: 0.12,
+      aspectRatio: 2.5
+    });
+    activeOverlays.push(sigOverlay2);
+
+    // Verify Page 1 overlay is hidden
+    assert.strictEqual(sigOverlay1.style.display, 'none');
+    assert.strictEqual(sigOverlay2.style.display, 'block');
+
+    // 3. Trigger download button while on Page 2
+    const downloadBtn = elementMap['sign-download-btn'];
+    assert.ok(downloadBtn, 'Download button exists');
+    downloadBtn.click();
+
+    // Allow async PDF generation to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Verify both signatures were embedded
+    assert.strictEqual(capturedDrawCalls.length, 2, 'Both signatures must be drawn to PDF');
+
+    // Page 1 signature assertions (0° rotation, A4 portrait 595 x 842)
+    const call1 = capturedDrawCalls.find((c) => c.pageNum === 1);
+    assert.ok(call1, 'Page 1 draw call should exist');
+    assert.ok(call1.opts.width > 0, 'Page 1 signature width must not be zero');
+    assert.ok(call1.opts.height > 0, 'Page 1 signature height must not be zero');
+    assert.strictEqual(call1.opts.x, 0.2 * 595);
+    assert.strictEqual(call1.opts.width, 0.25 * 595);
+    assert.strictEqual(call1.opts.rotate.angle, 0);
+
+    // Page 2 signature assertions (90° rotation, Letter 612 x 792)
+    const call2 = capturedDrawCalls.find((c) => c.pageNum === 2);
+    assert.ok(call2, 'Page 2 draw call should exist');
+    assert.ok(call2.opts.width > 0, 'Page 2 signature width must not be zero');
+    assert.ok(call2.opts.height > 0, 'Page 2 signature height must not be zero');
+    assert.strictEqual(call2.opts.rotate.angle, 90, 'Page 2 signature must be rotated 90 degrees');
+  });
+
+  await t.test('PDF export uses getCropBox origin and dimensions when present', async () => {
+    activeOverlays.length = 0;
+    capturedDrawCalls.length = 0;
+    localSignPdf.resetTool();
+
+    localSignPdf.setCurrentPage(3);
+    localSignPdf.setNumPages(3);
+    localSignPdf.setPdfBytesOriginal(new ArrayBuffer(16));
+
+    const sigs = localSignPdf.getSignatures();
+    sigs.set('sig-p3', {
+      id: 'sig-p3',
+      pageNum: 3,
+      src: 'data:image/png;base64,sig3',
+      normX: 0.1,
+      normY: 0.2,
+      normW: 0.3,
+      normH: 0.15,
+      aspectRatio: 2.0
+    });
+
+    const downloadBtn = elementMap['sign-download-btn'];
+    downloadBtn.click();
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const call3 = capturedDrawCalls.find((c) => c.pageNum === 3);
+    assert.ok(call3, 'Page 3 draw call should exist');
+    // CropBox: x=50, y=100, width=400, height=500, rotation=0
+    // normX=0.1 -> x = 50 + 0.1 * 400 = 90
+    // normY=0.2, normH=0.15 -> y = 100 + 500 - (0.2 + 0.15) * 500 = 600 - 175 = 425
+    // width = 0.3 * 400 = 120
+    // height = 0.15 * 500 = 75
+    assert.strictEqual(call3.opts.x, 90);
+    assert.strictEqual(call3.opts.y, 425);
+    assert.strictEqual(call3.opts.width, 120);
+    assert.strictEqual(call3.opts.height, 75);
+  });
+
+  await t.test('resetTool clears signatures state map and resets tool', () => {
+    localSignPdf.resetTool();
+    const sigs = localSignPdf.getSignatures();
+    assert.strictEqual(sigs.size, 0);
+
+    sigs.set('temp', { id: 'temp', pageNum: 1 });
+    assert.strictEqual(sigs.size, 1);
+
+    localSignPdf.resetTool();
+    assert.strictEqual(sigs.size, 0, 'resetTool must empty signatures map');
   });
 });
