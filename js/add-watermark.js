@@ -9,6 +9,9 @@ import {
 let currentPdfBuffer = null;
 let currentPdfDoc = null; // pdf.js document
 let uploadedImageURL = null;
+let imageSelectionVersion = 0;
+let documentLoadVersion = 0;
+let watermarkRunVersion = 0;
 
 let currentPage = 1;
 let numPages = 1;
@@ -174,17 +177,45 @@ modePills.forEach((pill) => {
 // Image Upload Handling
 imageUpload.addEventListener("change", async (e) => {
   const file = e.target.files[0];
-  if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-    try {
-      uploadedImageURL = await fileToDataUrl(file);
-      imagePreview.src = uploadedImageURL;
-      imagePreview.style.display = "block";
-      schedulePreviewUpdate();
-    } catch (err) {
-      showToast("Error reading image file.", "error");
-    }
+  if (!file) return;
+
+  clearUploadedImageState({ clearInput: false });
+  const selectionVersion = imageSelectionVersion;
+
+  if (file.type !== "image/png" && file.type !== "image/jpeg") {
+    clearUploadedImageState();
+    showToast("Please select a PNG or JPEG image.", "error");
+    return;
+  }
+
+  try {
+    const imageDataUrl = await fileToDataUrl(file);
+    if (selectionVersion !== imageSelectionVersion) return;
+
+    imagePreview.src = imageDataUrl;
+    await imagePreview.decode();
+    if (selectionVersion !== imageSelectionVersion) return;
+
+    uploadedImageURL = imageDataUrl;
+    imagePreview.style.display = "block";
+    schedulePreviewUpdate();
+  } catch (err) {
+    if (selectionVersion !== imageSelectionVersion) return;
+    clearUploadedImageState();
+    showToast("Error reading image file.", "error");
   }
 });
+
+function clearUploadedImageState({ clearInput = true } = {}) {
+  imageSelectionVersion += 1;
+  watermarkRunVersion += 1;
+  uploadedImageURL = null;
+  if (imagePreview) {
+    imagePreview.removeAttribute("src");
+    imagePreview.style.display = "none";
+  }
+  if (clearInput && imageUpload) imageUpload.value = "";
+}
 
 let previewTimeout = null;
 function schedulePreviewUpdate() {
@@ -204,6 +235,8 @@ async function handleFile(files) {
     return;
   }
 
+  clearUploadedImageState();
+  const loadVersion = ++documentLoadVersion;
   fileName = file.name;
   dropZone.style.display = "none";
   optionsBar.classList.add("is-visible");
@@ -211,17 +244,35 @@ async function handleFile(files) {
   fileInfo.textContent = `Loading ${fileName}...`;
 
   try {
-    if (currentPdfDoc && typeof currentPdfDoc.destroy === "function") {
+    const previousPdfDoc = currentPdfDoc;
+    currentPdfDoc = null;
+    currentPdfBuffer = null;
+    processedPdfBytes = null;
+    if (previousPdfDoc && typeof previousPdfDoc.destroy === "function") {
       try {
-        await currentPdfDoc.destroy();
+        await previousPdfDoc.destroy();
       } catch (_) {}
-      currentPdfDoc = null;
     }
-    currentPdfBuffer = await file.arrayBuffer();
+    if (loadVersion !== documentLoadVersion) return;
+
+    const pdfBuffer = await file.arrayBuffer();
+    if (loadVersion !== documentLoadVersion) return;
+
     const pdfjsLib = window["pdfjs-dist/build/pdf"];
-    currentPdfDoc = await pdfjsLib.getDocument({
-      data: currentPdfBuffer.slice(0),
+    const loadedPdfDoc = await pdfjsLib.getDocument({
+      data: pdfBuffer.slice(0),
     }).promise;
+    if (loadVersion !== documentLoadVersion) {
+      if (loadedPdfDoc && typeof loadedPdfDoc.destroy === "function") {
+        try {
+          await loadedPdfDoc.destroy();
+        } catch (_) {}
+      }
+      return;
+    }
+
+    currentPdfBuffer = pdfBuffer;
+    currentPdfDoc = loadedPdfDoc;
 
     numPages = currentPdfDoc.numPages;
     currentPage = 1;
@@ -235,6 +286,7 @@ async function handleFile(files) {
     updateNavControls();
     await renderPagePreview(currentPage);
   } catch (err) {
+    if (loadVersion !== documentLoadVersion) return;
     console.error(err);
     showToast("Error loading PDF.", "error");
     resetApp();
@@ -259,17 +311,24 @@ async function goToPage(pageNum) {
 }
 
 async function renderPagePreview(pageNum) {
-  if (!currentPdfDoc) return;
+  const loadVersion = documentLoadVersion;
+  const pdfDoc = currentPdfDoc;
+  if (!pdfDoc) return;
   try {
     loadingOverlay.style.display = "flex";
-    const page = await currentPdfDoc.getPage(pageNum);
+    const page = await pdfDoc.getPage(pageNum);
     try {
+      if (loadVersion !== documentLoadVersion || pdfDoc !== currentPdfDoc) return;
       const viewport = page.getViewport({ scale: 1.5 });
 
       previewCanvas.width = viewport.width;
       previewCanvas.height = viewport.height;
 
-      await renderPreviewForPage(page, viewport);
+      await renderPreviewForPage(
+        page,
+        viewport,
+        () => loadVersion === documentLoadVersion && pdfDoc === currentPdfDoc,
+      );
     } finally {
       if (page && typeof page.cleanup === "function") {
         page.cleanup();
@@ -278,7 +337,7 @@ async function renderPagePreview(pageNum) {
   } catch (err) {
     console.error("Error rendering page", err);
   } finally {
-    loadingOverlay.style.display = "none";
+    if (loadVersion === documentLoadVersion) loadingOverlay.style.display = "none";
   }
 }
 
@@ -286,8 +345,9 @@ async function renderPreview() {
   await renderPagePreview(currentPage);
 }
 
-async function renderPreviewForPage(page, viewport) {
+async function renderPreviewForPage(page, viewport, isCurrent = () => true) {
   await page.render({ canvasContext: ctx, viewport }).promise;
+  if (!isCurrent()) return;
   const config = getPageConfig(currentPage);
   drawWatermarkOnCanvas(ctx, viewport.width, viewport.height, config);
 }
@@ -736,9 +796,15 @@ function drawImageAt(ctx, img, x, y, rotation, w, h) {
 let processedPdfBytes = null;
 
 convertBtn.addEventListener("click", async () => {
-  if (!currentPdfBuffer) return;
+  const pdfBuffer = currentPdfBuffer;
+  const operationMode = currentMode;
+  const imageDataUrl = uploadedImageURL;
+  const operationFileName = fileName;
+  const runVersion = ++watermarkRunVersion;
 
-  if (currentMode === "image" && !uploadedImageURL) {
+  if (!pdfBuffer) return;
+
+  if (operationMode === "image" && !imageDataUrl) {
     showToast("Please upload an image for the watermark.", "error");
     return;
   }
@@ -750,7 +816,8 @@ convertBtn.addEventListener("click", async () => {
   try {
     const { PDFDocument, rgb, degrees, StandardFonts } = window.PDFLib;
 
-    const pdfDoc = await PDFDocument.load(currentPdfBuffer, { ignoreEncryption: true });
+    const pdfDoc = await PDFDocument.load(pdfBuffer, { ignoreEncryption: true });
+    if (runVersion !== watermarkRunVersion) return;
     const pages = pdfDoc.getPages();
     const pdfNumPages = pages.length;
 
@@ -766,21 +833,23 @@ convertBtn.addEventListener("click", async () => {
       return colorCache.get(hex);
     };
 
-    if (currentMode === "text") {
+    if (operationMode === "text") {
       font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      if (runVersion !== watermarkRunVersion) return;
       hexColor = colorInput.value;
       defaultPdfColor = parseColor(hexColor);
     } else {
-      if (uploadedImageURL.startsWith("data:image/png")) {
-        wmImage = await pdfDoc.embedPng(uploadedImageURL);
+      if (imageDataUrl.startsWith("data:image/png")) {
+        wmImage = await pdfDoc.embedPng(imageDataUrl);
       } else if (
-        uploadedImageURL.startsWith("data:image/jpeg") ||
-        uploadedImageURL.startsWith("data:image/jpg")
+        imageDataUrl.startsWith("data:image/jpeg") ||
+        imageDataUrl.startsWith("data:image/jpg")
       ) {
-        wmImage = await pdfDoc.embedJpg(uploadedImageURL);
+        wmImage = await pdfDoc.embedJpg(imageDataUrl);
       } else {
         throw new Error("Unsupported image format");
       }
+      if (runVersion !== watermarkRunVersion) return;
     }
 
     const textDimensionCache = new Map();
@@ -796,7 +865,7 @@ convertBtn.addEventListener("click", async () => {
     };
 
     const baseGlobalConfig = {
-      mode: currentMode,
+      mode: operationMode,
       text: textInput.value,
       color: colorInput.value,
       opacity: parseInt(opacityInput.value) / 100,
@@ -826,7 +895,7 @@ convertBtn.addEventListener("click", async () => {
       const rotation = degrees(-rotationDeg);
       const position = pageConfig.position;
 
-      if (currentMode === "text") {
+      if (operationMode === "text") {
         const text = pageConfig.text;
         if (!text) continue;
         const fontSize = pageConfig.fontSize;
@@ -918,15 +987,20 @@ convertBtn.addEventListener("click", async () => {
         );
       }
 
-      if (i % 5 === 0) await new Promise((r) => setTimeout(r, 0));
+      if (i % 5 === 0) {
+        await new Promise((r) => setTimeout(r, 0));
+        if (runVersion !== watermarkRunVersion) return;
+      }
     }
 
     setProgress(progressBar, progressLabel, 100, "Saving PDF...");
     await new Promise((r) => setTimeout(r, 0));
+    if (runVersion !== watermarkRunVersion) return;
 
     processedPdfBytes = await pdfDoc.save();
+    if (runVersion !== watermarkRunVersion) return;
 
-    const safeFileName = fileName.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
+    const safeFileName = operationFileName.replace(/\.pdf$/i, "").replace(/[\/\\]/g, "_");
     const outputName = `${safeFileName}-watermarked.pdf`;
     if (masterTitle) masterTitle.textContent = outputName;
     if (downloadBtn) downloadBtn.textContent = `Download ${outputName}`;
@@ -934,6 +1008,7 @@ convertBtn.addEventListener("click", async () => {
     progressArea.style.display = "none";
     resultsArea.classList.add("is-visible");
   } catch (err) {
+    if (runVersion !== watermarkRunVersion) return;
     console.error("Error applying watermark:", err);
     showToast("An error occurred applying the watermark.", "error");
     resetApp();
@@ -1002,11 +1077,10 @@ downloadBtn.addEventListener("click", () => {
 resetBtn.addEventListener("click", resetApp);
 
 async function resetApp() {
-  if (currentPdfDoc && typeof currentPdfDoc.destroy === "function") {
-    try {
-      await currentPdfDoc.destroy();
-    } catch (_) {}
-  }
+  documentLoadVersion += 1;
+  clearUploadedImageState();
+  const previousPdfDoc = currentPdfDoc;
+
   currentPdfBuffer = null;
   currentPdfDoc = null;
   processedPdfBytes = null;
@@ -1037,4 +1111,10 @@ async function resetApp() {
   if (downloadBtn) downloadBtn.textContent = "Download Watermarked PDF";
 
   fileInput.value = "";
+
+  if (previousPdfDoc && typeof previousPdfDoc.destroy === "function") {
+    try {
+      await previousPdfDoc.destroy();
+    } catch (_) {}
+  }
 }

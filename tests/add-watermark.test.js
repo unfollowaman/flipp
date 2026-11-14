@@ -12,26 +12,43 @@ src = src.replace(/export\s+function/g, 'function');
 src = src.replace(/export\s+const/g, 'const');
 
 // Expose functions for testing
-src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas, renderPagePreview, handleFile, resetApp, getPageConfigs: () => pageConfigs, setPageConfig: (p, c) => { pageConfigs[p] = c; }, getGlobalWatermarkConfig: () => globalWatermarkConfig };\n';
+src += '\nreturn { getPdfPositionOffset, getPdfCoordinates, getPageConfig, applyWatermarkScope, applyWatermarkPattern, drawWatermarkOnCanvas, renderPagePreview, handleFile, resetApp, getPageConfigs: () => pageConfigs, setPageConfig: (p, c) => { pageConfigs[p] = c; }, getGlobalWatermarkConfig: () => globalWatermarkConfig, getUploadedImageURL: () => uploadedImageURL, getCurrentMode: () => currentMode };\n';
 
 function createMockDocument() {
   const elements = {};
   const createMockElement = (id = '') => {
     if (id && elements[id]) return elements[id];
+    const attributes = {};
+    const listeners = {};
     const el = {
       id,
       value: id === 'wm-font-size' ? '48' : id === 'wm-scale' ? '1.0' : id === 'wm-opacity' ? '50' : id === 'wm-rotation' ? '45' : id === 'wm-position' ? 'center' : id === 'wm-text-input' ? 'CONFIDENTIAL' : id === 'wm-color' ? '#000000' : '',
+      files: [],
+      src: '',
+      complete: true,
+      naturalWidth: 640,
+      naturalHeight: 480,
       style: { display: '' },
       classList: { add: () => {}, remove: () => {}, contains: () => false },
       appendChild: () => {},
       innerHTML: '',
       textContent: '',
-      addEventListener: () => {},
+      addEventListener: (type, listener) => {
+        (listeners[type] ||= []).push(listener);
+      },
+      dispatch: async (type, event = {}) => Promise.all((listeners[type] || []).map((listener) => listener({ target: el, currentTarget: el, ...event }))),
       querySelector: () => createMockElement(),
       querySelectorAll: () => [],
-      getAttribute: () => null,
-      setAttribute: () => {},
-      removeAttribute: () => {},
+      getAttribute: (name) => attributes[name] ?? null,
+      setAttribute: (name, value) => {
+        attributes[name] = value;
+        if (name === 'src') el.src = value;
+      },
+      removeAttribute: (name) => {
+        delete attributes[name];
+        if (name === 'src') el.src = '';
+      },
+      decode: async () => {},
       getContext: () => ({
         save: () => {},
         restore: () => {},
@@ -591,6 +608,255 @@ test('add-watermark mode pills accessibility attributes', async (t) => {
   await t.test('mode pill buttons have role="radio" and aria-checked attributes', () => {
     assert.match(html, /role="radio"[\s\S]*?aria-checked="true"[\s\S]*?data-value="text"/);
     assert.match(html, /role="radio"[\s\S]*?aria-checked="false"[\s\S]*?data-value="image"/);
+  });
+});
+
+test('add-watermark uploaded image lifecycle', async (t) => {
+  const mockDocument = createMockDocument();
+  const imageUpload = mockDocument.getElementById('wm-image-upload');
+  const imagePreview = mockDocument.getElementById('wm-image-preview');
+  const textPill = { dataset: { value: 'text' }, parentElement: {}, addEventListener: null };
+  const imagePill = { dataset: { value: 'image' }, parentElement: {}, addEventListener: null };
+  const pillListeners = new Map([[textPill, null], [imagePill, null]]);
+  for (const pill of [textPill, imagePill]) {
+    pill.addEventListener = (type, listener) => pillListeners.set(pill, listener);
+  }
+  mockDocument.querySelectorAll = () => [textPill, imagePill];
+
+  const mockWindow = {
+    'pdfjs-dist/build/pdf': {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          numPages: 1,
+          getPage: async () => ({
+            getViewport: () => ({ width: 800, height: 600 }),
+            render: () => ({ promise: Promise.resolve() }),
+            cleanup: () => {},
+          }),
+          destroy: async () => {},
+        }),
+      }),
+    },
+  };
+  const reads = new Map();
+  const fileToDataUrl = (file) => new Promise((resolve, reject) => reads.set(file, { resolve, reject }));
+  const wrapper = new Function('document', 'window', 'initDropZone', 'showToast', 'setProgress', 'activatePill', 'Blob', 'URL', 'fileToDataUrl', src);
+  let toast = null;
+  const exports = wrapper(mockDocument, mockWindow, () => {}, (msg, type) => { toast = { msg, type }; }, () => {}, () => {}, class Blob {}, { createObjectURL: () => '', revokeObjectURL: () => {} }, fileToDataUrl);
+
+  await t.test('reset clears the data URL, preview source, and file selection', async () => {
+    imageUpload.files = [{ type: 'image/png' }];
+    imageUpload.value = 'C:\\fakepath\\mark.png';
+    const upload = imageUpload.dispatch('change');
+    reads.get(imageUpload.files[0]).resolve('data:image/png;base64,QQ==');
+    await upload;
+    assert.strictEqual(exports.getUploadedImageURL(), 'data:image/png;base64,QQ==');
+
+    await exports.resetApp();
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imagePreview.style.display, 'none');
+    assert.strictEqual(imageUpload.value, '');
+  });
+
+  await t.test('an older image read cannot overwrite a newer selection', async () => {
+    const imageA = { type: 'image/png' };
+    const imageB = { type: 'image/jpeg' };
+    imageUpload.files = [imageA];
+    const uploadA = imageUpload.dispatch('change');
+    imageUpload.files = [imageB];
+    const uploadB = imageUpload.dispatch('change');
+
+    reads.get(imageB).resolve('data:image/jpeg;base64,Qg==');
+    await uploadB;
+    reads.get(imageA).resolve('data:image/png;base64,QQ==');
+    await uploadA;
+
+    assert.strictEqual(exports.getUploadedImageURL(), 'data:image/jpeg;base64,Qg==');
+    assert.strictEqual(imagePreview.src, 'data:image/jpeg;base64,Qg==');
+  });
+
+  await t.test('a pending image read cannot restore state after reset', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    imageUpload.value = 'C:\\fakepath\\late.png';
+    const upload = imageUpload.dispatch('change');
+
+    await exports.resetApp();
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imageUpload.value, '');
+  });
+
+  await t.test('mode switching preserves the current image until reset', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    await pillListeners.get(textPill)({ currentTarget: textPill });
+    assert.strictEqual(exports.getCurrentMode(), 'text');
+    assert.strictEqual(exports.getUploadedImageURL(), 'data:image/png;base64,QQ==');
+    await pillListeners.get(imagePill)({ currentTarget: imagePill });
+    assert.strictEqual(exports.getCurrentMode(), 'image');
+    assert.strictEqual(exports.getUploadedImageURL(), 'data:image/png;base64,QQ==');
+  });
+
+  await t.test('cancelling the file picker preserves the current image', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    imageUpload.files = [];
+    await imageUpload.dispatch('change');
+
+    assert.strictEqual(exports.getUploadedImageURL(), 'data:image/png;base64,QQ==');
+    assert.strictEqual(imagePreview.src, 'data:image/png;base64,QQ==');
+  });
+
+  await t.test('starting a new PDF clears the previous operation image', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    await exports.handleFile([{
+      name: 'new.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    }]);
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imageUpload.value, '');
+  });
+
+  await t.test('reset cancels a pending watermark export before it can use an image', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+    await pillListeners.get(imagePill)({ currentTarget: imagePill });
+
+    let resolvePdfLoad;
+    let embedCount = 0;
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        load: () => new Promise((resolve) => { resolvePdfLoad = resolve; }),
+      },
+      rgb: () => ({}),
+      degrees: () => ({}),
+      StandardFonts: { HelveticaBold: 'HelveticaBold' },
+    };
+    const conversion = mockDocument.getElementById('wm-convert-btn').dispatch('click');
+
+    assert.strictEqual(typeof resolvePdfLoad, 'function');
+    await exports.resetApp();
+    resolvePdfLoad({
+      getPages: () => [],
+      embedPng: async () => { embedCount += 1; },
+    });
+    await conversion;
+
+    assert.strictEqual(embedCount, 0);
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+  });
+
+  await t.test('a successful export embeds the currently selected image', async () => {
+    await exports.handleFile([{
+      name: 'export.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(8),
+    }]);
+
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,Qg==');
+    await upload;
+    await pillListeners.get(imagePill)({ currentTarget: imagePill });
+
+    let embeddedImageData = null;
+    const mockPdfPage = {
+      getSize: () => ({ width: 612, height: 792 }),
+      drawImage: () => {},
+    };
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        load: async () => ({
+          getPages: () => [mockPdfPage],
+          embedPng: async (data) => {
+            embeddedImageData = data;
+            return { scale: () => ({ width: 100, height: 50 }) };
+          },
+          save: async () => new Uint8Array([1]),
+        }),
+      },
+      rgb: () => ({}),
+      degrees: (value) => value,
+      StandardFonts: { HelveticaBold: 'HelveticaBold' },
+    };
+
+    await mockDocument.getElementById('wm-convert-btn').dispatch('click');
+
+    assert.strictEqual(embeddedImageData, 'data:image/png;base64,Qg==');
+  });
+
+  await t.test('invalid file selection clears the prior image and reports an error', async () => {
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    imageUpload.files = [{ type: 'application/pdf' }];
+    imageUpload.value = 'C:\\fakepath\\wrong.pdf';
+    await imageUpload.dispatch('change');
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imageUpload.value, '');
+    assert.deepStrictEqual(toast, { msg: 'Please select a PNG or JPEG image.', type: 'error' });
+  });
+
+  await t.test('a failed preview decode clears image state', async () => {
+    imagePreview.decode = async () => { throw new Error('Invalid image data'); };
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).resolve('data:image/png;base64,QQ==');
+    await upload;
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imagePreview.style.display, 'none');
+    assert.strictEqual(imageUpload.value, '');
+    assert.deepStrictEqual(toast, { msg: 'Error reading image file.', type: 'error' });
+  });
+
+  await t.test('a failed file read clears image state', async () => {
+    imagePreview.decode = async () => {};
+    const image = { type: 'image/png' };
+    imageUpload.files = [image];
+    imageUpload.value = 'C:\\fakepath\\unreadable.png';
+    const upload = imageUpload.dispatch('change');
+    reads.get(image).reject(new Error('File read failed'));
+    await upload;
+
+    assert.strictEqual(exports.getUploadedImageURL(), null);
+    assert.strictEqual(imagePreview.src, '');
+    assert.strictEqual(imagePreview.style.display, 'none');
+    assert.strictEqual(imageUpload.value, '');
+    assert.deepStrictEqual(toast, { msg: 'Error reading image file.', type: 'error' });
   });
 });
 
