@@ -15,6 +15,7 @@ let sourceFile = null;
 let outputBytes = null;
 let position = "bottom-right";
 let cachedFontBytesPromise = null;
+let cachedLocalFontBytesPromise = null;
 
 function getFontBytes() {
   if (!cachedFontBytesPromise) {
@@ -31,6 +32,61 @@ function getFontBytes() {
       });
   }
   return cachedFontBytesPromise;
+}
+
+function getLocalFontBytes() {
+  if (!cachedLocalFontBytesPromise) {
+    if (!window.location?.href) {
+      return Promise.reject(new Error("Could not resolve local font URL"));
+    }
+    const fontUrl = new URL(
+      "../../assets/fonts/Poppins-Regular.ttf",
+      window.location.href,
+    ).href;
+    cachedLocalFontBytesPromise = Promise.resolve()
+      .then(() => fetch(fontUrl))
+      .then((fontResponse) => {
+        if (!fontResponse.ok) throw new Error("Could not load local font");
+        return fontResponse.arrayBuffer();
+      })
+      .catch((err) => {
+        cachedLocalFontBytesPromise = null;
+        throw err;
+      });
+  }
+  return cachedLocalFontBytesPromise;
+}
+
+async function embedNumberFont(pdfDoc, pdfLib) {
+  const isOffline = typeof navigator !== "undefined" && navigator.onLine === false;
+
+  if (!isOffline && window.fontkit) {
+    try {
+      const fontBytes = await getFontBytes();
+      pdfDoc.registerFontkit(window.fontkit);
+      return await pdfDoc.embedFont(fontBytes.slice(0));
+    } catch (_) {
+      // Discard invalid or unavailable remote bytes so a later click can retry.
+      cachedFontBytesPromise = null;
+    }
+  }
+
+  if (window.fontkit) {
+    try {
+      const fontBytes = await getLocalFontBytes();
+      pdfDoc.registerFontkit(window.fontkit);
+      return await pdfDoc.embedFont(fontBytes.slice(0));
+    } catch (_) {
+      cachedLocalFontBytesPromise = null;
+    }
+  }
+
+  return pdfDoc.embedFont(pdfLib.StandardFonts.TimesRoman);
+}
+
+// Keep the local fallback bytes in memory for a session that goes offline later.
+if (typeof window !== "undefined" && window.location?.href) {
+  getLocalFontBytes().catch(() => {});
 }
 
 function onFiles(files) {
@@ -63,15 +119,11 @@ addBtn.addEventListener("click", async () => {
   try {
     const pdfLib = window.PDFLib;
     if (!pdfLib) throw new Error("PDF-lib is not ready");
-    if (!window.fontkit) throw new Error("fontkit is not ready");
 
     const bytes = await sourceFile.arrayBuffer();
     const pdfDoc = await pdfLib.PDFDocument.load(bytes, { ignoreEncryption: true });
-    pdfDoc.registerFontkit(window.fontkit);
 
-    // Fetch or reuse cached IBM Plex Serif font (.woff format)
-    const fontBytes = await getFontBytes();
-    const font = await pdfDoc.embedFont(fontBytes.slice(0));
+    const font = await embedNumberFont(pdfDoc, pdfLib);
 
     const pages = pdfDoc.getPages();
     const start = Math.max(1, parseInt(startPageInput.value, 10) || 1);
