@@ -15,13 +15,14 @@ let sourceFile = null;
 let outputBytes = null;
 let position = "bottom-right";
 let cachedFontBytesPromise = null;
-let cachedLocalFontBytesPromise = null;
 
 function getFontBytes() {
   if (!cachedFontBytesPromise) {
-    const fontUrl =
-      "https://fonts.gstatic.com/s/ibmplexserif/v20/jizDREVNn1dOx-zrZ2X3pZvkTiUf2zE.woff";
-    cachedFontBytesPromise = fetch(fontUrl)
+    const fontUrl = window.location?.href
+      ? new URL("../../assets/fonts/Poppins-Regular.ttf", window.location.href).href
+      : "../../assets/fonts/Poppins-Regular.ttf";
+    cachedFontBytesPromise = Promise.resolve()
+      .then(() => fetch(fontUrl))
       .then((fontResponse) => {
         if (!fontResponse.ok) throw new Error("Could not load font");
         return fontResponse.arrayBuffer();
@@ -34,59 +35,25 @@ function getFontBytes() {
   return cachedFontBytesPromise;
 }
 
-function getLocalFontBytes() {
-  if (!cachedLocalFontBytesPromise) {
-    if (!window.location?.href) {
-      return Promise.reject(new Error("Could not resolve local font URL"));
-    }
-    const fontUrl = new URL(
-      "../../assets/fonts/Poppins-Regular.ttf",
-      window.location.href,
-    ).href;
-    cachedLocalFontBytesPromise = Promise.resolve()
-      .then(() => fetch(fontUrl))
-      .then((fontResponse) => {
-        if (!fontResponse.ok) throw new Error("Could not load local font");
-        return fontResponse.arrayBuffer();
-      })
-      .catch((err) => {
-        cachedLocalFontBytesPromise = null;
-        throw err;
-      });
-  }
-  return cachedLocalFontBytesPromise;
-}
-
 async function embedNumberFont(pdfDoc, pdfLib) {
-  const isOffline = typeof navigator !== "undefined" && navigator.onLine === false;
-
-  if (!isOffline && window.fontkit) {
+  if (window.fontkit) {
     try {
       const fontBytes = await getFontBytes();
       pdfDoc.registerFontkit(window.fontkit);
       return await pdfDoc.embedFont(fontBytes.slice(0));
     } catch (_) {
-      // Discard invalid or unavailable remote bytes so a later click can retry.
+      // Retry the bundled font on the next click if loading or embedding failed.
       cachedFontBytesPromise = null;
     }
   }
 
-  if (window.fontkit) {
-    try {
-      const fontBytes = await getLocalFontBytes();
-      pdfDoc.registerFontkit(window.fontkit);
-      return await pdfDoc.embedFont(fontBytes.slice(0));
-    } catch (_) {
-      cachedLocalFontBytesPromise = null;
-    }
-  }
-
+  // Page numbers are decimal digits, which the standard Times Roman font supports.
   return pdfDoc.embedFont(pdfLib.StandardFonts.TimesRoman);
 }
 
-// Keep the local fallback bytes in memory for a session that goes offline later.
+// Keep the bundled font bytes in memory for a session that goes offline later.
 if (typeof window !== "undefined" && window.location?.href) {
-  getLocalFontBytes().catch(() => {});
+  getFontBytes().catch(() => {});
 }
 
 function onFiles(files) {
