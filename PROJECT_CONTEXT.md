@@ -341,7 +341,6 @@ flipp/
 ### 6.2 Identified Security & Privacy Considerations
 - **Third-Party CDN Requests**: External scripts (`pdf-lib`, `jspdf`, `pdfjs-dist`, `tesseract.js`) are loaded from public CDNs. All CDN script tags include cryptographic SRI hashes (`integrity="sha384-..."`).
 - **Google Fonts Requests**: HTML pages connect to `fonts.googleapis.com` and `fonts.gstatic.com` to load the `Bricolage Grotesque` font.
-- **Runtime Font Fetch in Page Numbers**: `js/pdf-page-numbers.js` performs a runtime `fetch()` for the IBM Plex Serif `.woff` file from Google Fonts without an offline fallback.
 - **Tesseract OCR Language Weights**: When OCR is executed in `pdf-to-text.js` or `pdf-to-word.js`, Tesseract downloads language weights over the network from its CDN.
 - **Content Security Policy (CSP)**: `_headers` currently lacks a strict `Content-Security-Policy`. Adding a CSP header would cryptographically enforce Flipp's zero-outbound-network guarantee.
 
@@ -542,7 +541,5 @@ node tests/run_phase3_real_browser_test.js
   - `/js/*` and `/css/styles.css` are configured with `max-age=31536000, immutable`. Because HTML files reference scripts without query parameters or content hashes (e.g., `../../js/pdf-split.js`), returning users may receive stale JavaScript from browser or edge caches after an update.
 
 ### 13.3 Low Priority
-- **Online Network Dependency for Custom Font (`js/pdf-page-numbers.js`)**:
-  - Runtime `fetch()` requests IBM Plex Serif from Google Fonts without an offline fallback to standard 14 PDF fonts (e.g., Helvetica).
 - **In-Memory Heap Saturation on Large Image Exports (`js/pdf-to-img.js`)**:
   - High-DPI data URLs are accumulated in the `renderedPages` array in JavaScript heap memory, creating memory pressure on mobile devices when converting 100+ page documents.
