@@ -437,18 +437,20 @@ splitBtn.addEventListener("click", async () => {
           "error",
         );
       }
-      if (end >= totalPages) {
+      if (start === 1 && end === totalPages) {
         return showToast(
-          "End page must be before the last page so second file is not empty.",
+          "Selected range covers all pages. Choose a sub-range so the second file is not empty.",
           "error",
         );
       }
 
-      const firstOut = await PDFLib.PDFDocument.create();
-      const firstPageIndexes = Array.from(
-        { length: end - start + 1 },
-        (_, i) => start - 1 + i,
+      const allIndices = Array.from({ length: totalPages }, (_, i) => i);
+      const firstPageIndexes = allIndices.slice(start - 1, end);
+      const secondPageIndexes = allIndices.filter(
+        (idx) => idx < start - 1 || idx >= end,
       );
+
+      const firstOut = await PDFLib.PDFDocument.create();
       const firstPages = await firstOut.copyPages(srcPdf, firstPageIndexes);
       firstPages.forEach((page) => firstOut.addPage(page));
       splitBlobs.push({
@@ -457,10 +459,6 @@ splitBtn.addEventListener("click", async () => {
       });
 
       const secondOut = await PDFLib.PDFDocument.create();
-      const secondPageIndexes = Array.from(
-        { length: totalPages - end },
-        (_, i) => end + i,
-      );
       const secondPages = await secondOut.copyPages(srcPdf, secondPageIndexes);
       secondPages.forEach((page) => secondOut.addPage(page));
       splitBlobs.push({
@@ -469,8 +467,16 @@ splitBtn.addEventListener("click", async () => {
       });
 
       await displaySplitResults(baseName);
+      let secondRangeText;
+      if (start === 1) {
+        secondRangeText = `pages ${end + 1}-${totalPages}`;
+      } else if (end === totalPages) {
+        secondRangeText = `pages 1-${start - 1}`;
+      } else {
+        secondRangeText = `remaining pages (1-${start - 1}, ${end + 1}-${totalPages})`;
+      }
       showToast(
-        `Split into 2 PDFs: pages ${start}-${end} and ${end + 1}-${totalPages}.`,
+        `Split into 2 PDFs: pages ${start}-${end} and ${secondRangeText}.`,
       );
     }
   } catch (error) {
