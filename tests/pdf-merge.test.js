@@ -102,7 +102,13 @@ test('pdf-merge functionality', async (t) => {
       removeAttribute: () => {},
       triggerEvent: (event, eData) => {
         if (eventListeners[event]) eventListeners[event](eData || { stopPropagation: () => {} });
-      }
+      },
+      width: 0,
+      height: 0,
+      getContext: () => ({
+        drawImage: () => {}
+      }),
+      toDataURL: () => 'data:image/png;base64,mocktranscodedpng'
     };
     return el;
   };
@@ -164,6 +170,16 @@ test('pdf-merge functionality', async (t) => {
     addFilesCallback = undefined;
     setupDragReorderCalls = [];
     for (const k in elementMap) delete elementMap[k];
+
+    mockWindow.Image = class MockImage {
+      constructor() {
+        this.naturalWidth = 100;
+        this.naturalHeight = 100;
+        setTimeout(() => {
+          if (this.onload) this.onload();
+        }, 0);
+      }
+    };
 
     wrapper(
       mockDocument,
@@ -412,5 +428,105 @@ test('pdf-merge functionality', async (t) => {
     assert.strictEqual(img.src, 'data:image/png;base64,mockthumbnail');
     assert.strictEqual(img.alt, 'Merged PDF preview');
     assert.strictEqual(img.className, 'merged-master-img');
+  });
+
+  await t.test('supports webp image files by transcoding to png and embedding into pdf', async () => {
+    let embeddedPngArgs = [];
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          embedPng: async (arg) => {
+            embeddedPngArgs.push(arg);
+            return { width: 120, height: 80 };
+          },
+          embedJpg: async () => ({ width: 120, height: 80 }),
+          addPage: () => ({ drawImage: () => {} }),
+          save: async () => new Uint8Array([1, 2, 3]),
+          copyPages: async (src, indices) => indices.map((i) => ({ index: i }))
+        }),
+        load: async () => ({
+          getPageCount: () => 1,
+          getPageIndices: () => [0]
+        })
+      }
+    };
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: 'report.pdf', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'image/webp', name: 'graphic.webp', arrayBuffer: async () => new ArrayBuffer(16) }
+    ]);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter((c) => c.className && c.className.includes('img-thumb-card'));
+    assert.strictEqual(fileCards.length, 2);
+
+    const countWebp = fileCards[1].querySelector('.img-thumb-page-count');
+    assert.strictEqual(countWebp.textContent, '1 page');
+    assert.strictEqual(embeddedPngArgs.length, 1);
+    assert.ok(typeof embeddedPngArgs[0] === 'string' && embeddedPngArgs[0].startsWith('data:image/png'));
+
+    await mockMergeClick();
+    assert.strictEqual(toastMessage, 'Merged PDF is ready!');
+  });
+
+  await t.test('handles failed image conversions with error card and blocks merging', async () => {
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        create: async () => {
+          throw new Error('Image embedding failed');
+        }
+      }
+    };
+    mockWindow.jspdf = undefined;
+    mockWindow.jsPDF = undefined;
+
+    await addFilesCallback([
+      { type: 'image/webp', name: 'corrupted.webp', arrayBuffer: async () => new ArrayBuffer(8) },
+      { type: 'application/pdf', name: 'valid.pdf', arrayBuffer: async () => new ArrayBuffer(8) }
+    ]);
+
+    const grid = mockDocument.getElementById('merge-file-grid');
+    const fileCards = grid.children.filter((c) => c.className && c.className.includes('img-thumb-card'));
+    const countEl = fileCards[0].querySelector('.img-thumb-page-count');
+    assert.strictEqual(countEl.textContent, 'Invalid image');
+
+    await mockMergeClick();
+    assert.strictEqual(toastMessage, 'Please remove invalid or unreadable files before merging.');
+    assert.strictEqual(toastType, 'error');
+  });
+
+  await t.test('merge handler never loads raw image file bytes into PDFDocument.load', async () => {
+    let loadedBuffers = [];
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          embedPng: async () => ({ width: 100, height: 100 }),
+          embedJpg: async () => ({ width: 100, height: 100 }),
+          copyPages: async () => [],
+          addPage: () => ({ drawImage: () => {} }),
+          save: async () => new Uint8Array([1, 2, 3])
+        }),
+        load: async (bytes) => {
+          loadedBuffers.push(bytes);
+          return {
+            getPageCount: () => 1,
+            getPageIndices: () => [0]
+          };
+        }
+      }
+    };
+
+    const mockPdfBuffer = new ArrayBuffer(10);
+    const mockImageBuffer = new ArrayBuffer(20);
+
+    await addFilesCallback([
+      { type: 'application/pdf', name: '1.pdf', arrayBuffer: async () => mockPdfBuffer },
+      { type: 'image/png', name: '2.png', arrayBuffer: async () => mockImageBuffer }
+    ]);
+
+    await mockMergeClick();
+
+    assert.ok(!loadedBuffers.includes(mockImageBuffer), 'Raw image buffer should never be passed to PDFDocument.load');
+    assert.strictEqual(toastMessage, 'Merged PDF is ready!');
   });
 });

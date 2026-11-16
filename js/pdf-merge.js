@@ -51,18 +51,85 @@ async function getPdfPageCount(arrayBuffer) {
   return 1;
 }
 
+async function imageToPngDataUrl(file) {
+  const dataUrl = await fileToDataUrl(file);
+  return new Promise((resolve, reject) => {
+    const ImgCtor =
+      (typeof window !== "undefined" && window.Image) ||
+      (typeof Image !== "undefined" ? Image : null);
+    if (!ImgCtor) {
+      return reject(new Error("Image constructor not available"));
+    }
+    const img = new ImgCtor();
+    let settled = false;
+
+    const cleanup = () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+
+    img.onload = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      try {
+        const w = img.naturalWidth || img.width || 600;
+        const h = img.naturalHeight || img.height || 800;
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = typeof canvas.getContext === "function" ? canvas.getContext("2d") : null;
+        if (!ctx) {
+          throw new Error("Canvas 2D context unavailable");
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        const pngUrl = typeof canvas.toDataURL === "function" ? canvas.toDataURL("image/png") : null;
+        canvas.width = 0;
+        canvas.height = 0;
+        if (!pngUrl) {
+          throw new Error("Canvas export to PNG failed");
+        }
+        resolve(pngUrl);
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Failed to load image for transcoding"));
+    };
+
+    img.src = dataUrl;
+    if (img.complete && (img.naturalWidth || img.width)) {
+      img.onload();
+    }
+  });
+}
+
 async function imageFileToPdfArrayBuffer(file) {
+  const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+  const isJpg =
+    file.type === "image/jpeg" ||
+    file.type === "image/jpg" ||
+    /\.(jpe?g)$/i.test(file.name);
+
   try {
-    const arrayBuffer = await file.arrayBuffer();
     const PDFLib = window.PDFLib;
     if (PDFLib && typeof PDFLib.PDFDocument?.create === "function") {
       const doc = await PDFLib.PDFDocument.create();
       let img;
-      const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
       if (isPng) {
+        const arrayBuffer = await file.arrayBuffer();
         img = await doc.embedPng(arrayBuffer);
-      } else {
+      } else if (isJpg) {
+        const arrayBuffer = await file.arrayBuffer();
         img = await doc.embedJpg(arrayBuffer);
+      } else {
+        const pngDataUrl = await imageToPngDataUrl(file);
+        img = await doc.embedPng(pngDataUrl);
       }
       const page = doc.addPage([img.width, img.height]);
       page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
@@ -76,21 +143,41 @@ async function imageFileToPdfArrayBuffer(file) {
   try {
     const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
     if (jsPDF) {
-      const dataUrl = await fileToDataUrl(file);
-      const img = new Image();
-      await new Promise((resolve) => {
-        img.onload = resolve;
-        img.onerror = resolve;
-        img.src = dataUrl;
-      });
-      const w = img.naturalWidth || 600;
-      const h = img.naturalHeight || 800;
+      let dataUrl;
+      let format;
+      if (isPng) {
+        dataUrl = await fileToDataUrl(file);
+        format = "PNG";
+      } else if (isJpg) {
+        dataUrl = await fileToDataUrl(file);
+        format = "JPEG";
+      } else {
+        dataUrl = await imageToPngDataUrl(file);
+        format = "PNG";
+      }
+
+      const ImgCtor =
+        (typeof window !== "undefined" && window.Image) ||
+        (typeof Image !== "undefined" ? Image : null);
+      let w = 600;
+      let h = 800;
+      if (ImgCtor) {
+        const img = new ImgCtor();
+        await new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = dataUrl;
+          if (img.complete && (img.naturalWidth || img.width)) resolve();
+        });
+        w = img.naturalWidth || img.width || 600;
+        h = img.naturalHeight || img.height || 800;
+      }
+
       const pdf = new jsPDF({
         orientation: w > h ? "landscape" : "portrait",
         unit: "px",
         format: [w, h],
       });
-      const format = file.type === "image/png" ? "PNG" : "JPEG";
       pdf.addImage(dataUrl, format, 0, 0, w, h);
       return pdf.output("arraybuffer");
     }
@@ -148,12 +235,20 @@ async function addFiles(files) {
       } else {
         let arrayBuffer = null;
         let thumbnailDataUrl = null;
+        let isError = false;
+        let pageCount = 1;
 
         try {
           thumbnailDataUrl = await fileToDataUrl(file);
           arrayBuffer = await imageFileToPdfArrayBuffer(file);
+          if (!arrayBuffer) {
+            isError = true;
+            pageCount = "error";
+          }
         } catch (e) {
           console.error("Error converting image:", e);
+          isError = true;
+          pageCount = "error";
         }
 
         return {
@@ -161,9 +256,9 @@ async function addFiles(files) {
           arrayBuffer,
           id,
           thumbnailDataUrl,
-          pageCount: 1,
+          pageCount,
           type: "image",
-          isError: false,
+          isError,
         };
       }
     }),
@@ -213,7 +308,7 @@ function createThumbnailCard(item, idx) {
     pagesEl.textContent = "Loading pages...";
     pagesEl.classList.add("is-loading");
   } else if (item.pageCount === "error" || item.isError) {
-    pagesEl.textContent = "Invalid PDF";
+    pagesEl.textContent = item.type === "image" ? "Invalid image" : "Invalid PDF";
     pagesEl.classList.add("is-error");
   } else if (typeof item.pageCount === "number") {
     pagesEl.textContent = `${item.pageCount} page${item.pageCount === 1 ? "" : "s"}`;
@@ -372,8 +467,13 @@ mergeBtn.addEventListener("click", async () => {
     const loadedPdfs = await Promise.all(
       pdfItems.map(async (item) => {
         let srcBytes = item.arrayBuffer;
-        if (!srcBytes && item.file) {
-          srcBytes = await item.file.arrayBuffer();
+        if (!srcBytes) {
+          if (item.type === "image") {
+            throw new Error(`Failed to convert image "${item.file ? item.file.name : "unknown"}" to PDF.`);
+          }
+          if (item.file) {
+            srcBytes = await item.file.arrayBuffer();
+          }
         }
         return PDFLib.PDFDocument.load(srcBytes, {
           ignoreEncryption: true,
