@@ -446,6 +446,51 @@ test('rearrange-pdf functionality', async (t) => {
     assert.deepStrictEqual(copyPagesArgs, [0, 2]);
   });
 
+  await t.test('shows error toast when clicking rearrange with all pages removed', async () => {
+    toastMessage = null;
+    toastType = null;
+
+    mockWindow['pdfjs-dist/build/pdf'] = {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          numPages: 1,
+          destroy: async () => {},
+          getPage: async () => ({
+            getViewport: () => ({ width: 100, height: 100 }),
+            render: () => ({ promise: Promise.resolve() }),
+            cleanup: () => {}
+          })
+        })
+      })
+    };
+
+    const fakeFile = {
+      name: 'single.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(16)
+    };
+
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+
+    const grid = mockDocument.getElementById('rearrange-preview-grid');
+    const countEl = mockDocument.getElementById('rearrange-file-count');
+
+    // Remove the only page
+    const card = grid.children[0];
+    const rmBtn = card.children.find(c => c.className === 'img-thumb-remove');
+    rmBtn.click();
+
+    assert.strictEqual(grid.children.length, 0);
+    assert.strictEqual(countEl.textContent, '0 pages (At least 1 page required)');
+
+    // Attempt to click rearrangeBtn
+    await rearrangeBtnClick();
+
+    assert.strictEqual(toastMessage, 'At least one page must remain in the PDF.');
+    assert.strictEqual(toastType, 'error');
+  });
+
   await t.test('calls page.cleanup() after rendering and pdfDocument.destroy() on reset/reload', async () => {
     let pageCleanupCount = 0;
     let docDestroyCount = 0;

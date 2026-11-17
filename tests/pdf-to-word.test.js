@@ -252,6 +252,31 @@ describe("pdf-to-word unit and integration tests", () => {
     assert.strictEqual(sorted[3].str, "Right Col 2");
   });
 
+  it("sortAndDetectColumns correctly handles topY of 0 and preserves full-width headers and footers", () => {
+    const pageWidth = 600;
+    const items = [
+      // Full-width header (negative or before column top)
+      { str: "Document Header", leftX: 50, topY: -10, width: 500, height: 16, fontSize: 16 },
+      // Left column starting at coordinate 0
+      { str: "Left Col Top", leftX: 50, topY: 0, width: 100, height: 12, fontSize: 12 },
+      { str: "Left Col Bottom", leftX: 50, topY: 50, width: 100, height: 12, fontSize: 12 },
+      // Right column starting at coordinate 0
+      { str: "Right Col Top", leftX: 350, topY: 0, width: 100, height: 12, fontSize: 12 },
+      { str: "Right Col Bottom", leftX: 350, topY: 50, width: 100, height: 12, fontSize: 12 },
+      // Full-width footer below columns
+      { str: "Document Footer", leftX: 50, topY: 100, width: 500, height: 12, fontSize: 12 }
+    ];
+
+    const sorted = pdfToWordModule.sortAndDetectColumns(items, pageWidth);
+    assert.strictEqual(sorted.length, 6);
+    assert.strictEqual(sorted[0].str, "Document Header");
+    assert.strictEqual(sorted[1].str, "Left Col Top");
+    assert.strictEqual(sorted[2].str, "Left Col Bottom");
+    assert.strictEqual(sorted[3].str, "Right Col Top");
+    assert.strictEqual(sorted[4].str, "Right Col Bottom");
+    assert.strictEqual(sorted[5].str, "Document Footer");
+  });
+
   it("detectTableStructure identifies aligned table row cells", () => {
     const lines = [
       { items: [{ str: "Header 1" }, { str: "Header 2" }] },

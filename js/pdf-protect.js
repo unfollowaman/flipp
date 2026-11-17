@@ -65,10 +65,10 @@ async function addFiles(files) {
 }
 
 function validatePasswords() {
-  const password = passwordEl.value.trim();
-  const confirm = confirmPasswordEl.value.trim();
+  const password = passwordEl.value;
+  const confirm = confirmPasswordEl.value;
 
-  if (password.length < 8) {
+  if (password.trim().length === 0 || password.length < 8) {
     showToast("Password must be at least 8 characters.", "error");
     return null;
   }

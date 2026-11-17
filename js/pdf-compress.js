@@ -218,12 +218,6 @@ compressBtn.addEventListener("click", async () => {
       try {
         const totalPages = pdfjsDoc.numPages;
 
-        const jsPdfDoc = new window.jspdf.jsPDF({
-          orientation: "portrait",
-          unit: "pt",
-          format: "a4",
-        });
-
         // Process pages with worker pool concurrency limit
         const concurrencyLimit = 5;
         const pageIndices = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -291,20 +285,20 @@ compressBtn.addEventListener("click", async () => {
           }
         }
 
+        let jsPdfDoc = null;
         for (const res of results) {
-          // Resize jsPDF page to match viewport dimensions
-          if (res.index > 1) {
+          if (!jsPdfDoc) {
+            jsPdfDoc = new window.jspdf.jsPDF({
+              orientation: res.width > res.height ? "landscape" : "portrait",
+              unit: "pt",
+              format: [res.width, res.height],
+            });
+          } else {
             jsPdfDoc.addPage(
               [res.width, res.height],
-              res.width > res.height ? "l" : "p",
+              res.width > res.height ? "landscape" : "portrait",
             );
-          } else {
-            jsPdfDoc.setPage(1);
-            // Not easy to set format of first page after creation in jsPDF, we try to orient it
           }
-
-          jsPdfDoc.internal.pageSize.setWidth(res.width);
-          jsPdfDoc.internal.pageSize.setHeight(res.height);
 
           jsPdfDoc.addImage(res.imgData, "JPEG", 0, 0, res.width, res.height);
         }

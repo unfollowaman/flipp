@@ -234,14 +234,38 @@ test('validatePasswords function', async (t) => {
     assert.strictEqual(defaultInstance.toastMessages.length, 0);
   });
 
-  await t.test('trims whitespace from passwords', () => {
+  await t.test('preserves exact leading and trailing whitespace in passwords', () => {
     elementMap['protect-password'].value = '  password123  ';
     elementMap['protect-password-confirm'].value = '  password123  ';
 
     const result = validatePasswords();
 
-    assert.strictEqual(result, 'password123');
+    assert.strictEqual(result, '  password123  ');
     assert.strictEqual(defaultInstance.toastMessages.length, 0);
+  });
+
+  await t.test('rejects whitespace-only passwords', () => {
+    elementMap['protect-password'].value = '        ';
+    elementMap['protect-password-confirm'].value = '        ';
+
+    const result = validatePasswords();
+
+    assert.strictEqual(result, null);
+    assert.strictEqual(defaultInstance.toastMessages.length, 1);
+    assert.strictEqual(defaultInstance.toastMessages[0].msg, 'Password must be at least 8 characters.');
+    assert.strictEqual(defaultInstance.toastMessages[0].type, 'error');
+  });
+
+  await t.test('rejects passwords when confirmation does not match exact whitespace', () => {
+    elementMap['protect-password'].value = '  password123  ';
+    elementMap['protect-password-confirm'].value = 'password123';
+
+    const result = validatePasswords();
+
+    assert.strictEqual(result, null);
+    assert.strictEqual(defaultInstance.toastMessages.length, 1);
+    assert.strictEqual(defaultInstance.toastMessages[0].msg, 'Passwords do not match.');
+    assert.strictEqual(defaultInstance.toastMessages[0].type, 'error');
   });
 });
 

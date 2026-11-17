@@ -229,11 +229,24 @@ export class PageDeleteUndoManager {
     this.history = [];
     this.hasEverDeleted = false;
     this.isProcessing = false;
+    this.activeDeletions = new Set();
+    this.pendingDeletionPromises = new Set();
 
     if (this.undoBtn) {
       this.undoBtn.addEventListener("click", () => this.undo());
       this.updateUndoBtnUI();
     }
+  }
+
+  /**
+   * Waits for all in-flight page deletions to finish animation and DOM removal.
+   * @returns {Promise<void>}
+   */
+  async waitForPendingDeletions() {
+    if (!this.pendingDeletionPromises || this.pendingDeletionPromises.size === 0) {
+      return;
+    }
+    await Promise.all(Array.from(this.pendingDeletionPromises));
   }
 
   /**
@@ -245,6 +258,10 @@ export class PageDeleteUndoManager {
     if (!card || card.classList.contains("is-deleting")) return;
 
     card.classList.add("is-deleting");
+    if (!this.activeDeletions) this.activeDeletions = new Set();
+    if (!this.pendingDeletionPromises) this.pendingDeletionPromises = new Set();
+    this.activeDeletions.add(card);
+
     const rmBtn = card.querySelector(".img-thumb-remove");
     if (rmBtn) rmBtn.disabled = true;
 
@@ -253,40 +270,65 @@ export class PageDeleteUndoManager {
     const index = allCards.indexOf(card);
     const nextSibling = card.nextElementSibling;
 
-    // Record history item
-    this.history.push({
-      card,
-      nextSibling,
-      index,
-      pageLabel: pageLabel || `Page ${index + 1}`,
-    });
-    this.hasEverDeleted = true;
-
-    // Run disintegration animation
-    await animatePageDisintegration(card);
-
-    // Remove from DOM
-    card.remove();
-    card.classList.remove("is-deleting");
-    card.style.opacity = "";
-    card.style.transform = "";
-    card.style.filter = "";
-    if (rmBtn) rmBtn.disabled = false;
-
-    // Update UI state and notify live region
+    // Immediately trigger onUpdate so remaining page order and count update without waiting for animation
     this.updateUndoBtnUI();
     if (typeof this.onUpdate === "function") {
       this.onUpdate();
     }
-    announce(`${pageLabel || `Page ${index + 1}`} deleted.`);
+
+    const deletionPromise = (async () => {
+      try {
+        // Run disintegration animation
+        await animatePageDisintegration(card);
+      } catch (_) {
+        // Fallback in case animation fails
+      } finally {
+        // Remove from DOM
+        card.remove();
+        card.classList.remove("is-deleting");
+        card.style.opacity = "";
+        card.style.transform = "";
+        card.style.filter = "";
+        if (rmBtn) rmBtn.disabled = false;
+
+        this.activeDeletions.delete(card);
+        this.pendingDeletionPromises.delete(deletionPromise);
+
+        // Record history item once fully removed from DOM
+        this.history.push({
+          card,
+          nextSibling,
+          index,
+          pageLabel: pageLabel || `Page ${index + 1}`,
+        });
+        this.hasEverDeleted = true;
+
+        // Update UI state and notify live region
+        this.updateUndoBtnUI();
+        if (typeof this.onUpdate === "function") {
+          this.onUpdate();
+        }
+        announce(`${pageLabel || `Page ${index + 1}`} deleted.`);
+      }
+    })();
+
+    this.pendingDeletionPromises.add(deletionPromise);
+    await deletionPromise;
   }
 
   /**
    * Undo the most recent page deletion.
    */
   async undo() {
-    if (this.history.length === 0 || this.isProcessing) return;
+    if (
+      this.history.length === 0 ||
+      this.isProcessing ||
+      (this.activeDeletions && this.activeDeletions.size > 0)
+    ) {
+      return;
+    }
     this.isProcessing = true;
+    this.updateUndoBtnUI();
 
     const entry = this.history.pop();
     const { card, nextSibling, index, pageLabel } = entry;
@@ -303,16 +345,20 @@ export class PageDeleteUndoManager {
       }
     }
 
-    // Run restoration animation
-    await animatePageRestoration(card);
+    try {
+      // Run restoration animation
+      await animatePageRestoration(card);
+    } catch (_) {
+      // Fallback in case animation fails
+    } finally {
+      this.isProcessing = false;
+      this.updateUndoBtnUI();
 
-    this.isProcessing = false;
-    this.updateUndoBtnUI();
-
-    if (typeof this.onUpdate === "function") {
-      this.onUpdate();
+      if (typeof this.onUpdate === "function") {
+        this.onUpdate();
+      }
+      announce(`${pageLabel} restored.`);
     }
-    announce(`${pageLabel} restored.`);
   }
 
   /**
@@ -322,6 +368,7 @@ export class PageDeleteUndoManager {
     if (!this.undoBtn) return;
 
     const count = this.history.length;
+    const isBusy = (this.activeDeletions && this.activeDeletions.size > 0) || this.isProcessing;
 
     if (!this.hasEverDeleted && count === 0) {
       // STATE A: Hidden
@@ -329,12 +376,16 @@ export class PageDeleteUndoManager {
       this.undoBtn.disabled = true;
       this.undoBtn.removeAttribute("aria-label");
     } else if (count > 0) {
-      // STATE B: Active
+      // STATE B: Active (or temporarily disabled while busy)
       this.undoBtn.style.display = "inline-flex";
-      this.undoBtn.disabled = false;
-      this.undoBtn.style.opacity = "1";
-      this.undoBtn.style.pointerEvents = "auto";
-      this.undoBtn.removeAttribute("aria-disabled");
+      this.undoBtn.disabled = isBusy;
+      this.undoBtn.style.opacity = isBusy ? "0.6" : "1";
+      this.undoBtn.style.pointerEvents = isBusy ? "none" : "auto";
+      if (isBusy) {
+        this.undoBtn.setAttribute("aria-disabled", "true");
+      } else {
+        this.undoBtn.removeAttribute("aria-disabled");
+      }
       this.undoBtn.setAttribute("aria-label", `Undo page deletion (${count} available)`);
       this.undoBtn.textContent = "↩ Undo Delete ";
       const badge = document.createElement("span");
@@ -371,6 +422,8 @@ export class PageDeleteUndoManager {
     this.history = [];
     this.hasEverDeleted = false;
     this.isProcessing = false;
+    if (this.activeDeletions) this.activeDeletions.clear();
+    if (this.pendingDeletionPromises) this.pendingDeletionPromises.clear();
     this.updateUndoBtnUI();
   }
 }

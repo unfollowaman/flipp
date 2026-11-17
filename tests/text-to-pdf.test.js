@@ -81,3 +81,95 @@ test('text-to-pdf HTML accessibility attributes', async (t) => {
     assert.match(textareaMatch[0], /aria-label=["'][^"']+["']/, '#text-pdf-raw-input should have non-empty aria-label');
   });
 });
+
+test('text-to-pdf input precedence and state switching', async (t) => {
+  const state = {
+    toastMsg: null,
+    toastType: null,
+    generatedContent: null
+  };
+
+  const elements = {
+    'text-pdf-raw-input': { value: '', listeners: {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-file-input': { value: '', files: [], listeners: {}, click() {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-use-file-btn': { listeners: {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-file-info': { textContent: '' },
+    'text-pdf-build-btn': { listeners: {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-download-btn': { listeners: {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-reset-btn': { listeners: {}, addEventListener(e, f) { this.listeners[e] = f; } },
+    'text-pdf-preview-area': { classList: { add() {}, remove() {} } },
+    'text-pdf-results': { classList: { add() {}, remove() {} } }
+  };
+
+  const mockDocument = {
+    getElementById: (id) => elements[id],
+    fonts: { load: async () => {}, ready: Promise.resolve() }
+  };
+
+  const evalCode = `
+    const document = mockDocument;
+    function showToast(m, t) { state.toastMsg = m; state.toastType = t; }
+    ${src
+      .replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '')
+      .replace('outputBlob = await generatePdfFromText(content);', 'state.generatedContent = content; outputBlob = new Blob([content]);')}
+  `;
+
+  new Function('mockDocument', 'state', 'Blob', evalCode)(
+    mockDocument,
+    state,
+    class Blob { constructor(c) { this.content = c; } }
+  );
+
+  const rawInput = elements['text-pdf-raw-input'];
+  const fileInput = elements['text-pdf-file-input'];
+  const buildBtn = elements['text-pdf-build-btn'];
+  const fileInfo = elements['text-pdf-file-info'];
+
+  await t.test('selecting a file clears previous raw text and uses uploaded file content', async () => {
+    rawInput.value = 'Existing typed text';
+    rawInput.listeners['input']();
+
+    // Now select a file
+    fileInput.files = [{
+      name: 'notes.txt',
+      text: async () => 'Uploaded file content'
+    }];
+    fileInput.listeners['change']();
+
+    assert.strictEqual(rawInput.value, '');
+    assert.strictEqual(fileInfo.textContent, 'Selected file: notes.txt');
+
+    await buildBtn.listeners['click']();
+    assert.strictEqual(state.generatedContent, 'Uploaded file content');
+  });
+
+  await t.test('typing in textarea clears previously selected file and uses typed text', async () => {
+    // Select a file first
+    fileInput.files = [{
+      name: 'data.txt',
+      text: async () => 'Old file text'
+    }];
+    fileInput.listeners['change']();
+
+    assert.strictEqual(fileInfo.textContent, 'Selected file: data.txt');
+
+    // Now user types in rawInput
+    rawInput.value = 'Fresh typed text';
+    rawInput.listeners['input']();
+
+    assert.strictEqual(fileInfo.textContent, '');
+    assert.strictEqual(fileInput.value, '');
+
+    await buildBtn.listeners['click']();
+    assert.strictEqual(state.generatedContent, 'Fresh typed text');
+  });
+
+  await t.test('shows error toast when both typed text and file are empty', async () => {
+    rawInput.value = '   ';
+    rawInput.listeners['input']();
+
+    state.toastMsg = null;
+    await buildBtn.listeners['click']();
+    assert.strictEqual(state.toastMsg, 'Add raw text or upload a text file first.');
+  });
+});

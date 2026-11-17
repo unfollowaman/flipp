@@ -388,6 +388,10 @@ convertBtn.addEventListener("click", async () => {
   } catch (err) {
     showToast("An error occurred while generating the PDF.", "error");
     progressArea.style.display = "none";
+    if (imageFiles.length > 0) {
+      previewArea.classList.add("is-visible");
+      optionsEl.classList.add("is-visible");
+    }
   }
 });
 
