@@ -553,7 +553,7 @@ test('pdf-split N-page splitting logic', async (t) => {
   const checkbox = mockDocument.getElementById('split-n-checkbox');
   const inputN = mockDocument.getElementById('split-n-input');
 
-  const runSplit = async (pageCount, isNMode, nValue) => {
+  const runSplit = async (pageCount, isNMode, nValue, startVal, endVal) => {
     createdDocuments = [];
     const buffer = new ArrayBuffer(8);
     buffer.mockPageCount = pageCount;
@@ -568,6 +568,12 @@ test('pdf-split N-page splitting logic', async (t) => {
 
     checkbox.checked = isNMode;
     inputN.value = String(nValue);
+    if (startVal !== undefined) {
+      mockDocument.getElementById('split-range-start').value = String(startVal);
+    }
+    if (endVal !== undefined) {
+      mockDocument.getElementById('split-range-end').value = String(endVal);
+    }
 
     await splitBtn.listeners['click']();
     return createdDocuments;
@@ -621,6 +627,41 @@ test('pdf-split N-page splitting logic', async (t) => {
     assert.strictEqual(docs.length, 2);
     assert.strictEqual(docs[0].addedPages.length, 9); // pages 1-9
     assert.strictEqual(docs[1].addedPages.length, 1); // page 10
+  });
+
+  await t.test('Range split preserves earlier pages in File 2 when start > 1', async () => {
+    // 10 pages, range 4 to 6
+    const docs = await runSplit(10, false, 1, 4, 6);
+    assert.strictEqual(docs.length, 2);
+    // File 1 has pages 4, 5, 6
+    assert.deepStrictEqual(docs[0].addedPages.map((p) => p.id), [4, 5, 6]);
+    // File 2 has remaining pages: 1, 2, 3, 7, 8, 9, 10
+    assert.deepStrictEqual(docs[1].addedPages.map((p) => p.id), [1, 2, 3, 7, 8, 9, 10]);
+  });
+
+  await t.test('Range split allows ending at totalPages when start > 1', async () => {
+    // 10 pages, range 8 to 10
+    const docs = await runSplit(10, false, 1, 8, 10);
+    assert.strictEqual(docs.length, 2);
+    // File 1 has pages 8, 9, 10
+    assert.deepStrictEqual(docs[0].addedPages.map((p) => p.id), [8, 9, 10]);
+    // File 2 has pages 1, 2, 3, 4, 5, 6, 7
+    assert.deepStrictEqual(docs[1].addedPages.map((p) => p.id), [1, 2, 3, 4, 5, 6, 7]);
+  });
+
+  await t.test('Single page extraction preserves all other pages in File 2', async () => {
+    // 10 pages, extract page 5
+    const docs = await runSplit(10, false, 1, 5, 5);
+    assert.strictEqual(docs.length, 2);
+    assert.deepStrictEqual(docs[0].addedPages.map((p) => p.id), [5]);
+    assert.deepStrictEqual(docs[1].addedPages.map((p) => p.id), [1, 2, 3, 4, 6, 7, 8, 9, 10]);
+  });
+
+  await t.test('Range split rejects selection covering all pages (start = 1, end = totalPages)', async () => {
+    toastMessage = null;
+    const docs = await runSplit(10, false, 1, 1, 10);
+    assert.strictEqual(docs.length, 0);
+    assert.strictEqual(toastMessage, 'Selected range covers all pages. Choose a sub-range so the second file is not empty.');
   });
 });
 

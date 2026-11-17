@@ -248,7 +248,7 @@ flipp/
   1. Reads file bytes once into module memory (`originalPdfBytes`).
   2. Debounces inputs (`120ms`) and uses a request sequence map (`activeRenderTasks`) to render live page previews of the chosen boundary pages without race conditions.
   3. Two splitting modes:
-     - **Range Mode**: Splits the document into two distinct PDFs: Part 1 (`start` to `end`) and Part 2 (`end + 1` to `totalPages`).
+     - **Range Mode**: Splits the document into two distinct PDFs: Part 1 (`start` to `end`) and Part 2 (all remaining pages before `start` and after `end`).
      - **Split Every N Pages**: Iterates in steps of `N`, extracting chunks of pages into individual PDFs.
   4. Pages are cloned via `outPdf.copyPages(srcPdf, pageIndexes)` and serialized to Blobs.
   5. Offers individual downloads or bulk ZIP export via `JSZip`.
@@ -535,8 +535,6 @@ node tests/run_phase3_real_browser_test.js
 ### 13.2 Medium Priority
 - **Hardcoded Hindi OCR Language (`js/pdf-to-text.js`)**:
   - Line 279 hardcodes `createWorker("hin")`. When scanning English or European PDFs, character recognition accuracy drops significantly.
-- **Range Split Page Constraint (`js/pdf-split.js`)**:
-  - Line 440 strictly requires `end < totalPages` to ensure Part 2 is non-empty. Users cannot extract an arbitrary range ending at the final page without triggering an error.
 - **Immutable Edge Caching Without File Hashing (`_headers`)**:
   - `/js/*` and `/css/styles.css` are configured with `max-age=31536000, immutable`. Because HTML files reference scripts without query parameters or content hashes (e.g., `../../js/pdf-split.js`), returning users may receive stale JavaScript from browser or edge caches after an update.
 

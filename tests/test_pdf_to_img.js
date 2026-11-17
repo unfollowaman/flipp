@@ -4,7 +4,7 @@ const fs = require('node:fs');
 
 // Read the vanilla JS file and extract the function as a string
 const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
-const match = code.match(/function parsePageRange\([\s\S]*?return \[\.\.\.pages\]\.sort\(\(a, b\) => a - b\);\r?\n}/);
+const match = code.match(/function parsePageRange\([\s\S]*?return \[\.\.\.pages\]\.sort\(\(a, b\) => a - b\);[\r\n]+}/);
 
 if (!match) {
   throw new Error("Function not found");
