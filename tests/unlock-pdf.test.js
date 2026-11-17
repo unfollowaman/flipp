@@ -180,7 +180,7 @@ function createTestInstance(customPdfLib = {}) {
   };
 
   const mockWindow = {
-    PDFLib: customPdfLib.PDFDocument ? customPdfLib : defaultPDFLib
+    PDFLib: customPdfLib === null ? undefined : (customPdfLib && customPdfLib.PDFDocument ? customPdfLib : defaultPDFLib)
   };
 
   const evaluate = new Function(
@@ -478,4 +478,20 @@ test("Unlock PDF logic handles process error during unlocking", async () => {
   assert.strictEqual(inst.getToastMsg(), "An error occurred while unlocking the PDF.");
   assert.strictEqual(inst.elements["unlock-btn"].disabled, false);
   assert.strictEqual(inst.elements["unlock-btn"].textContent, "Unlock PDF →");
+});
+
+test("Unlock PDF initializes safely when window.PDFLib is undefined and handles unready state", async () => {
+  // Evaluates without throwing TypeError at top level
+  const inst = createTestInstance(null);
+  assert.ok(inst, "Module successfully evaluated without PDFLib");
+
+  const cb = inst.getDropZoneCb();
+  await cb([{
+    name: "doc.pdf",
+    type: "application/pdf",
+    arrayBuffer: async () => new ArrayBuffer(16)
+  }]);
+
+  assert.strictEqual(inst.getToastMsg(), "PDF library not ready yet. Please wait a moment.");
+  assert.strictEqual(inst.getToastType(), "error");
 });

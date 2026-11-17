@@ -199,18 +199,24 @@ async function loadPdfAndRenderThumbnails() {
 
 // ── Drag-to-reorder ─────────────────────────────────────
 function updatePagesOrder() {
-  const allCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
+  const allCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card")).filter(
+    (card) => !card.classList.contains("is-deleting")
+  );
   pagesOrder = allCards.map((card) => parseInt(card.dataset.idx, 10));
 
-  countEl.textContent = `${allCards.length} page${allCards.length !== 1 ? "s" : ""}`;
+  if (allCards.length === 0) {
+    countEl.textContent = "0 pages (At least 1 page required)";
+  } else {
+    countEl.textContent = `${allCards.length} page${allCards.length !== 1 ? "s" : ""}`;
+  }
 
   // Update displayed page numbers
   allCards.forEach((card, index) => {
     const num = card.querySelector(".img-thumb-num");
     const lbl = card.querySelector(".img-thumb-label");
     const rmBtn = card.querySelector(".img-thumb-remove");
-    num.textContent = index + 1;
-    lbl.textContent = `Page ${index + 1}`;
+    if (num) num.textContent = index + 1;
+    if (lbl) lbl.textContent = `Page ${index + 1}`;
     if (rmBtn) {
       rmBtn.setAttribute("aria-label", `Delete page ${index + 1}`);
     }
@@ -219,7 +225,15 @@ function updatePagesOrder() {
 
 // ── Build Output PDF ───────────────────────────────────
 rearrangeBtn.addEventListener("click", async () => {
-  if (!originalPdfBytes || !pagesOrder.length) return;
+  if (undoManager && typeof undoManager.waitForPendingDeletions === "function") {
+    await undoManager.waitForPendingDeletions();
+  }
+
+  if (!originalPdfBytes) return;
+
+  if (!pagesOrder.length) {
+    return showToast("At least one page must remain in the PDF.", "error");
+  }
 
   const PDFLib = window.PDFLib;
   if (!PDFLib) return showToast("PDF library not ready yet.", "error");

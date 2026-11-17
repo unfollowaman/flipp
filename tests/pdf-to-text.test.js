@@ -595,4 +595,128 @@ test('pdf-to-text box copy button and extractTextFromPage', async (t) => {
     assert.strictEqual(elementMap['pdf-progress'].style.display, 'none');
     assert.strictEqual(elementMap['pdf-drop-zone'].style.display, 'block');
   });
+
+  await t.test('downloadBtn and copyText use edited textarea content instead of stale currentText', async () => {
+    let copiedText = null;
+    let downloadedBlobText = null;
+    let downloadedFilename = null;
+
+    const mockPage = {
+      getTextContent: async () => ({
+        items: [{ str: 'Initial extracted text' }]
+      }),
+      cleanup: () => {}
+    };
+
+    const mockPdfDoc = {
+      numPages: 1,
+      getPage: async () => mockPage,
+      destroy: async () => {}
+    };
+
+    const listeners = {};
+    const elementMap = {
+      'pdf-drop-zone': { style: {} },
+      'pdf-file-input': { value: '' },
+      'pdf-progress': { style: {} },
+      'pdf-progress-bar': { style: {} },
+      'pdf-progress-label': { textContent: '' },
+      'pdf-results': { style: {}, classList: { add: () => {}, remove: () => {} } },
+      'pdf-text-output': { value: '' },
+      'ocr-notice': { style: {} },
+      'pdf-copy-btn': { addEventListener: (evt, fn) => { listeners['copy'] = fn; } },
+      'pdf-box-copy-btn': { addEventListener: () => {}, classList: { add: () => {}, remove: () => {} } },
+      'pdf-download-btn': { addEventListener: (evt, fn) => { listeners['download'] = fn; } },
+      'pdf-reset-btn': { addEventListener: () => {} }
+    };
+
+    const mockDocument = {
+      getElementById: (id) => elementMap[id],
+      createElement: (tag) => {
+        if (tag === 'a') {
+          return {
+            href: '',
+            download: '',
+            click: function() {
+              downloadedFilename = this.download;
+            }
+          };
+        }
+        return {};
+      },
+      body: { appendChild: () => {}, removeChild: () => {} }
+    };
+
+    const mockWindow = {
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({ promise: Promise.resolve(mockPdfDoc) })
+      }
+    };
+
+    const mockNavigator = {
+      clipboard: {
+        writeText: async (t) => { copiedText = t; return Promise.resolve(); }
+      }
+    };
+
+    // Save and mock Blob & URL
+    const originalBlob = global.Blob;
+    const originalURL = global.URL;
+    global.Blob = class {
+      constructor(parts) {
+        downloadedBlobText = parts.join('');
+      }
+    };
+    global.URL = {
+      createObjectURL: () => 'blob:mock',
+      revokeObjectURL: () => {}
+    };
+
+    try {
+      const evalCode = `
+        const window = mockWindow;
+        const document = mockDocument;
+        const navigator = mockNavigator;
+        function initDropZone(dz, fi, cb) { dropZoneCb = cb; }
+        function showToast() {}
+        function setProgress() {}
+
+        let dropZoneCb;
+        ${src}
+
+        return { handleFile };
+      `;
+
+      const { handleFile } = new Function('mockDocument', 'mockWindow', 'mockNavigator', evalCode)(
+        mockDocument,
+        mockWindow,
+        mockNavigator
+      );
+
+      // Extract initial text
+      await handleFile({
+        type: 'application/pdf',
+        name: 'test-doc.pdf',
+        arrayBuffer: async () => new ArrayBuffer(16)
+      });
+
+      assert.strictEqual(elementMap['pdf-text-output'].value, 'Initial extracted text');
+
+      // User modifies the textarea content
+      elementMap['pdf-text-output'].value = 'User edited and corrected text!';
+
+      // Test copy
+      listeners['copy']();
+      await new Promise((r) => setTimeout(r, 10));
+      assert.strictEqual(copiedText, 'User edited and corrected text!');
+
+      // Test download
+      listeners['download']();
+      assert.strictEqual(downloadedBlobText, 'User edited and corrected text!');
+      assert.strictEqual(downloadedFilename, 'test-doc.txt');
+    } finally {
+      global.Blob = originalBlob;
+      global.URL = originalURL;
+    }
+  });
 });

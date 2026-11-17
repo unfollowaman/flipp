@@ -4,7 +4,7 @@ const fs = require('node:fs');
 
 // Read the vanilla JS file and extract the function as a string
 const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
-const match = code.match(/function parsePageRange\([\s\S]*?return \[\.\.\.pages\]\.sort\(\(a, b\) => a - b\);\n}/);
+const match = code.match(/function parsePageRange\([\s\S]*?return \[\.\.\.pages\]\.sort\(\(a, b\) => a - b\);\r?\n}/);
 
 if (!match) {
   throw new Error("Function not found");
@@ -352,5 +352,90 @@ describe('loadPDF error handling and validation', () => {
       ctx.getToastMsg(),
       'Failed to load PDF. Is it a valid, non-encrypted file?'
     );
+  });
+});
+
+describe('convertBtn worker error handling and UI recovery', () => {
+  test('handles worker rendering rejection, hides progress, restores preview and options, and displays error toast', async () => {
+    const toastState = { msg: null, type: null };
+
+    const previewClasses = new Set(['is-visible']);
+    const optionsClasses = new Set(['is-visible']);
+    const resultsClasses = new Set();
+    let progressDisplay = 'none';
+
+    const createClassList = (set) => ({
+      add: (c) => set.add(c),
+      remove: (c) => set.delete(c),
+      contains: (c) => set.has(c)
+    });
+
+    const listeners = {};
+    const elements = {
+      'pdf-convert-btn': { addEventListener: (e, f) => { listeners['convert'] = f; } },
+      'pdf-preview-area': { classList: createClassList(previewClasses) },
+      'pdf-options': { classList: createClassList(optionsClasses) },
+      'pdf-progress': { style: { get display() { return progressDisplay; }, set display(v) { progressDisplay = v; } } },
+      'pdf-results': { classList: createClassList(resultsClasses) },
+      'pdf-progress-bar': { style: {} },
+      'pdf-progress-label': { textContent: '' },
+      'pdf-reset-btn': { addEventListener: () => {} },
+      'pdf-download-all-btn': { addEventListener: () => {} },
+      'pdf-preview-grid': { querySelectorAll: () => [], appendChild: () => {}, innerHTML: '' },
+      'pdf-results-grid': { querySelectorAll: () => [], appendChild: () => {}, innerHTML: '' },
+      'pdf-range-group': { style: {} },
+      'pdf-range-input': { value: '' }
+    };
+
+    const mockDocument = {
+      getElementById: (id) => elements[id] || { style: {}, classList: new Set(), addEventListener: () => {} },
+      createElement: () => ({ getContext: () => ({ fillRect: () => {} }), width: 0, height: 0 })
+    };
+
+    const mockPdfDoc = {
+      numPages: 1,
+      getPage: async () => {
+        throw new Error('Canvas rendering engine crashed');
+      }
+    };
+
+    const code = fs.readFileSync('js/pdf-to-img.js', 'utf-8');
+    const evalCode = `
+      const document = mockDocument;
+      const window = {};
+      function showToast(msg, type) { toastState.msg = msg; toastState.type = type; }
+      function setProgress() {}
+      function activatePill() {}
+      function initDropZone() {}
+
+      ${code.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '')}
+
+      // Inject test state
+      pdfDoc = mockPdfDoc;
+      totalPages = 1;
+
+      return listeners['convert'];
+    `;
+
+    const convertHandler = new Function('mockDocument', 'mockPdfDoc', 'listeners', 'toastState', evalCode)(
+      mockDocument,
+      mockPdfDoc,
+      listeners,
+      toastState
+    );
+
+    // Initial state before conversion
+    assert.strictEqual(previewClasses.has('is-visible'), true);
+    assert.strictEqual(optionsClasses.has('is-visible'), true);
+
+    // Trigger conversion which fails due to getPage rejection
+    await convertHandler();
+
+    // Verify recovery state
+    assert.strictEqual(progressDisplay, 'none');
+    assert.strictEqual(previewClasses.has('is-visible'), true);
+    assert.strictEqual(optionsClasses.has('is-visible'), true);
+    assert.strictEqual(toastState.msg, 'Failed to convert PDF pages to images.');
+    assert.strictEqual(toastState.type, 'error');
   });
 });

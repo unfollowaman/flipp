@@ -1,6 +1,11 @@
 import { initDropZone, showToast } from "./drag-drop.js";
 
-const { PDFDocument } = window.PDFLib;
+function getPdfLib() {
+  if (typeof window !== "undefined" && window.PDFLib && window.PDFLib.PDFDocument) {
+    return window.PDFLib;
+  }
+  return null;
+}
 
 let currentDownloadUrl = null;
 let currentFileBytes = null;
@@ -60,6 +65,13 @@ initDropZone(
     }
 
     currentFileName = file.name;
+
+    const pdfLib = getPdfLib();
+    if (!pdfLib) {
+      showToast("PDF library not ready yet. Please wait a moment.", "error");
+      return;
+    }
+    const { PDFDocument } = pdfLib;
 
     try {
       currentFileBytes = await file.arrayBuffer();
@@ -128,6 +140,13 @@ initDropZone(
 
 unlockBtn.addEventListener("click", async () => {
   if (!currentFileBytes) return;
+
+  const pdfLib = getPdfLib();
+  if (!pdfLib) {
+    showToast("PDF library not ready yet. Please wait a moment.", "error");
+    return;
+  }
+  const { PDFDocument } = pdfLib;
 
   unlockBtn.disabled = true;
   unlockBtn.textContent = "Unlocking...";

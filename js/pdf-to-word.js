@@ -179,10 +179,16 @@ export function sortAndDetectColumns(items, pageWidth) {
     fullWidthItems.sort((a, b) => a.topY - b.topY || a.leftX - b.leftX);
 
     // Merge in natural reading order
-    return [...fullWidthItems.filter(i => i.topY < Math.min(leftColItems[0]?.topY || Infinity, rightColItems[0]?.topY || Infinity)),
-            ...leftColItems,
-            ...rightColItems,
-            ...fullWidthItems.filter(i => i.topY >= Math.min(leftColItems[0]?.topY || Infinity, rightColItems[0]?.topY || Infinity))];
+    const minColTop = Math.min(
+      leftColItems[0]?.topY ?? Infinity,
+      rightColItems[0]?.topY ?? Infinity
+    );
+    return [
+      ...fullWidthItems.filter((i) => i.topY < minColTop),
+      ...leftColItems,
+      ...rightColItems,
+      ...fullWidthItems.filter((i) => i.topY >= minColTop),
+    ];
   }
 
   return sortedByY;

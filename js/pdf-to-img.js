@@ -254,60 +254,67 @@ convertBtn.addEventListener("click", async () => {
   resultsArea.classList.remove("is-visible");
   setProgress(progressBar, progressLabel, 0, `Preparing…`);
 
-  renderedPages = [];
+  try {
+    renderedPages = [];
 
-  const MAX_CONCURRENT = 3;
-  let currentIndex = 0;
-  let completedCount = 0;
+    const MAX_CONCURRENT = 3;
+    let currentIndex = 0;
+    let completedCount = 0;
 
-  // Pre-allocate to maintain order
-  renderedPages = new Array(pages.length);
+    // Pre-allocate to maintain order
+    renderedPages = new Array(pages.length);
 
-  async function worker() {
-    while (currentIndex < pages.length) {
-      const idx = currentIndex++;
-      const pageNum = pages[idx];
+    async function worker() {
+      while (currentIndex < pages.length) {
+        const idx = currentIndex++;
+        const pageNum = pages[idx];
 
-      const page = await pdfDoc.getPage(pageNum);
-      try {
-        const { canvas, dataUrl } = await renderPageToCanvas(page, scale, imageFormat);
-        renderedPages[idx] = { pageNum, dataUrl };
-        if (canvas) {
-          canvas.width = 0;
-          canvas.height = 0;
+        const page = await pdfDoc.getPage(pageNum);
+        try {
+          const { canvas, dataUrl } = await renderPageToCanvas(page, scale, imageFormat);
+          renderedPages[idx] = { pageNum, dataUrl };
+          if (canvas) {
+            canvas.width = 0;
+            canvas.height = 0;
+          }
+        } finally {
+          if (page && typeof page.cleanup === "function") {
+            page.cleanup();
+          }
         }
-      } finally {
-        if (page && typeof page.cleanup === "function") {
-          page.cleanup();
+        completedCount++;
+
+        setProgress(
+          progressBar,
+          progressLabel,
+          Math.round((completedCount / pages.length) * 100),
+          `Converting page ${pageNum} of ${totalPages}…`,
+        );
+
+        // Yield to UI periodically or on final page
+        if (completedCount % 5 === 0 || completedCount === pages.length) {
+          await new Promise((r) => setTimeout(r, 0));
         }
-      }
-      completedCount++;
-
-      setProgress(
-        progressBar,
-        progressLabel,
-        Math.round((completedCount / pages.length) * 100),
-        `Converting page ${pageNum} of ${totalPages}…`,
-      );
-
-      // Yield to UI periodically or on final page
-      if (completedCount % 5 === 0 || completedCount === pages.length) {
-        await new Promise((r) => setTimeout(r, 0));
       }
     }
+
+    const workers = [];
+    for (let i = 0; i < MAX_CONCURRENT; i++) {
+      workers.push(worker());
+    }
+
+    await Promise.all(workers);
+
+    setProgress(progressBar, progressLabel, 100, "Done!");
+    await new Promise((r) => setTimeout(r, 400));
+
+    showResults();
+  } catch (err) {
+    progressArea.style.display = "none";
+    previewArea.classList.add("is-visible");
+    optionsEl.classList.add("is-visible");
+    showToast("Failed to convert PDF pages to images.", "error");
   }
-
-  const workers = [];
-  for (let i = 0; i < MAX_CONCURRENT; i++) {
-    workers.push(worker());
-  }
-
-  await Promise.all(workers);
-
-  setProgress(progressBar, progressLabel, 100, "Done!");
-  await new Promise((r) => setTimeout(r, 400));
-
-  showResults();
 });
 
 // ── Show results ────────────────────────────────────────

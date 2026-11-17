@@ -144,6 +144,77 @@ test('img-to-pdf error handling', async (t) => {
     assert.strictEqual(elements['img-results'].style.display, 'initial-results');
   });
 
+  await t.test('convertBtn error handler restores previewArea and optionsEl upon generation failure', async () => {
+    toastMessage = null;
+    toastType = null;
+    convertBtnHandler = null;
+
+    const elements = {
+      'img-convert-btn': createMockElement('img-convert-btn'),
+      'img-preview-area': createMockElement('img-preview-area'),
+      'img-options': createMockElement('img-options'),
+      'img-progress': createMockElement('img-progress'),
+      'img-results': createMockElement('img-results'),
+      'img-drop-zone': createMockElement('img-drop-zone'),
+      'img-file-input': createMockElement('img-file-input'),
+      'img-size-pills': createMockElement('img-size-pills'),
+      'img-orient-pills': createMockElement('img-orient-pills'),
+      'img-filename-input': createMockElement('img-filename-input'),
+      'img-file-count': createMockElement('img-file-count'),
+      'img-add-more-btn': createMockElement('img-add-more-btn'),
+      'img-preview-grid': createMockElement('img-preview-grid'),
+      'img-progress-bar': createMockElement('img-progress-bar'),
+      'img-progress-label': createMockElement('img-progress-label'),
+      'img-download-btn': createMockElement('img-download-btn'),
+      'img-result-info': createMockElement('img-result-info'),
+      'img-reset-btn': createMockElement('img-reset-btn'),
+    };
+
+    const localMockDocument = {
+      getElementById: (id) => elements[id] || createMockElement(id),
+      createElement: () => createMockElement(),
+      createDocumentFragment: () => createMockElement('fragment')
+    };
+
+    const localSrc = src.replace('const result = await generatePdfFromImages(', 'throw new Error("Simulated failure"); const result = await generatePdfFromImages(');
+    const customWrapper = new Function(
+      'document', 'window', 'initDropZone', 'showToast', 'setProgress',
+      'activatePill', 'setupDragReorder', 'Blob', 'URL', 'FileReader', 'Image',
+      localSrc
+    );
+
+    const instance = customWrapper(
+      localMockDocument,
+      mockWindow,
+      mockInitDropZone,
+      mockShowToast,
+      mockSetProgress,
+      mockActivatePill,
+      mockSetupDragReorder,
+      class Blob {},
+      { createObjectURL: () => '', revokeObjectURL: () => '' },
+      class FileReader {},
+      class Image {}
+    );
+
+    // Add a file so convertBtn proceeds
+    instance.addImageFiles([new File(['test'], 'photo.png', { type: 'image/png' })]);
+
+    // Initial state after file added
+    assert.strictEqual(elements['img-preview-area'].classList.contains("is-visible"), true);
+    assert.strictEqual(elements['img-options'].classList.contains("is-visible"), true);
+
+    // Click convert, which triggers failure in generatePdfFromImages
+    await convertBtnHandler();
+
+    // Verify recovery state
+    assert.strictEqual(elements['img-progress'].style.display, 'none');
+    assert.strictEqual(elements['img-preview-area'].classList.contains("is-visible"), true);
+    assert.strictEqual(elements['img-options'].classList.contains("is-visible"), true);
+    assert.strictEqual(toastMessage, 'An error occurred while generating the PDF.');
+    assert.strictEqual(toastType, 'error');
+  });
+
   await t.test('showResults builds DOM without innerHTML assignment and safely displays content', async () => {
     const appendedNodes = [];
     const mockResultInfo = createMockElement('img-result-info');

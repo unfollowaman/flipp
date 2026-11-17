@@ -14,10 +14,14 @@ class PageDeleteUndoManager {
     this.undoBtn = options.undoBtn;
     this.onUpdate = options.onUpdate;
     this.history = [];
+    this.pendingDeletionsWaited = false;
   }
   deletePage(card) {
     card.remove();
     if (typeof this.onUpdate === 'function') this.onUpdate();
+  }
+  async waitForPendingDeletions() {
+    this.pendingDeletionsWaited = true;
   }
   undo() {}
   reset() { this.history = []; }
@@ -532,5 +536,60 @@ test('delete-pdf-pages functionality', async (t) => {
     resetDelete();
     assert.strictEqual(renderedCanvas.width, 0);
     assert.strictEqual(renderedCanvas.height, 0);
+  });
+
+  await t.test('updatePagesOrder excludes cards marked with .is-deleting and deleteBtn awaits pending deletions', async () => {
+    mockWindow['pdfjs-dist/build/pdf'] = {
+      getDocument: () => ({
+        promise: Promise.resolve({
+          numPages: 3,
+          destroy: async () => {},
+          getPage: async (num) => ({
+            getViewport: () => ({ width: 100, height: 100 }),
+            render: () => ({ promise: Promise.resolve() }),
+            cleanup: () => {}
+          })
+        })
+      })
+    };
+
+    let exportedIndices = null;
+    mockWindow.PDFLib = {
+      PDFDocument: {
+        create: async () => ({
+          copyPages: async (src, indices) => {
+            exportedIndices = indices;
+            return indices.map((i) => ({ pageIndex: i }));
+          },
+          addPage: () => {},
+          save: async () => new Uint8Array([1, 2, 3])
+        }),
+        load: async () => ({})
+      }
+    };
+
+    const fakeFile = {
+      name: 'multi-page.pdf',
+      type: 'application/pdf',
+      arrayBuffer: async () => new ArrayBuffer(16)
+    };
+
+    handleFiles([fakeFile]);
+    await new Promise((r) => setTimeout(r, 10));
+
+    const grid = mockDocument.getElementById('delete-preview-grid');
+    assert.strictEqual(grid.children.length, 3);
+
+    // Simulate in-flight deletion on page 2 (index 1)
+    grid.children[1].classList.add('is-deleting');
+    updatePagesOrder();
+
+    // Export PDF while deletion animation is theoretically active
+    await deleteBtnClick();
+
+    // Verify page 2 was not compiled into output
+    assert.deepStrictEqual(exportedIndices, [0, 2]);
+
+    resetDelete();
   });
 });

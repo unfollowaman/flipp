@@ -102,7 +102,8 @@ function createThumbnailCard(canvas, i) {
   rmBtn.onclick = (e) => {
     e.stopPropagation();
     if (undoManager) {
-      const currentCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
+      const currentCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"))
+        .filter((c) => !c.classList.contains("is-deleting"));
       const currentIdx = currentCards.indexOf(card);
       const label = currentIdx !== -1 ? `Page ${currentIdx + 1}` : `Page ${i}`;
       undoManager.deletePage(card, label);
@@ -198,7 +199,8 @@ async function loadPdfAndRenderThumbnails() {
 
 // ── Update Remaining Pages State ───────────────────────
 function updatePagesOrder() {
-  const allCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"));
+  const allCards = Array.from(previewGrid.querySelectorAll(".img-thumb-card"))
+    .filter((card) => !card.classList.contains("is-deleting"));
   pagesOrder = allCards.map((card) => parseInt(card.dataset.idx, 10));
 
   if (allCards.length === 0) {
@@ -212,8 +214,8 @@ function updatePagesOrder() {
     const num = card.querySelector(".img-thumb-num");
     const lbl = card.querySelector(".img-thumb-label");
     const rmBtn = card.querySelector(".img-thumb-remove");
-    num.textContent = index + 1;
-    lbl.textContent = `Page ${index + 1}`;
+    if (num) num.textContent = index + 1;
+    if (lbl) lbl.textContent = `Page ${index + 1}`;
     if (rmBtn) {
       rmBtn.setAttribute("aria-label", `Delete page ${index + 1}`);
     }
@@ -222,6 +224,10 @@ function updatePagesOrder() {
 
 // ── Export Cleaned PDF ────────────────────────────────
 deleteBtn.addEventListener("click", async () => {
+  if (undoManager && typeof undoManager.waitForPendingDeletions === "function") {
+    await undoManager.waitForPendingDeletions();
+  }
+
   if (!originalPdfBytes) return;
 
   if (!pagesOrder.length) {

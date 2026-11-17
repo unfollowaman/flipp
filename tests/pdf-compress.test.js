@@ -594,4 +594,143 @@ test('pdf-compress mode cards accessibility attributes and interaction', async (
     assert.strictEqual(cards[0].attributes['aria-checked'], 'false');
     assert.strictEqual(cards[1].attributes['aria-checked'], 'true');
   });
+
+  await t.test('maximum compression mode initializes jsPDF with page 1 dimensions and preserves multi-size page dimensions', async () => {
+    let jsPdfInitOptions = null;
+    let addedPages = [];
+    let addedImages = [];
+
+    const mockPages = [
+      {
+        getViewport: () => ({ width: 612, height: 792 }), // Letter portrait
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {}
+      },
+      {
+        getViewport: () => ({ width: 1000, height: 600 }), // Custom landscape
+        render: () => ({ promise: Promise.resolve() }),
+        cleanup: () => {}
+      }
+    ];
+
+    const mockPdfjsDoc = {
+      numPages: 2,
+      getPage: async (i) => mockPages[i - 1],
+      destroy: async () => {}
+    };
+
+    const mockJsPdfInstance = {
+      addPage: (format, orientation) => {
+        addedPages.push({ format, orientation });
+      },
+      addImage: (imgData, format, x, y, width, height) => {
+        addedImages.push({ format, x, y, width, height });
+      },
+      output: () => new ArrayBuffer(20)
+    };
+
+    const localElementMap = {};
+    const mockDocumentLocal = {
+      getElementById: (id) => {
+        if (!localElementMap[id]) {
+          localElementMap[id] = {
+            id,
+            style: {},
+            classList: { add: () => {}, remove: () => {} },
+            textContent: '',
+            value: '',
+            children: [],
+            appendChild: () => {},
+            addEventListener: (evt, handler) => {
+              localElementMap[id]['on' + evt] = handler;
+            },
+            click: async function() {
+              if (this.onclick) await this.onclick();
+            }
+          };
+        }
+        return localElementMap[id];
+      },
+      querySelector: (selector) => {
+        if (selector.includes('compressionMode')) return { value: 'maximum' };
+        return { value: '' };
+      },
+      querySelectorAll: () => [],
+      createElement: () => ({
+        getContext: () => ({ fillRect: () => {} }),
+        toDataURL: () => 'data:image/jpeg;base64,mock',
+        height: 0,
+        width: 0
+      }),
+      createTextNode: (t) => ({ textContent: t })
+    };
+
+    const mockWindowLocal = {
+      'pdfjs-dist/build/pdf': {
+        getDocument: () => ({ promise: Promise.resolve(mockPdfjsDoc) })
+      },
+      jspdf: {
+        jsPDF: function(options) {
+          jsPdfInitOptions = options;
+          return mockJsPdfInstance;
+        }
+      }
+    };
+
+    let localSrc = fs.readFileSync(srcPath, 'utf8');
+    localSrc = localSrc.replace(/import\s+.*?from\s+['"][^'"]+['"];?/gs, '');
+    localSrc = localSrc.replace(/export\s+(async\s+)?(function|class)/g, '$1$2');
+
+    const localWrapper = new Function(
+      'document',
+      'window',
+      'initDropZone',
+      'showToast',
+      'Blob',
+      'URL',
+      localSrc
+    );
+
+    let dropZoneCallback = null;
+    localWrapper(
+      mockDocumentLocal,
+      mockWindowLocal,
+      (dz, fi, cb) => { dropZoneCallback = cb; },
+      () => {},
+      class Blob {
+        constructor(parts) { this.parts = parts; }
+        async arrayBuffer() { return new ArrayBuffer(20); }
+      },
+      { createObjectURL: () => 'blob:compressed', revokeObjectURL: () => {} }
+    );
+
+    // Simulate selecting file
+    const fakeFile = {
+      name: 'non-a4-multi.pdf',
+      type: 'application/pdf',
+      size: 100000,
+      arrayBuffer: async () => new ArrayBuffer(100)
+    };
+    await dropZoneCallback([fakeFile]);
+
+    // Click compress in maximum mode
+    await localElementMap['compress-btn'].click();
+
+    // Verify jsPDF initialized with page 1's actual dimensions [612, 792]
+    assert.notStrictEqual(jsPdfInitOptions, null);
+    assert.deepStrictEqual(jsPdfInitOptions.format, [612, 792]);
+    assert.strictEqual(jsPdfInitOptions.orientation, 'portrait');
+
+    // Verify page 2 added with [1000, 600] landscape
+    assert.strictEqual(addedPages.length, 1);
+    assert.deepStrictEqual(addedPages[0].format, [1000, 600]);
+    assert.strictEqual(addedPages[0].orientation, 'landscape');
+
+    // Verify images drawn at matching dimensions
+    assert.strictEqual(addedImages.length, 2);
+    assert.strictEqual(addedImages[0].width, 612);
+    assert.strictEqual(addedImages[0].height, 792);
+    assert.strictEqual(addedImages[1].width, 1000);
+    assert.strictEqual(addedImages[1].height, 600);
+  });
 });

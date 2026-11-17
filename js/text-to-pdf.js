@@ -52,6 +52,7 @@ fileInputEl.addEventListener("change", () => {
 
   selectedTextFile = file;
   fileInfoEl.textContent = `Selected file: ${file.name}`;
+  rawTextEl.value = "";
   previewEl.classList.add("is-visible");
   resultsEl.classList.remove("is-visible");
 });
@@ -159,9 +160,11 @@ async function generatePdfFromText(content) {
 
 buildBtnEl.addEventListener("click", async () => {
   try {
-    let content = getSourceText();
-    if (!content && selectedTextFile) {
+    let content = "";
+    if (selectedTextFile) {
       content = await readTextFile(selectedTextFile);
+    } else {
+      content = getSourceText();
     }
 
     if (!content) {
@@ -200,6 +203,11 @@ resetBtnEl.addEventListener("click", () => {
 });
 
 rawTextEl.addEventListener("input", () => {
+  if (selectedTextFile) {
+    selectedTextFile = null;
+    fileInputEl.value = "";
+    fileInfoEl.textContent = "";
+  }
   if (HAS_NON_WHITESPACE_REGEX.test(rawTextEl.value)) {
     previewEl.classList.add("is-visible");
     resultsEl.classList.remove("is-visible");

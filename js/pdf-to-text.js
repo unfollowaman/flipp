@@ -125,7 +125,7 @@ if (resetBtn) {
 }
 
 function copyText(isBoxButton = false) {
-  const textToCopy = currentText || (textOutput ? textOutput.value : "");
+  const textToCopy = textOutput ? textOutput.value : currentText;
   if (textToCopy) {
     navigator.clipboard
       .writeText(textToCopy)
@@ -157,8 +157,9 @@ if (boxCopyBtn) {
 
 if (downloadBtn) {
   downloadBtn.addEventListener("click", () => {
-    if (currentText && currentFile) {
-      const blob = new Blob([currentText], { type: "text/plain;charset=utf-8" });
+    const textToDownload = textOutput ? textOutput.value : currentText;
+    if (textToDownload && currentFile) {
+      const blob = new Blob([textToDownload], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
