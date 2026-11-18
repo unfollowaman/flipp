@@ -105,16 +105,33 @@ scaleInput.addEventListener("input", (e) => {
 
 opacityInput.addEventListener("input", (e) => {
   opacityVal.textContent = e.target.value;
+  if (pageConfigs[currentPage]) {
+    pageConfigs[currentPage].opacity = parseInt(e.target.value, 10) / 100;
+  }
   schedulePreviewUpdate();
 });
 
 rotationInput.addEventListener("input", (e) => {
   rotationVal.textContent = e.target.value;
+  if (pageConfigs[currentPage]) {
+    pageConfigs[currentPage].rotation = parseInt(e.target.value, 10);
+  }
   schedulePreviewUpdate();
 });
 
-textInput.addEventListener("input", schedulePreviewUpdate);
-colorInput.addEventListener("input", schedulePreviewUpdate);
+textInput.addEventListener("input", (e) => {
+  if (pageConfigs[currentPage]) {
+    pageConfigs[currentPage].text = e.target.value;
+  }
+  schedulePreviewUpdate();
+});
+
+colorInput.addEventListener("input", (e) => {
+  if (pageConfigs[currentPage]) {
+    pageConfigs[currentPage].color = e.target.value;
+  }
+  schedulePreviewUpdate();
+});
 
 positionSelect.addEventListener("change", (e) => {
   globalWatermarkConfig.position = e.target.value;
@@ -383,6 +400,21 @@ export function applyWatermarkScope(scope, targetPage = currentPage) {
     if (pageConf.scale !== undefined) {
       scaleInput.value = pageConf.scale;
       scaleVal.textContent = pageConf.scale.toFixed(1);
+    }
+    if (pageConf.opacity !== undefined) {
+      const pct = Math.round(pageConf.opacity * 100);
+      opacityInput.value = pct;
+      opacityVal.textContent = pct;
+    }
+    if (pageConf.rotation !== undefined) {
+      rotationInput.value = pageConf.rotation;
+      rotationVal.textContent = pageConf.rotation;
+    }
+    if (pageConf.text !== undefined) {
+      textInput.value = pageConf.text;
+    }
+    if (pageConf.color !== undefined) {
+      colorInput.value = pageConf.color;
     }
     pageConfigs = {};
     showToast("Applied change to all pages", "info");
