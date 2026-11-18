@@ -102,10 +102,10 @@ addBtn.addEventListener("click", async () => {
     const textColor = pdfLib.rgb(0.25, 0.25, 0.25);
     const textWidthCache = new Map();
 
-    for (let i = start - 1; i < pages.length; i++) {
+    for (let i = 0; i < pages.length; i++) {
       const page = pages[i];
       const { width, height } = page.getSize();
-      const text = String(i - (start - 1) + 1);
+      const text = String(start + i);
 
       if (width !== lastWidth || height !== lastHeight) {
         fontSize = Math.max(10, Math.min(14, Math.round(width / 60)));

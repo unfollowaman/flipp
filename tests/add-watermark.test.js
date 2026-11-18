@@ -301,6 +301,50 @@ test('getPageConfig and applyWatermarkScope functionality', async (t) => {
     assert.strictEqual(toastMessage, 'Applied change to all pages');
     assert.deepStrictEqual(getPageConfigs(), {});
   });
+
+  await t.test('updates page-specific opacity, rotation, text, and color overrides and propagates on scope all', async () => {
+    setPageConfig(1, { opacity: 0.5, rotation: 0, text: 'ORIGINAL', color: '#000000' });
+
+    const opacityInputEl = mockDocument.getElementById('wm-opacity');
+    const opacityValEl = mockDocument.getElementById('wm-opacity-val');
+    const rotationInputEl = mockDocument.getElementById('wm-rotation');
+    const rotationValEl = mockDocument.getElementById('wm-rotation-val');
+    const textInputEl = mockDocument.getElementById('wm-text-input');
+    const colorInputEl = mockDocument.getElementById('wm-color');
+
+    // Simulate input change for opacity
+    opacityInputEl.value = '80';
+    await opacityInputEl.dispatch('input', { target: opacityInputEl });
+    assert.strictEqual(opacityValEl.textContent, '80');
+    assert.strictEqual(getPageConfigs()[1].opacity, 0.8);
+
+    // Simulate input change for rotation
+    rotationInputEl.value = '90';
+    await rotationInputEl.dispatch('input', { target: rotationInputEl });
+    assert.strictEqual(rotationValEl.textContent, '90');
+    assert.strictEqual(getPageConfigs()[1].rotation, 90);
+
+    // Simulate input change for text
+    textInputEl.value = 'UPDATED';
+    await textInputEl.dispatch('input', { target: textInputEl });
+    assert.strictEqual(getPageConfigs()[1].text, 'UPDATED');
+
+    // Simulate input change for color
+    colorInputEl.value = '#ff0000';
+    await colorInputEl.dispatch('input', { target: colorInputEl });
+    assert.strictEqual(getPageConfigs()[1].color, '#ff0000');
+
+    // Now apply to all
+    applyWatermarkScope('all', 1);
+
+    assert.strictEqual(opacityInputEl.value, 80);
+    assert.strictEqual(opacityValEl.textContent, 80);
+    assert.strictEqual(rotationInputEl.value, 90);
+    assert.strictEqual(rotationValEl.textContent, 90);
+    assert.strictEqual(textInputEl.value, 'UPDATED');
+    assert.strictEqual(colorInputEl.value, '#ff0000');
+    assert.deepStrictEqual(getPageConfigs(), {});
+  });
 });
 
 test('applyWatermarkPattern functionality', async (t) => {
