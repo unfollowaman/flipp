@@ -710,7 +710,13 @@ textarea {
   background: var(--white);
   border: 2.5px dashed var(--black);
   border-radius: var(--radius-lg);
-  padding: 64px 32px;
+  padding: 48px 32px;
+  min-height: 280px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   cursor: pointer;
   box-shadow: 3px 3px 0 var(--black);
@@ -720,6 +726,17 @@ textarea {
     box-shadow 0.15s ease,
     border-color 0.15s ease;
   position: relative;
+}
+.dz-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#sign-img-drop {
+  min-height: 120px;
+  padding: 20px;
 }
 .drop-zone:hover {
   background: var(--yellow);
@@ -2088,7 +2105,8 @@ Results ============================== */
     padding: 48px 0;
   }
   .drop-zone {
-    padding: 40px 20px;
+    padding: 32px 20px;
+    min-height: 220px;
   }
   .preview-header {
     flex-direction: column;
