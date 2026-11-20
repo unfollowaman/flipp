@@ -24,12 +24,24 @@ src += `
     triggerDownload,
     renderPageToDataUrl,
     renderPdfFirstPage,
-    getDOMState: () => ({ bodyChildren, allElements, timeouts, revokedUrls }),
+    registerPasteHandler,
+    resetPasteTargets,
+    getActivePasteTarget,
+    processClipboardPaste,
+    isImageFile,
+    isPdfFile,
+    isTextFile,
+    getFilesFromClipboard,
+    getAcceptedTypes,
+    isClipboardPastingImage,
+    getDOMState: () => ({ bodyChildren, allElements, timeouts, revokedUrls, document }),
     resetDOM: () => {
       bodyChildren = [];
       allElements = [];
       timeouts = [];
       revokedUrls = [];
+      if (typeof resetPasteTargets === 'function') resetPasteTargets();
+      if (document && typeof document.resetListeners === 'function') document.resetListeners();
     }
   };
 `;
@@ -71,8 +83,27 @@ const evaluateCode = `
     }
   });
 
+  let docListeners = {};
   const document = {
-    addEventListener: () => {},
+    addEventListener: (evt, cb) => {
+      if (!docListeners[evt]) docListeners[evt] = [];
+      docListeners[evt].push(cb);
+    },
+    removeEventListener: (evt, cb) => {
+      if (docListeners[evt]) {
+        docListeners[evt] = docListeners[evt].filter(f => f !== cb);
+      }
+    },
+    dispatchEvent: (evtName, eObj = {}) => {
+      if (docListeners[evtName]) {
+        docListeners[evtName].forEach(cb => cb(eObj));
+      }
+    },
+    resetListeners: () => {
+      docListeners = {};
+      document.activeElement = null;
+    },
+    activeElement: null,
     body: {
       appendChild: (el) => {
         bodyChildren.push(el);
@@ -87,6 +118,7 @@ const evaluateCode = `
       }
       return null;
     },
+    getElementById: () => null,
     createElement: (tag) => {
       const el = {
         tag,
@@ -130,7 +162,29 @@ const evaluateCode = `
   ${src}
 `;
 
-const { showToast, activatePill, setProgress, initDropZone, setupDragReorder, fileToDataUrl, triggerDownload, renderPageToDataUrl, renderPdfFirstPage, getDOMState, resetDOM } = new Function(evaluateCode)();
+const {
+  showToast,
+  activatePill,
+  setProgress,
+  initDropZone,
+  setupDragReorder,
+  fileToDataUrl,
+  triggerDownload,
+  renderPageToDataUrl,
+  renderPdfFirstPage,
+  registerPasteHandler,
+  resetPasteTargets,
+  getActivePasteTarget,
+  processClipboardPaste,
+  isImageFile,
+  isPdfFile,
+  isTextFile,
+  getFilesFromClipboard,
+  getAcceptedTypes,
+  isClipboardPastingImage,
+  getDOMState,
+  resetDOM,
+} = new Function(evaluateCode)();
 
 test('setProgress', async (t) => {
   await t.test('updates progress bar width and label text', () => {
@@ -831,11 +885,358 @@ test('tool settings panel CSS rules', async (t) => {
     assert.ok(cssContent.includes('color: var(--black);'), 'option-label color var(--black) must exist');
     assert.ok(cssContent.includes('.range-input {'), '.range-input rule must exist');
     assert.ok(cssContent.includes('border: var(--border-std);'), 'range-input standardized border must exist');
-    assert.ok(cssContent.includes('.range-input:focus-visible {'), 'range-input:focus-visible rule must exist');
+    assert.ok(cssContent.includes('.range-input:focus-visible {'), '.range-input:focus-visible rule must exist');
     assert.ok(cssContent.includes('.position-card {'), '.position-card rule must exist');
     assert.ok(cssContent.includes('box-shadow: 1.5px 1.5px 0 var(--black);'), 'position-card base shadow must exist');
     assert.ok(cssContent.includes('.position-card:hover {'), '.position-card:hover rule must exist');
     assert.ok(cssContent.includes('.position-card:focus-visible {'), '.position-card:focus-visible rule must exist');
     assert.ok(cssContent.includes('.position-card.active {'), '.position-card.active rule must exist');
+  });
+});
+
+test('toast warning and drop-zone shake CSS rules', async (t) => {
+  await t.test('css/styles.src.css contains .toast.toast-warning and .drop-zone.drop-warning styling', () => {
+    const cssPath = path.join(__dirname, '../css/styles.src.css');
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    assert.ok(cssContent.includes('.toast.toast-warning {'), '.toast.toast-warning rule must exist');
+    assert.ok(cssContent.includes('border-left: 4px solid var(--amber);'), 'toast-warning border-left with --amber must exist');
+    assert.ok(cssContent.includes('.drop-zone.drop-warning {'), '.drop-zone.drop-warning rule must exist');
+    assert.ok(cssContent.includes('animation: drop-zone-shake 0.4s ease;'), 'drop-zone shake animation must exist');
+  });
+});
+
+test('document paste type validation & Ctrl+V handling', async (t) => {
+  const createMockTargetElement = (accept = '.pdf,application/pdf') => {
+    const classSet = new Set(['drop-zone']);
+    return {
+      dropZone: {
+        classList: {
+          contains: (cls) => classSet.has(cls),
+          add: (cls) => classSet.add(cls),
+          remove: (cls) => classSet.delete(cls)
+        },
+        contains: () => false,
+        style: { display: 'block' },
+        addEventListener: () => {}
+      },
+      fileInput: {
+        accept,
+        getAttribute: (attr) => (attr === 'accept' ? accept : null),
+        addEventListener: () => {},
+        click: () => {},
+        value: ''
+      }
+    };
+  };
+
+  await t.test('type helper functions correctly detect file types', () => {
+    assert.strictEqual(isPdfFile({ name: 'document.pdf', type: 'application/pdf' }), true);
+    assert.strictEqual(isPdfFile({ name: 'test.PDF', type: '' }), true);
+    assert.strictEqual(isPdfFile({ name: 'image.png', type: 'image/png' }), false);
+
+    assert.strictEqual(isImageFile({ name: 'photo.jpg', type: 'image/jpeg' }), true);
+    assert.strictEqual(isImageFile({ name: 'photo.PNG', type: '' }), true);
+    assert.strictEqual(isImageFile({ name: 'doc.pdf', type: 'application/pdf' }), false);
+
+    assert.strictEqual(isTextFile({ name: 'notes.txt', type: 'text/plain' }), true);
+    assert.strictEqual(isTextFile({ name: 'data.json', type: 'application/json' }), true);
+    assert.strictEqual(isTextFile({ name: 'image.png', type: 'image/png' }), false);
+  });
+
+  await t.test('getAcceptedTypes parses accept attribute correctly', () => {
+    const pdfOnly = getAcceptedTypes({ getAttribute: () => '.pdf,application/pdf' });
+    assert.strictEqual(pdfOnly.isPdfOnly, true);
+    assert.strictEqual(pdfOnly.isImageOnly, false);
+
+    const imageOnly = getAcceptedTypes({ getAttribute: () => '.png,.jpg,.jpeg' });
+    assert.strictEqual(imageOnly.isImageOnly, true);
+    assert.strictEqual(imageOnly.isPdfOnly, false);
+
+    const mergeBoth = getAcceptedTypes({ getAttribute: () => '.pdf,application/pdf,image/png,image/jpeg,image/jpg,image/webp,image/*' });
+    assert.strictEqual(mergeBoth.acceptsBothPdfAndImage, true);
+    assert.strictEqual(mergeBoth.isPdfOnly, false);
+
+    const textOnly = getAcceptedTypes({ getAttribute: () => '.txt,.md,.csv,.log,.json' });
+    assert.strictEqual(textOnly.isTextOnly, true);
+    assert.strictEqual(textOnly.isPdfOnly, false);
+  });
+
+  await t.test('pasting a PDF on a PDF-only tool invokes onFiles', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    let prevented = false;
+    const { document } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => { prevented = true; },
+      clipboardData: {
+        files: [{ name: 'test.pdf', type: 'application/pdf' }],
+        items: [{ kind: 'file', type: 'application/pdf' }],
+        getData: () => ''
+      }
+    });
+
+    assert.strictEqual(prevented, true);
+    assert.ok(receivedFiles);
+    assert.strictEqual(receivedFiles[0].name, 'test.pdf');
+  });
+
+  await t.test('pasting an image on a PDF-only tool shows warning toast and does not call onFiles', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    let prevented = false;
+    const { document, bodyChildren } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => { prevented = true; },
+      clipboardData: {
+        files: [{ name: 'screenshot.png', type: 'image/png' }],
+        items: [{ kind: 'file', type: 'image/png' }],
+        getData: () => ''
+      }
+    });
+
+    assert.strictEqual(prevented, true);
+    assert.strictEqual(receivedFiles, null);
+
+    // Toast container should contain a warning toast
+    const container = bodyChildren.find((el) => el.className === 'toast-container');
+    assert.ok(container, 'Toast container should exist');
+    const toast = container.children[0];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'This tool only accepts PDF files. Images are not supported.');
+    assert.strictEqual(dropZone.classList.contains('drop-warning'), true);
+  });
+
+  await t.test('pasting multiple images on a PDF-only tool triggers warning and no files processed', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document, bodyChildren } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [
+          { name: 'photo1.jpg', type: 'image/jpeg' },
+          { name: 'photo2.png', type: 'image/png' }
+        ],
+        items: [{ kind: 'file', type: 'image/jpeg' }, { kind: 'file', type: 'image/png' }],
+        getData: () => ''
+      }
+    });
+
+    assert.strictEqual(receivedFiles, null);
+    const container = bodyChildren.find((el) => el.className === 'toast-container');
+    const toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'This tool only accepts PDF files. Images are not supported.');
+  });
+
+  await t.test('pasting mixed files (PDF + image) on PDF-only tool filters to PDFs and warns about skipped images', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document, bodyChildren } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [
+          { name: 'document.pdf', type: 'application/pdf' },
+          { name: 'photo.jpg', type: 'image/jpeg' }
+        ],
+        items: [{ kind: 'file', type: 'application/pdf' }, { kind: 'file', type: 'image/jpeg' }],
+        getData: () => ''
+      }
+    });
+
+    assert.ok(receivedFiles);
+    assert.strictEqual(receivedFiles.length, 1);
+    assert.strictEqual(receivedFiles[0].name, 'document.pdf');
+
+    const container = bodyChildren.find((el) => el.className === 'toast-container');
+    const toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'Images are not supported here and were skipped. Only PDF files were accepted.');
+  });
+
+  await t.test('pasting unsupported non-image file on PDF-only tool shows error toast', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document, bodyChildren } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'archive.zip', type: 'application/zip' }],
+        items: [{ kind: 'file', type: 'application/zip' }],
+        getData: () => ''
+      }
+    });
+
+    assert.strictEqual(receivedFiles, null);
+    const container = bodyChildren.find((el) => el.className === 'toast-container');
+    const toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-error');
+    assert.strictEqual(toast.textContent, 'Please choose a PDF file.');
+  });
+
+  await t.test('pasting an image on images-to-pdf tool invokes onFiles', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.png,.jpg,.jpeg');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'picture.png', type: 'image/png' }],
+        items: [{ kind: 'file', type: 'image/png' }],
+        getData: () => ''
+      }
+    });
+
+    assert.ok(receivedFiles);
+    assert.strictEqual(receivedFiles[0].name, 'picture.png');
+  });
+
+  await t.test('pasting a PDF on images-to-pdf tool shows warning toast and rejects', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.png,.jpg,.jpeg');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document, bodyChildren } = getDOMState();
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'document.pdf', type: 'application/pdf' }],
+        items: [{ kind: 'file', type: 'application/pdf' }],
+        getData: () => ''
+      }
+    });
+
+    assert.strictEqual(receivedFiles, null);
+    const container = bodyChildren.find((el) => el.className === 'toast-container');
+    const toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'This tool only accepts image files (PNG, JPG). PDFs are not supported.');
+  });
+
+  await t.test('pasting on merge-pdf accepts both PDFs and images', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf,image/png,image/jpeg,image/jpg,image/webp,image/*');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document } = getDOMState();
+    // Test PDF
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'doc1.pdf', type: 'application/pdf' }],
+        items: [{ kind: 'file', type: 'application/pdf' }],
+        getData: () => ''
+      }
+    });
+    assert.strictEqual(receivedFiles[0].name, 'doc1.pdf');
+
+    // Test Image
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'image1.png', type: 'image/png' }],
+        items: [{ kind: 'file', type: 'image/png' }],
+        getData: () => ''
+      }
+    });
+    assert.strictEqual(receivedFiles[0].name, 'image1.png');
+  });
+
+  await t.test('pasting on text-to-pdf accepts text files and warns on image or PDF', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.txt,.md,.csv,.log,.json');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document, bodyChildren } = getDOMState();
+
+    // 1. Image on text tool -> warning
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'pic.jpg', type: 'image/jpeg' }],
+        items: [{ kind: 'file', type: 'image/jpeg' }],
+        getData: () => ''
+      }
+    });
+    assert.strictEqual(receivedFiles, null);
+    let container = bodyChildren.find((el) => el.className === 'toast-container');
+    let toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'This tool only accepts text files. Images are not supported.');
+
+    // 2. PDF on text tool -> warning
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'doc.pdf', type: 'application/pdf' }],
+        items: [{ kind: 'file', type: 'application/pdf' }],
+        getData: () => ''
+      }
+    });
+    assert.strictEqual(receivedFiles, null);
+    toast = container.children[container.children.length - 1];
+    assert.strictEqual(toast.className, 'toast toast-warning');
+    assert.strictEqual(toast.textContent, 'This tool only accepts text files. PDFs are not supported.');
+
+    // 3. Text file on text tool -> accepted
+    document.dispatchEvent('paste', {
+      preventDefault: () => {},
+      clipboardData: {
+        files: [{ name: 'document.txt', type: 'text/plain' }],
+        items: [{ kind: 'file', type: 'text/plain' }],
+        getData: () => ''
+      }
+    });
+    assert.ok(receivedFiles);
+    assert.strictEqual(receivedFiles[0].name, 'document.txt');
+  });
+
+  await t.test('pasting plain text into an active input field does not trigger document drop', () => {
+    resetDOM();
+    const { dropZone, fileInput } = createMockTargetElement('.pdf,application/pdf');
+    let receivedFiles = null;
+    initDropZone(dropZone, fileInput, (files) => { receivedFiles = files; });
+
+    const { document } = getDOMState();
+    document.activeElement = {
+      tagName: 'INPUT',
+      type: 'text'
+    };
+
+    let prevented = false;
+    document.dispatchEvent('paste', {
+      preventDefault: () => { prevented = true; },
+      clipboardData: {
+        files: [],
+        items: [{ kind: 'string', type: 'text/plain' }],
+        getData: (type) => (type === 'text/plain' ? 'some typed text' : '')
+      }
+    });
+
+    assert.strictEqual(prevented, false);
+    assert.strictEqual(receivedFiles, null);
   });
 });

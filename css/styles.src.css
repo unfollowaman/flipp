@@ -2031,6 +2031,18 @@ Results ============================== */
 .toast.toast-error {
   border-left: 4px solid var(--red);
 }
+.toast.toast-warning {
+  border-left: 4px solid var(--amber);
+}
+@keyframes drop-zone-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.drop-zone.drop-warning {
+  border-color: var(--amber) !important;
+  animation: drop-zone-shake 0.4s ease;
+}
 @keyframes toast-in {
   from {
     opacity: 0;

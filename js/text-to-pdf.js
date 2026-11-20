@@ -1,4 +1,4 @@
-import { showToast } from "./drag-drop.js";
+import { showToast, registerPasteHandler } from "./drag-drop.js";
 
 const rawTextEl = document.getElementById("text-pdf-raw-input");
 const fileInputEl = document.getElementById("text-pdf-file-input");
@@ -34,10 +34,7 @@ async function readTextFile(file) {
   return normalizeText(txt);
 }
 
-useFileBtnEl.addEventListener("click", () => fileInputEl.click());
-
-fileInputEl.addEventListener("change", () => {
-  const file = fileInputEl.files?.[0];
+function handleTextFile(file) {
   if (!file) return;
 
   const looksLikeText = /\.(txt|md|csv|log|json)$/i.test(file.name);
@@ -46,16 +43,35 @@ fileInputEl.addEventListener("change", () => {
       "Please choose a text file (.txt, .md, .csv, .log, .json).",
       "error",
     );
-    fileInputEl.value = "";
+    if (fileInputEl) fileInputEl.value = "";
     return;
   }
 
   selectedTextFile = file;
-  fileInfoEl.textContent = `Selected file: ${file.name}`;
-  rawTextEl.value = "";
-  previewEl.classList.add("is-visible");
-  resultsEl.classList.remove("is-visible");
+  if (fileInfoEl) fileInfoEl.textContent = `Selected file: ${file.name}`;
+  if (rawTextEl) rawTextEl.value = "";
+  if (previewEl && previewEl.classList) previewEl.classList.add("is-visible");
+  if (resultsEl && resultsEl.classList) resultsEl.classList.remove("is-visible");
+}
+
+useFileBtnEl.addEventListener("click", () => fileInputEl.click());
+
+fileInputEl.addEventListener("change", () => {
+  const file = fileInputEl.files?.[0];
+  handleTextFile(file);
 });
+
+if (
+  typeof registerPasteHandler === "function" &&
+  typeof document !== "undefined" &&
+  typeof document.addEventListener === "function"
+) {
+  registerPasteHandler(fileInputEl, (files) => {
+    if (files && files.length) {
+      handleTextFile(files[0]);
+    }
+  });
+}
 
 async function generatePdfFromText(content) {
   const { jsPDF } = window.jspdf || {};
