@@ -17,7 +17,7 @@
   - **Zero-Server Philosophy:** All file transformations run 100% client-side in the browser using HTML5 Canvas, Web Workers, and client-side JavaScript libraries. No user files or extracted content are transmitted to any external server or backend API.
   - **Tool Module Pattern:** Each tool resides in `tools/<tool-name>/index.html` backed by a matching module in `js/<tool-name>.js`.
 - **Important shared utilities:**
-  - `js/drag-drop.js`: Provides file dropzone initialization (`initDropZone`), toast alerts (`showToast`), file download trigger (`triggerDownload`), and button pill state toggling (`activatePill`).
+  - `js/drag-drop.js`: Provides file dropzone initialization (`initDropZone`), clipboard document pasting with MIME-type and format validation (`registerPasteHandler`, `processClipboardPaste`), toast alerts (`showToast`), file download trigger (`triggerDownload`), and button pill state toggling (`activatePill`).
   - `js/page-delete-undo.js`: Manages undo state, page particle removal animations, accessibility live region announcements, and page restoration across thumbnail tools.
 - **Critical dependencies:**
   - `pdfjs-dist`: Loaded via CDN script tag for client-side PDF rendering and text parsing.
@@ -37,6 +37,24 @@
 None currently active.
 
 ## Audit History
+
+### 2026-11-20 — Document Clipboard Pasting (`Ctrl+V`) & Format Validation
+
+Status: PASSED
+
+Scope:
+- In-browser clipboard paste integration across all 16 feature tools (`js/drag-drop.js`, `js/text-to-pdf.js`, `tools/*/index.html`)
+- MIME-type inspection, format validation (PDF vs Image vs Text), and non-destructive warning system (`css/styles.src.css`, `css/styles.css`)
+- Unit tests (`tests/drag-drop.test.js`) and full test suite execution
+
+Resolution Summary:
+- Implemented global `paste` listener and `registerPasteHandler` in `js/drag-drop.js` allowing seamless `Ctrl+V` document uploads.
+- Added intelligent bypass so native text paste is preserved when typing in `<input>`, `<textarea>`, or contenteditable fields.
+- Implemented format validation against each tool's `accept` attribute (`isImageFile`, `isPdfFile`, `isTextFile`, `isClipboardPastingImage`).
+- Added warning toast notifications (`.toast.toast-warning`) and shake animation (`.drop-zone.drop-warning`) when unsupported formats are pasted (e.g. images pasted into PDF-only tools).
+- Handled mixed multi-file pastes by processing valid files and alerting on invalid files.
+- Added comprehensive unit test suite in `tests/drag-drop.test.js` (15 test cases).
+- Verified full test suite: 593/593 tests passed across all suites with zero failures.
 
 ### 2026-09-18 — Resolution of `tests/unlock-pdf.test.js` Test Runner Failure
 
