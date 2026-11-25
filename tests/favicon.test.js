@@ -66,7 +66,9 @@ test('all HTML files have valid favicon and icon link tags', () => {
 
       const href = hrefMatch[1];
       const fileDir = path.dirname(filePath);
-      const targetPath = path.resolve(fileDir, href);
+      const targetPath = href.startsWith('/')
+        ? path.join(rootDir, href.slice(1))
+        : path.resolve(fileDir, href);
 
       assert.ok(
         fs.existsSync(targetPath),
