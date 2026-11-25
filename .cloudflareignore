@@ -2,3 +2,6 @@
 node_modules/
 tests/
 .git/
+design-assets/
+website-favicons/
+
