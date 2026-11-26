@@ -216,61 +216,88 @@
         position: relative;
       }
       .editor-mode-selector {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        margin: 2px 0 6px 0;
+        gap: 4px;
+        margin: 0;
+        padding: 3px;
+        background: var(--cream);
+        border: 1.5px solid var(--black);
+        border-radius: 8px;
+        height: 36px;
+        box-sizing: border-box;
       }
       .mode-tab {
-        border: 1.5px solid var(--black);
-        background: var(--white);
-        border-radius: var(--radius-sm);
-        padding: 8px 18px;
+        border: 1.5px solid transparent;
+        background: transparent;
+        border-radius: 5px;
+        padding: 4px 12px;
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         font-family: inherit;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 800;
+        color: var(--black);
         cursor: pointer;
-        transition: all 0.15s ease;
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
       }
-      .mode-tab:hover {
-        background: #f3f4f6;
+      .mode-tab:hover:not(.is-active) {
+        background: rgba(13, 13, 13, 0.06);
       }
       .mode-tab.is-active,
       .mode-tab[aria-selected="true"] {
         background: var(--yellow);
-        box-shadow: 2px 2px 0 var(--black);
+        border-color: var(--black);
+        box-shadow: 1.5px 1.5px 0 var(--black);
+      }
+      .mode-tab [data-icon] {
+        display: inline-flex;
+        align-items: center;
       }
       .editor-text-workspace {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 0;
         width: 100%;
+        flex: 1;
+        min-height: 0;
       }
       .text-editor-toolbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
-        background: #f7f7f5;
-        border: 1.5px solid var(--black);
-        border-radius: var(--radius-sm);
+        gap: 8px 12px;
+        background: var(--white);
         padding: 8px 14px;
       }
       .text-editor-stats {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
       }
       .stat-badge {
-        background: var(--white);
-        border: 1px solid #d1d5db;
+        background: var(--cream);
+        border: 1.5px solid var(--black);
         border-radius: 6px;
         padding: 3px 8px;
         font-size: 12px;
         font-weight: 700;
-        color: #374151;
+        color: var(--black);
+      }
+      .ep-mode-pill {
+        background: var(--yellow);
+        border: 1.5px solid var(--black);
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--black);
+        letter-spacing: 0.01em;
       }
       .text-editor-actions {
         display: flex;
@@ -280,6 +307,10 @@
       .text-editor-container {
         position: relative;
         width: 100%;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
       }
       .editor-text-textarea {
         width: 100%;
@@ -332,18 +363,15 @@
       }
       .text-editor-pages-scroll {
         width: 100%;
-        max-height: 74vh;
-        min-height: 600px;
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        background: #f1f4f9;
-        border: 2px solid var(--black);
-        border-radius: var(--radius-sm);
-        padding: 32px 20px 48px;
+        background: #eceff4;
+        padding: 24px 20px 80px;
         box-sizing: border-box;
         scroll-behavior: smooth;
         position: relative;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
       }
       .text-editor-pages-container {
         display: flex;
@@ -448,8 +476,7 @@
       }
       @media (max-width: 768px) {
         .text-editor-pages-scroll {
-          padding: 16px 8px 32px;
-          max-height: 70vh;
+          padding: 16px 10px 80px;
         }
         .pdf-text-page-sheet {
           min-height: auto;
@@ -577,14 +604,12 @@
       .editor-props-bar {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px 12px;
         flex-wrap: wrap;
         background: var(--white);
-        border: var(--border-std);
-        border-radius: var(--radius-md);
-        padding: 8px 12px;
+        border-top: 1.5px solid var(--black);
+        padding: 8px 14px;
         font-size: 13px;
-        box-shadow: var(--shadow-hard);
       }
       .editor-prop-item {
         display: flex;
@@ -650,9 +675,13 @@
         align-items: center;
         gap: 16px;
         width: 100%;
+        flex: 1;
+        min-height: 0;
         position: relative;
-        padding: 12px 0 24px 0;
+        padding: 24px 20px 80px;
+        overflow-y: auto;
         overflow-x: auto;
+        box-sizing: border-box;
       }
       .pdf-page-wrapper {
         position: relative;
@@ -1092,41 +1121,62 @@
         </div>
 
         <!-- STATE B: PDF Editor Workspace -->
-        <div class="editor-workspace-container" id="editor-workspace">
-          <!-- File-Name Row & Undo/Redo -->
+        <div class="editor-workspace-container ep-studio" id="editor-workspace">
+          <!-- Unified Studio Top Command Bar -->
           <div class="ep-header">
-            <div class="ep-title-wrap">
-              <input type="text" value="document.pdf" id="editor-filename-input" class="ep-title" aria-label="Rename file" />
-              <span class="ep-title-divider" aria-hidden="true"></span>
-              <span class="ep-title-edit" data-icon="edit" data-icon-size="16" aria-hidden="true"></span>
+            <div class="ep-header-left">
+              <button type="button" class="editor-btn ep-pages-btn" id="editor-toggle-sidebar-btn" aria-label="Toggle page sidebar" aria-expanded="false" title="Toggle page sidebar">
+                <span data-icon="pages" data-icon-size="16" aria-hidden="true"></span>
+                <span class="btn-text">Pages</span>
+              </button>
+              <div class="ep-title-wrap">
+                <input type="text" value="document.pdf" id="editor-filename-input" class="ep-title" aria-label="Rename file" />
+                <span class="ep-title-divider" aria-hidden="true"></span>
+                <span class="ep-title-edit" data-icon="edit" data-icon-size="16" aria-hidden="true"></span>
+              </div>
             </div>
-            <button type="button" class="editor-btn" id="editor-toggle-sidebar-btn" aria-label="Toggle page sidebar" title="Toggle page sidebar" style="margin-left: auto;">
-              📑 <span class="btn-text">Pages</span>
-            </button>
-            <div class="ep-history" role="group" aria-label="History">
-              <button type="button" class="ep-history-btn" id="editor-undo-btn" aria-label="Undo" title="Undo" aria-disabled="true" data-icon="undo" data-icon-size="20"></button>
-              <span class="ep-history-divider" aria-hidden="true"></span>
-              <button type="button" class="ep-history-btn" id="editor-redo-btn" aria-label="Redo" title="Redo" aria-disabled="true" data-icon="undo" data-icon-size="20" data-icon-flip="true"></button>
+
+            <!-- Editor Mode Selector -->
+            <div class="editor-mode-selector" id="editor-mode-selector" role="tablist" aria-label="Editing mode">
+              <button type="button" class="mode-tab is-active" id="mode-tab-text" role="tab" aria-selected="true" aria-controls="editor-text-workspace">
+                <span data-icon="docText" data-icon-size="15" aria-hidden="true"></span>
+                <span>Edit Text</span>
+              </button>
+              <button type="button" class="mode-tab" id="mode-tab-annotate" role="tab" aria-selected="false" aria-controls="editor-annotate-workspace">
+                <span data-icon="annotate" data-icon-size="15" aria-hidden="true"></span>
+                <span>Annotate</span>
+              </button>
+            </div>
+
+            <!-- History + Primary Actions -->
+            <div class="ep-header-right">
+              <div class="ep-history" role="group" aria-label="History">
+                <button type="button" class="ep-history-btn" id="editor-undo-btn" aria-label="Undo" title="Undo" aria-disabled="true" data-icon="undo" data-icon-size="20"></button>
+                <span class="ep-history-divider" aria-hidden="true"></span>
+                <button type="button" class="ep-history-btn" id="editor-redo-btn" aria-label="Redo" title="Redo" aria-disabled="true" data-icon="undo" data-icon-size="20" data-icon-flip="true"></button>
+              </div>
+              <button type="button" class="editor-btn ep-new-file-btn" id="editor-text-reset-file-btn" title="Open another PDF" aria-label="Open another PDF">
+                <span data-icon="filePlus" data-icon-size="15" aria-hidden="true"></span>
+                <span class="btn-text">New PDF</span>
+              </button>
+              <button type="button" class="editor-btn ep-share-btn" id="editor-share-btn" title="Share PDF" aria-label="Share PDF">
+                <span data-icon="share" data-icon-size="15" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="dl-btn ep-export-btn" id="editor-export-btn" title="Download PDF" aria-label="Download PDF">
+                <span data-icon="download" data-icon-size="16" aria-hidden="true"></span>
+                <span class="btn-text" id="editor-export-label">Download PDF</span>
+              </button>
             </div>
           </div>
 
-          <!-- Editor Mode Selector -->
-          <div class="editor-mode-selector" id="editor-mode-selector" role="tablist" aria-label="Editing mode">
-            <button type="button" class="mode-tab is-active" id="mode-tab-text" role="tab" aria-selected="true" aria-controls="editor-text-workspace">
-              📝 Edit Text Content
-            </button>
-            <button type="button" class="mode-tab" id="mode-tab-annotate" role="tab" aria-selected="false" aria-controls="editor-annotate-workspace">
-              🎨 Annotate & Markup
-            </button>
-          </div>
-
-          <!-- Native Document Text Editor Workspace -->
-          <div class="editor-text-workspace" id="editor-text-workspace" role="tabpanel" aria-labelledby="mode-tab-text">
-            <div class="text-editor-toolbar">
+          <!-- Contextual Row 2 Sub-Bar (Swaps cleanly between Text Toolbar and Annotate Tools + Props) -->
+          <div class="ep-subbar-slot" id="editor-subbar-slot">
+            <div class="text-editor-toolbar" id="editor-text-toolbar">
               <div class="text-editor-stats" id="text-editor-stats">
                 <span class="stat-badge" id="text-page-count">0 Pages</span>
                 <span class="stat-badge" id="text-word-count">0 Words</span>
                 <span class="stat-badge" id="text-char-count">0 Characters</span>
+                <span class="ep-mode-pill" title="Edits extract and reflow document text into a fresh PDF">Reflowed Text PDF</span>
               </div>
               <div class="text-editor-page-jumper" id="text-editor-page-jumper" style="display: none;">
                 <label for="text-page-jump-select" class="text-jumper-label">Go to:</label>
@@ -1135,216 +1185,216 @@
                 </select>
               </div>
               <div class="text-editor-actions">
-                <button type="button" class="editor-btn" id="text-copy-btn" title="Copy text to clipboard">📋 Copy All</button>
-                <button type="button" class="editor-btn" id="text-reset-content-btn" title="Reset to original extracted text">↺ Reset Text</button>
+                <button type="button" class="editor-btn" id="text-copy-btn" title="Copy text to clipboard">
+                  <span data-icon="copy" data-icon-size="14" aria-hidden="true"></span>
+                  <span>Copy All</span>
+                </button>
+                <button type="button" class="editor-btn" id="text-reset-content-btn" title="Reset to original extracted text">
+                  <span data-icon="reset" data-icon-size="14" aria-hidden="true"></span>
+                  <span>Reset Text</span>
+                </button>
               </div>
             </div>
 
-            <div class="text-editor-notice" id="text-editor-notice" style="display: none; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 600;"></div>
+            <!-- Annotate Tool Tray -->
+            <div class="ep-tray" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools" style="display: none;">
+              <button type="button" class="ep-tool is-active" data-tool="select" aria-pressed="true" aria-label="Select and move" title="Select and move"><span data-icon="select" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Select</span></button>
+              <button type="button" class="ep-tool" data-tool="text" aria-pressed="false" aria-label="Add text" title="Add text"><span data-icon="text" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Text</span></button>
+              <button type="button" class="ep-tool" data-tool="highlight" aria-pressed="false" aria-label="Highlight" title="Highlight"><span data-icon="mark" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Mark</span></button>
+              <button type="button" class="ep-tool" data-tool="draw" aria-pressed="false" aria-label="Draw freehand" title="Draw freehand"><span data-icon="draw" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Draw</span></button>
+              <button type="button" class="ep-tool" data-tool="shape" aria-pressed="false" aria-label="Add shape" title="Add shape"><span data-icon="shape" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Shape</span></button>
+              <button type="button" class="ep-tool" data-tool="image" aria-pressed="false" aria-label="Add image" title="Add image"><span data-icon="image" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Image</span></button>
+              <button type="button" class="ep-tool" data-tool="watermark" aria-pressed="false" aria-label="Add watermark" title="Add watermark"><span data-icon="watermark" data-icon-size="22" aria-hidden="true"></span><span class="ep-tool-label">Watermark</span></button>
+            </div>
 
-            <div class="text-editor-container">
-              <div class="text-editor-pages-scroll" id="editor-text-pages-scroll" role="region" aria-label="PDF document pages">
-                <div class="text-editor-pages-container" id="editor-text-pages-container">
-                  <!-- Live PDF page sheets rendered dynamically here -->
+            <!-- Property Bar (Dynamic based on selected tool / active selection) -->
+            <div class="editor-props-bar" id="editor-props-bar" style="display: none;">
+              <!-- Multi-select info badge -->
+              <div class="editor-prop-item prop-group-multiselect" id="prop-multiselect-info" style="display: none;">
+                <span class="multi-select-count-badge" id="prop-multi-count">0 items selected</span>
+              </div>
+
+              <!-- Text options -->
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <label for="prop-font-size">Size</label>
+                <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 52px;" />
+              </div>
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <label for="prop-font-family">Font</label>
+                <select id="prop-font-family">
+                  <option value="sans-serif">Sans-Serif</option>
+                  <option value="serif">Serif</option>
+                  <option value="monospace">Monospace</option>
+                </select>
+              </div>
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <label for="prop-text-align">Align</label>
+                <select id="prop-text-align">
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <button type="button" class="editor-btn" id="prop-bold" title="Bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
+                <button type="button" class="editor-btn" id="prop-italic" title="Italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
+              </div>
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <label for="prop-text-bg-color">Bg</label>
+                <input type="color" id="prop-text-bg-color" value="#ffffff" aria-label="Text background color" />
+                <button type="button" class="editor-btn" id="prop-text-bg-transparent" style="padding: 2px 6px; font-size: 11px;" aria-label="No text background fill" aria-pressed="true">No Bg</button>
+                <div class="color-swatches-wrap" data-target="prop-text-bg-color">
+                  <button type="button" class="color-swatch" data-color="#ffffff" role="button" aria-label="Select white text background color" aria-pressed="false" style="background-color: #ffffff;"></button>
+                  <button type="button" class="color-swatch" data-color="#fef08a" role="button" aria-label="Select yellow text background color" aria-pressed="false" style="background-color: #fef08a;"></button>
+                  <button type="button" class="color-swatch" data-color="#bbf7d0" role="button" aria-label="Select mint text background color" aria-pressed="false" style="background-color: #bbf7d0;"></button>
+                  <button type="button" class="color-swatch" data-color="#bfdbfe" role="button" aria-label="Select light blue text background color" aria-pressed="false" style="background-color: #bfdbfe;"></button>
+                  <button type="button" class="color-swatch" data-color="#fbcfe8" role="button" aria-label="Select light pink text background color" aria-pressed="false" style="background-color: #fbcfe8;"></button>
                 </div>
               </div>
-              <textarea
-                id="editor-text-content"
-                class="editor-text-textarea-hidden"
-                aria-label="Editable PDF document text"
-                placeholder="Extracting text from PDF..."
-                spellcheck="true"
-                tabindex="-1"
-                aria-hidden="true"
-              ></textarea>
-            </div>
+              <div class="editor-prop-item prop-group-text" style="display: none;">
+                <label for="prop-text-padding">Pad</label>
+                <input type="number" id="prop-text-padding" value="4" min="0" max="30" style="width: 48px;" aria-label="Text padding" />
+              </div>
 
-            <div class="text-editor-footer-actions">
-              <button type="button" class="dl-btn" id="editor-export-text-pdf-btn">
-                ⬇ Download Modified PDF
-              </button>
-              <button type="button" class="editor-btn" id="editor-text-reset-file-btn">
-                Edit another file ↺
-              </button>
+              <!-- Color options -->
+              <div class="editor-prop-item prop-group-color" style="display: none;">
+                <label for="prop-color">Color</label>
+                <input type="color" id="prop-color" value="#000000" />
+                <div class="color-swatches-wrap" data-target="prop-color">
+                  <button type="button" class="color-swatch active" data-color="#000000" role="button" aria-label="Select black color" aria-pressed="true" style="background-color: #000000;"></button>
+                  <button type="button" class="color-swatch" data-color="#ef4444" role="button" aria-label="Select red color" aria-pressed="false" style="background-color: #ef4444;"></button>
+                  <button type="button" class="color-swatch" data-color="#3b82f6" role="button" aria-label="Select blue color" aria-pressed="false" style="background-color: #3b82f6;"></button>
+                  <button type="button" class="color-swatch" data-color="#10b981" role="button" aria-label="Select green color" aria-pressed="false" style="background-color: #10b981;"></button>
+                  <button type="button" class="color-swatch" data-color="#f59e0b" role="button" aria-label="Select yellow color" aria-pressed="false" style="background-color: #f59e0b;"></button>
+                  <button type="button" class="color-swatch" data-color="#8b5cf6" role="button" aria-label="Select purple color" aria-pressed="false" style="background-color: #8b5cf6;"></button>
+                </div>
+              </div>
+
+              <!-- Shape options -->
+              <div class="editor-prop-item prop-group-shape" style="display: none;">
+                <label for="prop-shape-type">Type</label>
+                <select id="prop-shape-type">
+                  <option value="rect">Rectangle</option>
+                  <option value="circle">Circle</option>
+                  <option value="line">Line</option>
+                  <option value="arrow">Arrow</option>
+                </select>
+              </div>
+              <div class="editor-prop-item prop-group-shape" style="display: none;">
+                <label for="prop-fill-color">Fill</label>
+                <input type="color" id="prop-fill-color" value="#ffffff" />
+                <button type="button" class="editor-btn" id="prop-transparent-fill" style="padding: 2px 6px; font-size: 11px;" aria-label="No fill" aria-pressed="false">No Fill</button>
+                <div class="color-swatches-wrap" data-target="prop-fill-color">
+                  <button type="button" class="color-swatch active" data-color="#ffffff" role="button" aria-label="Select white fill color" aria-pressed="true" style="background-color: #ffffff;"></button>
+                  <button type="button" class="color-swatch" data-color="#fef08a" role="button" aria-label="Select yellow fill color" aria-pressed="false" style="background-color: #fef08a;"></button>
+                  <button type="button" class="color-swatch" data-color="#bbf7d0" role="button" aria-label="Select mint fill color" aria-pressed="false" style="background-color: #bbf7d0;"></button>
+                  <button type="button" class="color-swatch" data-color="#bfdbfe" role="button" aria-label="Select light blue fill color" aria-pressed="false" style="background-color: #bfdbfe;"></button>
+                  <button type="button" class="color-swatch" data-color="#000000" role="button" aria-label="Select black fill color" aria-pressed="false" style="background-color: #000000;"></button>
+                </div>
+              </div>
+
+              <!-- Stroke options -->
+              <div class="editor-prop-item prop-group-stroke" style="display: none;">
+                <label for="prop-stroke-width">Stroke</label>
+                <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 50px;" />
+                <label for="prop-stroke-style" style="margin-left: 4px;">Style</label>
+                <select id="prop-stroke-style" aria-label="Stroke style">
+                  <option value="solid">Solid</option>
+                  <option value="dashed">Dashed</option>
+                  <option value="dotted">Dotted</option>
+                </select>
+              </div>
+
+              <!-- Opacity options -->
+              <div class="editor-prop-item prop-group-opacity" style="display: none;">
+                <label for="prop-opacity">Opacity</label>
+                <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" />
+              </div>
+
+              <!-- Layer / Z-Order options -->
+              <div class="editor-prop-item prop-group-layer" style="display: none;">
+                <label>Layer</label>
+                <button type="button" class="editor-btn" id="prop-layer-front" title="Bring to Front" aria-label="Bring to Front"><span data-icon="layerFront" data-icon-size="14" aria-hidden="true"></span></button>
+                <button type="button" class="editor-btn" id="prop-layer-forward" title="Bring Forward" aria-label="Bring Forward"><span data-icon="layerForward" data-icon-size="14" aria-hidden="true"></span></button>
+                <button type="button" class="editor-btn" id="prop-layer-backward" title="Send Backward" aria-label="Send Backward"><span data-icon="layerBackward" data-icon-size="14" aria-hidden="true"></span></button>
+                <button type="button" class="editor-btn" id="prop-layer-back" title="Send to Back" aria-label="Send to Back"><span data-icon="layerBack" data-icon-size="14" aria-hidden="true"></span></button>
+              </div>
+
+              <!-- Delete selected object button (shown ONLY when 1+ objects are selected) -->
+              <div class="editor-prop-item prop-group-selection" id="prop-selection-actions" style="display: none; margin-left: auto;">
+                <button type="button" class="editor-btn ep-delete-btn" id="editor-delete-obj" title="Delete Selected" aria-label="Delete selected object">
+                  <span data-icon="trash" data-icon-size="14" aria-hidden="true"></span>
+                  <span class="btn-text">Delete</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Annotate & Markup Workspace -->
-          <div class="editor-annotate-workspace" id="editor-annotate-workspace" role="tabpanel" aria-labelledby="mode-tab-annotate" style="display: none; flex-direction: column; gap: 12px; width: 100%;">
-          <!-- Tool Tray -->
-          <div class="ep-tray" id="editor-toolbar" role="toolbar" aria-label="PDF editing tools">
-            <button type="button" class="ep-tool is-active" data-tool="select" aria-pressed="true" aria-label="Select and move" title="Select and move"><span data-icon="select" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Select</span></button>
-            <button type="button" class="ep-tool" data-tool="text" aria-pressed="false" aria-label="Add text" title="Add text"><span data-icon="text" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Text</span></button>
-            <button type="button" class="ep-tool" data-tool="highlight" aria-pressed="false" aria-label="Highlight" title="Highlight"><span data-icon="mark" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Mark</span></button>
-            <button type="button" class="ep-tool" data-tool="draw" aria-pressed="false" aria-label="Draw freehand" title="Draw freehand"><span data-icon="draw" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Draw</span></button>
-            <button type="button" class="ep-tool" data-tool="shape" aria-pressed="false" aria-label="Add shape" title="Add shape"><span data-icon="shape" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Shape</span></button>
-            <button type="button" class="ep-tool" data-tool="image" aria-pressed="false" aria-label="Add image" title="Add image"><span data-icon="image" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Image</span></button>
-            <button type="button" class="ep-tool" data-tool="watermark" aria-pressed="false" aria-label="Add watermark" title="Add watermark"><span data-icon="watermark" data-icon-size="24" aria-hidden="true"></span><span class="ep-tool-label">Watermark</span></button>
-          </div>
-
-          <!-- Property Bar (Dynamic based on selected tool) -->
-          <div class="editor-props-bar" id="editor-props-bar" style="display: none;">
-            <!-- Multi-select info badge -->
-            <div class="editor-prop-item prop-group-multiselect" id="prop-multiselect-info" style="display: none;">
-              <span class="multi-select-count-badge" id="prop-multi-count">0 items selected</span>
-            </div>
-
-            <!-- Text options -->
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <label for="prop-font-size">Size</label>
-              <input type="number" id="prop-font-size" value="18" min="8" max="120" style="width: 52px;" />
-            </div>
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <label for="prop-font-family">Font</label>
-              <select id="prop-font-family">
-                <option value="sans-serif">Sans-Serif</option>
-                <option value="serif">Serif</option>
-                <option value="monospace">Monospace</option>
-              </select>
-            </div>
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <label for="prop-text-align">Align</label>
-              <select id="prop-text-align">
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <button class="editor-btn" id="prop-bold" title="Bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
-              <button class="editor-btn" id="prop-italic" title="Italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
-            </div>
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <label for="prop-text-bg-color">Bg</label>
-              <input type="color" id="prop-text-bg-color" value="#ffffff" aria-label="Text background color" />
-              <button class="editor-btn" id="prop-text-bg-transparent" style="padding: 2px 6px; font-size: 11px;" aria-label="No text background fill" aria-pressed="true">No Bg</button>
-              <div class="color-swatches-wrap" data-target="prop-text-bg-color">
-                <button class="color-swatch" data-color="#ffffff" role="button" aria-label="Select white text background color" aria-pressed="false" style="background-color: #ffffff;"></button>
-                <button class="color-swatch" data-color="#fef08a" role="button" aria-label="Select yellow text background color" aria-pressed="false" style="background-color: #fef08a;"></button>
-                <button class="color-swatch" data-color="#bbf7d0" role="button" aria-label="Select mint text background color" aria-pressed="false" style="background-color: #bbf7d0;"></button>
-                <button class="color-swatch" data-color="#bfdbfe" role="button" aria-label="Select light blue text background color" aria-pressed="false" style="background-color: #bfdbfe;"></button>
-                <button class="color-swatch" data-color="#fbcfe8" role="button" aria-label="Select light pink text background color" aria-pressed="false" style="background-color: #fbcfe8;"></button>
-              </div>
-            </div>
-            <div class="editor-prop-item prop-group-text" style="display: none;">
-              <label for="prop-text-padding">Pad</label>
-              <input type="number" id="prop-text-padding" value="4" min="0" max="30" style="width: 48px;" aria-label="Text padding" />
-            </div>
-
-            <!-- Color options -->
-            <div class="editor-prop-item prop-group-color" style="display: none;">
-              <label for="prop-color">Color</label>
-              <input type="color" id="prop-color" value="#000000" />
-              <div class="color-swatches-wrap" data-target="prop-color">
-                <button class="color-swatch active" data-color="#000000" role="button" aria-label="Select black color" aria-pressed="true" style="background-color: #000000;"></button>
-                <button class="color-swatch" data-color="#ef4444" role="button" aria-label="Select red color" aria-pressed="false" style="background-color: #ef4444;"></button>
-                <button class="color-swatch" data-color="#3b82f6" role="button" aria-label="Select blue color" aria-pressed="false" style="background-color: #3b82f6;"></button>
-                <button class="color-swatch" data-color="#10b981" role="button" aria-label="Select green color" aria-pressed="false" style="background-color: #10b981;"></button>
-                <button class="color-swatch" data-color="#f59e0b" role="button" aria-label="Select yellow color" aria-pressed="false" style="background-color: #f59e0b;"></button>
-                <button class="color-swatch" data-color="#8b5cf6" role="button" aria-label="Select purple color" aria-pressed="false" style="background-color: #8b5cf6;"></button>
-              </div>
-            </div>
-
-            <!-- Shape options -->
-            <div class="editor-prop-item prop-group-shape" style="display: none;">
-              <label for="prop-shape-type">Type</label>
-              <select id="prop-shape-type">
-                <option value="rect">Rectangle</option>
-                <option value="circle">Circle</option>
-                <option value="line">Line</option>
-                <option value="arrow">Arrow</option>
-              </select>
-            </div>
-            <div class="editor-prop-item prop-group-shape" style="display: none;">
-              <label for="prop-fill-color">Fill</label>
-              <input type="color" id="prop-fill-color" value="#ffffff" />
-              <button class="editor-btn" id="prop-transparent-fill" style="padding: 2px 6px; font-size: 11px;" aria-label="No fill" aria-pressed="false">No Fill</button>
-              <div class="color-swatches-wrap" data-target="prop-fill-color">
-                <button class="color-swatch active" data-color="#ffffff" role="button" aria-label="Select white fill color" aria-pressed="true" style="background-color: #ffffff;"></button>
-                <button class="color-swatch" data-color="#fef08a" role="button" aria-label="Select yellow fill color" aria-pressed="false" style="background-color: #fef08a;"></button>
-                <button class="color-swatch" data-color="#bbf7d0" role="button" aria-label="Select mint fill color" aria-pressed="false" style="background-color: #bbf7d0;"></button>
-                <button class="color-swatch" data-color="#bfdbfe" role="button" aria-label="Select light blue fill color" aria-pressed="false" style="background-color: #bfdbfe;"></button>
-                <button class="color-swatch" data-color="#000000" role="button" aria-label="Select black fill color" aria-pressed="false" style="background-color: #000000;"></button>
-              </div>
-            </div>
-
-            <!-- Stroke options -->
-            <div class="editor-prop-item prop-group-stroke" style="display: none;">
-              <label for="prop-stroke-width">Stroke</label>
-              <input type="number" id="prop-stroke-width" value="2" min="1" max="30" style="width: 50px;" />
-              <label for="prop-stroke-style" style="margin-left: 4px;">Style</label>
-              <select id="prop-stroke-style" aria-label="Stroke style">
-                <option value="solid">Solid</option>
-                <option value="dashed">Dashed</option>
-                <option value="dotted">Dotted</option>
-              </select>
-            </div>
-
-            <!-- Opacity options -->
-            <div class="editor-prop-item prop-group-opacity" style="display: none;">
-              <label for="prop-opacity">Opacity</label>
-              <input type="range" id="prop-opacity" min="0.1" max="1" step="0.05" value="0.5" />
-            </div>
-
-            <!-- Layer / Z-Order options -->
-            <div class="editor-prop-item prop-group-layer" style="display: none;">
-              <label>Layer</label>
-              <button class="editor-btn" id="prop-layer-front" title="Bring to Front" aria-label="Bring to Front">🔝</button>
-              <button class="editor-btn" id="prop-layer-forward" title="Bring Forward" aria-label="Bring Forward">⬆️</button>
-              <button class="editor-btn" id="prop-layer-backward" title="Send Backward" aria-label="Send Backward">⬇️</button>
-              <button class="editor-btn" id="prop-layer-back" title="Send to Back" aria-label="Send to Back">🔚</button>
-            </div>
-
-            <!-- Delete selected object button -->
-            <div class="editor-prop-item" style="margin-left: auto;">
-              <button class="editor-btn" id="editor-delete-obj" style="background: var(--red); color: white;" title="Delete Selected" aria-label="Delete selected object">
-                🗑️ <span class="btn-text">Delete</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Workspace Main Area (Sidebar + Scroll Area) -->
-          <div class="editor-workspace-main" id="editor-workspace-main" style="display: flex; gap: 12px; width: 100%; position: relative;">
-            <!-- Page Thumbnails Sidebar -->
+          <!-- Shared Workspace Main Area (Sidebar + Stage) -->
+          <div class="editor-workspace-main" id="editor-workspace-main">
+            <!-- Shared Page Thumbnails Sidebar -->
             <aside class="editor-sidebar" id="editor-sidebar" aria-label="Page thumbnails sidebar" style="display: none;">
               <div class="editor-sidebar-header">
                 <span class="editor-sidebar-title">Pages</span>
-                <button class="editor-sidebar-close" id="editor-sidebar-close" aria-label="Close page sidebar">✕</button>
+                <button type="button" class="editor-sidebar-close" id="editor-sidebar-close" aria-label="Close page sidebar">✕</button>
               </div>
               <div class="editor-sidebar-thumbs" id="editor-sidebar-thumbs">
                 <!-- Page thumbnail cards rendered dynamically here -->
               </div>
             </aside>
 
-            <!-- Document Pages View Area -->
-            <div class="editor-pages-scroll" id="editor-pages-scroll" style="flex: 1;">
-              <!-- Pages rendered dynamically here -->
+            <!-- Bounded Stage Area -->
+            <div class="ep-stage" id="editor-stage">
+              <!-- Native Document Text Editor Workspace -->
+              <div class="editor-text-workspace" id="editor-text-workspace" role="tabpanel" aria-labelledby="mode-tab-text">
+                <div class="text-editor-notice" id="text-editor-notice" style="display: none; background: #fff3cd; color: #856404; border-bottom: 1.5px solid var(--black); padding: 10px 14px; font-size: 13px; font-weight: 600;"></div>
+
+                <div class="text-editor-container">
+                  <div class="text-editor-pages-scroll" id="editor-text-pages-scroll" role="region" aria-label="PDF document pages">
+                    <div class="text-editor-pages-container" id="editor-text-pages-container">
+                      <!-- Live PDF page sheets rendered dynamically here -->
+                    </div>
+                  </div>
+                  <textarea
+                    id="editor-text-content"
+                    class="editor-text-textarea-hidden"
+                    aria-label="Editable PDF document text"
+                    placeholder="Extracting text from PDF..."
+                    spellcheck="true"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Annotate & Markup Workspace -->
+              <div class="editor-annotate-workspace" id="editor-annotate-workspace" role="tabpanel" aria-labelledby="mode-tab-annotate" style="display: none;">
+                <!-- Document Pages View Area -->
+                <div class="editor-pages-scroll" id="editor-pages-scroll">
+                  <!-- Pages rendered dynamically here -->
+                </div>
+              </div>
+
+              <!-- Pinned Bottom Page & Zoom Control Pill -->
               <div class="pagezoom-pill" id="editor-pagezoom-pill">
-                <button id="editor-prev-page" title="Previous Page" aria-label="Previous page">
+                <button type="button" id="editor-prev-page" title="Previous Page" aria-label="Previous page">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 <span class="pz-count" id="editor-page-indicator">1 / 1</span>
-                <button id="editor-next-page" title="Next Page" aria-label="Next page">
+                <button type="button" id="editor-next-page" title="Next Page" aria-label="Next page">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                <span class="pz-divider"></span>
-                <button id="editor-zoom-out" title="Zoom Out" aria-label="Zoom out">
+                <span class="pz-divider" id="editor-pz-zoom-divider"></span>
+                <button type="button" id="editor-zoom-out" title="Zoom Out" aria-label="Zoom out">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                 </button>
                 <span class="pz-zoom" id="editor-zoom-val">100%</span>
-                <button id="editor-zoom-in" title="Zoom In" aria-label="Zoom in">
+                <button type="button" id="editor-zoom-in" title="Zoom In" aria-label="Zoom in">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line><line x1="11" y1="8" x2="11" y2="14"></line></svg>
                 </button>
               </div>
             </div>
           </div>
-
-          <!-- Bottom Actions Bar -->
-          <div class="actions-row" id="editor-actions-row" style="display: flex; justify-content: center; gap: 10px; margin-top: 12px; padding: 8px 0;">
-            <button class="dl-btn" id="editor-export-btn">⬇ Download</button>
-            <button class="share-btn" id="editor-share-btn">🔗 Share</button>
-          </div>
-          </div><!-- /editor-annotate-workspace -->
         </div>
 
         <!-- Progress Area -->

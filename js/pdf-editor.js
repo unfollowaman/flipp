@@ -117,14 +117,18 @@ const toggleSidebarBtn = document.getElementById("editor-toggle-sidebar-btn");
 const zoomValLabel = document.getElementById("editor-zoom-val");
 const zoomInBtn = document.getElementById("editor-zoom-in");
 const zoomOutBtn = document.getElementById("editor-zoom-out");
+const pageZoomDivider = document.getElementById("editor-pz-zoom-divider");
 const undoBtn = document.getElementById("editor-undo-btn");
 const redoBtn = document.getElementById("editor-redo-btn");
 
 const toolbar = document.getElementById("editor-toolbar");
+const textToolbar = document.getElementById("editor-text-toolbar");
 const propsBar = document.getElementById("editor-props-bar");
+const propSelectionActions = document.getElementById("prop-selection-actions");
 const pagesScrollArea = document.getElementById("editor-pages-scroll");
 
 const exportBtn = document.getElementById("editor-export-btn");
+const exportLabel = document.getElementById("editor-export-label");
 const progressArea = document.getElementById("editor-progress");
 const progressBar = document.getElementById("editor-progress-bar");
 const progressLabel = document.getElementById("editor-progress-label");
@@ -155,6 +159,87 @@ const textEditorPageJumper = document.getElementById("text-editor-page-jumper");
 let currentEditorMode = "text";
 let extractedDocumentData = null;
 let originalExtractedText = "";
+let textHistoryBurstTimer = null;
+let textHistoryBurstActive = false;
+
+function captureCurrentTextPagesSnapshot() {
+  if (typeof document === "undefined") return [];
+  const sheets = document.querySelectorAll(".pdf-text-page-sheet");
+  if (!sheets || sheets.length === 0) return [];
+  const pages = [];
+  sheets.forEach((sheet) => {
+    const pageNum = parseInt(sheet.dataset.pageNum, 10) || 1;
+    const body = sheet.querySelector(".pdf-text-page-body");
+    const text = body ? (body.innerText !== undefined ? body.innerText : (body.textContent || "")) : "";
+    pages.push({ pageNum, text });
+  });
+  return pages;
+}
+
+function getCurrentTextMapByPage() {
+  const map = new Map();
+  if (typeof document !== "undefined") {
+    const sheets = document.querySelectorAll(".pdf-text-page-sheet");
+    if (sheets && sheets.length > 0) {
+      sheets.forEach((sheet) => {
+        const pageNum = parseInt(sheet.dataset.pageNum, 10);
+        if (!isNaN(pageNum) && !map.has(pageNum)) {
+          const body = sheet.querySelector(".pdf-text-page-body");
+          const raw = body ? (body.innerText !== undefined ? body.innerText : (body.textContent || "")) : "";
+          map.set(pageNum, raw);
+        }
+      });
+      return map;
+    }
+  }
+  if (extractedDocumentData?.pages) {
+    extractedDocumentData.pages.forEach((p) => {
+      if (!map.has(p.pageNum)) map.set(p.pageNum, p.text || "");
+    });
+  }
+  return map;
+}
+
+export function syncTextPagesWithActiveOrder() {
+  if (!textPagesContainer) return;
+  const activePages = getActivePages();
+  if (activePages.length === 0) return;
+
+  const textMap = getCurrentTextMapByPage();
+  if (textMap.size === 0 && !extractedDocumentData) return;
+
+  const orderedPages = activePages.map((pageNum) => ({
+    pageNum,
+    text: textMap.has(pageNum) ? textMap.get(pageNum) : "",
+  }));
+
+  renderTextDocumentPages(orderedPages);
+  if (editorTextContent) {
+    editorTextContent.value = getDocumentTextFromPages();
+  }
+  updateTextEditorStats();
+  updatePageNavigationUI();
+}
+
+export function updatePageNavigationUI() {
+  const activePages = getActivePages();
+  const total = activePages.length || 1;
+  if (!activePages.includes(currentPageIndex) && activePages.length > 0) {
+    currentPageIndex = activePages[0];
+  }
+  const activeIdx = activePages.indexOf(currentPageIndex);
+  const displayIdx = activeIdx !== -1 ? activeIdx + 1 : 1;
+
+  if (pageIndicator) {
+    pageIndicator.textContent = `${displayIdx} / ${total}`;
+  }
+  if (prevPageBtn) {
+    prevPageBtn.disabled = activeIdx <= 0;
+  }
+  if (nextPageBtn) {
+    nextPageBtn.disabled = activeIdx === -1 || activeIdx >= activePages.length - 1;
+  }
+}
 
 export function getCurrentEditorMode() {
   return currentEditorMode;
@@ -287,16 +372,39 @@ export function renderTextDocumentPages(pages = []) {
 
     body.textContent = (p.text && p.text !== "[Empty Page]") ? p.text : "";
 
+    body.addEventListener("beforeinput", () => {
+      if (!textHistoryBurstActive) {
+        saveState();
+        textHistoryBurstActive = true;
+      }
+    });
+
     body.addEventListener("input", () => {
       const full = getDocumentTextFromPages();
       if (editorTextContent) {
         editorTextContent.value = full;
       }
       updateTextEditorStats();
+      if (textHistoryBurstTimer) clearTimeout(textHistoryBurstTimer);
+      textHistoryBurstTimer = setTimeout(() => {
+        textHistoryBurstActive = false;
+      }, 700);
+    });
+
+    body.addEventListener("blur", () => {
+      if (textHistoryBurstTimer) {
+        clearTimeout(textHistoryBurstTimer);
+        textHistoryBurstTimer = null;
+      }
+      textHistoryBurstActive = false;
     });
 
     body.addEventListener("paste", (e) => {
       e.preventDefault();
+      if (!textHistoryBurstActive) {
+        saveState();
+        textHistoryBurstActive = true;
+      }
       const pasteText = (e.clipboardData || window.clipboardData).getData("text/plain");
       if (document.queryCommandSupported && document.queryCommandSupported("insertText")) {
         document.execCommand("insertText", false, pasteText);
@@ -313,6 +421,10 @@ export function renderTextDocumentPages(pages = []) {
         editorTextContent.value = full;
       }
       updateTextEditorStats();
+      if (textHistoryBurstTimer) clearTimeout(textHistoryBurstTimer);
+      textHistoryBurstTimer = setTimeout(() => {
+        textHistoryBurstActive = false;
+      }, 700);
     });
 
     sheet.appendChild(body);
@@ -342,8 +454,19 @@ export function switchEditorMode(mode) {
     }
     if (textWorkspace) textWorkspace.style.display = "flex";
     if (annotateWorkspace) annotateWorkspace.style.display = "none";
+    if (textToolbar) textToolbar.style.display = "flex";
     if (toolbar) toolbar.style.display = "none";
     if (propsBar) propsBar.style.display = "none";
+    if (zoomOutBtn) zoomOutBtn.style.display = "none";
+    if (zoomValLabel) zoomValLabel.style.display = "none";
+    if (zoomInBtn) zoomInBtn.style.display = "none";
+    if (pageZoomDivider) pageZoomDivider.style.display = "none";
+    if (exportLabel) exportLabel.textContent = "Download Text PDF";
+    if (exportBtn) {
+      exportBtn.title = "Download modified text PDF";
+      if (exportBtn.setAttribute) exportBtn.setAttribute("aria-label", "Download modified text PDF");
+    }
+    updatePageNavigationUI();
   } else {
     if (modeTabAnnotate) {
       modeTabAnnotate.classList.add("is-active");
@@ -355,8 +478,19 @@ export function switchEditorMode(mode) {
     }
     if (textWorkspace) textWorkspace.style.display = "none";
     if (annotateWorkspace) annotateWorkspace.style.display = "flex";
-    if (toolbar) toolbar.style.display = "flex";
+    if (textToolbar) textToolbar.style.display = "none";
+    if (toolbar) toolbar.style.display = "";
+    if (zoomOutBtn) zoomOutBtn.style.display = "";
+    if (zoomValLabel) zoomValLabel.style.display = "";
+    if (zoomInBtn) zoomInBtn.style.display = "";
+    if (pageZoomDivider) pageZoomDivider.style.display = "";
+    if (exportLabel) exportLabel.textContent = "Download PDF";
+    if (exportBtn) {
+      exportBtn.title = "Download edited PDF";
+      if (exportBtn.setAttribute) exportBtn.setAttribute("aria-label", "Download edited PDF");
+    }
     updatePropsBarVisibility();
+    updatePageNavigationUI();
   }
 }
 
@@ -378,7 +512,8 @@ export function updateTextEditorStats() {
   }
   const chars = val.length;
   const words = val.trim() ? val.trim().split(/\s+/).length : 0;
-  const pagesCount = extractedDocumentData?.numPages || numPages || 1;
+  const activeCount = getActivePages().length;
+  const pagesCount = activeCount || extractedDocumentData?.numPages || numPages || 1;
 
   if (textPageCount) textPageCount.textContent = `${pagesCount} Page${pagesCount !== 1 ? "s" : ""}`;
   if (textWordCount) textWordCount.textContent = `${words.toLocaleString()} Word${words !== 1 ? "s" : ""}`;
@@ -599,6 +734,11 @@ export async function loadPdfFromBytes(arrayBuffer) {
 
   if (sidebarEl && window.innerWidth > 600) {
     sidebarEl.style.display = "flex";
+    if (toggleSidebarBtn && toggleSidebarBtn.setAttribute) {
+      toggleSidebarBtn.setAttribute("aria-expanded", "true");
+    }
+  } else if (toggleSidebarBtn && toggleSidebarBtn.setAttribute) {
+    toggleSidebarBtn.setAttribute("aria-expanded", "false");
   }
 
   await renderAllPages();
@@ -699,6 +839,7 @@ export function reorderPage(fromActiveIndex, toActiveIndex) {
     pageOrder.splice(fullToIdx, 0, movedPageNum);
   }
 
+  syncTextPagesWithActiveOrder();
   renderAllPages();
   return true;
 }
@@ -723,6 +864,7 @@ export function duplicatePage(pageNum) {
   }
 
   currentPageIndex = pageNum;
+  syncTextPagesWithActiveOrder();
   renderAllPages();
   return true;
 }
@@ -745,23 +887,28 @@ export function deletePage(pageNum) {
   deletedPages.add(pageNum);
 
   editorObjects = editorObjects.filter((obj) => obj.pageNum !== pageNum);
+  selectedObjIds.forEach((id) => {
+    if (!editorObjects.some((o) => o.id === id)) {
+      selectedObjIds.delete(id);
+    }
+  });
   if (selectedObjId && !editorObjects.some((o) => o.id === selectedObjId)) {
-    selectedObjId = null;
+    selectedObjId = selectedObjIds.size > 0 ? Array.from(selectedObjIds)[selectedObjIds.size - 1] : null;
   }
+  updatePropsBarVisibility();
 
   const active = getActivePages();
   if (!active.includes(currentPageIndex)) {
     currentPageIndex = active[0] || 1;
   }
 
+  syncTextPagesWithActiveOrder();
   renderAllPages();
   return true;
 }
 
 export async function renderAllPages() {
   if (!pdfjsDocument) return;
-
-  const pagezoomPill = document.getElementById("editor-pagezoom-pill");
 
   pagesScrollArea.innerHTML = "";
   pageMetricsCache.clear();
@@ -774,19 +921,7 @@ export async function renderAllPages() {
     currentPageIndex = activePages[0];
   }
 
-  const activeIdx = activePages.indexOf(currentPageIndex);
-  const displayIdx = activeIdx !== -1 ? activeIdx + 1 : 1;
-
-  if (pageIndicator) {
-    pageIndicator.textContent = `${displayIdx} / ${activePages.length}`;
-  }
-
-  if (prevPageBtn) {
-    prevPageBtn.disabled = activeIdx <= 0;
-  }
-  if (nextPageBtn) {
-    nextPageBtn.disabled = activeIdx >= activePages.length - 1;
-  }
+  updatePageNavigationUI();
 
   const pageNum = currentPageIndex;
   const page = await pdfjsDocument.getPage(pageNum);
@@ -844,7 +979,7 @@ export async function renderAllPages() {
   rotateBtn.className = "pdf-page-action-btn rotate-btn";
   rotateBtn.title = "Rotate 90° clockwise";
   rotateBtn.setAttribute("aria-label", `Rotate page ${pageNum} clockwise`);
-  rotateBtn.textContent = "🔄";
+  rotateBtn.innerHTML = '<span data-icon="rotate" data-icon-size="13" aria-hidden="true"></span>';
   rotateBtn.onclick = (e) => {
     e.stopPropagation();
     rotatePage(pageNum, 90);
@@ -854,7 +989,7 @@ export async function renderAllPages() {
   deleteBtn.className = "pdf-page-action-btn delete-btn";
   deleteBtn.title = "Delete page";
   deleteBtn.setAttribute("aria-label", `Delete page ${pageNum}`);
-  deleteBtn.textContent = "🗑️";
+  deleteBtn.innerHTML = '<span data-icon="trash" data-icon-size="13" aria-hidden="true"></span>';
   deleteBtn.onclick = (e) => {
     e.stopPropagation();
     deletePage(pageNum);
@@ -863,16 +998,13 @@ export async function renderAllPages() {
   header.appendChild(badge);
   header.appendChild(rotateBtn);
   header.appendChild(deleteBtn);
+  hydrateIcons(header);
 
   pageWrapper.appendChild(canvas);
   pageWrapper.appendChild(overlay);
   pageWrapper.appendChild(header);
 
   pagesScrollArea.appendChild(pageWrapper);
-
-  if (pagezoomPill) {
-    pagesScrollArea.appendChild(pagezoomPill);
-  }
 
   setupOverlayEvents(overlay, pageNum);
 
@@ -1044,13 +1176,19 @@ export async function renderSidebarThumbnails() {
 if (sidebarCloseBtn && sidebarEl) {
   sidebarCloseBtn.addEventListener("click", () => {
     sidebarEl.style.display = "none";
+    if (toggleSidebarBtn && toggleSidebarBtn.setAttribute) {
+      toggleSidebarBtn.setAttribute("aria-expanded", "false");
+    }
   });
 }
 
 if (toggleSidebarBtn && sidebarEl) {
   toggleSidebarBtn.addEventListener("click", () => {
-    const isHidden = sidebarEl.style.display === "none" || getComputedStyle(sidebarEl).display === "none";
+    const isHidden = sidebarEl.style.display === "none" || (typeof getComputedStyle !== "undefined" && getComputedStyle(sidebarEl).display === "none");
     sidebarEl.style.display = isHidden ? "flex" : "none";
+    if (toggleSidebarBtn.setAttribute) {
+      toggleSidebarBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+    }
     if (isHidden) {
       renderSidebarThumbnails();
     }
@@ -1083,7 +1221,12 @@ if (prevPageBtn) {
     const activeIdx = active.indexOf(currentPageIndex);
     if (activeIdx > 0) {
       currentPageIndex = active[activeIdx - 1];
-      renderAllPages();
+      if (currentEditorMode === "text") {
+        scrollToPage(currentPageIndex);
+        updatePageNavigationUI();
+      } else {
+        renderAllPages();
+      }
     }
   });
 }
@@ -1094,7 +1237,12 @@ if (nextPageBtn) {
     const activeIdx = active.indexOf(currentPageIndex);
     if (activeIdx !== -1 && activeIdx < active.length - 1) {
       currentPageIndex = active[activeIdx + 1];
-      renderAllPages();
+      if (currentEditorMode === "text") {
+        scrollToPage(currentPageIndex);
+        updatePageNavigationUI();
+      } else {
+        renderAllPages();
+      }
     }
   });
 }
@@ -1222,6 +1370,11 @@ function updatePropsBarVisibility() {
     if (btnText) btnText.textContent = "Delete";
   }
 
+  if (propSelectionActions) {
+    propSelectionActions.style.display = selectedObjIds.size > 0 ? "flex" : "none";
+    if (selectedObjIds.size > 0) hasVisibleProps = true;
+  }
+
   if (activeTool === "text") {
     propTextGroup.forEach((el) => (el.style.display = "flex"));
     propColorGroup.forEach((el) => (el.style.display = "flex"));
@@ -1341,7 +1494,7 @@ function updatePropsBarVisibility() {
   }
 
   if (propsBar) {
-    propsBar.style.display = hasVisibleProps ? "flex" : "none";
+    propsBar.style.display = (hasVisibleProps && currentEditorMode !== "text") ? "flex" : "none";
   }
 
   syncColorSwatches();
@@ -2890,7 +3043,15 @@ export async function exportEditedPdf() {
   }, 400);
 }
 
-if (exportBtn) exportBtn.addEventListener("click", exportEditedPdf);
+if (exportBtn) {
+  exportBtn.addEventListener("click", () => {
+    if (currentEditorMode === "text") {
+      exportEditedTextPdf();
+    } else {
+      exportEditedPdf();
+    }
+  });
+}
 
 let cachedFontBytesPromise = null;
 export function getEditorFontBytes() {
@@ -3121,11 +3282,13 @@ function updateUndoRedoUI() {
 }
 
 export function saveState() {
+  const textSnapshot = extractedDocumentData ? captureCurrentTextPagesSnapshot() : null;
   const state = {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
     pageOrder: [...pageOrder],
+    textPages: textSnapshot,
   };
   historyStack.push(JSON.stringify(state));
   redoStack = [];
@@ -3149,6 +3312,16 @@ function applyStateObject(state) {
       pageOrder = [...state.pageOrder];
     } else if (numPages > 0) {
       pageOrder = Array.from({ length: numPages }, (_, i) => i + 1);
+    }
+    if (state.textPages && extractedDocumentData) {
+      extractedDocumentData.pages = state.textPages;
+      renderTextDocumentPages(state.textPages);
+      if (editorTextContent) {
+        editorTextContent.value = getDocumentTextFromPages();
+      }
+      updateTextEditorStats();
+    } else if (extractedDocumentData) {
+      syncTextPagesWithActiveOrder();
     }
   }
   updateUndoRedoUI();
@@ -3174,11 +3347,13 @@ if (redoBtn) {
 
 export function undoAction() {
   if (historyStack.length === 0) return;
+  const textSnapshot = extractedDocumentData ? captureCurrentTextPagesSnapshot() : null;
   const currentState = {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
     pageOrder: [...pageOrder],
+    textPages: textSnapshot,
   };
   redoStack.push(JSON.stringify(currentState));
   const previousState = JSON.parse(historyStack.pop());
@@ -3187,11 +3362,13 @@ export function undoAction() {
 
 export function redoAction() {
   if (redoStack.length === 0) return;
+  const textSnapshot = extractedDocumentData ? captureCurrentTextPagesSnapshot() : null;
   const currentState = {
     objects: editorObjects,
     rotations: Array.from(pageRotations.entries()),
     deleted: Array.from(deletedPages),
     pageOrder: [...pageOrder],
+    textPages: textSnapshot,
   };
   historyStack.push(JSON.stringify(currentState));
   const nextState = JSON.parse(redoStack.pop());

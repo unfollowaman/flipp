@@ -3812,6 +3812,274 @@ for Dynamic UI Sections */
 }
 
 /* ==============================
+   Edit PDF Unified Studio Shell
+   ============================== */
+.ep-studio {
+  gap: 0;
+  border: var(--border-std);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-hard);
+  background: var(--cream);
+  overflow: hidden;
+  height: clamp(580px, calc(100dvh - 104px), 860px);
+}
+.ep-studio .ep-header {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--white);
+  border-bottom: 1.5px solid var(--black);
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ep-header-left,
+.ep-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.ep-header-left {
+  flex: 1 1 200px;
+}
+.ep-header-right {
+  flex-shrink: 0;
+}
+.ep-studio .ep-title-wrap {
+  max-width: 240px;
+}
+.ep-pages-btn,
+.ep-new-file-btn,
+.ep-share-btn,
+.ep-export-btn {
+  height: 36px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--black);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.ep-pages-btn,
+.ep-new-file-btn {
+  background: var(--white);
+  color: var(--black);
+  padding: 0 11px;
+}
+.ep-pages-btn[aria-expanded="true"] {
+  background: var(--yellow);
+}
+.ep-share-btn {
+  background: var(--white);
+  color: var(--black);
+  width: 36px;
+  padding: 0;
+}
+.ep-export-btn {
+  background: var(--mint);
+  color: var(--black);
+  padding: 0 14px;
+  box-shadow: 2px 2px 0 var(--black);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.ep-export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 var(--black);
+}
+.ep-export-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 var(--black);
+}
+.ep-subbar-slot {
+  background: var(--cream);
+  border-bottom: 1.5px solid var(--black);
+  flex-shrink: 0;
+}
+.ep-studio .ep-tray {
+  border: 0;
+  border-radius: 0;
+}
+.ep-studio .ep-tool {
+  height: 48px;
+}
+.ep-studio .editor-props-bar {
+  border: 0;
+  border-top: 1.5px solid var(--black);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 7px 14px;
+  background: var(--white);
+}
+.ep-delete-btn {
+  background: var(--red);
+  color: var(--white);
+  border: 1.5px solid var(--black);
+}
+.ep-delete-btn:hover:not(:disabled) {
+  background: #c9221d;
+  color: var(--white);
+}
+.ep-studio .editor-workspace-main {
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+.ep-studio .editor-sidebar {
+  width: 196px;
+  border: 0;
+  border-right: 1.5px solid var(--black);
+  border-radius: 0;
+  box-shadow: none;
+  max-height: none;
+  background: #eef2f6;
+}
+.ep-studio .thumb-card.active {
+  background: var(--yellow);
+  border-color: var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+}
+.ep-studio .thumb-add-page-btn {
+  background: var(--black);
+  color: var(--white);
+  border: 1.5px solid var(--black);
+  box-shadow: 1.5px 1.5px 0 rgba(13, 13, 13, 0.25);
+}
+.ep-studio .thumb-add-page-btn:hover {
+  background: var(--yellow);
+  color: var(--black);
+}
+.ep-stage {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #eceff4;
+}
+.ep-studio .editor-annotate-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.ep-studio .editor-pages-scroll,
+.ep-studio .text-editor-pages-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 24px 20px 80px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.ep-studio .pagezoom-pill {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  border: 1.5px solid var(--black);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--black);
+  background: var(--white);
+  margin-top: 0;
+  padding: 6px 14px;
+}
+.ep-studio .pdf-page-header {
+  border: 1.5px solid var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+}
+@media (max-width: 960px) {
+  .ep-studio .ep-header-left {
+    flex: 1 1 auto;
+  }
+  .ep-studio .editor-mode-selector {
+    order: 3;
+    width: 100%;
+    justify-content: stretch;
+  }
+  .ep-studio .mode-tab {
+    flex: 1;
+    justify-content: center;
+  }
+}
+@media (max-width: 600px) {
+  .ep-studio {
+    height: auto;
+    min-height: 72dvh;
+    border-radius: var(--radius-md);
+  }
+  .ep-studio .ep-header {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .ep-studio .ep-title-wrap {
+    max-width: none;
+  }
+  .ep-studio .ep-header-right {
+    gap: 6px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ep-studio .ep-export-btn {
+    flex: 1;
+    padding: 0 12px;
+  }
+  .ep-studio .ep-new-file-btn .btn-text {
+    display: none;
+  }
+  .ep-studio .ep-new-file-btn {
+    width: 36px;
+    padding: 0;
+  }
+  .ep-studio .editor-props-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+    padding: 6px 10px;
+  }
+  .ep-studio .editor-props-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .ep-studio .editor-prop-item {
+    flex-shrink: 0;
+  }
+  .ep-studio .editor-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 40;
+    width: 184px;
+    max-height: none;
+    border-right: 2px solid var(--black);
+    box-shadow: 4px 0 0 rgba(13, 13, 13, 0.16);
+  }
+  .ep-studio .editor-pages-scroll,
+  .ep-studio .text-editor-pages-scroll {
+    max-height: 62vh;
+    min-height: 360px;
+    padding: 14px 10px 76px;
+  }
+  .ep-studio .pagezoom-pill {
+    bottom: 10px;
+    padding: 4px 10px;
+    gap: 4px;
+  }
+}
+
+/* ==============================
    Protect PDF Preview Styles
    ============================== */
 .protect-preview-container,
